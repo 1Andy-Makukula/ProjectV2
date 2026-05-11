@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, Link } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { supabase } from '../../../utils/supabase/client';
 import { Button } from '../../components/ui/button';
@@ -7,7 +7,7 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Separator } from '../../components/ui/separator';
-import { ArrowLeft, User, Mail, Phone, Lock, LogOut, Check, AlertCircle } from 'lucide-react';
+import { ArrowLeft, User, Mail, Phone, Lock, LogOut, Check, AlertCircle, Store, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 
@@ -235,11 +235,52 @@ export function Settings() {
           </Card>
         </motion.div>
 
-        {/* Danger Zone */}
+        {/* Account Upgrade */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
+        >
+          <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-gray-900">
+                <Store className="w-5 h-5 text-primary" />
+                Own a Hardware Shop?
+              </CardTitle>
+              <CardDescription className="text-gray-600">
+                Register your physical location to start receiving KithLy Escrow
+                payments directly. List your products and let customers redeem
+                gifts in-store — zero delivery, zero hassle.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-start gap-3 p-4 bg-white border border-orange-100 rounded-lg mb-4">
+                <AlertCircle className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                <p className="text-sm text-gray-700">
+                  Your shop will be reviewed by the KithLy team before going live.
+                  Once approved, you can manage inventory and fulfil orders from
+                  your merchant dashboard.
+                </p>
+              </div>
+              <Link to="/become-merchant">
+                <Button
+                  id="register-business-btn"
+                  className="w-full bg-gradient-to-r from-primary to-primary-light hover:opacity-90 transition-opacity shadow-sm"
+                >
+                  <Store className="w-4 h-4 mr-2" />
+                  Register Your Business
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Danger Zone */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
         >
           <Card className="border-red-200">
             <CardHeader>

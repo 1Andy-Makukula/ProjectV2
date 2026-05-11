@@ -17,6 +17,7 @@ import { SendFlow } from './pages/sender/SendFlow';
 import { OrderSummary } from './pages/sender/OrderSummary';
 import { Confirmation } from './pages/sender/Confirmation';
 import { OrderHistory } from './pages/sender/OrderHistory';
+import { OrderDashboard } from './pages/sender/OrderDashboard';
 import { OrderDetail } from './pages/sender/OrderDetail';
 import { Settings } from './pages/sender/Settings';
 
@@ -71,7 +72,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'orders',
-        element: <ProtectedRoute allowedRoles={['sender']}><OrderHistory /></ProtectedRoute>
+        element: <ProtectedRoute allowedRoles={['sender']}><OrderDashboard /></ProtectedRoute>
       },
       {
         path: 'orders/:orderId',
