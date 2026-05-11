@@ -1,66 +1,92 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
-import { useAuth } from '../../../utils/auth/AuthContext';
+import { supabase } from '../../../utils/supabase/client';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Gift } from 'lucide-react';
 import { toast } from 'sonner';
+import { motion } from 'motion/react';
+
+// HD lifestyle image from Unsplash (friends laughing together)
+const SIDE_IMAGE =
+  'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1200&q=80&fit=crop';
 
 export function Login() {
   const navigate = useNavigate();
-  const { signIn, resetPassword, profile, user, loading: authLoading } = useAuth();
 
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-
-  useEffect(() => {
-    if (authLoading || !user || !profile) {
-      return;
-    }
-
-    if (profile.role === 'admin') navigate('/admin');
-    else if (profile.role === 'merchant') navigate('/merchant');
-    else navigate('/home');
-  }, [authLoading, navigate, profile, user]);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg('');
 
     if (!formData.email || !formData.password) {
-      toast.error('Please enter your email and password');
+      setErrorMsg('Please enter your email and password.');
+      toast.error('Please enter your email and password.');
       return;
     }
 
     setLoading(true);
 
-    const { error } = await signIn(formData.email, formData.password);
+    // Step 1: Sign in with Supabase
+    const { data: signInData, error: signInError } =
+      await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+
+    if (signInError) {
+      setLoading(false);
+      const msg = signInError.message || 'Failed to log in. Please try again.';
+      setErrorMsg(msg);
+      toast.error(msg);
+      return;
+    }
+
+    const userId = signInData?.user?.id;
+
+    // Step 2: Fetch role directly — don't wait for AuthContext to settle
+    let role = 'sender'; // safe default
+    if (userId) {
+      const { data: profileData, error: profileError } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', userId)
+        .single();
+
+      if (profileError) {
+        // RLS might block — default to sender
+        console.warn('Profile fetch failed (may be RLS):', profileError.message);
+      } else if (profileData?.role) {
+        role = profileData.role;
+      }
+    }
 
     setLoading(false);
+    toast.success('Welcome back! Redirecting…');
 
-    if (error) {
-      toast.error(error.message || 'Failed to log in');
-    } else {
-      toast.success('Logged in successfully!');
-    }
+    // Step 3: Role-based routing
+    if (role === 'merchant') navigate('/merchant');
+    else if (role === 'admin') navigate('/admin');
+    else navigate('/home');
   };
 
   const handleForgotPassword = async () => {
     if (!formData.email) {
-      toast.error('Please enter your email address');
+      toast.error('Please enter your email address first.');
       return;
     }
 
-    const { error } = await resetPassword(formData.email);
-
+    const { error } = await supabase.auth.resetPasswordForEmail(formData.email);
     if (error) {
-      toast.error(error.message || 'Failed to send reset email');
+      const msg = error.message || 'Failed to send reset email.';
+      setErrorMsg(msg);
+      toast.error(msg);
     } else {
       toast.success('Password reset email sent! Check your inbox.');
       setShowForgotPassword(false);
@@ -68,116 +94,183 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-12 bg-gray-50">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent mb-2">
-            KithLy
-          </h1>
-          <p className="text-muted-foreground">
-            {showForgotPassword ? 'Reset your password' : 'Welcome back'}
-          </p>
-        </div>
+    <div className="min-h-screen flex">
+      {/* ── Left panel: image ── */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        <img
+          src={SIDE_IMAGE}
+          alt="Friends laughing together"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-900/70 via-orange-700/50 to-transparent" />
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-sm space-y-5">
-          {/* Email */}
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="mt-1"
-              placeholder="you@example.com"
-              required
-            />
+        {/* Overlay text */}
+        <div className="relative z-10 flex flex-col justify-end p-12 text-white">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.7 }}
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <Gift className="w-8 h-8 text-orange-300" />
+              <span className="text-3xl font-bold tracking-tight">KithLy</span>
+            </div>
+            <h2 className="text-4xl font-bold leading-tight mb-4">
+              Send love, not just a link.
+            </h2>
+            <p className="text-lg text-white/80 max-w-sm">
+              Real gifts from local shops, delivered with a personal touch.
+              Because some moments deserve more than a text.
+            </p>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* ── Right panel: form ── */}
+      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white">
+        <div className="w-full max-w-md">
+          {/* Mobile logo */}
+          <div className="lg:hidden text-center mb-8">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent mb-1">
+              KithLy
+            </h1>
           </div>
 
-          {!showForgotPassword && (
-            <>
-              {/* Password */}
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <div className="relative mt-1">
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
-                    placeholder="Enter your password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-5 h-5" />
-                    ) : (
-                      <Eye className="w-5 h-5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* Forgot Password Link */}
-              <div className="text-right">
-                <button
-                  type="button"
-                  onClick={() => setShowForgotPassword(true)}
-                  className="text-sm text-primary hover:underline"
-                >
-                  Forgot password?
-                </button>
-              </div>
-            </>
-          )}
-
-          {/* Submit Button */}
-          {showForgotPassword ? (
-            <div className="space-y-3">
-              <Button
-                type="button"
-                onClick={handleForgotPassword}
-                className="w-full py-6 text-base rounded-full bg-gradient-to-r from-primary to-primary-light"
-              >
-                Send Reset Email
-              </Button>
-              <Button
-                type="button"
-                onClick={() => setShowForgotPassword(false)}
-                variant="outline"
-                className="w-full py-6 text-base rounded-full"
-              >
-                Back to Login
-              </Button>
-            </div>
-          ) : (
-            <Button
-              type="submit"
-              className="w-full py-6 text-base rounded-full bg-gradient-to-r from-primary to-primary-light"
-              disabled={loading}
-            >
-              {loading ? 'Logging in...' : 'Login'}
-            </Button>
-          )}
-
-          {/* Sign Up Link */}
-          {!showForgotPassword && (
-            <p className="text-center text-sm text-muted-foreground">
-              Don't have an account?{' '}
-              <Link to="/signup" className="text-primary hover:underline font-medium">
-                Sign up
-              </Link>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-3xl font-bold text-gray-900 mb-1">
+              {showForgotPassword ? 'Reset password' : 'Welcome back'}
+            </h2>
+            <p className="text-gray-500 mb-8 text-sm">
+              {showForgotPassword
+                ? "Enter your email and we'll send a reset link."
+                : 'Sign in to your KithLy account.'}
             </p>
-          )}
-        </form>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Error banner */}
+              {errorMsg && (
+                <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+                  {errorMsg}
+                </div>
+              )}
+
+              {/* Email */}
+              <div>
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                  Email address
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="mt-1 rounded-xl h-12"
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
+
+              {!showForgotPassword && (
+                <>
+                  {/* Password */}
+                  <div>
+                    <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                      Password
+                    </Label>
+                    <div className="relative mt-1">
+                      <Input
+                        id="password"
+                        type={showPassword ? 'text' : 'password'}
+                        value={formData.password}
+                        onChange={(e) =>
+                          setFormData({ ...formData, password: e.target.value })
+                        }
+                        className="rounded-xl h-12 pr-12"
+                        placeholder="Enter your password"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Forgot password */}
+                  <div className="text-right">
+                    <button
+                      type="button"
+                      onClick={() => { setShowForgotPassword(true); setErrorMsg(''); }}
+                      className="text-sm text-primary hover:text-primary/80 transition-colors hover:underline"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {/* Submit */}
+              {showForgotPassword ? (
+                <div className="space-y-3">
+                  <Button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-primary to-primary-light hover:opacity-90 transition-all shadow-md hover:shadow-lg"
+                  >
+                    Send Reset Link
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => { setShowForgotPassword(false); setErrorMsg(''); }}
+                    variant="outline"
+                    className="w-full h-12 text-base rounded-xl"
+                  >
+                    Back to Login
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  type="submit"
+                  className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-primary to-primary-light hover:opacity-90 transition-all shadow-md hover:shadow-lg"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" />
+                      </svg>
+                      Signing in…
+                    </span>
+                  ) : (
+                    'Sign In'
+                  )}
+                </Button>
+              )}
+
+              {/* Sign up link */}
+              {!showForgotPassword && (
+                <p className="text-center text-sm text-gray-500">
+                  Don&apos;t have an account?{' '}
+                  <Link
+                    to="/signup"
+                    className="text-primary hover:text-primary/80 font-semibold transition-colors hover:underline"
+                  >
+                    Create one free
+                  </Link>
+                </p>
+              )}
+            </form>
+          </motion.div>
+        </div>
       </div>
     </div>
   );

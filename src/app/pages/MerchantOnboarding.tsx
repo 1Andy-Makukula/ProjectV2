@@ -1,259 +1,291 @@
-// Merchant Onboarding Portal
-
-import { useState } from 'react';
-import { Store, Upload, CheckCircle } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { districts } from '../data/mock-data';
+import { supabase } from '../../utils/supabase/client';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { toast } from 'sonner';
+import { Store, MapPin, ArrowRight, ShieldAlert } from 'lucide-react';
+import { motion } from 'motion/react';
+
+// ---------------------------------------------------------------------------
+// MerchantOnboarding
+// Allows an authenticated "sender" to register their physical shop and
+// upgrade their account role to "merchant" in a single form submission.
+//
+// Two-step Supabase transaction:
+//   1. Update the user's role to 'merchant' in the `users` table.
+//   2. Insert a new row into the `shops` table with their ownership details.
+// ---------------------------------------------------------------------------
 
 export function MerchantOnboarding() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<'form' | 'documents' | 'success'>('form');
 
-  const [shopName, setShopName] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
-  const [province, setProvince] = useState('');
-  const [district, setDistrict] = useState('');
-  const [area, setArea] = useState('');
-  const [phone, setPhone] = useState('');
-  const [tpin, setTpin] = useState('');
+  // Form fields
+  const [businessName, setBusinessName] = useState('');
+  const [location, setLocation] = useState('');
 
-  const handleSubmitForm = (e: React.FormEvent) => {
+  // UI state
+  const [loading, setLoading] = useState(false);
+  const [authChecking, setAuthChecking] = useState(true);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // ── Guard: ensure user is authenticated before rendering the form ──────────
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data, error } = await supabase.auth.getUser();
+
+      if (error || !data.user) {
+        // Not logged in — redirect to login with a hint
+        toast.error('You must be signed in to register a shop.');
+        navigate('/login');
+        return;
+      }
+
+      setUserId(data.user.id);
+      setAuthChecking(false);
+    };
+
+    checkSession();
+  }, [navigate]);
+
+  // ── Form submission: two-step Supabase operation ───────────────────────────
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStep('documents');
+    setErrorMsg('');
+
+    // Client-side validation
+    if (!businessName.trim()) {
+      setErrorMsg('Business name is required.');
+      return;
+    }
+    if (!location.trim()) {
+      setErrorMsg('Location is required.');
+      return;
+    }
+    if (!userId) {
+      setErrorMsg('Session expired. Please sign in again.');
+      navigate('/login');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // ── Step 1: Upgrade the user's role to 'merchant' ──────────────────
+      // We update the `users` table (which stores role alongside profile data).
+      const { error: roleError } = await supabase
+        .from('users')
+        .update({ role: 'merchant' })
+        .eq('id', userId);
+
+      if (roleError) {
+        throw new Error(`Failed to upgrade account: ${roleError.message}`);
+      }
+
+      // ── Step 2: Create the shop record ────────────────────────────────
+      // `name` maps to the shops.name column; `owner_id` links it to the user.
+      const { error: shopError } = await supabase
+        .from('shops')
+        .insert([
+          {
+            name: businessName.trim(),
+            location: location.trim(),
+            owner_id: userId,
+            is_active: false, // Admin approval required before going live
+          },
+        ]);
+
+      if (shopError) {
+        // If the shop insert fails, attempt to roll back the role change
+        // so the user is not stuck in a partial state.
+        await supabase
+          .from('users')
+          .update({ role: 'sender' })
+          .eq('id', userId);
+
+        throw new Error(`Failed to create shop: ${shopError.message}`);
+      }
+
+      // ── Both steps succeeded ──────────────────────────────────────────
+      toast.success('Your shop has been submitted for review. You are now a merchant.');
+      navigate('/merchant');
+    } catch (err: any) {
+      const message = err.message || 'Something went wrong. Please try again.';
+      setErrorMsg(message);
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSubmitDocuments = () => {
-    setStep('success');
-    toast.success('Application submitted for review!');
-  };
+  // ── Auth check loading state ───────────────────────────────────────────────
+  if (authChecking) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-orange-50">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
+      </div>
+    );
+  }
 
-  const categories = ['Food & Beverages', 'Electronics', 'Fashion & Clothing', 'Health & Beauty', 'Home & Garden', 'Sports & Recreation', 'Other'];
-  const provinces = [...new Set(districts.map(d => d.province))];
-
+  // ── Main render ───────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 md:px-6 py-8 max-w-3xl">
-        <AnimatePresence mode="wait">
-          {step === 'form' && (
-            <motion.div
-              key="form"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center">
-                  <Store className="w-8 h-8 text-white" strokeWidth={1.5} />
-                </div>
-                <h1 className="text-3xl font-light text-black mb-2">Become a Merchant</h1>
-                <p className="text-sm font-light text-muted-foreground">Join Zambia's trusted marketplace</p>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 flex flex-col">
+      {/* Page header */}
+      <div className="bg-gradient-to-r from-primary to-primary-light text-white">
+        <div className="container mx-auto px-6 py-8 max-w-2xl">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className="flex items-center gap-3 mb-2">
+              <Store className="w-7 h-7 opacity-90" />
+              <h1 className="text-3xl font-light tracking-tight">Become a Merchant</h1>
+            </div>
+            <p className="text-white/80 font-light text-sm ml-10">
+              Register your physical shop and start receiving gift orders from KithLy customers.
+            </p>
+          </motion.div>
+        </div>
+      </div>
 
-              <div className="bg-white rounded-[1.5rem] p-8 border border-border">
-                <form onSubmit={handleSubmitForm} className="space-y-6">
-                  <div>
-                    <label className="text-sm font-light text-muted-foreground mb-2 block">Shop Name *</label>
-                    <input
+      {/* Form area */}
+      <div className="flex-1 container mx-auto px-6 py-10 max-w-2xl">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.1 }}
+        >
+          {/* Info notice */}
+          <div className="flex items-start gap-3 bg-orange-50 border border-orange-200 rounded-xl px-5 py-4 mb-8">
+            <ShieldAlert className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <p className="text-sm text-orange-800 leading-relaxed">
+              Your shop will be submitted for admin review before it goes live. You will be
+              able to manage your inventory and fulfil orders from your merchant dashboard
+              once approved.
+            </p>
+          </div>
+
+          {/* Card form */}
+          <Card className="shadow-sm border border-gray-100">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xl font-medium text-gray-900">
+                Shop Details
+              </CardTitle>
+              <CardDescription className="font-light">
+                These details will be displayed to customers browsing KithLy.
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6 pt-2">
+
+                {/* Error banner */}
+                {errorMsg && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+                    {errorMsg}
+                  </div>
+                )}
+
+                {/* Business Name */}
+                <div className="space-y-2">
+                  <Label htmlFor="businessName" className="text-sm font-medium text-gray-700">
+                    Business Name <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="businessName"
+                    type="text"
+                    value={businessName}
+                    onChange={(e) => setBusinessName(e.target.value)}
+                    placeholder="e.g., Mama Chibwe Crafts"
+                    className="h-11 rounded-lg"
+                    disabled={loading}
+                    required
+                  />
+                  <p className="text-xs text-gray-400 font-light">
+                    Use your official trading name as it should appear to customers.
+                  </p>
+                </div>
+
+                {/* Location */}
+                <div className="space-y-2">
+                  <Label htmlFor="location" className="text-sm font-medium text-gray-700">
+                    Location <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    <Input
+                      id="location"
                       type="text"
-                      value={shopName}
-                      onChange={(e) => setShopName(e.target.value)}
-                      placeholder="e.g. Garden City Supermarket"
-                      className="w-full px-4 py-3 border border-border rounded-full font-light focus:outline-none focus:border-[#F97316]"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      placeholder="e.g., Lusaka, Ndola, Kitwe"
+                      className="h-11 rounded-lg pl-9"
+                      disabled={loading}
                       required
                     />
                   </div>
+                  <p className="text-xs text-gray-400 font-light">
+                    Enter the city or area where your shop is physically located.
+                  </p>
+                </div>
 
-                  <div>
-                    <label className="text-sm font-light text-muted-foreground mb-2 block">Business Description *</label>
-                    <textarea
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      placeholder="Brief description of your business..."
-                      rows={3}
-                      className="w-full px-4 py-3 border border-border rounded-2xl font-light focus:outline-none focus:border-[#F97316] resize-none"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-light text-muted-foreground mb-2 block">Main Category *</label>
-                    <select
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="w-full px-4 py-3 border border-border rounded-full font-light focus:outline-none focus:border-[#F97316]"
-                      required
-                    >
-                      <option value="">Select category</option>
-                      {categories.map(cat => (
-                        <option key={cat} value={cat}>{cat}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="text-sm font-light text-muted-foreground mb-2 block">Province *</label>
-                      <select
-                        value={province}
-                        onChange={(e) => setProvince(e.target.value)}
-                        className="w-full px-4 py-3 border border-border rounded-full font-light focus:outline-none focus:border-[#F97316]"
-                        required
-                      >
-                        <option value="">Select</option>
-                        {provinces.map(prov => (
-                          <option key={prov} value={prov}>{prov}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-light text-muted-foreground mb-2 block">District *</label>
-                      <select
-                        value={district}
-                        onChange={(e) => setDistrict(e.target.value)}
-                        className="w-full px-4 py-3 border border-border rounded-full font-light focus:outline-none focus:border-[#F97316]"
-                        required
-                      >
-                        <option value="">Select</option>
-                        {districts.filter(d => d.province === province).map(dist => (
-                          <option key={dist.id} value={dist.id}>{dist.name}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-light text-muted-foreground mb-2 block">Area *</label>
-                      <input
-                        type="text"
-                        value={area}
-                        onChange={(e) => setArea(e.target.value)}
-                        placeholder="e.g. Cairo Road"
-                        className="w-full px-4 py-3 border border-border rounded-full font-light focus:outline-none focus:border-[#F97316]"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-light text-muted-foreground mb-2 block">Contact Phone *</label>
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="+260 977 123 456"
-                        className="w-full px-4 py-3 border border-border rounded-full font-light focus:outline-none focus:border-[#F97316]"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-light text-muted-foreground mb-2 block">TPIN *</label>
-                      <input
-                        type="text"
-                        value={tpin}
-                        onChange={(e) => setTpin(e.target.value)}
-                        placeholder="1234567890"
-                        className="w-full px-4 py-3 border border-border rounded-full font-light focus:outline-none focus:border-[#F97316]"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                {/* Submit */}
+                <div className="pt-2">
+                  <Button
+                    id="submit-merchant-onboarding"
                     type="submit"
-                    className="w-full py-4 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white rounded-full font-light shadow-lg"
+                    disabled={loading}
+                    className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-primary to-primary-light hover:opacity-90 transition-opacity shadow-md group"
                   >
-                    Continue to Documents
-                  </motion.button>
-                </form>
-              </div>
-            </motion.div>
-          )}
+                    {loading ? (
+                      <span className="flex items-center gap-2">
+                        <svg
+                          className="animate-spin w-4 h-4"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12" cy="12" r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z"
+                          />
+                        </svg>
+                        Registering Shop...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        Register My Shop
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </span>
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
 
-          {step === 'documents' && (
-            <motion.div
-              key="documents"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+          {/* Back link */}
+          <p className="text-center text-sm text-gray-400 mt-6">
+            Changed your mind?{' '}
+            <button
+              type="button"
+              onClick={() => navigate('/home')}
+              className="text-primary hover:underline font-medium transition-colors"
             >
-              <div className="text-center mb-8">
-                <h1 className="text-3xl font-light text-black mb-2">Upload Documents</h1>
-                <p className="text-sm font-light text-muted-foreground">Verify your business</p>
-              </div>
-
-              <div className="bg-white rounded-[1.5rem] p-8 border border-border space-y-6">
-                <div className="p-8 border-2 border-dashed border-border rounded-2xl text-center hover:border-[#F97316] transition-colors cursor-pointer">
-                  <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" strokeWidth={1.5} />
-                  <p className="font-light text-black mb-1">TPIN Certificate</p>
-                  <p className="text-xs font-light text-muted-foreground">PDF or image (max 5MB)</p>
-                  <input type="file" className="hidden" accept=".pdf,.jpg,.png" />
-                </div>
-
-                <div className="p-8 border-2 border-dashed border-border rounded-2xl text-center hover:border-[#F97316] transition-colors cursor-pointer">
-                  <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" strokeWidth={1.5} />
-                  <p className="font-light text-black mb-1">National ID (Owner)</p>
-                  <p className="text-xs font-light text-muted-foreground">PDF or image (max 5MB)</p>
-                  <input type="file" className="hidden" accept=".pdf,.jpg,.png" />
-                </div>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setStep('form')}
-                    className="flex-1 py-4 border-2 border-border rounded-full font-light hover:bg-gray-50 transition-colors"
-                  >
-                    Back
-                  </button>
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleSubmitDocuments}
-                    className="flex-1 py-4 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white rounded-full font-light shadow-lg"
-                  >
-                    Submit Application
-                  </motion.button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {step === 'success' && (
-            <motion.div
-              key="success"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-            >
-              <div className="text-center">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.2, type: 'spring' }}
-                  className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center"
-                >
-                  <CheckCircle className="w-10 h-10 text-white" strokeWidth={2} />
-                </motion.div>
-                <h1 className="text-3xl font-light text-black mb-4">Application Submitted!</h1>
-                <p className="text-sm font-light text-muted-foreground mb-8 max-w-md mx-auto">
-                  We'll review your application within 2-3 business days and send a confirmation to your phone.
-                </p>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => navigate('/')}
-                  className="px-8 py-4 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white rounded-full font-light shadow-lg"
-                >
-                  Return Home
-                </motion.button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              Return to Home
+            </button>
+          </p>
+        </motion.div>
       </div>
     </div>
   );

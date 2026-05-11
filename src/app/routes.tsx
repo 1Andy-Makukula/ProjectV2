@@ -23,6 +23,7 @@ import { Settings } from './pages/sender/Settings';
 // Merchant Pages
 import { MerchantDashboard } from './pages/merchant/MerchantDashboard';
 import { MerchantFulfill } from './pages/merchant/MerchantFulfill';
+import { MerchantOnboarding } from './pages/MerchantOnboarding';
 
 // Admin Pages
 import { AdminDashboard } from './pages/admin/AdminDashboard';
@@ -79,6 +80,11 @@ export const router = createBrowserRouter([
       {
         path: 'settings',
         element: <ProtectedRoute allowedRoles={['sender']}><Settings /></ProtectedRoute>
+      },
+      {
+        // Any authenticated sender can access this to upgrade to merchant
+        path: 'become-merchant',
+        element: <ProtectedRoute allowedRoles={['sender']}><MerchantOnboarding /></ProtectedRoute>
       },
 
       // Merchant routes
