@@ -65,11 +65,7 @@ const requireAdmin = async (authorizationHeader?: string | null) => {
 async function handleInitializePayment(payload: Record<string, any>): Promise<Response> {
   const { orderId, amount, currency, email, name, phone, txRef } = payload;
 
-  const appUrl = Deno.env.get("APP_URL");
-  if (!appUrl) {
-    console.error("APP_URL environment variable is not set");
-    return json({ error: "Payment system configuration error" }, 500);
-  }
+  const appUrl = Deno.env.get("APP_URL") || "https://test-project-orpin-five.vercel.app";
 
   const flutterwaveSecretKey = Deno.env.get("FLUTTERWAVE_SECRET_KEY");
   const flutterwavePublicKey = Deno.env.get("FLUTTERWAVE_PUBLIC_KEY");
