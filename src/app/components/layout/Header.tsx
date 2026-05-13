@@ -1,11 +1,14 @@
 // KithLy Header - Global Navigation
 
-import { ShoppingCart, User, Menu, Gift } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ShoppingCart, User, Menu, Gift, Bell } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useAuth } from '../../hooks/useAuth';
 import { useCart } from '../../hooks/useCart';
+import { supabase } from '../../utils/supabase/client';
 import { Badge } from '../ui/badge';
 import { SearchBar } from '../shared/SearchBar';
+import { NotificationSlider } from '../shared/NotificationSlider';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -23,6 +26,45 @@ export function Header({
   const { isAuthenticated, user } = useAuth();
   const { getTotalItems } = useCart();
   const cartItemCount = getTotalItems();
+
+  const [isNotificationSliderOpen, setIsNotificationSliderOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!isAuthenticated || !user?.id) return;
+
+    const fetchUnreadCount = async () => {
+      const { count } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false);
+      
+      setUnreadCount(count || 0);
+    };
+
+    fetchUnreadCount();
+
+    const channel = supabase
+      .channel('header-notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          fetchUnreadCount();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [isAuthenticated, user?.id]);
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-sm border-b border-border">
@@ -58,6 +100,22 @@ export function Header({
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2">
+            {/* Notification Bell */}
+            {isAuthenticated && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsNotificationSliderOpen(true)}
+                className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="Notifications"
+              >
+                <Bell className="w-5 h-5" strokeWidth={1.5} />
+                {unreadCount > 0 && (
+                  <Badge className="absolute top-1.5 right-2 h-2.5 w-2.5 p-0 bg-orange-500 border-2 border-white rounded-full" />
+                )}
+              </motion.button>
+            )}
+
             {/* Cart */}
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -110,6 +168,11 @@ export function Header({
           <SearchBar />
         </div>
       </div>
+
+      <NotificationSlider 
+        isOpen={isNotificationSliderOpen} 
+        onClose={() => setIsNotificationSliderOpen(false)} 
+      />
     </header>
   );
 }

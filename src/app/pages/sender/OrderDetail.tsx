@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { supabase } from '../../../utils/supabase/client';
 import { formatCurrency } from '../../../utils/currency';
@@ -11,6 +11,7 @@ import { Badge } from '../../components/ui/badge';
 import { ArrowLeft, Copy, Share2, Package, MapPin, Calendar, User, MessageSquare, Check } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
+import confetti from 'canvas-confetti';
 
 interface Order {
   id: string;
@@ -71,10 +72,52 @@ export function OrderDetail() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [retryingPayment, setRetryingPayment] = useState(false);
+  const fulfilledConfettiTriggered = useRef(false);
+
+  const triggerConfetti = () => {
+    const duration = 3000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
+    const interval: any = setInterval(() => {
+      const timeLeft = animationEnd - Date.now();
+      if (timeLeft <= 0) return clearInterval(interval);
+      const particleCount = 50 * (timeLeft / duration);
+      confetti({ ...defaults, particleCount, origin: { x: Math.random(), y: Math.random() - 0.2 } });
+    }, 250);
+  };
 
   useEffect(() => {
     if (!orderId) return;
     fetchOrder();
+
+    const channel = supabase
+      .channel(`order-detail-${orderId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders',
+          filter: `id=eq.${orderId}`,
+        },
+        (payload) => {
+          setOrder((prev) => {
+            if (!prev) return prev;
+            if (prev.status !== 'fulfilled' && payload.new.status === 'fulfilled') {
+              if (!fulfilledConfettiTriggered.current) {
+                fulfilledConfettiTriggered.current = true;
+                triggerConfetti();
+              }
+            }
+            return { ...prev, ...payload.new } as any;
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [orderId]);
 
   const fetchOrder = async () => {
@@ -269,59 +312,78 @@ export function OrderDetail() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Gift Code</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-6 text-center border-2 border-primary/20 mb-4">
-                <p className="text-sm text-muted-foreground mb-2">Share this code</p>
-                <p className="text-3xl font-mono font-bold tracking-widest text-primary">
-                  {order.code}
+          {order.status === 'fulfilled' ? (
+            <Card className="bg-green-50 border-green-200">
+              <CardContent className="p-8 text-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', bounce: 0.5 }}
+                  className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                >
+                  <Check className="w-10 h-10 text-green-600" />
+                </motion.div>
+                <h3 className="text-2xl font-bold text-green-800 mb-2">Gift Collected!</h3>
+                <p className="text-green-600">
+                  {order.recipient_name} has successfully collected this gift from {order.shop?.name}.
                 </p>
-              </div>
-              <div className="text-sm text-muted-foreground mb-4">
-                <p className="font-medium">Gift Page Link:</p>
-                <p className="text-xs break-all bg-gray-50 p-2 rounded mt-1">{giftUrl}</p>
-              </div>
-              {order.status === 'pending_payment' && (
-                <Button
-                  onClick={handleResumePayment}
-                  variant="outline"
-                  className="w-full mb-4"
-                  disabled={retryingPayment}
-                >
-                  {retryingPayment ? 'Opening Checkout...' : 'Resume Payment'}
-                </Button>
-              )}
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleCopyLink}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-4 h-4 mr-2" />
-                      Copied!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4 mr-2" />
-                      Copy Link
-                    </>
-                  )}
-                </Button>
-                <Button
-                  onClick={handleWhatsAppShare}
-                  className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
-                >
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Share via WhatsApp
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Gift Code</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-6 text-center border-2 border-primary/20 mb-4">
+                  <p className="text-sm text-muted-foreground mb-2">Share this code</p>
+                  <p className="text-3xl font-mono font-bold tracking-widest text-primary">
+                    {order.code}
+                  </p>
+                </div>
+                <div className="text-sm text-muted-foreground mb-4">
+                  <p className="font-medium">Gift Page Link:</p>
+                  <p className="text-xs break-all bg-gray-50 p-2 rounded mt-1">{giftUrl}</p>
+                </div>
+                {order.status === 'pending_payment' && (
+                  <Button
+                    onClick={handleResumePayment}
+                    variant="outline"
+                    className="w-full mb-4"
+                    disabled={retryingPayment}
+                  >
+                    {retryingPayment ? 'Opening Checkout...' : 'Resume Payment'}
+                  </Button>
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleCopyLink}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-4 h-4 mr-2" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copy Link
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    onClick={handleWhatsAppShare}
+                    className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                  >
+                    <Share2 className="w-4 h-4 mr-2" />
+                    Share via WhatsApp
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </motion.div>
 
         {/* Recipient Details */}

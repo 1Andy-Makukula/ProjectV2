@@ -114,16 +114,23 @@ async function handleFlutterwaveWebhook(
   req: Request,
   payload: Record<string, any>,
 ): Promise<Response> {
+  // 1. LOG EVERYTHING BEFORE THE GATE
+  console.log("[server] --- WEBHOOK SIGNAL DETECTED ---");
+  
   const signature = req.headers.get("verif-hash");
-  const webhookSecret = Deno.env.get("FLUTTERWAVE_WEBHOOK_SECRET");
+  const secretHash = Deno.env.get("FLUTTERWAVE_WEBHOOK_SECRET");
 
-  console.log("[DEBUG] Webhook signature received:", signature);
-  console.log("[DEBUG] Expecting secretHash:", webhookSecret);
+  console.log("[DEBUG] Header Signature:", signature);
+  console.log("[DEBUG] Env SecretHash:", secretHash);
 
-  if (!signature || signature !== webhookSecret) {
-    console.error("[DEBUG] Webhook signature mismatch!");
-    return json({ error: "Invalid signature" }, 401);
+  // 2. THE SECURITY GATE
+  if (!signature || signature !== secretHash) {
+    console.error("[ERROR] Webhook Authentication Mismatch");
+    return new Response("Unauthorized", { status: 401 });
   }
+
+  // 3. THE ACTUAL LOGIC
+  console.log("[server] Webhook Verified. Processing update...");
 
   if (payload.event === "charge.completed" && payload.data?.status === "successful") {
     const txRef = payload.data.tx_ref;

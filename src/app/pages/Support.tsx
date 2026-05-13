@@ -8,8 +8,12 @@ import { toast } from 'sonner';
 
 const faqs = [
   {
+    q: 'How does the KithLy Escrow System work?',
+    a: 'When you purchase a gift, KithLy securely holds your payment in escrow. The merchant only receives the funds after the recipient successfully claims the gift using their unique handshake code. If the code is never claimed or expires, your money is automatically refunded.',
+  },
+  {
     q: 'How does the handshake code system work?',
-    a: 'When you purchase a gift, you receive a unique 8-character code. The recipient uses this code to claim the gift at the merchant location.',
+    a: 'When you purchase a gift, you receive a unique 8-character code. The recipient uses this code to claim the gift at the merchant location. The merchant verifies it to release the escrow funds.',
   },
   {
     q: 'How long is my gift code valid?',
@@ -62,7 +66,7 @@ export function Support() {
         <Tabs defaultValue="faq" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="faq" className="font-light">FAQ</TabsTrigger>
-            <TabsTrigger value="ticket" className="font-light">Submit Ticket</TabsTrigger>
+            <TabsTrigger value="ticket" className="font-light">Dispute</TabsTrigger>
             <TabsTrigger value="track" className="font-light">Track Order</TabsTrigger>
           </TabsList>
 
@@ -104,26 +108,39 @@ export function Support() {
 
           <TabsContent value="ticket">
             <div className="bg-white rounded-[1.5rem] p-8 border border-border">
-              <h3 className="text-xl font-light text-black mb-6">Submit a Support Ticket</h3>
+              <h3 className="text-xl font-light text-black mb-6">Dispute a Transaction</h3>
               <form onSubmit={handleSubmitTicket} className="space-y-6">
                 <div>
-                  <label className="text-sm font-light text-muted-foreground mb-2 block">Subject</label>
+                  <label className="text-sm font-light text-muted-foreground mb-2 block">Order Reference</label>
                   <input
                     type="text"
                     value={ticketSubject}
                     onChange={(e) => setTicketSubject(e.target.value)}
-                    placeholder="Brief description of your issue"
+                    placeholder="e.g. KL-12345678"
                     className="w-full px-4 py-3 border border-border rounded-full font-light focus:outline-none focus:border-[#F97316]"
                     required
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-light text-muted-foreground mb-2 block">Message</label>
+                  <label className="text-sm font-light text-muted-foreground mb-2 block">Reason for Dispute</label>
+                  <select
+                    className="w-full px-4 py-3 border border-border rounded-full font-light focus:outline-none focus:border-[#F97316] bg-white"
+                    required
+                  >
+                    <option value="">Select a reason...</option>
+                    <option value="merchant_refused">Merchant refused to honor code</option>
+                    <option value="item_unavailable">Item was out of stock/unavailable</option>
+                    <option value="wrong_item">Recipient received the wrong item</option>
+                    <option value="other">Other issue</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-light text-muted-foreground mb-2 block">Additional Details</label>
                   <textarea
                     value={ticketMessage}
                     onChange={(e) => setTicketMessage(e.target.value)}
                     placeholder="Describe your issue in detail..."
-                    rows={6}
+                    rows={4}
                     className="w-full px-4 py-3 border border-border rounded-2xl font-light focus:outline-none focus:border-[#F97316] resize-none"
                     required
                   />
@@ -134,7 +151,7 @@ export function Support() {
                   type="submit"
                   className="w-full py-4 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white rounded-full font-light shadow-lg"
                 >
-                  Submit Ticket
+                  Submit Dispute
                 </motion.button>
               </form>
             </div>

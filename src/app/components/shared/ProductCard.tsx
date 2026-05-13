@@ -50,8 +50,8 @@ export function ProductCard({ product, onClick }: ProductCardProps) {
 
   return (
     <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.2 }}
+      whileHover={{ y: -6, scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
       onClick={handleClick}
       className="group relative cursor-pointer"
     >

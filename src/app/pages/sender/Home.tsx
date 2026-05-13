@@ -11,6 +11,7 @@ import {
   ChevronDown,
   LayoutDashboard,
   Loader2,
+  CheckCircle,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -354,13 +355,22 @@ export function Home() {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <motion.div 
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+              hidden: { opacity: 0 }
+            }}
+            className="space-y-4"
+          >
             {shops.map((shop, index) => (
               <motion.div
                 key={shop.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.08 }}
+                variants={{
+                  visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 15 } },
+                  hidden: { opacity: 0, y: 30 }
+                }}
                 onClick={() => navigate(`/shop/${shop.id}`)}
                 className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
               >
@@ -382,7 +392,10 @@ export function Home() {
 
                   {/* Shop Info */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-lg mb-1">{shop.name}</h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-semibold text-lg">{shop.name}</h3>
+                      <CheckCircle className="w-4 h-4 text-blue-500 fill-blue-50" />
+                    </div>
                     {shop.location && (
                       <p className="text-sm text-muted-foreground mb-2">
                         {shop.location}
@@ -404,7 +417,7 @@ export function Home() {
                 </div>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

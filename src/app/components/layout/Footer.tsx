@@ -50,7 +50,7 @@ export function Footer() {
           <div>
             <h3 className="font-medium mb-4">Legal</h3>
             <ul className="space-y-2 text-sm font-light text-muted-foreground">
-              <li><button onClick={() => navigate('/terms')} className="hover:text-[#F97316] transition-colors">Terms of Service</button></li>
+              <li><button onClick={() => navigate('/terms')} className="hover:text-[#F97316] transition-colors">Terms & Conditions</button></li>
               <li><button onClick={() => navigate('/privacy')} className="hover:text-[#F97316] transition-colors">Privacy Policy</button></li>
               <li><button onClick={() => navigate('/merchant-agreement')} className="hover:text-[#F97316] transition-colors">Merchant Agreement</button></li>
               <li><button onClick={() => navigate('/support')} className="hover:text-[#F97316] transition-colors">Refunds & Disputes</button></li>

@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { supabase } from '../../../utils/supabase/client';
-import { motion } from 'motion/react';
-import { TrendingUp, Gift, Store, ArrowLeft, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { TrendingUp, Gift, Store, ArrowLeft, Sparkles, Bell, X } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -77,9 +77,64 @@ export function CustomerDashboard() {
   const [giftsDelivered, setGiftsDelivered] = useState(0);
   const [shopsSupported, setShopsSupported] = useState(0);
 
+  const [dashboardNotifications, setDashboardNotifications] = useState<any[]>([]);
+  const [latestNotification, setLatestNotification] = useState<any | null>(null);
+
+  const fetchNotifications = async () => {
+    if (!profile?.id) return;
+    try {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', profile.id)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+      setDashboardNotifications(data || []);
+    } catch (err) {
+      console.error('Error fetching dashboard notifications:', err);
+    }
+  };
+
+  const markAsRead = async (notificationId: string) => {
+    try {
+      setDashboardNotifications((prev) =>
+        prev.map((n) => (n.id === notificationId ? { ...n, is_read: true } : n))
+      );
+      await supabase.from('notifications').update({ is_read: true }).eq('id', notificationId);
+    } catch (err) {
+      console.error('Error marking as read:', err);
+    }
+  };
+
   useEffect(() => {
     if (!profile?.id) return;
     fetchMetrics();
+    fetchNotifications();
+
+    const channel = supabase
+      .channel('dashboard-notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${profile.id}`,
+        },
+        (payload) => {
+          const newNotif = payload.new;
+          setDashboardNotifications((prev) => [newNotif, ...prev].slice(0, 5));
+          setLatestNotification(newNotif);
+          setTimeout(() => setLatestNotification(null), 5000); // Hide banner after 5s
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [profile?.id]);
 
   const fetchMetrics = async () => {
@@ -136,6 +191,30 @@ export function CustomerDashboard() {
       </div>
 
       <div className="mx-auto max-w-4xl px-6 py-8 space-y-8">
+        <AnimatePresence>
+          {latestNotification && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg shadow-sm flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3">
+                <Bell className="h-5 w-5 text-green-600" />
+                <p className="text-sm font-medium text-green-800">
+                  {latestNotification.message}
+                </p>
+              </div>
+              <button 
+                onClick={() => setLatestNotification(null)}
+                className="text-green-600 hover:bg-green-100 p-1 rounded-full transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}

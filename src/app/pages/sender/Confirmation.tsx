@@ -15,6 +15,7 @@ interface Order {
   recipient_name: string;
   amount: number;
   currency: string;
+  status: string;
   sender: {
     name: string;
   };
@@ -34,10 +35,40 @@ export function Confirmation() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const confettiTriggered = useRef(false);
+  const fulfilledConfettiTriggered = useRef(false);
 
   useEffect(() => {
     if (!orderId) return;
     fetchOrder();
+
+    const channel = supabase
+      .channel(`order-confirmation-${orderId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders',
+          filter: `id=eq.${orderId}`,
+        },
+        (payload) => {
+          setOrder((prev) => {
+            if (!prev) return prev;
+            if (prev.status !== 'fulfilled' && payload.new.status === 'fulfilled') {
+              if (!fulfilledConfettiTriggered.current) {
+                fulfilledConfettiTriggered.current = true;
+                triggerConfetti();
+              }
+            }
+            return { ...prev, ...payload.new } as any;
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [orderId]);
 
   useEffect(() => {
@@ -59,6 +90,7 @@ export function Confirmation() {
           recipient_name,
           amount,
           currency,
+          status,
           sender:sender_id (name),
           item:item_id (name, image_url),
           shop:shop_id (name)
@@ -205,15 +237,31 @@ export function Confirmation() {
               </div>
 
               {/* Code Display */}
-              <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-6 text-center border-2 border-primary/20">
-                <p className="text-sm text-muted-foreground mb-2">Gift Code</p>
-                <p className="text-4xl font-mono font-bold tracking-widest text-primary">
-                  {order.code}
-                </p>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Share this code with {order.recipient_name}
-                </p>
-              </div>
+              {order.status === 'fulfilled' ? (
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="bg-green-50 rounded-xl p-6 text-center border-2 border-green-200"
+                >
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Check className="w-8 h-8 text-green-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-green-800 mb-2">Gift Collected!</h3>
+                  <p className="text-green-600">
+                    {order.recipient_name} has successfully received this gift.
+                  </p>
+                </motion.div>
+              ) : (
+                <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-6 text-center border-2 border-primary/20">
+                  <p className="text-sm text-muted-foreground mb-2">Gift Code</p>
+                  <p className="text-4xl font-mono font-bold tracking-widest text-primary">
+                    {order.code}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Share this code with {order.recipient_name}
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </motion.div>

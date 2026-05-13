@@ -24,15 +24,18 @@ import {
   Clock,
   CheckCircle2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface Order {
   id: string;
   code: string;
   recipient_name: string;
+  recipient_phone: string | null;
   amount: number;
   currency: string;
   status: string;
   created_at: string;
+  flutterwave_tx_ref: string | null;
   items: { name: string; image_url: string | null } | null;
   shops: { name: string } | null;
 }
@@ -180,6 +183,41 @@ export function OrderDashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [resumingPayment, setResumingPayment] = useState<string | null>(null);
+
+  const handleResumePayment = async (order: Order) => {
+    if (!order.flutterwave_tx_ref) {
+      toast.error('No payment reference found. Please contact support.');
+      return;
+    }
+
+    setResumingPayment(order.id);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('server', {
+        body: {
+          action: 'initialize_payment',
+          orderId: order.id,
+          amount: order.amount,
+          currency: order.currency,
+          email: profile?.email || '',
+          name: profile?.name || 'Customer',
+          phone: order.recipient_phone || '',
+          txRef: order.flutterwave_tx_ref,
+        },
+      });
+
+      if (error) throw error;
+      if (!data?.paymentLink) throw new Error('No payment link returned');
+
+      window.location.assign(data.paymentLink);
+    } catch (err: any) {
+      console.error('Error resuming payment:', err);
+      toast.error(err.message || 'Failed to resume payment');
+    } finally {
+      setResumingPayment(null);
+    }
+  };
 
   useEffect(() => {
     if (!profile?.id) return;
@@ -391,7 +429,21 @@ export function OrderDashboard() {
                       </TableCell>
 
                       <TableCell className="pr-4">
-                        <ArrowRight className="h-4 w-4 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+                        {order.status === 'pending_payment' ? (
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleResumePayment(order);
+                            }}
+                            size="sm"
+                            className="bg-primary hover:bg-primary/90 text-white shadow-md font-semibold whitespace-nowrap px-4"
+                            disabled={resumingPayment === order.id}
+                          >
+                            {resumingPayment === order.id ? 'Loading...' : 'Complete Payment'}
+                          </Button>
+                        ) : (
+                          <ArrowRight className="h-4 w-4 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+                        )}
                       </TableCell>
                     </motion.tr>
                   ))}
