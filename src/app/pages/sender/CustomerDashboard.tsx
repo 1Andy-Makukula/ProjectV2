@@ -96,9 +96,9 @@ export function CustomerDashboard() {
       if (error) throw error;
 
       const rows = data ?? [];
-      setTotalGenerosity(rows.reduce((sum, order) => sum + (order.amount ?? 0), 0));
+      setTotalGenerosity(rows.reduce((sum: number, order: any) => sum + (order.amount ?? 0), 0));
       setGiftsDelivered(rows.length);
-      setShopsSupported(new Set(rows.map((order) => order.shop_id)).size);
+      setShopsSupported(new Set(rows.map((order: any) => order.shop_id)).size);
     } catch (err) {
       console.error('[CustomerDashboard] fetchMetrics error:', err);
       setTotalGenerosity(0);

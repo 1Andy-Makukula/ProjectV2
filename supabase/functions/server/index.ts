@@ -65,6 +65,12 @@ const requireAdmin = async (authorizationHeader?: string | null) => {
 async function handleInitializePayment(payload: Record<string, any>): Promise<Response> {
   const { orderId, amount, currency, email, name, phone, txRef } = payload;
 
+  const appUrl = Deno.env.get("APP_URL");
+  if (!appUrl) {
+    console.error("APP_URL environment variable is not set");
+    return json({ error: "Payment system configuration error" }, 500);
+  }
+
   const flutterwaveSecretKey = Deno.env.get("FLUTTERWAVE_SECRET_KEY");
   const flutterwavePublicKey = Deno.env.get("FLUTTERWAVE_PUBLIC_KEY");
 
@@ -82,7 +88,7 @@ async function handleInitializePayment(payload: Record<string, any>): Promise<Re
       tx_ref: txRef,
       amount: amount / 100, // Convert from lowest denomination to actual amount
       currency: currency ?? "ZMW",
-      redirect_url: `${Deno.env.get("APP_URL") ?? "http://localhost:5173"}/confirmation/${orderId}?tx_ref=${txRef}`,
+      redirect_url: `${appUrl}/confirmation/${orderId}?tx_ref=${txRef}`,
       payment_options: "card,mobilemoneyzambia,banktransfer",
       customer: { email, name, phonenumber: phone },
       customizations: {

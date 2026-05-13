@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+// @ts-ignore
 import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
@@ -7,9 +8,10 @@ import react from '@vitejs/plugin-react'
 function figmaAssetResolver() {
   return {
     name: 'figma-asset-resolver',
-    resolveId(id) {
+    resolveId(id: string) {
       if (id.startsWith('figma:asset/')) {
         const filename = id.replace('figma:asset/', '')
+        // @ts-ignore
         return path.resolve(__dirname, 'src/assets', filename)
       }
     },
@@ -27,6 +29,7 @@ export default defineConfig({
   resolve: {
     alias: {
       // Alias @ to the src directory
+      // @ts-ignore
       '@': path.resolve(__dirname, './src'),
     },
   },
@@ -38,6 +41,7 @@ export default defineConfig({
   // This fixes "Cannot GET /confirmation/..." when Flutterwave (or any external
   // redirect) hits a deep URL directly in the Vite dev server.
   server: {
+    // @ts-ignore
     historyApiFallback: true,
   },
 })

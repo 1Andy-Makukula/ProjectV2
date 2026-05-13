@@ -298,13 +298,13 @@ export function MerchantDashboard() {
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
       const totalFulfilled = data?.length || 0;
-      const totalValue = data?.reduce((sum, o) => sum + o.amount, 0) || 0;
+      const totalValue = data?.reduce((sum: number, o: any) => sum + o.amount, 0) || 0;
 
       const weekOrders = data?.filter(
-        (o) => o.fulfilled_at && new Date(o.fulfilled_at) >= oneWeekAgo
+        (o: any) => o.fulfilled_at && new Date(o.fulfilled_at) >= oneWeekAgo
       );
       const weekFulfilled = weekOrders?.length || 0;
-      const weekValue = weekOrders?.reduce((sum, o) => sum + o.amount, 0) || 0;
+      const weekValue = weekOrders?.reduce((sum: number, o: any) => sum + o.amount, 0) || 0;
 
       setAnalytics({ totalFulfilled, totalValue, weekFulfilled, weekValue });
     } catch (error) {
