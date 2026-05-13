@@ -25,10 +25,6 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 interface Order {
   id: string;
   code: string;
@@ -37,13 +33,9 @@ interface Order {
   currency: string;
   status: string;
   created_at: string;
-  item: { name: string; image_url: string | null } | null;
-  shop: { name: string } | null;
+  items: { name: string; image_url: string | null } | null;
+  shops: { name: string } | null;
 }
-
-// ---------------------------------------------------------------------------
-// Status configuration — colour-coded badges
-// ---------------------------------------------------------------------------
 
 type StatusKey =
   | 'pending_payment'
@@ -102,10 +94,6 @@ const getStatus = (raw: string) =>
     pill: 'bg-gray-50 text-gray-500 ring-gray-200',
   };
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 function formatDate(iso: string): string {
   const date = new Date(iso);
   const diffMs = Date.now() - date.getTime();
@@ -115,16 +103,16 @@ function formatDate(iso: string): string {
   if (diffH < 1) return 'Just now';
   if (diffH < 24) return `${Math.floor(diffH)}h ago`;
   if (diffD < 7) return `${Math.floor(diffD)}d ago`;
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 }
 
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
-
-/** Animated status pill */
 function StatusBadge({ status }: { status: string }) {
   const cfg = getStatus(status);
+
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${cfg.pill}`}
@@ -135,7 +123,6 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-/** Summary stat card shown above the table */
 function StatCard({
   icon: Icon,
   label,
@@ -148,7 +135,7 @@ function StatCard({
   accent: string;
 }) {
   return (
-    <div className="flex items-center gap-4 rounded-2xl bg-white border border-gray-100 px-5 py-4 shadow-sm">
+    <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-sm">
       <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${accent}`}>
         <Icon className="h-5 w-5" />
       </div>
@@ -160,43 +147,31 @@ function StatCard({
   );
 }
 
-/** 5-row skeleton shown while loading */
 function TableSkeleton() {
   return (
     <>
       {Array.from({ length: 5 }).map((_, i) => (
         <TableRow key={i} className="hover:bg-transparent">
-          {/* Item */}
           <TableCell>
             <div className="flex items-center gap-3">
-              <Skeleton className="h-10 w-10 rounded-lg shrink-0" />
+              <Skeleton className="h-10 w-10 rounded-md shrink-0" />
               <div className="space-y-1.5">
                 <Skeleton className="h-3 w-32" />
                 <Skeleton className="h-2.5 w-20" />
               </div>
             </div>
           </TableCell>
-          {/* Recipient */}
           <TableCell><Skeleton className="h-3 w-24" /></TableCell>
-          {/* Shop */}
           <TableCell><Skeleton className="h-3 w-28" /></TableCell>
-          {/* Amount */}
           <TableCell><Skeleton className="h-3 w-16" /></TableCell>
-          {/* Status */}
           <TableCell><Skeleton className="h-5 w-20 rounded-full" /></TableCell>
-          {/* Date */}
           <TableCell><Skeleton className="h-3 w-16" /></TableCell>
-          {/* Arrow */}
           <TableCell><Skeleton className="h-4 w-4 rounded" /></TableCell>
         </TableRow>
       ))}
     </>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Main component
-// ---------------------------------------------------------------------------
 
 export function OrderDashboard() {
   const navigate = useNavigate();
@@ -206,27 +181,16 @@ export function OrderDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ── Fetch ────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!profile?.id) return;
 
-    const fetch = async () => {
+    const fetchOrders = async () => {
       setLoading(true);
       setError(null);
 
       const { data, error: fetchError } = await supabase
         .from('orders')
-        .select(`
-          id,
-          code,
-          recipient_name,
-          amount,
-          currency,
-          status,
-          created_at,
-          item:item_id (name, image_url),
-          shop:shop_id (name)
-        `)
+        .select('*, items(name, image_url), shops(name)')
         .eq('sender_id', profile.id)
         .order('created_at', { ascending: false });
 
@@ -240,23 +204,19 @@ export function OrderDashboard() {
       setLoading(false);
     };
 
-    fetch();
+    fetchOrders();
   }, [profile?.id]);
 
-  // ── Derived stats ─────────────────────────────────────────────────────────
-  const totalSpend = orders.reduce((sum, o) => sum + o.amount, 0);
+  const totalSpend = orders.reduce((sum, order) => sum + order.amount, 0);
   const completedCount = orders.filter(
-    (o) => o.status === 'fulfilled' || o.status === 'completed',
+    (order) => order.status === 'fulfilled' || order.status === 'completed',
   ).length;
-  const pendingCount = orders.filter((o) =>
-    ['pending_payment', 'payment_submitted', 'paid'].includes(o.status),
+  const pendingCount = orders.filter((order) =>
+    ['pending_payment', 'payment_submitted', 'paid'].includes(order.status),
   ).length;
 
-  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-gray-50">
-
-      {/* ── Page header ───────────────────────────────────────────────────── */}
       <div className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm">
         <div className="mx-auto max-w-6xl px-6 py-4">
           <div className="flex items-center gap-3">
@@ -270,20 +230,20 @@ export function OrderDashboard() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">
+              <h1 className="bg-gradient-to-r from-primary to-primary-light bg-clip-text text-xl font-bold text-transparent">
                 Order History
               </h1>
               <p className="text-xs text-muted-foreground">
-                {loading ? 'Loading…' : `${orders.length} order${orders.length !== 1 ? 's' : ''} found`}
+                {loading
+                  ? 'Loading...'
+                  : `${orders.length} order${orders.length !== 1 ? 's' : ''} found`}
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-6 py-8 space-y-6">
-
-        {/* ── Stat cards ──────────────────────────────────────────────────── */}
+      <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <StatCard
             icon={ClipboardList}
@@ -311,18 +271,14 @@ export function OrderDashboard() {
           />
         </div>
 
-        {/* ── Error banner ────────────────────────────────────────────────── */}
         {error && (
-          <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             Failed to load orders: {error}
           </div>
         )}
 
-        {/* ── Table card ──────────────────────────────────────────────────── */}
-        <div className="rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
-
-          {/* Card header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
             <h2 className="text-sm font-semibold text-gray-700">All Orders</h2>
             {!loading && orders.length > 0 && (
               <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
@@ -331,21 +287,20 @@ export function OrderDashboard() {
             )}
           </div>
 
-          {/* ── Empty state ─────────────────────────────────────────────── */}
           <AnimatePresence>
             {!loading && orders.length === 0 && !error && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
-                className="flex flex-col items-center justify-center py-20 text-center px-6"
+                className="flex flex-col items-center justify-center px-6 py-20 text-center"
               >
                 <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50">
                   <Package className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="mb-1 text-base font-semibold text-gray-900">No orders yet</h3>
                 <p className="mb-6 max-w-xs text-sm text-muted-foreground">
-                  You haven't sent any gifts yet. Browse our shops and send your first gift!
+                  You haven&apos;t sent any gifts yet. Browse our shops and send your first gift!
                 </p>
                 <Button
                   id="order-dashboard-browse"
@@ -359,12 +314,11 @@ export function OrderDashboard() {
             )}
           </AnimatePresence>
 
-          {/* ── Table ───────────────────────────────────────────────────── */}
           {(loading || orders.length > 0) && (
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50/60 hover:bg-gray-50/60">
-                  <TableHead className="pl-6 w-[260px]">Gift Item</TableHead>
+                  <TableHead className="w-[260px] pl-6">Product</TableHead>
                   <TableHead>For</TableHead>
                   <TableHead>Shop</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
@@ -375,29 +329,26 @@ export function OrderDashboard() {
               </TableHeader>
 
               <TableBody>
-                {/* Skeleton rows while loading */}
                 {loading && <TableSkeleton />}
 
-                {/* Real rows */}
                 {!loading &&
-                  orders.map((order, idx) => (
+                  orders.map((order, index) => (
                     <motion.tr
                       key={order.id}
                       id={`order-row-${order.id}`}
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.04 }}
+                      transition={{ delay: index * 0.04 }}
                       onClick={() => navigate(`/orders/${order.id}`)}
                       className="group cursor-pointer border-b border-gray-100 transition-colors hover:bg-orange-50/40"
                     >
-                      {/* Item */}
                       <TableCell className="pl-6 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-gray-100">
-                            {order.item?.image_url ? (
+                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-gray-100">
+                            {order.items?.image_url ? (
                               <img
-                                src={order.item.image_url}
-                                alt={order.item.name}
+                                src={order.items.image_url}
+                                alt={order.items.name}
                                 className="h-full w-full object-cover"
                               />
                             ) : (
@@ -408,43 +359,37 @@ export function OrderDashboard() {
                           </div>
                           <div className="min-w-0">
                             <p className="truncate text-sm font-medium text-gray-900">
-                              {order.item?.name ?? '—'}
+                              {order.items?.name ?? 'Product unavailable'}
                             </p>
-                            <p className="text-xs text-muted-foreground font-mono">
+                            <p className="font-mono text-xs text-muted-foreground">
                               #{order.code}
                             </p>
                           </div>
                         </div>
                       </TableCell>
 
-                      {/* Recipient */}
                       <TableCell className="text-sm text-gray-700">
                         {order.recipient_name || '—'}
                       </TableCell>
 
-                      {/* Shop */}
                       <TableCell className="text-sm text-gray-600">
-                        {order.shop?.name ?? '—'}
+                        {order.shops?.name ?? '—'}
                       </TableCell>
 
-                      {/* Amount */}
                       <TableCell className="text-right">
-                        <span className="text-sm font-semibold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">
+                        <span className="bg-gradient-to-r from-primary to-primary-light bg-clip-text text-sm font-semibold text-transparent">
                           {formatCurrency(order.amount, order.currency)}
                         </span>
                       </TableCell>
 
-                      {/* Status */}
                       <TableCell>
                         <StatusBadge status={order.status} />
                       </TableCell>
 
-                      {/* Date */}
-                      <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                      <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
                         {formatDate(order.created_at)}
                       </TableCell>
 
-                      {/* Chevron */}
                       <TableCell className="pr-4">
                         <ArrowRight className="h-4 w-4 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
                       </TableCell>

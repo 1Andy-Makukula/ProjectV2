@@ -119,6 +119,7 @@ export function OrderSummary() {
         '/payment/initialize',
         {
           body: {
+            action: 'initialize_payment',
             orderId: order.id,
             amount: sendData.item.price,
             currency: sendData.item.currency,
@@ -134,7 +135,8 @@ export function OrderSummary() {
         throw new Error('Payment link was not returned');
       }
 
-      window.location.assign(paymentResponse.paymentLink);
+      // Opens in a new tab, keeping your app open in the background
+      window.open(paymentResponse.paymentLink, '_blank');
     } catch (error: any) {
       console.error('Error creating order:', error);
       toast.error(error.message || 'Failed to start payment. Please try again.');

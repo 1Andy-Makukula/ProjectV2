@@ -12,20 +12,32 @@ export function MerchantRedemption() {
     mockTransactions.filter(t => t.status === 'completed')
   );
 
-  const handleVerifyCode = async (code: string): Promise<boolean> => {
+  const handleVerifyCode = async (code: string) => {
     // Mock verification - In production, this calls the backend
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     // Simulate 80% success rate
     const success = Math.random() > 0.2;
     
-    if (success) {
-      // Add to recent redemptions
-      const mockRedemption = mockTransactions[0];
-      setRecentRedemptions(prev => [mockRedemption, ...prev]);
-    }
-    
-    return success;
+    return success
+      ? {
+          success: true,
+          itemName: mockTransactions[0].product?.title || 'Gift item',
+          imageUrl: mockTransactions[0].product?.images?.[0] || null,
+          recipientName: 'Recipient',
+          message: `Code ${code} is ready to redeem.`,
+        }
+      : {
+          success: false,
+          message: 'Unable to verify this code.',
+        };
+  };
+
+  const handleRedeemCode = async (_code: string): Promise<boolean> => {
+    await new Promise(resolve => setTimeout(resolve, 800));
+    const mockRedemption = mockTransactions[0];
+    setRecentRedemptions(prev => [mockRedemption, ...prev]);
+    return true;
   };
 
   const todayEarnings = recentRedemptions.reduce((sum, t) => sum + t.amount_zmw, 0);
@@ -55,6 +67,7 @@ export function MerchantRedemption() {
               <HandshakeTerminal
                 mode="merchant"
                 onVerify={handleVerifyCode}
+                onRedeem={handleRedeemCode}
               />
             </Card>
 

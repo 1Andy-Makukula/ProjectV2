@@ -82,7 +82,7 @@ async function handleInitializePayment(payload: Record<string, any>): Promise<Re
       tx_ref: txRef,
       amount: amount / 100, // Convert from lowest denomination to actual amount
       currency: currency ?? "ZMW",
-      redirect_url: `${Deno.env.get("APP_URL") ?? ""}/confirmation/${orderId}?tx_ref=${txRef}`,
+      redirect_url: `${Deno.env.get("APP_URL") ?? "http://localhost:5173"}/confirmation/${orderId}?tx_ref=${txRef}`,
       payment_options: "card,mobilemoneyzambia,banktransfer",
       customer: { email, name, phonenumber: phone },
       customizations: {

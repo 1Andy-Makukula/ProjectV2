@@ -20,6 +20,7 @@ import { OrderHistory } from './pages/sender/OrderHistory';
 import { OrderDashboard } from './pages/sender/OrderDashboard';
 import { OrderDetail } from './pages/sender/OrderDetail';
 import { Settings } from './pages/sender/Settings';
+import { CustomerDashboard } from './pages/sender/CustomerDashboard';
 
 // Merchant Pages
 import { MerchantDashboard } from './pages/merchant/MerchantDashboard';
@@ -81,6 +82,10 @@ export const router = createBrowserRouter([
       {
         path: 'settings',
         element: <ProtectedRoute allowedRoles={['sender']}><Settings /></ProtectedRoute>
+      },
+      {
+        path: 'dashboard',
+        element: <ProtectedRoute allowedRoles={['sender']}><CustomerDashboard /></ProtectedRoute>
       },
       {
         // Any authenticated sender can access this to upgrade to merchant

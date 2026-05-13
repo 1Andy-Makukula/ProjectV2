@@ -33,4 +33,11 @@ export default defineConfig({
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
+
+  // SPA fallback: serve index.html for any path that doesn't match a real file.
+  // This fixes "Cannot GET /confirmation/..." when Flutterwave (or any external
+  // redirect) hits a deep URL directly in the Vite dev server.
+  server: {
+    historyApiFallback: true,
+  },
 })

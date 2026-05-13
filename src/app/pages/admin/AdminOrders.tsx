@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, Search, Download, Filter } from 'lucide-react';
+import { ArrowLeft, Search, Download, Package } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Badge } from '../../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { supabase } from '../../../utils/supabase/client';
 import { formatCurrency } from '../../../utils/currency';
 import { callServer } from '../../../utils/server';
@@ -16,6 +16,7 @@ interface Order {
   id: string;
   code: string;
   item_name: string;
+  item_image_url: string | null;
   shop_name: string;
   sender_name: string;
   recipient_name: string;
@@ -50,18 +51,7 @@ export function AdminOrders() {
 
       const { data: ordersData, error } = await supabase
         .from('orders')
-        .select(`
-          id,
-          code,
-          amount,
-          status,
-          created_at,
-          fulfilled_at,
-          recipient_name,
-          sender:users!sender_id(name),
-          item:items(name),
-          shop:shops(name)
-        `)
+        .select('*, items(name, image_url), shops(name), users!sender_id(name)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -69,9 +59,10 @@ export function AdminOrders() {
       const formattedOrders = (ordersData || []).map((order: any) => ({
         id: order.id,
         code: order.code,
-        item_name: order.item?.name || 'N/A',
-        shop_name: order.shop?.name || 'N/A',
-        sender_name: order.sender?.name || 'N/A',
+        item_name: order.items?.name || 'N/A',
+        item_image_url: order.items?.image_url || null,
+        shop_name: order.shops?.name || 'N/A',
+        sender_name: order.users?.name || 'N/A',
         recipient_name: order.recipient_name,
         amount: order.amount,
         status: order.status,
@@ -284,7 +275,7 @@ export function AdminOrders() {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="font-light">Code</TableHead>
-                        <TableHead className="font-light">Item</TableHead>
+                        <TableHead className="font-light">Product</TableHead>
                         <TableHead className="font-light">Shop</TableHead>
                         <TableHead className="font-light">Sender</TableHead>
                         <TableHead className="font-light">Recipient</TableHead>
@@ -303,7 +294,24 @@ export function AdminOrders() {
                           onClick={() => navigate(`/admin/orders/${order.id}`)}
                         >
                           <TableCell className="font-mono font-light">{order.code}</TableCell>
-                          <TableCell className="font-light">{order.item_name}</TableCell>
+                          <TableCell className="font-light">
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-gray-100">
+                                {order.item_image_url ? (
+                                  <img
+                                    src={order.item_image_url}
+                                    alt={order.item_name}
+                                    className="h-full w-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex h-full w-full items-center justify-center">
+                                    <Package className="h-5 w-5 text-gray-400" />
+                                  </div>
+                                )}
+                              </div>
+                              <span>{order.item_name}</span>
+                            </div>
+                          </TableCell>
                           <TableCell className="font-light">{order.shop_name}</TableCell>
                           <TableCell className="font-light">{order.sender_name}</TableCell>
                           <TableCell className="font-light">{order.recipient_name}</TableCell>
