@@ -4,7 +4,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
 // Standard CORS headers – required for supabase.functions.invoke() to work
 // ---------------------------------------------------------------------------
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://test-project-orpin-five.vercel.app",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
