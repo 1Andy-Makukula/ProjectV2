@@ -117,8 +117,11 @@ async function handleFlutterwaveWebhook(
   const signature = req.headers.get("verif-hash");
   const webhookSecret = Deno.env.get("FLUTTERWAVE_WEBHOOK_SECRET");
 
+  console.log("[DEBUG] Webhook signature received:", signature);
+  console.log("[DEBUG] Expecting secretHash:", webhookSecret);
+
   if (!signature || signature !== webhookSecret) {
-    console.error("Invalid webhook signature");
+    console.error("[DEBUG] Webhook signature mismatch!");
     return json({ error: "Invalid signature" }, 401);
   }
 
