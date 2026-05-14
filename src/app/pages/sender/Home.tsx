@@ -181,15 +181,24 @@ export function Home() {
     }
   };
 
-  const handleLogout = async () => {
-    if (isSigningOut) return;
-
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault(); // 1. STOPS the annoying page refresh!
+    
     try {
-      setIsSigningOut(true);
-      await signOut();
-      navigate('/');
+      if (typeof setIsSigningOut === 'function') setIsSigningOut(true);
+      // 2. Tell the data center to destroy the token
+      await supabase.auth.signOut(); 
+      
+      // 3. Clear any leftover zombie data in the browser
+      localStorage.clear(); 
+      sessionStorage.clear();
+      
+      // 4. Safely redirect to the login page
+      navigate('/login', { replace: true }); 
+    } catch (error) {
+      console.error('Logout failed:', error);
     } finally {
-      setIsSigningOut(false);
+      if (typeof setIsSigningOut === 'function') setIsSigningOut(false);
     }
   };
 
@@ -424,15 +433,15 @@ export function Home() {
 
       {/* ── Escrow Trust Banner ─────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-6 pb-16">
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-2xl p-10 my-12 flex flex-col md:flex-row items-center justify-center gap-8">
+        <div className="bg-gradient-to-r from-orange-500 to-red-600 rounded-2xl shadow-2xl p-10 my-12 flex flex-col md:flex-row items-center justify-center gap-8">
           <div className="flex-shrink-0 bg-white/10 p-5 rounded-full backdrop-blur-sm border border-white/20 shadow-inner">
-            <Shield className="w-16 h-16 text-yellow-400 fill-yellow-400" />
+            <Shield className="w-16 h-16 text-yellow-300 fill-yellow-300" />
           </div>
           <div className="text-center md:text-left max-w-3xl">
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight">
               100% Escrow Protected
             </h2>
-            <p className="text-blue-100 text-lg md:text-xl leading-relaxed font-medium">
+            <p className="text-orange-50 text-lg md:text-xl leading-relaxed font-medium">
               Every Kwacha is safely locked in the KithLy vault until the gift is physically collected at the shop. Zero risk. Full transparency.
             </p>
           </div>

@@ -72,14 +72,21 @@ export function Settings() {
     }
   };
 
-  const handleLogout = async () => {
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault(); // 1. STOPS the annoying page refresh!
+    
     try {
-      await signOut();
-      toast.success('Logged out successfully');
-      navigate('/');
+      // 2. Tell the data center to destroy the token
+      await supabase.auth.signOut(); 
+      
+      // 3. Clear any leftover zombie data in the browser
+      localStorage.clear(); 
+      sessionStorage.clear();
+      
+      // 4. Safely redirect to the login page
+      navigate('/login', { replace: true }); 
     } catch (error) {
-      console.error('Error logging out:', error);
-      toast.error('Failed to log out');
+      console.error('Logout failed:', error);
     }
   };
 

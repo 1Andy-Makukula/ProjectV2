@@ -98,18 +98,18 @@ export function AdminDashboard() {
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
 
-      const ordersThisWeek = orders?.filter(o => new Date(o.created_at) >= weekAgo) || [];
+      const ordersThisWeek = orders?.filter((o: any) => new Date(o.created_at) >= weekAgo) || [];
 
       setStats({
         totalOrders: orders?.length || 0,
-        totalValue: orders?.reduce((sum, o) => sum + o.amount, 0) || 0,
+        totalValue: orders?.reduce((sum: number, o: any) => sum + o.amount, 0) || 0,
         ordersThisWeek: ordersThisWeek.length,
-        valueThisWeek: ordersThisWeek.reduce((sum, o) => sum + o.amount, 0),
+        valueThisWeek: ordersThisWeek.reduce((sum: number, o: any) => sum + o.amount, 0),
         totalShops: shopsCount || 0,
         totalUsers: usersCount || 0,
-        fulfilledOrders: orders?.filter(o => o.status === 'fulfilled').length || 0,
-        pendingOrders: orders?.filter(o => o.status === 'pending_payment' || o.status === 'payment_submitted').length || 0,
-        expiredOrders: orders?.filter(o => o.status === 'expired').length || 0,
+        fulfilledOrders: orders?.filter((o: any) => o.status === 'fulfilled').length || 0,
+        pendingOrders: orders?.filter((o: any) => o.status === 'pending_payment' || o.status === 'payment_submitted').length || 0,
+        expiredOrders: orders?.filter((o: any) => o.status === 'expired').length || 0,
       });
 
       // Get recent orders with details
@@ -152,9 +152,22 @@ export function AdminDashboard() {
     }
   };
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate('/login');
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault(); // 1. STOPS the annoying page refresh!
+    
+    try {
+      // 2. Tell the data center to destroy the token
+      await supabase.auth.signOut(); 
+      
+      // 3. Clear any leftover zombie data in the browser
+      localStorage.clear(); 
+      sessionStorage.clear();
+      
+      // 4. Safely redirect to the login page
+      navigate('/login', { replace: true }); 
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   const handleExportAllData = async () => {
@@ -216,7 +229,7 @@ export function AdminDashboard() {
 
       const csvContent = [
         headers.join(','),
-        ...rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')),
+        ...rows.map((row: any[]) => row.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(',')),
       ].join('\n');
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

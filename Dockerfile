@@ -1,5 +1,5 @@
 # Stage 1: Build the Vite/React application
-FROM node:22-bookworm-slim AS builder
+FROM node:22-alpine AS builder
 
 # Install pnpm
 RUN corepack enable && corepack prepare pnpm@11.0.9 --activate
@@ -25,7 +25,7 @@ RUN echo "VITE_SUPABASE_URL=${APP_API_URL}" > .env && \
     pnpm run build
 
 # Stage 2: Serve the application using Nginx
-FROM nginx:stable-alpine
+FROM nginx:alpine
 
 # Copy the custom Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf

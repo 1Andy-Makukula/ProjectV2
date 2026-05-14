@@ -316,9 +316,22 @@ export function MerchantDashboard() {
     navigate('/merchant/fulfill');
   };
 
-  const handleLogout = async () => {
-    await signOut();
-    navigate('/');
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault(); // 1. STOPS the annoying page refresh!
+    
+    try {
+      // 2. Tell the data center to destroy the token
+      await supabase.auth.signOut(); 
+      
+      // 3. Clear any leftover zombie data in the browser
+      localStorage.clear(); 
+      sessionStorage.clear();
+      
+      // 4. Safely redirect to the login page
+      navigate('/login', { replace: true }); 
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   // Profile save — persists name and location; image upload is scaffolded below

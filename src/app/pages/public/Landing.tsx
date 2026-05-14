@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { useEffect } from 'react';
-import { Gift, Send, Package, Star, ArrowRight, Store } from 'lucide-react';
+import { Gift, Send, Package, Star, ArrowRight, Store, Shield } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Button } from '../../components/ui/button';
 
@@ -202,9 +202,30 @@ export function Landing() {
       </section>
 
       {/* ══════════════════════════════════════
+          ESCROW TRUST BANNER
+      ══════════════════════════════════════ */}
+      <section className="bg-white pt-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="bg-gradient-to-r from-orange-500 to-red-600 rounded-xl shadow-2xl p-8 flex flex-col md:flex-row items-center gap-6 md:gap-8 transition-transform hover:scale-[1.01]">
+            <div className="flex-shrink-0 bg-white/10 p-5 rounded-2xl backdrop-blur-sm border border-white/20">
+              <Shield className="w-12 h-12 text-yellow-300" />
+            </div>
+            <div className="text-center md:text-left">
+              <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-2">
+                100% Escrow Protected
+              </h2>
+              <p className="text-orange-50 text-lg">
+                Every Kwacha is safely locked in the KithLy vault until the gift is physically collected.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
           HOW IT WORKS — feature cards
       ══════════════════════════════════════ */}
-      <section className="bg-white py-24 px-6">
+      <section className="bg-white pt-20 pb-24 px-6">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
