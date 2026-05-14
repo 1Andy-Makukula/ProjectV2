@@ -10,18 +10,48 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Badge } from '../components/ui/badge';
 import { mockUsers, mockProfiles, mockShops, mockProducts } from '../data/mock-data';
 import { formatZMW } from '../utils/formatters';
+import { supabase } from '../../utils/supabase/client';
 
 export function AdminDashboard() {
   const [selectedTab, setSelectedTab] = useState('overview');
 
-  // Mock stats
+  const [liveStats, setLiveStats] = useState({
+    gmv: 0,
+    kithlyRevenue: 0,
+    activeGifts: 0,
+  });
+
+  useEffect(() => {
+    async function fetchLiveStats() {
+      // Fetch orders to calculate real GMV and commissions
+      const { data: orders } = await supabase
+        .from('orders')
+        .select('amount, status')
+        .in('status', ['paid', 'fulfilled', 'completed']);
+      
+      if (orders) {
+        const totalGmv = orders.reduce((sum, order) => sum + (Number(order.amount) || 0), 0);
+        const kithlyCut = totalGmv * 0.05; // 5% platform commission
+        
+        // Active gifts are those currently 'paid' but not yet 'fulfilled'
+        const activeCount = orders.filter(o => o.status === 'paid').length;
+
+        setLiveStats({
+          gmv: totalGmv,
+          kithlyRevenue: kithlyCut,
+          activeGifts: activeCount,
+        });
+      }
+    }
+    fetchLiveStats();
+  }, []);
+
+  // Static/Mock stats for non-critical data
   const stats = {
     totalUsers: mockUsers.length,
     totalMerchants: mockShops.length,
     totalProducts: mockProducts.length,
-    totalRevenue: 125000,
     pendingVerifications: mockProfiles.filter(p => !p.is_verified).length,
-    activeGifts: 45,
   };
 
   const recentTransactions = [
@@ -79,10 +109,10 @@ export function AdminDashboard() {
                 trend="+24%"
               />
               <StatCard
-                title="Monthly Revenue"
-                value={formatZMW(stats.totalRevenue)}
+                title="Total Platform GMV"
+                value={formatZMW(liveStats.gmv)}
                 icon={TrendingUp}
-                trend="+15%"
+                trend="Live Data"
               />
               <StatCard
                 title="Pending Verifications"
@@ -91,10 +121,10 @@ export function AdminDashboard() {
                 alert
               />
               <StatCard
-                title="Active Gifts"
-                value={stats.activeGifts}
+                title="KithLy Revenue (5%)"
+                value={formatZMW(liveStats.kithlyRevenue)}
                 icon={Gift}
-                trend="+5%"
+                trend="Live Data"
               />
             </div>
 
