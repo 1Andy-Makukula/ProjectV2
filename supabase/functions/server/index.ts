@@ -61,7 +61,6 @@ const requireAdmin = async (authorizationHeader?: string | null) => {
 // and returns a fully-formed Response.
 // ---------------------------------------------------------------------------
 
-/** action: "initialize_payment" — kicks off a Flutterwave payment session */
 async function handleInitializePayment(payload: Record<string, any>): Promise<Response> {
   const { orderId, amount, currency, email, name, phone, txRef } = payload;
 
@@ -72,6 +71,29 @@ async function handleInitializePayment(payload: Record<string, any>): Promise<Re
 
   if (!flutterwaveSecretKey || !flutterwavePublicKey) {
     return json({ error: "Flutterwave keys not configured" }, 500);
+  }
+
+  const supabase = getSupabaseAdmin();
+
+  // --- IDEMPOTENCY CHECK ---
+  if (txRef) {
+    const { data: existingOrder, error: fetchError } = await supabase
+      .from("orders")
+      .select("status, payment_link")
+      .eq("flutterwave_tx_ref", txRef)
+      .single();
+
+    if (!fetchError && existingOrder) {
+      if (existingOrder.status === "paid") {
+        console.log(`[server] Order ${txRef} is already paid.`);
+        return json({ success: true, alreadyPaid: true });
+      }
+      
+      if (existingOrder.payment_link) {
+        console.log(`[server] Resuming existing payment session for ${txRef}`);
+        return json({ success: true, paymentLink: existingOrder.payment_link });
+      }
+    }
   }
 
   const response = await fetch("https://api.flutterwave.com/v3/payments", {
@@ -98,7 +120,17 @@ async function handleInitializePayment(payload: Record<string, any>): Promise<Re
   const data = await response.json();
 
   if (data.status === "success") {
-    return json({ success: true, paymentLink: data.data.link });
+    const paymentLink = data.data.link;
+
+    // Save the payment link so we can resume it later
+    if (txRef) {
+      await supabase
+        .from("orders")
+        .update({ payment_link: paymentLink })
+        .eq("flutterwave_tx_ref", txRef);
+    }
+
+    return json({ success: true, paymentLink });
   }
 
   console.error("Flutterwave initialization error:", data);

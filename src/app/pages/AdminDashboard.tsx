@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { Users, Store, Gift, TrendingUp, AlertCircle, CheckCircle, Clock, Ban } from 'lucide-react';
+import { Users, Store, Gift, TrendingUp, AlertCircle, CheckCircle, Clock, Ban, Activity } from 'lucide-react';
+import { runAntigravityDiagnostics } from '../utils/diagnostics';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
@@ -33,9 +34,18 @@ export function AdminDashboard() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 md:px-6 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-light text-black mb-2">Admin Dashboard</h1>
-          <p className="text-sm font-light text-muted-foreground">Manage KithLy marketplace platform</p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-light text-black mb-2">Admin Dashboard</h1>
+            <p className="text-sm font-light text-muted-foreground">Manage KithLy marketplace platform</p>
+          </div>
+          <button 
+            onClick={() => runAntigravityDiagnostics()}
+            className="text-xs text-slate-400 hover:text-[#F97316] transition-colors flex items-center gap-1"
+          >
+            <Activity className="w-4 h-4" />
+            Run Systems Check
+          </button>
         </div>
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">

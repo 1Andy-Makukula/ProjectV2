@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Gift, Mail, Lock, User, Phone, MapPin } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../utils/auth/AuthContext';
+import { validateAndFormatZambianPhone } from '../utils/phone';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
@@ -16,7 +17,7 @@ interface AuthPageProps {
 }
 
 export function AuthPage({ onSuccess }: AuthPageProps) {
-  const { login, loginWithGoogle } = useAuth();
+  const { signIn, signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   // Login form
@@ -35,12 +36,12 @@ export function AuthPage({ onSuccess }: AuthPageProps) {
     setIsLoading(true);
 
     try {
-      const success = await login(loginEmail, loginPassword);
-      if (success) {
+      const { error } = await signIn(loginEmail, loginPassword);
+      if (!error) {
         toast.success('Welcome back!');
         onSuccess?.();
       } else {
-        toast.error('Invalid credentials');
+        toast.error(error.message || 'Invalid credentials');
       }
     } catch (error) {
       toast.error('Login failed');
@@ -50,27 +51,28 @@ export function AuthPage({ onSuccess }: AuthPageProps) {
   };
 
   const handleGoogleLogin = async () => {
-    setIsLoading(true);
-    try {
-      await loginWithGoogle();
-      toast.success('Signed in with Google');
-      onSuccess?.();
-    } catch (error) {
-      toast.error('Google sign-in failed');
-    } finally {
-      setIsLoading(false);
-    }
+    toast.info('Google sign-in coming soon');
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
+    const { isValid, formatted } = validateAndFormatZambianPhone(registerPhone);
+    if (!isValid) {
+      toast.error('Please enter a valid Zambian phone number (e.g. 0971234567)');
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      // Mock registration
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success('Account created! Please verify your profile.');
-      onSuccess?.();
+      const { error } = await signUp(registerEmail, registerPassword, registerName, formatted);
+      if (error) {
+        toast.error(error.message || 'Registration failed');
+      } else {
+        toast.success('Account created successfully!');
+        onSuccess?.();
+      }
     } catch (error) {
       toast.error('Registration failed');
     } finally {

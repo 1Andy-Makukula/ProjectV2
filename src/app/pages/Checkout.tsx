@@ -12,6 +12,7 @@ import { QRCodeDisplay } from '../components/shared/QRCodeDisplay';
 import { Badge } from '../components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { toast } from 'sonner';
+import { validateAndFormatZambianPhone } from '../../utils/phone';
 
 export function Checkout() {
   const navigate = useNavigate();
@@ -241,7 +242,15 @@ export function Checkout() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setStep('payment')}
+                  onClick={() => {
+                    const { isValid, formatted } = validateAndFormatZambianPhone(recipientPhone);
+                    if (!isValid) {
+                      toast.error('Please enter a valid Zambian recipient phone number');
+                      return;
+                    }
+                    setRecipientPhone(formatted);
+                    setStep('payment');
+                  }}
                   className="w-full py-4 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white rounded-full font-light shadow-lg"
                 >
                   Proceed to Payment

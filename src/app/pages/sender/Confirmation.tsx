@@ -5,8 +5,9 @@ import { formatCurrency } from '../../../utils/currency';
 import { createWhatsAppShareLink, getGiftPageUrl } from '../../../utils/whatsapp';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
-import { Gift, Share2, Copy, ArrowRight, Check } from 'lucide-react';
+import { Gift, Share2, Copy, ArrowRight, Check, Download } from 'lucide-react';
 import { motion } from 'motion/react';
+// @ts-expect-error - canvas-confetti lacks local types until pnpm install runs
 import confetti from 'canvas-confetti';
 
 interface Order {
@@ -16,6 +17,9 @@ interface Order {
   amount: number;
   currency: string;
   status: string;
+  created_at: string;
+  flutterwave_tx_ref: string | null;
+  flutterwave_transaction_id: string | null;
   sender: {
     name: string;
   };
@@ -51,7 +55,7 @@ export function Confirmation() {
           table: 'orders',
           filter: `id=eq.${orderId}`,
         },
-        (payload) => {
+        (payload: any) => {
           setOrder((prev) => {
             if (!prev) return prev;
             if (prev.status !== 'fulfilled' && payload.new.status === 'fulfilled') {
@@ -91,6 +95,9 @@ export function Confirmation() {
           amount,
           currency,
           status,
+          created_at,
+          flutterwave_tx_ref,
+          flutterwave_transaction_id,
           sender:sender_id (name),
           item:item_id (name, image_url),
           shop:shop_id (name)
@@ -153,6 +160,52 @@ export function Confirmation() {
       giftUrl
     );
     window.open(whatsappUrl, '_blank');
+  };
+
+  const handleDownloadReceipt = () => {
+    if (!order) return;
+
+    // @ts-expect-error - jspdf types missing until pnpm install
+    import('jspdf').then(({ jsPDF }) => {
+      const doc = new jsPDF();
+      
+      // Header
+      doc.setFontSize(24);
+      doc.setTextColor(249, 115, 22); // KithLy Orange
+      doc.text('KithLy', 20, 30);
+      
+      doc.setFontSize(12);
+      doc.setTextColor(100);
+      doc.text('Official Gift Receipt', 20, 40);
+      
+      // Order Details
+      doc.setTextColor(0);
+      doc.text(`Date: ${new Date(order.created_at).toLocaleDateString()}`, 20, 60);
+      doc.text(`Recipient: ${order.recipient_name}`, 20, 70);
+      doc.text(`Merchant: ${order.shop?.name || 'KithLy Merchant'}`, 20, 80);
+      
+      // Item
+      doc.setFontSize(14);
+      doc.text('Item Details', 20, 100);
+      doc.setFontSize(12);
+      doc.text(`Item: ${order.item?.name || 'Gift'}`, 20, 110);
+      doc.text(`Amount: ${formatCurrency(order.amount, order.currency)}`, 20, 120);
+      
+      // Proof of Payment
+      doc.setFontSize(14);
+      doc.text('Proof of Payment', 20, 140);
+      doc.setFontSize(10);
+      doc.setTextColor(80);
+      doc.text(`Transaction Ref: ${order.flutterwave_tx_ref || 'N/A'}`, 20, 150);
+      doc.text(`Flutterwave ID: ${order.flutterwave_transaction_id || 'N/A'}`, 20, 160);
+      
+      // Footer Escrow Terms
+      doc.setFontSize(10);
+      doc.setTextColor(150);
+      doc.text('Payment is securely held in escrow until the recipient collects the gift.', 105, 280, { align: 'center' });
+      
+      doc.save(`KithLy_Receipt_${order.code}.pdf`);
+    });
   };
 
   if (loading) {
@@ -300,6 +353,18 @@ export function Confirmation() {
               </>
             )}
           </Button>
+
+          {(order.status === 'paid' || order.status === 'fulfilled') && (
+            <Button
+              onClick={handleDownloadReceipt}
+              variant="outline"
+              className="w-full py-6 text-lg border-[#F97316] text-[#F97316] hover:bg-orange-50 transition-colors"
+              size="lg"
+            >
+              <Download className="w-5 h-5 mr-2" />
+              Download Official Receipt
+            </Button>
+          )}
         </motion.div>
 
         {/* View Orders Link */}

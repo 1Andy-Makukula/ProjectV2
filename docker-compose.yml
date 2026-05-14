@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Pass environment variables to the build process
+        - APP_API_URL=${VITE_SUPABASE_URL:-""}
+        - APP_API_KEY=${VITE_SUPABASE_ANON_KEY:-""}
+    container_name: kithly-frontend
+    ports:
+      - "8080:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped

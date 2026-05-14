@@ -68,12 +68,14 @@ export function HandshakeTerminal({
     if (!onRedeem || !verifiedItem) return;
 
     setIsRedeeming(true);
+    // OPTIMISTIC UPDATE
+    const previousStatus = verificationStatus;
+    setVerificationStatus('success');
 
     try {
       const success = await onRedeem(code);
 
       if (success) {
-        setVerificationStatus('success');
         if ('vibrate' in navigator) {
           navigator.vibrate([100, 50, 100]);
         }
@@ -81,13 +83,15 @@ export function HandshakeTerminal({
           description: 'Escrow released successfully',
         });
       } else {
-        setVerificationStatus('error');
+        // Revert on logical failure
+        setVerificationStatus(previousStatus);
         toast.error('Redemption failed', {
           description: 'Please verify the code again',
         });
       }
     } catch (error) {
-      setVerificationStatus('error');
+      // Revert on error
+      setVerificationStatus(previousStatus);
       toast.error('Redemption failed');
     } finally {
       setIsRedeeming(false);
@@ -207,8 +211,14 @@ export function HandshakeTerminal({
             >
               {verificationStatus === 'success' ? (
                 <>
-                  <Check className="h-5 w-5" strokeWidth={1.5} />
-                  <span className="font-light">Redeemed Successfully</span>
+                  {isRedeeming ? (
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-green-700 border-t-transparent" />
+                  ) : (
+                    <Check className="h-5 w-5" strokeWidth={1.5} />
+                  )}
+                  <span className="font-light">
+                    {isRedeeming ? 'Confirming Redemption...' : 'Redeemed Successfully'}
+                  </span>
                 </>
               ) : (
                 <>
