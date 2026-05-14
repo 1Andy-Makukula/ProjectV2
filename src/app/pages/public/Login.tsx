@@ -73,7 +73,7 @@ export function Login() {
     // Step 3: Role-based routing
     if (role === 'merchant') navigate('/merchant');
     else if (role === 'admin') navigate('/admin');
-    else navigate('/home');
+    else navigate('/dashboard');
   };
 
   const handleForgotPassword = async () => {

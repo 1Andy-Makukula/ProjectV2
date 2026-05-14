@@ -78,7 +78,7 @@ export function SignUp() {
       toast.error(msg);
     } else {
       toast.success('Account created! Welcome to KithLy 🎉');
-      navigate('/home');
+      navigate('/dashboard');
     }
   };
 
