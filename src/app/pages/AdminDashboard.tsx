@@ -1,9 +1,9 @@
 // KithLy Admin Dashboard - Platform Management
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Users, Store, Gift, TrendingUp, AlertCircle, CheckCircle, Clock, Ban, Activity } from 'lucide-react';
-import { runAntigravityDiagnostics } from '../utils/diagnostics';
+import { runAntigravityDiagnostics } from '../../utils/diagnostics';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
@@ -30,11 +30,11 @@ export function AdminDashboard() {
         .in('status', ['paid', 'fulfilled', 'completed']);
       
       if (orders) {
-        const totalGmv = orders.reduce((sum, order) => sum + (Number(order.amount) || 0), 0);
+        const totalGmv = orders.reduce((sum: number, order: any) => sum + (Number(order.amount) || 0), 0);
         const kithlyCut = totalGmv * 0.05; // 5% platform commission
         
         // Active gifts are those currently 'paid' but not yet 'fulfilled'
-        const activeCount = orders.filter(o => o.status === 'paid').length;
+        const activeCount = orders.filter((o: any) => o.status === 'paid').length;
 
         setLiveStats({
           gmv: totalGmv,
@@ -188,7 +188,7 @@ export function AdminDashboard() {
                       const profile = mockProfiles.find(p => p.user_id === user.id);
                       return (
                         <TableRow key={user.id}>
-                          <TableCell className="font-light">{profile?.full_name || 'N/A'}</TableCell>
+                          <TableCell className="font-light">{(profile as any)?.full_name || 'N/A'}</TableCell>
                           <TableCell className="font-light">{user.email}</TableCell>
                           <TableCell>
                             <Badge className="font-light">{user.role}</Badge>
@@ -237,12 +237,12 @@ export function AdminDashboard() {
                       const productCount = mockProducts.filter(p => p.shop_id === shop.id).length;
                       return (
                         <TableRow key={shop.id}>
-                          <TableCell className="font-light">{shop.name}</TableCell>
-                          <TableCell className="font-light">{shop.district?.name}</TableCell>
+                          <TableCell className="font-light">{(shop as any).name}</TableCell>
+                          <TableCell className="font-light">{(shop as any).district?.name}</TableCell>
                           <TableCell className="font-light">{productCount}</TableCell>
                           <TableCell>
-                            <Badge variant={shop.is_verified ? 'default' : 'secondary'} className="font-light">
-                              {shop.is_verified ? 'Verified' : 'Pending'}
+                            <Badge variant={(shop as any).is_verified ? 'default' : 'secondary'} className="font-light">
+                              {(shop as any).is_verified ? 'Verified' : 'Pending'}
                             </Badge>
                           </TableCell>
                           <TableCell>
