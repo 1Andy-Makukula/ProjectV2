@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   Loader2,
   CheckCircle,
+  Shield,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -419,6 +420,23 @@ export function Home() {
             ))}
           </motion.div>
         )}
+      </div>
+
+      {/* ── Escrow Trust Banner ─────────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-6 pb-16">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-2xl p-10 my-12 flex flex-col md:flex-row items-center justify-center gap-8">
+          <div className="flex-shrink-0 bg-white/10 p-5 rounded-full backdrop-blur-sm border border-white/20 shadow-inner">
+            <Shield className="w-16 h-16 text-yellow-400 fill-yellow-400" />
+          </div>
+          <div className="text-center md:text-left max-w-3xl">
+            <h2 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight">
+              100% Escrow Protected
+            </h2>
+            <p className="text-blue-100 text-lg md:text-xl leading-relaxed font-medium">
+              Every Kwacha is safely locked in the KithLy vault until the gift is physically collected at the shop. Zero risk. Full transparency.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
