@@ -20,17 +20,22 @@ import {
   AlertCircle,
   Camera,
   Package,
+  Download,
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { printReceipt } from '../../../utils/receiptGenerator';
 
 type RedeemStatus = 'idle' | 'ready' | 'success' | 'invalid' | 'not_paid';
 
 interface VerifiedOrder {
   id: string;
   shop_id: string;
+  shop_name: string;
   recipient_name: string;
   item_name: string;
   item_image_url: string | null;
+  amount: number;
+  code: string;
 }
 
 interface RedeemResult {
@@ -61,6 +66,7 @@ export function MerchantFulfill() {
   const [action, setAction] = useState<'verify' | 'redeem' | null>(null);
   const [result, setResult] = useState<RedeemResult>({ status: 'idle' });
   const [verifiedOrder, setVerifiedOrder] = useState<VerifiedOrder | null>(null);
+  const [lastRedeemedOrder, setLastRedeemedOrder] = useState<VerifiedOrder | null>(null);
   const [scanOpen, setScanOpen] = useState(false);
   const [scanError, setScanError] = useState('');
   const [scanSupported, setScanSupported] = useState(false);
@@ -199,7 +205,7 @@ export function MerchantFulfill() {
 
       const { data: order, error: orderError } = await supabase
         .from('orders')
-        .select('id, shop_id, status, recipient_name, items(name, image_url)')
+        .select('id, shop_id, status, recipient_name, code, amount, items(name, image_url), shops(name)')
         .eq('code', code.toUpperCase())
         .single();
 
@@ -227,12 +233,15 @@ export function MerchantFulfill() {
         return;
       }
 
-      const normalizedOrder = {
+      const normalizedOrder: VerifiedOrder = {
         id: order.id,
         shop_id: order.shop_id,
+        shop_name: (order.shops as any)?.name || 'KithLy Shop',
         recipient_name: order.recipient_name,
         item_name: (order.items as any)?.name || 'Unknown item',
         item_image_url: (order.items as any)?.image_url || null,
+        amount: order.amount,
+        code: order.code,
       };
 
       setVerifiedOrder(normalizedOrder);
@@ -270,6 +279,18 @@ export function MerchantFulfill() {
 
       if (error) throw error;
 
+      // --- ESCROW SETTLEMENT: Release funds to merchant on redemption ---
+      const { error: settleError } = await supabase.functions.invoke('server', {
+        body: { action: 'settle_payout', orderId: verifiedOrder.id },
+      });
+      if (settleError) {
+        // Non-fatal: log for ops visibility but don't block the redemption success UI
+        console.error('[MerchantFulfill] settle_payout failed:', settleError);
+      } else {
+        console.log('[MerchantFulfill] Escrow settled for order:', verifiedOrder.id);
+      }
+
+      setLastRedeemedOrder({ ...verifiedOrder });
       setResult({
         status: 'success',
         itemName: verifiedOrder.item_name,
@@ -462,12 +483,33 @@ export function MerchantFulfill() {
                 </p>
               </div>
 
-              <Button
-                onClick={handleReset}
-                className="bg-gradient-to-r from-primary to-primary-light px-8 py-6"
-              >
-                Redeem Another Gift
-              </Button>
+              <div className="flex flex-col gap-3 w-full">
+                {lastRedeemedOrder && (
+                  <Button
+                    variant="outline"
+                    className="border-primary text-primary hover:bg-orange-50"
+                    onClick={() =>
+                      printReceipt({
+                        shopName: lastRedeemedOrder.shop_name,
+                        itemName: lastRedeemedOrder.item_name,
+                        amountNgwee: lastRedeemedOrder.amount,
+                        claimCode: lastRedeemedOrder.code,
+                        recipientName: lastRedeemedOrder.recipient_name,
+                        fulfilledAt: new Date().toISOString(),
+                      })
+                    }
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Download Receipt
+                  </Button>
+                )}
+                <Button
+                  onClick={handleReset}
+                  className="bg-gradient-to-r from-primary to-primary-light px-8 py-6"
+                >
+                  Redeem Another Gift
+                </Button>
+              </div>
             </div>
           </motion.div>
         )}

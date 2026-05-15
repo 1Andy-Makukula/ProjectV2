@@ -1,9 +1,10 @@
 // KithLy Header - Global Navigation
 
 import { useState, useEffect } from 'react';
-import { ShoppingCart, User, Menu, Gift, Bell, X } from 'lucide-react';
+import { ShoppingCart, User, Menu, Gift, Bell, X, HelpCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
+import { Link } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { useCart } from '../../hooks/useCart';
 import { supabase } from '../../../utils/supabase/client';
@@ -112,6 +113,15 @@ export function Header({
                 )}
               </button>
             )}
+
+            {/* Support */}
+            <Link
+              to="/support"
+              className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+              aria-label="Support"
+            >
+              <HelpCircle className="w-6 h-6" strokeWidth={1.5} />
+            </Link>
 
             {/* Cart */}
             <motion.button

@@ -14,7 +14,7 @@ import {
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { formatCurrency } from '../../../utils/currency';
-import { QrCode, LogOut, Package, TrendingUp, Camera, Save, Edit, Trash2 } from 'lucide-react';
+import { QrCode, LogOut, Package, TrendingUp, Camera, Save, Edit, Trash2, HelpCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AdminItems } from '../admin/AdminItems';
 
@@ -40,6 +40,7 @@ interface Analytics {
   totalValue: number;
   weekFulfilled: number;
   weekValue: number;
+  availableBalance: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -52,9 +53,13 @@ interface ShopProfileCardProps {
   profileImageUrl: string | null;
   profileSaving: boolean;
   profileSaved: boolean;
+  payoutAccount: string;
+  businessHours: string;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   onNameChange: (v: string) => void;
   onLocationChange: (v: string) => void;
+  onPayoutAccountChange: (v: string) => void;
+  onBusinessHoursChange: (v: string) => void;
   onImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSave: () => void;
 }
@@ -65,9 +70,13 @@ function ShopProfileCard({
   profileImageUrl,
   profileSaving,
   profileSaved,
+  payoutAccount,
+  businessHours,
   fileInputRef,
   onNameChange,
   onLocationChange,
+  onPayoutAccountChange,
+  onBusinessHoursChange,
   onImageChange,
   onSave,
 }: ShopProfileCardProps) {
@@ -77,7 +86,7 @@ function ShopProfileCard({
     <Card className="rounded-2xl border border-gray-100 shadow-sm">
       <CardHeader>
         <CardTitle className="text-base font-semibold">Shop Profile Settings</CardTitle>
-        <CardDescription>Update your storefront name, location, and logo.</CardDescription>
+        <CardDescription>Update your storefront name, location, payout details, and hours.</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -140,6 +149,37 @@ function ShopProfileCard({
           </div>
         </div>
 
+        {/* Payout & Operations */}
+        <div className="mt-6 pt-6 border-t border-gray-100 space-y-4">
+          <p className="text-sm font-semibold text-gray-700">Payout &amp; Operations</p>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="payout-account">Payout Account</Label>
+            <Input
+              id="payout-account"
+              value={payoutAccount}
+              onChange={(e) => onPayoutAccountChange(e.target.value)}
+              placeholder="e.g. Airtel 0971234567 or FNB 123456789"
+            />
+            <p className="text-xs text-muted-foreground">
+              Mobile money (Airtel / MTN / Zamtel) or bank account number for withdrawals.
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="business-hours">Business Hours</Label>
+            <Input
+              id="business-hours"
+              value={businessHours}
+              onChange={(e) => onBusinessHoursChange(e.target.value)}
+              placeholder="e.g. Mon–Fri 08:00–17:00, Sat 09:00–13:00"
+            />
+            <p className="text-xs text-muted-foreground">
+              Shown to recipients so they know when to collect their gift.
+            </p>
+          </div>
+        </div>
+
         {/* Save action */}
         <div className="flex justify-end mt-6 pt-4 border-t border-gray-100">
           <Button
@@ -156,6 +196,7 @@ function ShopProfileCard({
     </Card>
   );
 }
+
 
 // ---------------------------------------------------------------------------
 // Main component
@@ -175,13 +216,17 @@ export function MerchantDashboard() {
     totalValue: 0,
     weekFulfilled: 0,
     weekValue: 0,
+    availableBalance: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [withdrawing, setWithdrawing] = useState(false);
 
   // Profile editor state
   const [profileName, setProfileName] = useState('');
   const [profileLocation, setProfileLocation] = useState('');
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+  const [payoutAccount, setPayoutAccount] = useState('');
+  const [businessHours, setBusinessHours] = useState('');
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -234,7 +279,7 @@ export function MerchantDashboard() {
     try {
       const { data: merchantShop, error: shopError } = await supabase
         .from('merchant_shops')
-        .select('shop_id, shop:shops(id, name, location, image_url)')
+        .select('shop_id, shop:shops(id, name, location, image_url, payout_account, business_hours)')
         .eq('user_id', profile.id)
         .single();
 
@@ -250,6 +295,8 @@ export function MerchantDashboard() {
       setProfileName(shop?.name ?? '');
       setProfileLocation(shop?.location ?? '');
       setProfileImageUrl(shop?.image_url ?? null);
+      setPayoutAccount(shop?.payout_account ?? '');
+      setBusinessHours(shop?.business_hours ?? '');
 
       await fetchOrders(currentShopId);
       await fetchAnalytics(currentShopId);
@@ -287,29 +334,40 @@ export function MerchantDashboard() {
 
   const fetchAnalytics = async (currentShopId: string) => {
     try {
-      const { data, error } = await supabase
+      // 1. Get the real 'Available Balance' from the merchant_balances table (95% share)
+      const { data: balanceData } = await supabase
+        .from('merchant_balances')
+        .select('available_balance')
+        .eq('shop_id', currentShopId)
+        .single();
+
+      // 2. Get the historical 'Total Value' from the orders table
+      const { data: ordersData } = await supabase
         .from('orders')
-        .select('amount, fulfilled_at, status')
+        .select('amount, fulfilled_at')
         .eq('shop_id', currentShopId)
         .eq('status', 'fulfilled');
 
-      if (error) throw error;
+      const totalValue = ordersData?.reduce((sum: number, o: any) => sum + o.amount, 0) || 0;
 
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-
-      const totalFulfilled = data?.length || 0;
-      const totalValue = data?.reduce((sum: number, o: any) => sum + o.amount, 0) || 0;
-
-      const weekOrders = data?.filter(
+      const weekOrders = ordersData?.filter(
         (o: any) => o.fulfilled_at && new Date(o.fulfilled_at) >= oneWeekAgo
       );
       const weekFulfilled = weekOrders?.length || 0;
       const weekValue = weekOrders?.reduce((sum: number, o: any) => sum + o.amount, 0) || 0;
 
-      setAnalytics({ totalFulfilled, totalValue, weekFulfilled, weekValue });
+      setAnalytics(prev => ({
+        ...prev,
+        totalFulfilled: ordersData?.length || 0,
+        totalValue,
+        weekFulfilled,
+        weekValue,
+        availableBalance: balanceData?.available_balance || 0,
+      }));
     } catch (error) {
-      console.error('Error fetching analytics:', error);
+      console.error('Error syncing dashboard:', error);
     }
   };
 
@@ -323,6 +381,29 @@ export function MerchantDashboard() {
 
   const handleDeleteProduct = (id: string) => {
     console.log('Delete product', id);
+  };
+
+  const handleWithdrawRequest = async () => {
+    if (!shopId || analytics.availableBalance <= 0) return;
+    setWithdrawing(true);
+    try {
+      const { error } = await supabase.functions.invoke('server', {
+        body: {
+          action: 'request_withdrawal',
+          shopId,
+          amount: analytics.availableBalance,
+        },
+      });
+      if (error) throw error;
+      // Optimistically clear the balance in UI — it'll reconcile on next fetch
+      setAnalytics(prev => ({ ...prev, availableBalance: 0 }));
+      alert('Withdrawal request submitted! KithLy will process it within 1-2 business days.');
+    } catch (err: any) {
+      console.error('[Withdraw] Failed:', err);
+      alert(err.message || 'Withdrawal request failed. Please try again.');
+    } finally {
+      setWithdrawing(false);
+    }
   };
 
   const handleLogout = async (e: React.MouseEvent) => {
@@ -350,7 +431,12 @@ export function MerchantDashboard() {
 
     const { error } = await supabase
       .from('shops')
-      .update({ name: profileName, location: profileLocation })
+      .update({
+        name: profileName,
+        location: profileLocation,
+        payout_account: payoutAccount,
+        business_hours: businessHours,
+      })
       .eq('id', shopId);
 
     if (!error) {
@@ -399,6 +485,9 @@ export function MerchantDashboard() {
               <QrCode className="w-4 h-4 mr-2" />
               Redeem Gift
             </Button>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/support')}>
+              <HelpCircle className="w-5 h-5" />
+            </Button>
             <Button variant="ghost" size="icon" onClick={handleLogout}>
               <LogOut className="w-5 h-5" />
             </Button>
@@ -412,10 +501,10 @@ export function MerchantDashboard() {
         {/* Analytics Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
-            { label: 'Total Fulfilled', value: analytics.totalFulfilled, icon: Package, isCurrency: false },
-            { label: 'Total Value',     value: analytics.totalValue,     icon: TrendingUp, isCurrency: true },
-            { label: 'This Week',       value: analytics.weekFulfilled,  icon: Package, isCurrency: false },
-            { label: 'Week Value',      value: analytics.weekValue,      icon: TrendingUp, isCurrency: true },
+            { label: 'Total Fulfilled',   value: analytics.totalFulfilled,   icon: Package,    isCurrency: false },
+            { label: 'Total Value',        value: analytics.totalValue,        icon: TrendingUp, isCurrency: true  },
+            { label: 'This Week',          value: analytics.weekFulfilled,     icon: Package,    isCurrency: false },
+            { label: 'Available for Withdrawal',  value: analytics.availableBalance,  icon: TrendingUp, isCurrency: true  },
           ].map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -424,10 +513,21 @@ export function MerchantDashboard() {
               transition={{ delay: index * 0.1 }}
               className="bg-white p-6 rounded-xl shadow-sm"
             >
-              <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-center justify-between mb-2">
                 <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
                   <stat.icon className="w-5 h-5 text-primary" />
                 </div>
+                {stat.label === 'Available for Withdrawal' && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleWithdrawRequest}
+                    disabled={withdrawing || analytics.availableBalance <= 0}
+                    className="h-7 text-xs border-primary text-primary hover:bg-orange-50"
+                  >
+                    {withdrawing ? 'Requesting...' : 'Withdraw'}
+                  </Button>
+                )}
               </div>
               <p className="text-2xl font-bold">
                 <AnimatedMetric value={stat.value} isCurrency={stat.isCurrency} />
@@ -568,9 +668,13 @@ export function MerchantDashboard() {
               profileImageUrl={profileImageUrl}
               profileSaving={profileSaving}
               profileSaved={profileSaved}
+              payoutAccount={payoutAccount}
+              businessHours={businessHours}
               fileInputRef={fileInputRef}
               onNameChange={setProfileName}
               onLocationChange={setProfileLocation}
+              onPayoutAccountChange={setPayoutAccount}
+              onBusinessHoursChange={setBusinessHours}
               onImageChange={handleImageChange}
               onSave={handleSaveProfile}
             />

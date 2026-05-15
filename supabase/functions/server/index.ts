@@ -167,6 +167,62 @@ async function handleInitializePayment(payload: Record<string, any>): Promise<Re
  * Also triggered automatically when Flutterwave POSTs with a "verif-hash" header.
  * Verifies the signature then marks the matching order as paid.
  */
+// ---------------------------------------------------------------------------
+// Twilio WhatsApp Notification Engine
+// Fires a WhatsApp message to the recipient with their claim code.
+// ---------------------------------------------------------------------------
+
+async function sendWhatsAppCode(
+  to: string,
+  recipientName: string,
+  itemName: string,
+  claimCode: string,
+  shopName: string,
+  shopLocation: string,
+): Promise<void> {
+  const accountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
+  const authToken = Deno.env.get("TWILIO_AUTH_TOKEN");
+
+  if (!accountSid || !authToken) {
+    console.error("[Twilio] Missing TWILIO_ACCOUNT_SID or TWILIO_AUTH_TOKEN — skipping WhatsApp notification.");
+    return;
+  }
+
+  // Sanitize recipient number to E.164 format (260XXXXXXXXX)
+  const digitsOnly = String(to ?? "").replace(/\D/g, "");
+  const cleanTo = `260${digitsOnly.slice(-9)}`;
+
+  const messageBody = `🎁 *You've got a gift!*\n\nHi ${recipientName}, someone just sent you *${itemName}* from *${shopName}* via KithLy.\n\n📍 *Pickup Location:* ${shopLocation}\n🔑 *Claim Code:* *${claimCode}*\n\nShow this code to the shop attendant to claim your gift. Enjoy!`;
+
+  const formBody = new URLSearchParams({
+    From: "whatsapp:+14155238886",
+    To: `whatsapp:+${cleanTo}`,
+    Body: messageBody,
+  });
+
+  const credentials = btoa(`${accountSid}:${authToken}`);
+
+  const response = await fetch(
+    `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${credentials}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: formBody.toString(),
+    },
+  );
+
+  const result = await response.json();
+
+  if (result.error_code) {
+    console.error(`[Twilio] WhatsApp send failed (${result.error_code}): ${result.message}`);
+  } else {
+    console.log(`[Twilio] WhatsApp sent to ${cleanTo} — SID: ${result.sid}`);
+  }
+}
+
 async function handleFlutterwaveWebhook(
   req: Request,
   payload: Record<string, any>,
@@ -220,6 +276,36 @@ async function handleFlutterwaveWebhook(
     }
 
     console.log("Order marked as paid:", order.id);
+
+    // --- TWILIO WHATSAPP NOTIFICATION ---
+    // Fetch full order details including shop info for the professional message template.
+    const { data: fullOrder, error: fetchError } = await supabase
+      .from("orders")
+      .select(`
+        code,
+        recipient_name,
+        recipient_phone,
+        item:items(name),
+        shop:shops(name, location)
+      `)
+      .eq("id", order.id)
+      .single();
+
+    if (fetchError || !fullOrder) {
+      console.error("[Twilio] Could not fetch order details for notification:", fetchError);
+    } else {
+      const itemName = (fullOrder.item as any)?.name ?? "your gift";
+      const shopName = (fullOrder.shop as any)?.name ?? "the shop";
+      const shopLocation = (fullOrder.shop as any)?.location ?? "see shop for details";
+      await sendWhatsAppCode(
+        fullOrder.recipient_phone,
+        fullOrder.recipient_name,
+        itemName,
+        fullOrder.code,
+        shopName,
+        shopLocation,
+      );
+    }
   }
 
   return json({ success: true });
@@ -363,6 +449,106 @@ async function handleVerifyPayment(payload: Record<string, any>): Promise<Respon
 }
 
 // ---------------------------------------------------------------------------
+// action: "settle_payout"  (merchant — called from MerchantFulfill after redemption)
+// Releases the escrow: credits the merchant's available_balance (95%) and
+// records the KithLy commission (5%) in the payout_ledger for auditing.
+// ---------------------------------------------------------------------------
+
+async function handleSettlePayout(
+  payload: Record<string, any>,
+  authHeader: string | null,
+): Promise<Response> {
+  const { orderId } = payload;
+  if (!orderId) return json({ error: "orderId is required" }, 400);
+
+  const supabase = getSupabaseAdmin();
+
+  // 1. Fetch order details — must be fulfilled and not already settled
+  const { data: order, error: orderError } = await supabase
+    .from("orders")
+    .select("amount, shop_id, status, settled")
+    .eq("id", orderId)
+    .single();
+
+  if (orderError || !order || order.status !== "fulfilled" || order.settled) {
+    return json({ error: "Order not ready for settlement or already settled" }, 400);
+  }
+
+  // 2. Calculate the 95/5 Split (in Ngwee)
+  const totalAmount = order.amount;
+  const merchantShare = Math.floor(totalAmount * 0.95);
+  const kithlyCommission = totalAmount - merchantShare;
+
+  console.log(
+    `[settle_payout] Order ${orderId} | Total: ${totalAmount} | Merchant 95%: ${merchantShare} | KithLy 5%: ${kithlyCommission}`,
+  );
+
+  // 3. Update the Merchant's Balance
+  const { error: balanceError } = await supabase.rpc("increment_merchant_balance", {
+    target_shop_id: order.shop_id,
+    amount_to_add: merchantShare,
+  });
+
+  if (balanceError) {
+    console.error("[settle_payout] Balance update failed:", balanceError);
+    return json({ error: "Failed to update merchant balance" }, 500);
+  }
+
+  // 4. Record the Event in the Ledger for auditing
+  await supabase.from("payout_ledger").insert({
+    order_id: orderId,
+    shop_id: order.shop_id,
+    amount: merchantShare,
+    commission: kithlyCommission,
+    status: "pending_withdrawal",
+  });
+
+  // 5. Mark the order as settled
+  await supabase.from("orders").update({ settled: true }).eq("id", orderId);
+
+  return json({ success: true, merchantShare, kithlyCommission });
+}
+
+// ---------------------------------------------------------------------------
+// action: "request_withdrawal"  (merchant)
+// Debits the merchant's available_balance and logs a pending withdrawal.
+// The actual bank transfer is handled by KithLy ops after reviewing the ledger.
+// ---------------------------------------------------------------------------
+
+async function handleRequestWithdrawal(
+  payload: Record<string, any>,
+  _authHeader: string | null,
+): Promise<Response> {
+  const { shopId, amount } = payload;
+
+  if (!shopId || !amount || amount <= 0) {
+    return json({ error: "shopId and a positive amount are required" }, 400);
+  }
+
+  const supabase = getSupabaseAdmin();
+
+  // Call the atomic RPC which checks balance, debits it, and writes the ledger row
+  // in a single database transaction — prevents double-withdrawal race conditions.
+  const { data, error } = await supabase.rpc("request_withdrawal_atomic", {
+    target_shop_id: shopId,
+    withdrawal_amount: amount,
+  });
+
+  if (error) {
+    console.error("[request_withdrawal] RPC failed:", error);
+    return json({ error: error.message ?? "Withdrawal request failed" }, 400);
+  }
+
+  console.log(`[request_withdrawal] Shop ${shopId} requested withdrawal of ${amount} Ngwee. Ledger ID: ${data}`);
+
+  return json({
+    success: true,
+    message: "Withdrawal request submitted. KithLy will process it within 1-2 business days.",
+    ledgerId: data,
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Entry point — action-based payload router
 //
 // Frontend calls this function via:
@@ -413,6 +599,12 @@ Deno.serve(async (req: Request) => {
 
       case "create_merchant":
         return await handleCreateMerchant(payload, authHeader);
+
+      case "settle_payout":
+        return await handleSettlePayout(payload, authHeader);
+
+      case "request_withdrawal":
+        return await handleRequestWithdrawal(payload, authHeader);
 
       default:
         return json({ error: `Unknown action: "${action ?? ""}"` }, 400);
