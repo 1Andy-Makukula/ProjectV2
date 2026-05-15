@@ -120,7 +120,14 @@ export function OrderSummary() {
 
       sessionStorage.removeItem('sendFlowData');
 
-      console.log('Invoking payment with order.id:', order.id);
+      // --- FRONTEND "LAST 9" SANITIZER ---
+      // Strips all formatting/prefixes and builds a clean 12-digit Zambian number.
+      // Prevents double-prefixing bugs (e.g. +0260, 00260) before they ever reach the backend.
+      const rawPhone = profile?.phone || user?.phone || sendData.recipientPhone || '';
+      const digitsOnly = rawPhone.replace(/\D/g, '');
+      const cleanPhone = `260${digitsOnly.slice(-9)}`;
+
+      console.log('Invoking payment with order.id:', order.id, '| cleanPhone:', cleanPhone);
 
       const paymentResponse = await callServer<PaymentInitializationResponse>(
         '/payment/initialize',
@@ -132,7 +139,7 @@ export function OrderSummary() {
             currency: sendData.item.currency,
             email: profile?.email || user.email,
             name: profile?.name || user.user_metadata?.name || 'KithLy Customer',
-            phone: profile?.phone || user?.phone || sendData.recipientPhone,
+            phone: cleanPhone,
             txRef,
           },
         },
@@ -148,20 +155,11 @@ export function OrderSummary() {
         return;
       }
 
-      if (paymentResponse.mode === 'stk_push') {
-        // STK Push: PIN prompt sent to user's phone — no redirect needed
-        toast.success(paymentResponse.message || 'PIN prompt sent! Please check your phone and enter your mobile money PIN.');
-        navigate('/orders', {
-          state: { message: 'Your PIN prompt has been sent. Complete the payment on your phone to confirm.' }
-        });
-        return;
-      }
-
-      // Fallback: redirect-based payment link (legacy)
+      // Redirect to Flutterwave Hosted Checkout
       if (paymentResponse.paymentLink) {
-        window.open(paymentResponse.paymentLink, '_blank');
+        window.location.href = paymentResponse.paymentLink;
       } else {
-        throw new Error('Payment link was not returned');
+        throw new Error('Payment link was not returned. Please try again.');
       }
     } catch (error: any) {
       console.error('Error creating order:', error);

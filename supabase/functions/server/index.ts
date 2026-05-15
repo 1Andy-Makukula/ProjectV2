@@ -93,15 +93,26 @@ async function handleInitializePayment(payload: Record<string, any>): Promise<Re
     }
   }
 
-  // --- SMART ROUTER: Direct Mobile Money Zambia Charge (STK Push / PIN Prompt) ---
-  // No hardcoded network — Flutterwave reads the phone prefix and routes automatically:
-  //   096/076 → MTN Zambia
-  //   097/077 → Airtel Zambia
-  //   095/075 → Zamtel
-  console.log(`[server] Smart Router: initiating PIN prompt to ${phone} for order ${orderId}`);
+  // --- "LAST 9" PHONE SANITIZER ---
+  // Strips all formatting, grabs the last 9 digits, and prepends the clean Zambian country code.
+  // This prevents double-prefixing bugs like +0260XXXXXXXXX or 00260XXXXXXXXX.
+  const digitsOnly = String(phone ?? "").replace(/\D/g, "");
+  const last9 = digitsOnly.slice(-9);
+  const cleanPhone = `260${last9}`;
+
+  console.log(`[server] Phone sanitizer: raw="${phone}" → clean="${cleanPhone}" (${cleanPhone.length} digits)`);
+
+  if (cleanPhone.length !== 12) {
+    return json({ error: "Invalid Zambian phone number format. Expected a 9-digit local number (e.g. 097XXXXXXX)." }, 400);
+  }
+
+  // --- HOSTED CHECKOUT: Flutterwave Payment Link ---
+  // Generates a hosted payment page. User is redirected to Flutterwave's UI.
+  const appUrl = Deno.env.get("APP_URL") || "https://test-project-orpin-five.vercel.app";
+  console.log(`[server] Hosted Checkout: generating payment link for order ${orderId}`);
 
   const chargeResponse = await fetch(
-    "https://api.flutterwave.com/v3/charges?type=mobile_money_zambia",
+    "https://api.flutterwave.com/v3/payments",
     {
       method: "POST",
       headers: {
@@ -112,41 +123,38 @@ async function handleInitializePayment(payload: Record<string, any>): Promise<Re
         tx_ref: txRef,
         amount: amount / 100, // Convert from lowest denomination (ngwe) to ZMW
         currency: "ZMW",
-        country: "ZM",
-        type: "mobile_money_zambia",
-        phone_number: phone,
-        email,
-        fullname: name,
+        redirect_url: `${appUrl}/confirmation/${orderId}?tx_ref=${txRef}`,
+        customer: {
+          email,
+          name,
+          phonenumber: cleanPhone,
+        },
         customizations: {
-          title: "KithLy Escrow Gifting",
-          description: "Payment for your gift order",
+          title: "KithLy Gift",
+          description: "Secure escrow payment for your gift order",
+          logo: "",
         },
       }),
     }
   );
 
   const data = await chargeResponse.json();
-  console.log("[server] Flutterwave Smart Router response:", JSON.stringify(data));
+  console.log("[server] Flutterwave Hosted Checkout response:", JSON.stringify(data));
 
   if (data.status === "success") {
-    // PIN prompt has been sent to the user's phone.
-    // Return the meta.authorization so the frontend knows the STK push is live.
-    const authorization = data.meta?.authorization ?? null;
+    const paymentLink = data.data.link;
 
-    // Persist a marker so we can track this pending charge
+    // Persist the link for idempotency / resume support
     if (txRef) {
       await supabase
         .from("orders")
-        .update({ payment_link: `stk_push:${txRef}` })
+        .update({ payment_link: paymentLink })
         .eq("flutterwave_tx_ref", txRef);
     }
 
     return json({
       success: true,
-      mode: "stk_push",
-      message: "PIN prompt sent to your phone. Please enter your mobile money PIN.",
-      authorization,
-      txRef,
+      paymentLink,
     });
   }
 
