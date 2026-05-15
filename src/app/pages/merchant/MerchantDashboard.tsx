@@ -16,6 +16,7 @@ import { Label } from '../../components/ui/label';
 import { formatCurrency } from '../../../utils/currency';
 import { QrCode, LogOut, Package, TrendingUp, Camera, Save, Edit, Trash2 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { AdminItems } from '../admin/AdminItems';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -551,40 +552,11 @@ export function MerchantDashboard() {
           {/* Inventory */}
           <TabsContent value="inventory" className="space-y-4">
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-gray-50 border-b">
-                  <tr>
-                    <th className="px-6 py-4 font-medium text-sm text-gray-500">Product Name</th>
-                    <th className="px-6 py-4 font-medium text-sm text-gray-500 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y">
-                  {/* Stubbed row since product fetching isn't implemented here yet */}
-                  <tr>
-                    <td className="px-6 py-4 text-sm text-gray-900">Sample Product</td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => handleEditProduct('sample-id')} 
-                          className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => handleDeleteProduct('sample-id')} 
-                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              {shopId ? (
+                <AdminItems merchantShopId={shopId} />
+              ) : (
+                <div className="p-12 text-center text-muted-foreground">Loading inventory...</div>
+              )}
             </div>
           </TabsContent>
 

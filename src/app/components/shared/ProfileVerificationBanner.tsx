@@ -3,7 +3,7 @@
 import { AlertCircle, Shield } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Alert, AlertDescription } from '../ui/alert';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../../utils/auth/AuthContext';
 
 interface ProfileVerificationBannerProps {
   onComplete?: () => void;

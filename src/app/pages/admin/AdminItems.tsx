@@ -24,18 +24,21 @@ interface Shop {
   name: string;
 }
 
-export function AdminItems() {
+export function AdminItems({ merchantShopId }: { merchantShopId?: string }) {
   const navigate = useNavigate();
-  const { shopId } = useParams();
+  const { shopId: paramShopId } = useParams();
+  const activeShopId = merchantShopId || paramShopId;
+  const isMerchantMode = !!merchantShopId;
+
   const [shop, setShop] = useState<Shop | null>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (shopId) {
+    if (activeShopId) {
       loadShopAndItems();
     }
-  }, [shopId]);
+  }, [activeShopId]);
 
   const loadShopAndItems = async () => {
     try {
@@ -45,7 +48,7 @@ export function AdminItems() {
       const { data: shopData, error: shopError } = await supabase
         .from('shops')
         .select('id, name')
-        .eq('id', shopId)
+        .eq('id', activeShopId)
         .single();
 
       if (shopError) throw shopError;
@@ -55,7 +58,7 @@ export function AdminItems() {
       const { data: itemsData, error: itemsError } = await supabase
         .from('items')
         .select('*')
-        .eq('shop_id', shopId)
+        .eq('shop_id', activeShopId)
         .order('created_at', { ascending: false });
 
       if (itemsError) throw itemsError;
@@ -71,10 +74,16 @@ export function AdminItems() {
 
   const toggleItemAvailability = async (itemId: string, currentStatus: boolean) => {
     try {
-      const { error } = await supabase
+      let query = supabase
         .from('items')
         .update({ is_available: !currentStatus })
         .eq('id', itemId);
+        
+      if (merchantShopId) {
+        query = query.eq('shop_id', merchantShopId);
+      }
+
+      const { error } = await query;
 
       if (error) throw error;
 
@@ -87,36 +96,38 @@ export function AdminItems() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
+    <div className={isMerchantMode ? "" : "min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50"}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-primary/90 text-white">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-4 mb-4">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/admin/shops')}
-              className="text-white hover:bg-white/10"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-light">{shop?.name || 'Shop'} Items</h1>
-              <p className="text-sm opacity-90 font-light">Manage items for this shop</p>
+      {!isMerchantMode && (
+        <div className="bg-gradient-to-r from-primary to-primary/90 text-white">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-center gap-4 mb-4">
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/admin/shops')}
+                className="text-white hover:bg-white/10"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <div>
+                <h1 className="text-3xl font-light">{shop?.name || 'Shop'} Items</h1>
+                <p className="text-sm opacity-90 font-light">Manage items for this shop</p>
+              </div>
             </div>
-          </div>
 
-          <Button
-            onClick={() => navigate(`/admin/shops/${shopId}/items/new`)}
-            className="bg-white text-primary hover:bg-white/90"
-          >
-            <Plus className="w-5 h-5" />
-            Add New Item
-          </Button>
+            <Button
+              onClick={() => navigate(`/admin/shops/${activeShopId}/items/new`)}
+              className="bg-white text-primary hover:bg-white/90"
+            >
+              <Plus className="w-5 h-5" />
+              Add New Item
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Content */}
-      <div className="container mx-auto px-4 py-8">
+      <div className={isMerchantMode ? "" : "container mx-auto px-4 py-8"}>
         {loading ? (
           <div className="text-center py-12">
             <div className="text-muted-foreground">Loading items...</div>
@@ -125,7 +136,7 @@ export function AdminItems() {
           <Card>
             <CardContent className="text-center py-12">
               <p className="text-muted-foreground mb-4">No items yet</p>
-              <Button onClick={() => navigate(`/admin/shops/${shopId}/items/new`)}>
+              <Button onClick={() => navigate(isMerchantMode ? '/merchant/items/new' : `/admin/shops/${activeShopId}/items/new`)}>
                 <Plus className="w-5 h-5" />
                 Add Your First Item
               </Button>

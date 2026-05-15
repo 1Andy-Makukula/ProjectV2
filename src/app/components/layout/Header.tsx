@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ShoppingCart, User, Menu, Gift, Bell } from 'lucide-react';
 import { motion } from 'motion/react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../../utils/auth/AuthContext';
 import { useCart } from '../../hooks/useCart';
 import { supabase } from '../../utils/supabase/client';
 import { Badge } from '../ui/badge';

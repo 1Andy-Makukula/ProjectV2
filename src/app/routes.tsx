@@ -16,7 +16,6 @@ import { ShopDetail } from './pages/sender/ShopDetail';
 import { SendFlow } from './pages/sender/SendFlow';
 import { OrderSummary } from './pages/sender/OrderSummary';
 import { Confirmation } from './pages/sender/Confirmation';
-import { OrderHistory } from './pages/sender/OrderHistory';
 import { OrderDashboard } from './pages/sender/OrderDashboard';
 import { OrderDetail } from './pages/sender/OrderDetail';
 import { Settings } from './pages/sender/Settings';
@@ -39,6 +38,14 @@ import { AdminOrderDetail } from './pages/admin/AdminOrderDetail';
 
 import { NotFound } from './pages/NotFound';
 
+// Footer Pages
+import { About } from './pages/About';
+import { Privacy } from './pages/Privacy';
+import { Terms } from './pages/Terms';
+import { Support } from './pages/Support';
+import { MerchantAgreement } from './pages/MerchantAgreement';
+import { ShopDirectory } from './pages/ShopDirectory';
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -49,6 +56,12 @@ export const router = createBrowserRouter([
       { path: 'signup', Component: SignUp },
       { path: 'login', Component: Login },
       { path: 'gift/:code', Component: GiftPage },
+      { path: 'about', Component: About },
+      { path: 'privacy', Component: Privacy },
+      { path: 'terms', Component: Terms },
+      { path: 'support', Component: Support },
+      { path: 'merchant-agreement', Component: MerchantAgreement },
+      { path: 'shops', Component: ShopDirectory },
 
       // Sender routes
       {

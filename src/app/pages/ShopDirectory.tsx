@@ -1,20 +1,72 @@
 // Shop Directory
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Store, MapPin, Search } from 'lucide-react';
 import { motion } from 'motion/react';
-import { mockShops, districts } from '../data/mock-data';
+import { supabase } from '../../utils/supabase/client';
 import { Badge } from '../components/ui/badge';
+
+interface Shop {
+  id: string;
+  business_name: string;
+  description: string | null;
+  status: string;
+  district_id: string | null;
+  district: { name: string } | null;
+}
+
+interface District {
+  id: string;
+  name: string;
+}
 
 export function ShopDirectory() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState<string>('');
 
-  const filteredShops = mockShops.filter(shop => {
+  const [shops, setShops] = useState<Shop[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [shopsRes, districtsRes] = await Promise.all([
+          supabase
+            .from('shops')
+            .select('id, name, description, is_active, district_id, districts(name)')
+            .eq('is_active', true),
+          supabase.from('districts').select('id, name')
+        ]);
+
+        if (shopsRes.data) {
+          const mappedShops = shopsRes.data.map((s: any) => ({
+            id: s.id,
+            business_name: s.name,
+            description: s.description,
+            status: s.is_active ? 'active' : 'inactive',
+            district_id: s.district_id,
+            district: s.districts
+          }));
+          setShops(mappedShops as Shop[]);
+        }
+        if (districtsRes.data) {
+          setDistricts(districtsRes.data as District[]);
+        }
+      } catch (err) {
+        console.error('Error loading directory data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  const filteredShops = shops.filter(shop => {
     const matchesSearch = shop.business_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      shop.description?.toLowerCase().includes(searchQuery.toLowerCase());
+      (shop.description || '').toLowerCase().includes(searchQuery.toLowerCase());
     const matchesDistrict = !selectedDistrict || shop.district_id === selectedDistrict;
     return matchesSearch && matchesDistrict;
   });
@@ -49,8 +101,13 @@ export function ShopDirectory() {
         </div>
 
         {/* Shop Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredShops.map((shop, idx) => (
+        {loading ? (
+          <div className="py-12 text-center text-muted-foreground">Loading shops...</div>
+        ) : filteredShops.length === 0 ? (
+          <div className="py-12 text-center text-muted-foreground">No shops found matching your criteria.</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredShops.map((shop, idx) => (
             <motion.div
               key={shop.id}
               initial={{ opacity: 0, y: 20 }}
@@ -80,7 +137,8 @@ export function ShopDirectory() {
               </div>
             </motion.div>
           ))}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

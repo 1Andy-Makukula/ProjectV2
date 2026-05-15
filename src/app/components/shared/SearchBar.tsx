@@ -1,22 +1,63 @@
 // KithLy Search Bar
 
-import { useState } from 'react';
-import { Search, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, X, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router';
-import { mockProducts } from '../../data/mock-data';
+import { supabase } from '../../../utils/supabase/client';
+
+interface SearchResult {
+  id: string;
+  title: string;
+  shopName: string;
+}
 
 export function SearchBar() {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const navigate = useNavigate();
 
-  const results = query.length > 0
-    ? mockProducts.filter(p =>
-        p.title.toLowerCase().includes(query.toLowerCase()) ||
-        p.description.toLowerCase().includes(query.toLowerCase())
-      ).slice(0, 5)
-    : [];
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!query.trim()) {
+      setResults([]);
+      return;
+    }
+
+    const fetchSearchResults = async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('items')
+          .select('id, name, shops(name)')
+          .ilike('name', `%${query}%`)
+          .eq('is_available', true)
+          .limit(5);
+
+        if (error) throw error;
+        
+        setResults(
+          (data || []).map((item: any) => ({
+            id: item.id,
+            title: item.name,
+            shopName: item.shops?.name || 'Unknown Shop',
+          }))
+        );
+      } catch (err) {
+        console.error('Search error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(() => {
+      fetchSearchResults();
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [query]);
 
   return (
     <div className="relative w-full max-w-xl">
@@ -36,7 +77,7 @@ export function SearchBar() {
             onClick={() => setQuery('')}
             className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 rounded-full transition-colors"
           >
-            <X className="w-3 h-3" strokeWidth={1.5} />
+            {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <X className="w-3 h-3" strokeWidth={1.5} />}
           </button>
         )}
       </div>
@@ -61,7 +102,7 @@ export function SearchBar() {
                 <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" strokeWidth={1.5} />
                 <div className="flex-1 min-w-0">
                   <p className="font-light text-sm text-black truncate">{product.title}</p>
-                  <p className="text-xs font-light text-muted-foreground">{product.shop?.name}</p>
+                  <p className="text-xs font-light text-muted-foreground">{product.shopName}</p>
                 </div>
               </button>
             ))}
