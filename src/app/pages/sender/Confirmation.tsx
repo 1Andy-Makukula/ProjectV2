@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useParams, useNavigate, useSearchParams } from 'react-router';
 import { supabase } from '../../../utils/supabase/client';
 import { formatCurrency } from '../../../utils/currency';
 import { createWhatsAppShareLink, getGiftPageUrl } from '../../../utils/whatsapp';
+import { QRCodeDisplay } from '../../components/shared/QRCodeDisplay';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent } from '../../components/ui/card';
 import { Gift, Share2, Copy, ArrowRight, Check, Download } from 'lucide-react';
@@ -34,6 +35,7 @@ interface Order {
 
 export function Confirmation() {
   const { orderId } = useParams<{ orderId: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
@@ -106,7 +108,40 @@ export function Confirmation() {
         .single();
 
       if (error) throw error;
-      setOrder(data as unknown as Order);
+      
+      const orderData = data as unknown as Order;
+      
+      if (orderData.status === 'pending_payment' && (searchParams.get('status') === 'successful' || searchParams.get('status') === 'completed')) {
+        await supabase.functions.invoke('server', {
+          body: { action: 'verify_payment', txRef: orderData.flutterwave_tx_ref }
+        });
+        
+        const { data: newData, error: newError } = await supabase
+          .from('orders')
+          .select(`
+            id,
+            code,
+            recipient_name,
+            amount,
+            currency,
+            status,
+            created_at,
+            flutterwave_tx_ref,
+            flutterwave_transaction_id,
+            sender:sender_id (name),
+            item:item_id (name, image_url),
+            shop:shop_id (name)
+          `)
+          .eq('id', orderId)
+          .single();
+          
+        if (!newError) {
+          setOrder(newData as unknown as Order);
+          return;
+        }
+      }
+
+      setOrder(orderData);
     } catch (error) {
       console.error('Error fetching order:', error);
     } finally {
@@ -307,6 +342,9 @@ export function Confirmation() {
               ) : (
                 <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-6 text-center border-2 border-primary/20">
                   <p className="text-sm text-muted-foreground mb-2">Gift Code</p>
+                  <div className="flex justify-center mb-4">
+                    <QRCodeDisplay value={order.code} size={150} />
+                  </div>
                   <p className="text-4xl font-mono font-bold tracking-widest text-primary">
                     {order.code}
                   </p>

@@ -24,7 +24,12 @@ interface Shop {
   name: string;
 }
 
-export function AdminItems({ merchantShopId }: { merchantShopId?: string }) {
+interface AdminItemsProps {
+  merchantShopId?: string;
+  baseRoute?: string;
+}
+
+export function AdminItems({ merchantShopId, baseRoute = '/admin' }: AdminItemsProps) {
   const navigate = useNavigate();
   const { shopId: paramShopId } = useParams();
   const activeShopId = merchantShopId || paramShopId;
@@ -116,7 +121,7 @@ export function AdminItems({ merchantShopId }: { merchantShopId?: string }) {
             </div>
 
             <Button
-              onClick={() => navigate(`/admin/shops/${activeShopId}/items/new`)}
+              onClick={() => navigate(`${baseRoute}/shops/${activeShopId}/items/new`)}
               className="bg-white text-primary hover:bg-white/90"
             >
               <Plus className="w-5 h-5" />
@@ -136,7 +141,7 @@ export function AdminItems({ merchantShopId }: { merchantShopId?: string }) {
           <Card>
             <CardContent className="text-center py-12">
               <p className="text-muted-foreground mb-4">No items yet</p>
-              <Button onClick={() => navigate(isMerchantMode ? '/merchant/items/new' : `/admin/shops/${activeShopId}/items/new`)}>
+              <Button onClick={() => navigate(baseRoute === '/merchant' ? `${baseRoute}/items/new` : `${baseRoute}/shops/${activeShopId}/items/new`)}>
                 <Plus className="w-5 h-5" />
                 Add Your First Item
               </Button>
@@ -148,7 +153,7 @@ export function AdminItems({ merchantShopId }: { merchantShopId?: string }) {
               <ItemCard
                 key={item.id}
                 item={item}
-                onEdit={() => navigate(`/admin/items/${item.id}/edit`)}
+                onEdit={() => navigate(`${baseRoute}/items/${item.id}/edit`)}
                 onToggleAvailability={() => toggleItemAvailability(item.id, item.is_available)}
               />
             ))}

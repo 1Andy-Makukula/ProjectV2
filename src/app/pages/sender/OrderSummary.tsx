@@ -37,7 +37,12 @@ interface SendFlowData {
 
 interface PaymentInitializationResponse {
   success: boolean;
-  paymentLink: string;
+  mode?: 'stk_push';
+  message?: string;
+  authorization?: Record<string, any>;
+  txRef?: string;
+  paymentLink?: string;
+  alreadyPaid?: boolean;
 }
 
 export function OrderSummary() {
@@ -115,6 +120,8 @@ export function OrderSummary() {
 
       sessionStorage.removeItem('sendFlowData');
 
+      console.log('Invoking payment with order.id:', order.id);
+
       const paymentResponse = await callServer<PaymentInitializationResponse>(
         '/payment/initialize',
         {
@@ -125,18 +132,37 @@ export function OrderSummary() {
             currency: sendData.item.currency,
             email: profile?.email || user.email,
             name: profile?.name || user.user_metadata?.name || 'KithLy Customer',
-            phone: profile?.phone || sendData.recipientPhone,
+            phone: profile?.phone || user?.phone || sendData.recipientPhone,
             txRef,
           },
         },
       );
 
-      if (!paymentResponse.paymentLink) {
-        throw new Error('Payment link was not returned');
+      if (!paymentResponse.success) {
+        throw new Error('Payment initiation failed. Please try again.');
       }
 
-      // Opens in a new tab, keeping your app open in the background
-      window.open(paymentResponse.paymentLink, '_blank');
+      if (paymentResponse.alreadyPaid) {
+        toast.success('This order has already been paid!');
+        navigate('/orders');
+        return;
+      }
+
+      if (paymentResponse.mode === 'stk_push') {
+        // STK Push: PIN prompt sent to user's phone — no redirect needed
+        toast.success(paymentResponse.message || 'PIN prompt sent! Please check your phone and enter your mobile money PIN.');
+        navigate('/orders', {
+          state: { message: 'Your PIN prompt has been sent. Complete the payment on your phone to confirm.' }
+        });
+        return;
+      }
+
+      // Fallback: redirect-based payment link (legacy)
+      if (paymentResponse.paymentLink) {
+        window.open(paymentResponse.paymentLink, '_blank');
+      } else {
+        throw new Error('Payment link was not returned');
+      }
     } catch (error: any) {
       console.error('Error creating order:', error);
       toast.error(error.message || 'Failed to start payment. Please try again.');

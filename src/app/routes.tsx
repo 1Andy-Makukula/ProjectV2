@@ -115,6 +115,14 @@ export const router = createBrowserRouter([
         path: 'merchant/fulfill',
         element: <ProtectedRoute allowedRoles={['merchant']}><MerchantFulfill /></ProtectedRoute>
       },
+      {
+        path: 'merchant/items/new',
+        element: <ProtectedRoute allowedRoles={['merchant']}><AdminItemForm /></ProtectedRoute>
+      },
+      {
+        path: 'merchant/items/:itemId/edit',
+        element: <ProtectedRoute allowedRoles={['merchant']}><AdminItemForm /></ProtectedRoute>
+      },
 
       // Admin routes
       {

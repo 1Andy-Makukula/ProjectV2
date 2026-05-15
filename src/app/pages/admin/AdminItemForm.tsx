@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { useAuth } from '../../../utils/auth/AuthContext';
 import { ArrowLeft, Upload, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -34,6 +35,8 @@ export function AdminItemForm() {
   const navigate = useNavigate();
   const { shopId, itemId } = useParams();
   const isEditing = Boolean(itemId);
+  const { profile } = useAuth();
+  const isMerchant = profile?.role === 'merchant';
 
   const [formData, setFormData] = useState<ItemFormData>({
     name: '',
@@ -51,10 +54,23 @@ export function AdminItemForm() {
   useEffect(() => {
     if (isEditing) {
       loadItem();
+    } else if (isMerchant && profile?.id) {
+      // Fetch the merchant's assigned shop automatically
+      const fetchMerchantShop = async () => {
+        const { data } = await supabase
+          .from('merchant_shops')
+          .select('shop_id')
+          .eq('user_id', profile.id)
+          .single();
+        if (data) {
+          setActualShopId(data.shop_id);
+        }
+      };
+      fetchMerchantShop();
     } else if (shopId) {
       setActualShopId(shopId);
     }
-  }, [itemId, shopId]);
+  }, [itemId, shopId, isMerchant, profile?.id]);
 
   const loadItem = async () => {
     try {
@@ -78,7 +94,11 @@ export function AdminItemForm() {
     } catch (error: any) {
       console.error('Error loading item:', error);
       toast.error('Failed to load item data');
-      navigate('/admin/shops');
+      if (isMerchant) {
+        navigate('/merchant');
+      } else {
+        navigate('/admin/shops');
+      }
     }
   };
 
@@ -171,7 +191,11 @@ export function AdminItemForm() {
         toast.success('Item created successfully');
       }
 
-      navigate(`/admin/shops/${actualShopId}/items`);
+      if (isMerchant) {
+        navigate('/merchant');
+      } else {
+        navigate(`/admin/shops/${actualShopId}/items`);
+      }
     } catch (error: any) {
       console.error('Error saving item:', error);
       toast.error('Failed to save item');
@@ -193,7 +217,11 @@ export function AdminItemForm() {
       if (error) throw error;
 
       toast.success('Item deleted successfully');
-      navigate(`/admin/shops/${actualShopId}/items`);
+      if (isMerchant) {
+        navigate('/merchant');
+      } else {
+        navigate(`/admin/shops/${actualShopId}/items`);
+      }
     } catch (error: any) {
       console.error('Error deleting item:', error);
       toast.error('Failed to delete item');
@@ -202,7 +230,9 @@ export function AdminItemForm() {
   };
 
   const handleCancel = () => {
-    if (actualShopId) {
+    if (isMerchant) {
+      navigate('/merchant');
+    } else if (actualShopId) {
       navigate(`/admin/shops/${actualShopId}/items`);
     } else {
       navigate('/admin/shops');

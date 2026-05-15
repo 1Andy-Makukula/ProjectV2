@@ -13,7 +13,10 @@ import {
   Loader2,
   CheckCircle,
   Shield,
+  Bell,
+  X,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 
 // ---------------------------------------------------------------------------
@@ -87,7 +90,11 @@ function ShopTileSkeleton() {
 
 export function Home() {
   const navigate = useNavigate();
-  const { profile, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
+
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const [banners, setBanners] = useState<Banner[]>([]);
   const [bannersLoading, setBannersLoading] = useState(true);
@@ -103,7 +110,39 @@ export function Home() {
     if (!profile?.id) return;
     fetchBanners();
     fetchShops();
-  }, [profile?.id]);
+
+    const fetchNotifications = async () => {
+      const { data } = await supabase
+        .from('orders')
+        .select('id, code, recipient_name, fulfilled_at, item:items(name), shop:shops(name)')
+        .eq('sender_id', user?.id || profile.id)
+        .eq('status', 'fulfilled')
+        .order('fulfilled_at', { ascending: false })
+        .limit(20);
+      
+      if (data) {
+        setNotifications(data);
+      }
+    };
+
+    fetchNotifications();
+
+    const channel = supabase.channel('realtime-sender-notifications')
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'orders',
+        filter: `sender_id=eq.${user?.id || profile.id}`
+      }, (payload: any) => {
+        if (payload.new.status === 'fulfilled' && payload.old.status !== 'fulfilled') {
+          toast.success(`🎉 Gift collected! Your recipient just picked up their item.`);
+          setUnreadCount(prev => prev + 1);
+          fetchNotifications(); // Refresh the list to get joined item/shop data
+        }
+      }).subscribe();
+
+    return () => { supabase.removeChannel(channel); }
+  }, [profile?.id, user?.id]);
 
   useEffect(() => {
     if (currentSlide < banners.length) return;
@@ -219,10 +258,16 @@ export function Home() {
               KithLy
             </h1>
             <span className="text-sm text-muted-foreground">
-              Hi, {profile?.name?.split(' ')[0] || 'there'}!
+              Hi, {user?.full_name?.split(' ')[0] || profile?.name?.split(' ')[0] || 'there'}!
             </span>
           </div>
           <div className="flex items-center gap-2">
+            <button onClick={() => { setIsNotificationsOpen(true); setUnreadCount(0); }} className="relative p-2 text-gray-500 hover:text-gray-700 transition-colors">
+              <Bell className="w-6 h-6" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+              )}
+            </button>
             <Button
               variant="ghost"
               size="icon"
@@ -447,6 +492,31 @@ export function Home() {
           </div>
         </div>
       </div>
+
+      {isNotificationsOpen && (
+        <div className="fixed inset-y-0 right-0 z-50 w-80 bg-white shadow-2xl border-l flex flex-col transform transition-transform duration-300">
+          <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+            <h3 className="font-semibold text-gray-800">Notifications</h3>
+            <button onClick={() => setIsNotificationsOpen(false)}><X className="w-5 h-5 text-gray-500" /></button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {notifications.length === 0 ? (
+              <p className="text-sm text-gray-500 text-center mt-10">No recent activity.</p>
+            ) : (
+              notifications.map(notif => (
+                <div key={notif.id} className="p-3 bg-green-50 border border-green-100 rounded-lg">
+                  <p className="text-sm text-green-800">
+                    <strong>{notif.recipient_name}</strong> collected <strong>{notif.item?.name}</strong> from <strong>{notif.shop?.name}</strong>.
+                  </p>
+                  <p className="text-xs text-green-600 mt-1 mt-1">
+                    {new Date(notif.fulfilled_at).toLocaleDateString()}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

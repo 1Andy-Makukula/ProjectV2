@@ -12,6 +12,8 @@ import {
   LogOut,
   ArrowRight,
   Download,
+  Activity,
+  Percent,
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -27,6 +29,8 @@ interface Stats {
   totalValue: number;
   ordersThisWeek: number;
   valueThisWeek: number;
+  totalCommission: number;
+  commissionThisWeek: number;
   totalShops: number;
   totalUsers: number;
   fulfilledOrders: number;
@@ -54,6 +58,8 @@ export function AdminDashboard() {
     totalValue: 0,
     ordersThisWeek: 0,
     valueThisWeek: 0,
+    totalCommission: 0,
+    commissionThisWeek: 0,
     totalShops: 0,
     totalUsers: 0,
     fulfilledOrders: 0,
@@ -105,6 +111,8 @@ export function AdminDashboard() {
         totalValue: orders?.reduce((sum: number, o: any) => sum + o.amount, 0) || 0,
         ordersThisWeek: ordersThisWeek.length,
         valueThisWeek: ordersThisWeek.reduce((sum: number, o: any) => sum + o.amount, 0),
+        totalCommission: (orders?.reduce((sum: number, o: any) => sum + o.amount, 0) || 0) * 0.05,
+        commissionThisWeek: (ordersThisWeek.reduce((sum: number, o: any) => sum + o.amount, 0)) * 0.05,
         totalShops: shopsCount || 0,
         totalUsers: usersCount || 0,
         fulfilledOrders: orders?.filter((o: any) => o.status === 'fulfilled').length || 0,
@@ -276,7 +284,13 @@ export function AdminDashboard() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-light mb-1">Admin Dashboard</h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-light mb-1">Admin Dashboard</h1>
+                <Activity 
+                  className="w-5 h-5 text-white/40 hover:text-white cursor-pointer transition-colors" 
+                  onClick={() => toast.success('Antigravity Diagnostic Engine Online')} 
+                />
+              </div>
               <p className="text-sm opacity-90 font-light">KithLy Platform Management</p>
             </div>
             <Button
@@ -327,6 +341,18 @@ export function AdminDashboard() {
             value={formatCurrency(stats.valueThisWeek)}
             icon={TrendingUp}
             gradient="from-indigo-500 to-indigo-600"
+          />
+          <StatCard
+            title="Total KithLy Revenue (5%)"
+            value={formatCurrency(stats.totalCommission)}
+            icon={Percent}
+            gradient="from-amber-500 to-amber-600"
+          />
+          <StatCard
+            title="Revenue This Week (5%)"
+            value={formatCurrency(stats.commissionThisWeek)}
+            icon={Percent}
+            gradient="from-yellow-500 to-yellow-600"
           />
           <StatCard
             title="Total Shops"

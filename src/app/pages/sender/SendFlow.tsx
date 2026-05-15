@@ -252,7 +252,7 @@ export function SendFlow() {
                   htmlFor="recipientPhone"
                   className="block text-sm font-medium mb-2"
                 >
-                  Recipient Phone <span className="text-red-500">*</span>
+                  Sender Phone <span className="text-red-500">*</span>
                 </label>
                 <Input
                   id="recipientPhone"
@@ -302,11 +302,10 @@ export function SendFlow() {
                     </p>
                   )}
                   <p
-                    className={`text-sm ${
-                      messageCharsRemaining < 20
+                    className={`text-sm ${messageCharsRemaining < 20
                         ? 'text-orange-500'
                         : 'text-muted-foreground'
-                    }`}
+                      }`}
                   >
                     {messageCharsRemaining} characters remaining
                   </p>

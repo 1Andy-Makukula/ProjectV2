@@ -3,8 +3,8 @@ import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
 // ---------------------------------------------------------------------------
 // Standard CORS headers – required for supabase.functions.invoke() to work
 // ---------------------------------------------------------------------------
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://test-project-orpin-five.vercel.app",
+export const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -62,14 +62,11 @@ const requireAdmin = async (authorizationHeader?: string | null) => {
 // ---------------------------------------------------------------------------
 
 async function handleInitializePayment(payload: Record<string, any>): Promise<Response> {
-  const { orderId, amount, currency, email, name, phone, txRef } = payload;
-
-  const appUrl = Deno.env.get("APP_URL") || "https://test-project-orpin-five.vercel.app";
+  const { orderId, amount, email, name, phone, txRef } = payload;
 
   const flutterwaveSecretKey = Deno.env.get("FLUTTERWAVE_SECRET_KEY");
-  const flutterwavePublicKey = Deno.env.get("FLUTTERWAVE_PUBLIC_KEY");
 
-  if (!flutterwaveSecretKey || !flutterwavePublicKey) {
+  if (!flutterwaveSecretKey) {
     return json({ error: "Flutterwave keys not configured" }, 500);
   }
 
@@ -88,7 +85,7 @@ async function handleInitializePayment(payload: Record<string, any>): Promise<Re
         console.log(`[server] Order ${txRef} is already paid.`);
         return json({ success: true, alreadyPaid: true });
       }
-      
+
       if (existingOrder.payment_link) {
         console.log(`[server] Resuming existing payment session for ${txRef}`);
         return json({ success: true, paymentLink: existingOrder.payment_link });
@@ -96,45 +93,65 @@ async function handleInitializePayment(payload: Record<string, any>): Promise<Re
     }
   }
 
-  const response = await fetch("https://api.flutterwave.com/v3/payments", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${flutterwaveSecretKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      tx_ref: txRef,
-      amount: amount / 100, // Convert from lowest denomination to actual amount
-      currency: currency ?? "ZMW",
-      redirect_url: `${appUrl}/confirmation/${orderId}?tx_ref=${txRef}`,
-      payment_options: "card,mobilemoneyzambia,banktransfer",
-      customer: { email, name, phonenumber: phone },
-      customizations: {
-        title: "KithLy Gift Payment",
-        description: "Payment for gift order",
-        logo: "",
-      },
-    }),
-  });
+  // --- SMART ROUTER: Direct Mobile Money Zambia Charge (STK Push / PIN Prompt) ---
+  // No hardcoded network — Flutterwave reads the phone prefix and routes automatically:
+  //   096/076 → MTN Zambia
+  //   097/077 → Airtel Zambia
+  //   095/075 → Zamtel
+  console.log(`[server] Smart Router: initiating PIN prompt to ${phone} for order ${orderId}`);
 
-  const data = await response.json();
+  const chargeResponse = await fetch(
+    "https://api.flutterwave.com/v3/charges?type=mobile_money_zambia",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${flutterwaveSecretKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tx_ref: txRef,
+        amount: amount / 100, // Convert from lowest denomination (ngwe) to ZMW
+        currency: "ZMW",
+        country: "ZM",
+        type: "mobile_money_zambia",
+        phone_number: phone,
+        email,
+        fullname: name,
+        customizations: {
+          title: "KithLy Escrow Gifting",
+          description: "Payment for your gift order",
+        },
+      }),
+    }
+  );
+
+  const data = await chargeResponse.json();
+  console.log("[server] Flutterwave Smart Router response:", JSON.stringify(data));
 
   if (data.status === "success") {
-    const paymentLink = data.data.link;
+    // PIN prompt has been sent to the user's phone.
+    // Return the meta.authorization so the frontend knows the STK push is live.
+    const authorization = data.meta?.authorization ?? null;
 
-    // Save the payment link so we can resume it later
+    // Persist a marker so we can track this pending charge
     if (txRef) {
       await supabase
         .from("orders")
-        .update({ payment_link: paymentLink })
+        .update({ payment_link: `stk_push:${txRef}` })
         .eq("flutterwave_tx_ref", txRef);
     }
 
-    return json({ success: true, paymentLink });
+    return json({
+      success: true,
+      mode: "stk_push",
+      message: "PIN prompt sent to your phone. Please enter your mobile money PIN.",
+      authorization,
+      txRef,
+    });
   }
 
-  console.error("Flutterwave initialization error:", data);
-  return json({ error: data.message ?? "Payment initialization failed" }, 400);
+  console.error("[server] Smart Router error:", data);
+  return json({ error: data.message ?? "Payment initiation failed. Please check your phone number and try again." }, 400);
 }
 
 /**
@@ -295,6 +312,48 @@ async function handleCreateMerchant(
   });
 }
 
+/**
+ * action: "verify_payment"
+ * Fetches verification from Flutterwave and marks order as paid.
+ */
+async function handleVerifyPayment(payload: Record<string, any>): Promise<Response> {
+  const { txRef } = payload;
+  if (!txRef) return json({ error: "txRef is required" }, 400);
+
+  const flutterwaveSecretKey = Deno.env.get("FLUTTERWAVE_SECRET_KEY");
+  if (!flutterwaveSecretKey) return json({ error: "Flutterwave keys not configured" }, 500);
+
+  const response = await fetch(`https://api.flutterwave.com/v3/transactions/verify_by_reference?tx_ref=${txRef}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${flutterwaveSecretKey}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await response.json();
+
+  if (data.status === "success" && data.data.status === "successful") {
+    const supabase = getSupabaseAdmin();
+    const { error: updateError } = await supabase
+      .from("orders")
+      .update({
+        status: "paid",
+        flutterwave_transaction_id: data.data.id.toString(),
+      })
+      .eq("flutterwave_tx_ref", txRef);
+
+    if (updateError) {
+      console.error("Error updating order:", updateError);
+      return json({ error: "Failed to update order" }, 500);
+    }
+
+    return json({ success: true });
+  }
+
+  return json({ error: "Payment verification failed" }, 400);
+}
+
 // ---------------------------------------------------------------------------
 // Entry point — action-based payload router
 //
@@ -337,6 +396,9 @@ Deno.serve(async (req: Request) => {
       case "flutterwave_webhook":
         // Also routable by explicit action (e.g. for testing)
         return await handleFlutterwaveWebhook(req, payload);
+
+      case "verify_payment":
+        return await handleVerifyPayment(payload);
 
       case "confirm_payment":
         return await handleConfirmPayment(payload, authHeader);

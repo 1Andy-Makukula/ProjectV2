@@ -553,7 +553,7 @@ export function MerchantDashboard() {
           <TabsContent value="inventory" className="space-y-4">
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
               {shopId ? (
-                <AdminItems merchantShopId={shopId} />
+                <AdminItems merchantShopId={shopId} baseRoute="/merchant" />
               ) : (
                 <div className="p-12 text-center text-muted-foreground">Loading inventory...</div>
               )}
