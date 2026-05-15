@@ -14,7 +14,7 @@ import {
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { formatCurrency } from '../../../utils/currency';
-import { QrCode, LogOut, Package, TrendingUp, Camera, Save } from 'lucide-react';
+import { QrCode, LogOut, Package, TrendingUp, Camera, Save, Edit, Trash2 } from 'lucide-react';
 import { motion } from 'motion/react';
 
 // ---------------------------------------------------------------------------
@@ -316,6 +316,14 @@ export function MerchantDashboard() {
     navigate('/merchant/fulfill');
   };
 
+  const handleEditProduct = (id: string) => {
+    console.log('Edit product', id);
+  };
+
+  const handleDeleteProduct = (id: string) => {
+    console.log('Delete product', id);
+  };
+
   const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault(); // 1. STOPS the annoying page refresh!
     
@@ -430,9 +438,10 @@ export function MerchantDashboard() {
 
         {/* Tabs — 3 columns: Active Orders | Fulfilled | Shop Profile */}
         <Tabs defaultValue="active" className="space-y-6">
-          <TabsList className="grid w-full max-w-lg grid-cols-3">
+          <TabsList className="grid w-full max-w-2xl grid-cols-4">
             <TabsTrigger value="active">Active Orders</TabsTrigger>
             <TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
+            <TabsTrigger value="inventory">Inventory</TabsTrigger>
             <TabsTrigger value="profile">Shop Profile</TabsTrigger>
           </TabsList>
 
@@ -472,8 +481,8 @@ export function MerchantDashboard() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-primary">{order.code}</p>
-                      <p className="text-xs text-muted-foreground">Order Code</p>
+                      <p className="text-2xl font-bold text-primary">REF-{order.id.split('-')[0].toUpperCase()}</p>
+                      <p className="text-xs text-muted-foreground">Order Reference</p>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
@@ -537,6 +546,46 @@ export function MerchantDashboard() {
                 </div>
               ))
             )}
+          </TabsContent>
+
+          {/* Inventory */}
+          <TabsContent value="inventory" className="space-y-4">
+            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-gray-50 border-b">
+                  <tr>
+                    <th className="px-6 py-4 font-medium text-sm text-gray-500">Product Name</th>
+                    <th className="px-6 py-4 font-medium text-sm text-gray-500 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {/* Stubbed row since product fetching isn't implemented here yet */}
+                  <tr>
+                    <td className="px-6 py-4 text-sm text-gray-900">Sample Product</td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleEditProduct('sample-id')} 
+                          className="text-blue-500 hover:text-blue-600 hover:bg-blue-50"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleDeleteProduct('sample-id')} 
+                          className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </TabsContent>
 
           {/* Shop Profile Editor */}

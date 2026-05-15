@@ -154,17 +154,17 @@ export function AdminDashboard() {
 
   const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault(); // 1. STOPS the annoying page refresh!
-    
+
     try {
       // 2. Tell the data center to destroy the token
-      await supabase.auth.signOut(); 
-      
+      await supabase.auth.signOut();
+
       // 3. Clear any leftover zombie data in the browser
-      localStorage.clear(); 
+      localStorage.clear();
       sessionStorage.clear();
-      
+
       // 4. Safely redirect to the login page
-      navigate('/login', { replace: true }); 
+      navigate('/login', { replace: true });
     } catch (error) {
       console.error('Logout failed:', error);
     }

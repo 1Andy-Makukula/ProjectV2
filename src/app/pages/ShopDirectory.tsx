@@ -13,8 +13,8 @@ export function ShopDirectory() {
   const [selectedDistrict, setSelectedDistrict] = useState<string>('');
 
   const filteredShops = mockShops.filter(shop => {
-    const matchesSearch = shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         shop.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = shop.business_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      shop.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesDistrict = !selectedDistrict || shop.district_id === selectedDistrict;
     return matchesSearch && matchesDistrict;
   });
@@ -64,7 +64,7 @@ export function ShopDirectory() {
                   <Store className="w-7 h-7 text-white" strokeWidth={1.5} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-light text-black mb-1">{shop.name}</h3>
+                  <h3 className="font-light text-black mb-1">{shop.business_name}</h3>
                   <div className="flex items-center gap-1 text-xs font-light text-muted-foreground">
                     <MapPin className="w-3 h-3" strokeWidth={1.5} />
                     {shop.district?.name}
@@ -73,8 +73,8 @@ export function ShopDirectory() {
               </div>
               <p className="text-sm font-light text-muted-foreground mb-4 line-clamp-2">{shop.description}</p>
               <div className="flex items-center justify-between">
-                <Badge className="font-light">{shop.category || 'General'}</Badge>
-                {shop.is_verified && (
+                <Badge className="font-light">General</Badge>
+                {shop.status === 'active' && (
                   <Badge className="bg-green-100 text-green-700 font-light">Verified</Badge>
                 )}
               </div>
