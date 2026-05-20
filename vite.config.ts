@@ -43,5 +43,8 @@ export default defineConfig({
   server: {
     // @ts-ignore
     historyApiFallback: true,
+    watch: {
+      usePolling: true,
+    },
   },
 })

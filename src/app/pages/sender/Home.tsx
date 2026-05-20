@@ -85,6 +85,46 @@ function ShopTileSkeleton() {
 }
 
 // ---------------------------------------------------------------------------
+// Promotional Banners & Data
+// ---------------------------------------------------------------------------
+
+const KITHLY_PROMOS = [
+  {
+    title: "100% Escrow Protected",
+    subtitle: "Every Kwacha is locked securely in the KithLy vault until you claim your gift at the merchant's physical shop. Zero risk."
+  },
+  {
+    title: "Instant Gift Delivery",
+    subtitle: "Share vouchers via SMS or WhatsApp instantly, and track collection progress in real time."
+  },
+  {
+    title: "Support Neighborhood Shops",
+    subtitle: "Explore high-quality curated offerings from trusted local merchants and support community business."
+  }
+];
+
+function PromoBanner({ data }: { data: typeof KITHLY_PROMOS[0] }) {
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.3 }}
+      className="bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-2xl p-6 shadow-md mb-5 flex flex-col justify-center items-center text-center border border-orange-400/20"
+    >
+      <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-3">
+        <Shield className="w-5 h-5 text-white" />
+      </div>
+      <h3 className="text-lg font-bold mb-1 tracking-tight">{data.title}</h3>
+      <p className="text-sm text-orange-50 max-w-md font-medium leading-relaxed">
+        {data.subtitle}
+      </p>
+    </motion.div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
 
@@ -251,10 +291,10 @@ export function Home() {
     <div className="min-h-screen bg-gray-50">
 
       {/* ── Header ──────────────────────────────────────────────────────── */}
-      <div className="bg-white border-b sticky top-0 z-10">
+      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">
+            <h1 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
               KithLy
             </h1>
             <span className="text-sm text-muted-foreground">
@@ -264,9 +304,7 @@ export function Home() {
           <div className="flex items-center gap-2">
             <button onClick={() => { setIsNotificationsOpen(true); setUnreadCount(0); }} className="relative p-2 text-gray-500 hover:text-gray-700 transition-colors">
               <Bell className="w-6 h-6" />
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
-              )}
+              <span className="absolute top-0 right-0 h-2.5 w-2.5 rounded-full bg-gradient-to-tr from-orange-500 to-red-500 animate-pulse border border-white" />
             </button>
             <Button
               variant="ghost"
@@ -420,18 +458,19 @@ export function Home() {
             className="space-y-4"
           >
             {shops.map((shop, index) => (
-              <motion.div
-                key={shop.id}
-                variants={{
-                  visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 15 } },
-                  hidden: { opacity: 0, y: 30 }
-                }}
-                onClick={() => navigate(`/shop/${shop.id}`)}
-                className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-              >
-                <div className="flex gap-4 p-4">
-                  {/* Shop Image — enforced 1:1 square */}
-                  <div className="w-24 aspect-square rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+              <div key={shop.id} className="w-full">
+                <motion.div
+                  layout
+                  variants={{
+                    visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 15 } },
+                    hidden: { opacity: 0, y: 30 }
+                  }}
+                  whileHover={{ y: -2, boxShadow: "0px 10px 20px rgba(0,0,0,0.05)" }}
+                  onClick={() => navigate(`/shop/${shop.id}`)}
+                  className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-5 cursor-pointer transition-all"
+                >
+                  {/* 16:9 Media Slot */}
+                  <div className="relative w-full aspect-video bg-gray-100 overflow-hidden">
                     {shop.image_url ? (
                       <img
                         src={shop.image_url}
@@ -439,38 +478,46 @@ export function Home() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Store className="w-8 h-8 text-gray-400" />
+                      <div className="w-full h-full bg-gradient-to-br from-orange-400 via-red-500 to-orange-600 opacity-90 flex items-center justify-center">
+                        <Store className="w-12 h-12 text-white/80" />
                       </div>
                     )}
-                  </div>
-
-                  {/* Shop Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-lg">{shop.name}</h3>
-                      <CheckCircle className="w-4 h-4 text-blue-500 fill-blue-50" />
-                    </div>
-                    {shop.location && (
-                      <p className="text-sm text-muted-foreground mb-2">
-                        {shop.location}
-                      </p>
-                    )}
-                    {shop.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {shop.description}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Item Count Badge */}
-                  <div className="flex items-start">
-                    <div className="bg-orange-100 text-primary px-3 py-1 rounded-full text-sm font-medium">
+                    {/* Floating Item Count Badge */}
+                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-primary px-3 py-1 rounded-full text-xs font-semibold shadow-sm">
                       {shop.itemCount} {shop.itemCount === 1 ? 'item' : 'items'}
                     </div>
                   </div>
-                </div>
-              </motion.div>
+
+                  {/* Metadata Overlay & Shop Details */}
+                  <div className="p-5 flex gap-4 items-start relative bg-white">
+                    {/* Circular avatar ring for shop logo */}
+                    <div className="w-12 h-12 rounded-full border-2 border-white shadow-md bg-gradient-to-tr from-orange-500 to-red-500 flex items-center justify-center shrink-0 -mt-10 z-10 text-white font-bold text-lg">
+                      {shop.name.charAt(0)}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-lg font-bold text-gray-900 truncate">{shop.name}</h3>
+                        <CheckCircle className="w-4 h-4 text-blue-500 fill-blue-50 shrink-0" />
+                      </div>
+                      {shop.location && (
+                        <p className="text-sm text-gray-500 flex items-center gap-1">
+                          <Store className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                          {shop.location}
+                        </p>
+                      )}
+                      {shop.description && (
+                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                          {shop.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+                {(index + 1) % 2 === 0 && (
+                  <PromoBanner data={KITHLY_PROMOS[Math.floor(index / 2) % KITHLY_PROMOS.length]} />
+                )}
+              </div>
             ))}
           </motion.div>
         )}

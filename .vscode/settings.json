@@ -1,4 +1,5 @@
 {
+  "npm.packageManager": "pnpm",
   "deno.enablePaths": ["supabase/functions"],
   "deno.unstable": [],
   "typescript.tsdk": "node_modules/typescript/lib",

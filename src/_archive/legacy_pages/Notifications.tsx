@@ -108,15 +108,16 @@ export function Notifications() {
           )}
         </div>
 
-        <div className="space-y-3">
+        <motion.ul className="space-y-3">
           {mockNotifications.map((notification, idx) => (
-            <motion.div
+            <motion.li
               key={notification.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05 }}
-              className={`bg-white rounded-[1rem] p-4 border ${
-                notification.read ? 'border-border' : 'border-[#F97316]/20 shadow-sm'
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.01 }}
+              transition={{ duration: 0.2, ease: 'easeOut', delay: idx * 0.05 }}
+              className={`rounded-xl shadow-sm border border-gray-100 p-4 mb-3 flex flex-col gap-1 ${
+                notification.read ? 'bg-white' : 'bg-orange-50/40 border-l-4 border-l-orange-500'
               }`}
             >
               <div className="flex gap-4">
@@ -126,22 +127,27 @@ export function Notifications() {
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-1">
-                    <h3 className="font-medium text-black">{notification.title}</h3>
+                    <h3 className={`text-black ${notification.read ? 'font-medium' : 'font-semibold'}`}>
+                      {notification.title}
+                    </h3>
                     {!notification.read && (
-                      <div className="w-2 h-2 rounded-full bg-[#F97316] flex-shrink-0 mt-1.5" />
+                      <span className="w-2 h-2 rounded-full bg-[#F97316] flex-shrink-0 mt-1.5" />
                     )}
                   </div>
-                  <p className="text-sm font-light text-muted-foreground mb-2">
+                  <p className="text-sm font-light text-muted-foreground">
                     {notification.message}
-                  </p>
-                  <p className="text-xs font-light text-muted-foreground">
-                    {notification.time}
                   </p>
                 </div>
               </div>
-            </motion.div>
+
+              <div className="flex justify-end mt-1">
+                <span className="text-xs text-gray-400 font-medium">
+                  {notification.time}
+                </span>
+              </div>
+            </motion.li>
           ))}
-        </div>
+        </motion.ul>
 
         {mockNotifications.length === 0 && (
           <div className="text-center py-16">

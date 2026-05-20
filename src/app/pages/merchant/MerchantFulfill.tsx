@@ -77,8 +77,8 @@ export function MerchantFulfill() {
   useEffect(() => {
     setScanSupported(
       typeof window !== 'undefined' &&
-        'BarcodeDetector' in window &&
-        typeof window.BarcodeDetector === 'function',
+      'BarcodeDetector' in window &&
+      typeof window.BarcodeDetector === 'function',
     );
   }, []);
 
@@ -319,12 +319,12 @@ export function MerchantFulfill() {
   const verificationPreview = verifiedOrder ?? (
     result.status === 'success'
       ? {
-          id: 'fulfilled',
-          shop_id: '',
-          recipient_name: result.recipientName || '',
-          item_name: result.itemName || 'Gift',
-          item_image_url: result.itemImageUrl || null,
-        }
+        id: 'fulfilled',
+        shop_id: '',
+        recipient_name: result.recipientName || '',
+        item_name: result.itemName || 'Gift',
+        item_image_url: result.itemImageUrl || null,
+      }
       : null
   );
 

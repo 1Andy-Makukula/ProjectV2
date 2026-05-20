@@ -46,8 +46,8 @@ export function buildReceiptHTML(data: ReceiptData): string {
   const dateLabel = fulfilledAt
     ? `Fulfilled At: ${formatDate(fulfilledAt)}`
     : paidAt
-    ? `Paid At: ${formatDate(paidAt)}`
-    : '';
+      ? `Paid At: ${formatDate(paidAt)}`
+      : '';
 
   return `<!DOCTYPE html>
 <html lang="en">

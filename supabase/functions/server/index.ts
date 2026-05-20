@@ -27,6 +27,13 @@ const getSupabaseAdmin = () =>
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
   );
 
+// ---------------------------------------------------------------------------
+// AI provider keys
+// ---------------------------------------------------------------------------
+const geminiKey = Deno.env.get("GEMINI_API_KEY");
+const openRouterKey = Deno.env.get("OPENROUTER_API_KEY");
+const groqKey = Deno.env.get("GROQ_API_KEY");
+
 /**
  * Validates the Bearer token in the Authorization header and checks that the
  * caller has the 'admin' role in the `users` table.
