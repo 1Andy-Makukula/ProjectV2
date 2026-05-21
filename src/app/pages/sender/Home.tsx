@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { supabase } from '../../../utils/supabase/client';
@@ -70,15 +70,11 @@ function HeroSkeleton() {
 
 function ShopTileSkeleton() {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm p-4 flex gap-4">
-      <Skeleton className="w-24 aspect-square rounded-xl shrink-0" />
-      <div className="flex-1 space-y-2 py-1">
-        <Skeleton className="h-5 w-1/2" />
-        <Skeleton className="h-4 w-1/3" />
-        <Skeleton className="h-4 w-2/3" />
-      </div>
-      <div className="flex items-start">
-        <Skeleton className="h-6 w-16 rounded-full" />
+    <div className="w-full bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col aspect-[4/3] md:aspect-video">
+      <Skeleton className="w-full h-[70%] shrink-0" />
+      <div className="h-[30%] p-4 flex flex-col justify-center gap-2">
+        <Skeleton className="h-5 w-1/2 rounded" />
+        <Skeleton className="h-4 w-1/3 rounded" />
       </div>
     </div>
   );
@@ -107,17 +103,17 @@ function PromoBanner({ data }: { data: typeof KITHLY_PROMOS[0] }) {
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 15 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -15 }}
-      transition={{ duration: 0.3 }}
-      className="bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-2xl p-6 shadow-md mb-5 flex flex-col justify-center items-center text-center border border-orange-400/20"
+      whileHover={{ scale: 1.01 }}
+      transition={{ duration: 0.25, ease: "easeInOut" }}
+      className="w-full h-full flex flex-col justify-center items-center text-center"
     >
-      <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-3">
-        <Shield className="w-5 h-5 text-white" />
+      <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mb-4 shrink-0">
+        <Shield className="w-6 h-6 text-white" strokeWidth={2} />
       </div>
-      <h3 className="text-lg font-bold mb-1 tracking-tight">{data.title}</h3>
-      <p className="text-sm text-orange-50 max-w-md font-medium leading-relaxed">
+      <h3 className="text-xl md:text-2xl font-bold mb-2 tracking-tight">{data.title}</h3>
+      <p className="text-sm md:text-base text-orange-50 max-w-lg font-medium leading-relaxed">
         {data.subtitle}
       </p>
     </motion.div>
@@ -423,18 +419,20 @@ export function Home() {
             </div>
           </Button>
         </div>
+      </div>
 
-        {/* Shop Discovery Section */}
-        <div ref={shopsSectionRef} className="mb-6 scroll-mt-20">
-          <h2 className="text-2xl font-semibold mb-2">Popular Shops</h2>
-          <p className="text-muted-foreground">
+      {/* ── Shop Discovery Section ── */}
+      <div className="w-full max-w-[1400px] mx-auto px-6 py-8">
+        <div ref={shopsSectionRef} className="mb-8 scroll-mt-20">
+          <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 mb-2">Popular Shops</h2>
+          <p className="text-gray-500">
             Choose from our curated local shops and send memorable experiences
           </p>
         </div>
 
         {/* Shops List */}
         {shopsLoading ? (
-          <div className="space-y-4">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {[1, 2, 3].map((i) => (
               <ShopTileSkeleton key={i} />
             ))}
@@ -455,22 +453,21 @@ export function Home() {
               visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
               hidden: { opacity: 0 }
             }}
-            className="space-y-4"
+            className="grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
           >
             {shops.map((shop, index) => (
-              <div key={shop.id} className="w-full">
+              <React.Fragment key={shop.id}>
                 <motion.div
                   layout
-                  variants={{
-                    visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 15 } },
-                    hidden: { opacity: 0, y: 30 }
-                  }}
-                  whileHover={{ y: -2, boxShadow: "0px 10px 20px rgba(0,0,0,0.05)" }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.25, ease: "easeInOut" }}
                   onClick={() => navigate(`/shop/${shop.id}`)}
-                  className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-5 cursor-pointer transition-all"
+                  className="w-full min-h-[400px] md:h-[450px] bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col cursor-pointer relative"
                 >
-                  {/* 16:9 Media Slot */}
-                  <div className="relative w-full aspect-video bg-gray-100 overflow-hidden">
+                  {/* Upper Section (75% height) */}
+                  <div className="w-full h-[75%] bg-gray-50 overflow-hidden relative shrink-0">
                     {shop.image_url ? (
                       <img
                         src={shop.image_url}
@@ -478,7 +475,7 @@ export function Home() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-orange-400 via-red-500 to-orange-600 opacity-90 flex items-center justify-center">
+                      <div className="w-full h-full bg-gradient-to-br from-orange-500 to-red-500 opacity-90 flex items-center justify-center">
                         <Store className="w-12 h-12 text-white/80" />
                       </div>
                     )}
@@ -488,36 +485,25 @@ export function Home() {
                     </div>
                   </div>
 
-                  {/* Metadata Overlay & Shop Details */}
-                  <div className="p-5 flex gap-4 items-start relative bg-white">
-                    {/* Circular avatar ring for shop logo */}
-                    <div className="w-12 h-12 rounded-full border-2 border-white shadow-md bg-gradient-to-tr from-orange-500 to-red-500 flex items-center justify-center shrink-0 -mt-10 z-10 text-white font-bold text-lg">
-                      {shop.name.charAt(0)}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-lg font-bold text-gray-900 truncate">{shop.name}</h3>
-                        <CheckCircle className="w-4 h-4 text-blue-500 fill-blue-50 shrink-0" />
-                      </div>
-                      {shop.location && (
-                        <p className="text-sm text-gray-500 flex items-center gap-1">
-                          <Store className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                          {shop.location}
-                        </p>
-                      )}
-                      {shop.description && (
-                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                          {shop.description}
-                        </p>
-                      )}
-                    </div>
+                  {/* Lower Section (25% height) */}
+                  <div className="w-full h-[25%] px-5 flex flex-col justify-center bg-white border-t border-gray-50 min-w-0">
+                    <h3 className="text-base md:text-xl font-extrabold text-gray-900 tracking-tight truncate">
+                      {shop.name}
+                    </h3>
+                    {shop.location && (
+                      <p className="text-xs md:text-sm text-gray-500 truncate mt-0.5">
+                        {shop.location}
+                      </p>
+                    )}
                   </div>
                 </motion.div>
-                {(index + 1) % 2 === 0 && (
-                  <PromoBanner data={KITHLY_PROMOS[Math.floor(index / 2) % KITHLY_PROMOS.length]} />
+
+                {(index + 1) % 6 === 0 && (
+                  <div className="col-span-2 lg:col-span-3 w-full min-h-[160px] md:h-[220px] my-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 text-white p-8 flex flex-col justify-center items-center text-center shadow-md overflow-hidden">
+                    <PromoBanner data={KITHLY_PROMOS[Math.floor(index / 6) % KITHLY_PROMOS.length]} />
+                  </div>
                 )}
-              </div>
+              </React.Fragment>
             ))}
           </motion.div>
         )}

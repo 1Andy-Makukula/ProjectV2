@@ -1,166 +1,170 @@
-// KithLy Notifications Center
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { ShieldCheck, Ticket, Bell, CheckCircle2, Clock } from 'lucide-react';
 
-import { motion } from 'motion/react';
-import { Bell, Gift, CheckCircle, AlertCircle, Info, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router';
-import { Badge } from '../components/ui/badge';
+// 1. Define the KithLy Notification Types
+type NotificationType = 'ESCROW_RELEASED' | 'CLAIM_CODE' | 'SYSTEM';
 
-interface Notification {
+interface KithLyNotification {
   id: string;
-  type: 'success' | 'info' | 'warning';
+  type: NotificationType;
   title: string;
   message: string;
-  time: string;
+  timestamp: string;
   read: boolean;
+  actionText?: string;
+  claimCode?: string;
 }
 
-const mockNotifications: Notification[] = [
+// 2. Realistic Mock Data for the Engine
+const MOCK_NOTIFICATIONS: KithLyNotification[] = [
   {
-    id: '1',
-    type: 'success',
-    title: 'Gift Redeemed',
-    message: 'Your gift "Shoprite Voucher" was successfully redeemed at Garden Mall',
-    time: '2 hours ago',
+    id: 'n1',
+    type: 'CLAIM_CODE',
+    title: 'Your Gift is Ready!',
+    message: 'The recipient has been notified via SMS. Your 8-character claim code is ready for the shop.',
+    timestamp: 'Just now • 16:12',
     read: false,
+    claimCode: 'X7B9-MQ2A',
   },
   {
-    id: '2',
-    type: 'info',
-    title: 'New Gift Received',
-    message: 'You received a new gift worth ZMW 250. Check your vault!',
-    time: '5 hours ago',
+    id: 'n2',
+    type: 'ESCROW_RELEASED',
+    title: 'Funds Released',
+    message: 'The driver scanned the code. Escrow has been successfully released to the merchant.',
+    timestamp: '2 hours ago • 14:12',
     read: false,
+    actionText: 'View Receipt',
   },
   {
-    id: '3',
-    type: 'warning',
-    title: 'Gift Expiring Soon',
-    message: 'Your gift "Cafe Latte Voucher" expires in 2 days',
-    time: '1 day ago',
+    id: 'n3',
+    type: 'SYSTEM',
+    title: 'Welcome to KithLy',
+    message: 'Your account is fully verified and ready to secure transactions.',
+    timestamp: 'Oct 24 • 14:30',
     read: true,
-  },
-  {
-    id: '4',
-    type: 'success',
-    title: 'Profile Verified',
-    message: 'Your profile has been verified. You now have full access to KithLy',
-    time: '2 days ago',
-    read: true,
-  },
+  }
 ];
 
 export function Notifications() {
-  const navigate = useNavigate();
-  const unreadCount = mockNotifications.filter(n => !n.read).length;
+  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
 
-  const getIcon = (type: Notification['type']) => {
-    switch (type) {
-      case 'success':
-        return <CheckCircle className="w-5 h-5 text-green-600" strokeWidth={1.5} />;
-      case 'warning':
-        return <AlertCircle className="w-5 h-5 text-orange-600" strokeWidth={1.5} />;
-      case 'info':
-        return <Info className="w-5 h-5 text-blue-600" strokeWidth={1.5} />;
-    }
+  const markAsRead = (id: string) => {
+    setNotifications(prev => 
+      prev.map(n => n.id === id ? { ...n, read: true } : n)
+    );
   };
 
-  const getBgColor = (type: Notification['type']) => {
+  // Helper function to pick the right icon and color based on the event
+  const getIconConfig = (type: NotificationType) => {
     switch (type) {
-      case 'success':
-        return 'bg-green-50';
-      case 'warning':
-        return 'bg-orange-50';
-      case 'info':
-        return 'bg-blue-50';
+      case 'ESCROW_RELEASED':
+        return { icon: ShieldCheck, color: 'text-green-500', bg: 'bg-green-50' };
+      case 'CLAIM_CODE':
+        return { icon: Ticket, color: 'text-orange-500', bg: 'bg-orange-50' };
+      default:
+        return { icon: Bell, color: 'text-blue-500', bg: 'bg-blue-50' };
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 md:px-6 py-8 max-w-3xl">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-sm font-light text-muted-foreground hover:text-black mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" strokeWidth={1.5} />
-          Back
-        </button>
+    <div className="w-full max-w-md mx-auto p-4 bg-gray-50 min-h-screen">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+          Notifications
+        </h2>
+        <span className="text-sm font-medium text-gray-500 bg-gray-200 px-3 py-1 rounded-full">
+          {notifications.filter(n => !n.read).length} New
+        </span>
+      </div>
 
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center">
-              <Bell className="w-6 h-6 text-white" strokeWidth={1.5} />
-            </div>
-            <div>
-              <h1 className="text-3xl font-light text-black">Notifications</h1>
-              {unreadCount > 0 && (
-                <p className="text-sm font-light text-muted-foreground">
-                  {unreadCount} unread
-                </p>
-              )}
-            </div>
-          </div>
+      <ul className="space-y-4">
+        <AnimatePresence>
+          {notifications.map((note) => {
+            const { icon: Icon, color, bg } = getIconConfig(note.type);
+            
+            return (
+              <motion.li
+                key={note.id}
+                layout
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                onClick={() => markAsRead(note.id)}
+                className={`relative p-4 rounded-2xl shadow-sm border cursor-pointer overflow-hidden transition-colors ${
+                  note.read 
+                    ? 'bg-white border-gray-100' 
+                    : 'bg-orange-50/30 border-orange-100'
+                }`}
+              >
+                {/* The Unread Gradient Indicator Line */}
+                {!note.read && (
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-orange-500 to-red-500" />
+                )}
 
-          {unreadCount > 0 && (
-            <button className="text-sm font-light text-[#F97316] hover:underline">
-              Mark all read
-            </button>
-          )}
-        </div>
+                <div className="flex items-start gap-4">
+                  {/* Icon Avatar with internal stagger */}
+                  <motion.div 
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className={`p-3 rounded-full shrink-0 ${bg}`}
+                  >
+                    <Icon className={`w-6 h-6 ${color}`} />
+                  </motion.div>
 
-        <motion.ul className="space-y-3">
-          {mockNotifications.map((notification, idx) => (
-            <motion.li
-              key={notification.id}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              whileHover={{ scale: 1.01 }}
-              transition={{ duration: 0.2, ease: 'easeOut', delay: idx * 0.05 }}
-              className={`rounded-xl shadow-sm border border-gray-100 p-4 mb-3 flex flex-col gap-1 ${
-                notification.read ? 'bg-white' : 'bg-orange-50/40 border-l-4 border-l-orange-500'
-              }`}
-            >
-              <div className="flex gap-4">
-                <div className={`w-10 h-10 rounded-xl ${getBgColor(notification.type)} flex items-center justify-center flex-shrink-0`}>
-                  {getIcon(notification.type)}
-                </div>
+                  {/* Content Area */}
+                  <div className="flex-1 min-w-0">
+                    {/* Header Stack with internal delay stagger */}
+                    <motion.div
+                      initial={{ y: 8, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.1 }}
+                    >
+                      <div className="flex justify-between items-start mb-1">
+                        <h4 className={`text-base truncate ${note.read ? 'font-medium text-gray-800' : 'font-bold text-gray-900'}`}>
+                          {note.title}
+                        </h4>
+                        <div className="flex items-center gap-1 text-xs font-medium text-gray-400 shrink-0 mt-1">
+                          <Clock className="w-3 h-3" />
+                          {note.timestamp}
+                        </div>
+                      </div>
+                      
+                      <p className="text-sm text-gray-600 leading-relaxed mb-3">
+                        {note.message}
+                      </p>
+                    </motion.div>
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2 mb-1">
-                    <h3 className={`text-black ${notification.read ? 'font-medium' : 'font-semibold'}`}>
-                      {notification.title}
-                    </h3>
-                    {!notification.read && (
-                      <span className="w-2 h-2 rounded-full bg-[#F97316] flex-shrink-0 mt-1.5" />
+                    {/* Interactive Elements (staggered from the left track) */}
+                    {(note.claimCode || note.actionText) && (
+                      <motion.div 
+                        initial={{ x: -10, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: 0.15 }}
+                        className="flex items-center gap-2 mt-2"
+                      >
+                        {note.claimCode && (
+                          <div className="bg-gray-100 border border-gray-200 px-3 py-1.5 rounded-lg text-sm font-mono font-bold tracking-widest text-gray-800 flex items-center gap-2">
+                            {note.claimCode}
+                            <CheckCircle2 className="w-4 h-4 text-green-500" />
+                          </div>
+                        )}
+                        {note.actionText && (
+                          <button className="text-sm font-semibold text-orange-600 hover:text-red-600 transition-colors">
+                            {note.actionText} &rarr;
+                          </button>
+                        )}
+                      </motion.div>
                     )}
                   </div>
-                  <p className="text-sm font-light text-muted-foreground">
-                    {notification.message}
-                  </p>
                 </div>
-              </div>
-
-              <div className="flex justify-end mt-1">
-                <span className="text-xs text-gray-400 font-medium">
-                  {notification.time}
-                </span>
-              </div>
-            </motion.li>
-          ))}
-        </motion.ul>
-
-        {mockNotifications.length === 0 && (
-          <div className="text-center py-16">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gray-100 flex items-center justify-center">
-              <Bell className="w-10 h-10 text-muted-foreground" strokeWidth={1.5} />
-            </div>
-            <h3 className="text-xl font-light text-black mb-2">No notifications</h3>
-            <p className="text-sm font-light text-muted-foreground">
-              You're all caught up!
-            </p>
-          </div>
-        )}
-      </div>
+              </motion.li>
+            );
+          })}
+        </AnimatePresence>
+      </ul>
     </div>
   );
 }
