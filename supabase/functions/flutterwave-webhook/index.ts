@@ -288,73 +288,70 @@ async function writeTransactionEvent(
 // ---------------------------------------------------------------------------
 
 /**
- * Promotes the `payout_status` of the matched `claim_vouchers` row from
- * `'UNFUNDED'` to `'PENDING_BATCH'` to indicate that funds have arrived
- * and the voucher is now eligible for the next settlement batch.
+ * Updates the V2 Escrow tables to indicate that funds have arrived.
  *
- * Critical invariants enforced here:
+ * 1. Promotes the `transactions` table to 'SUCCESSFUL'.
+ * 2. Promotes all associated `shop_orders` from 'PENDING_PAYMENT' to 'PENDING'.
  *
- *  1. We filter on `payout_status = 'UNFUNDED'` in the WHERE clause.
- *     This makes the update idempotent — if Flutterwave retries the
- *     webhook and the row has already been promoted, the UPDATE matches
- *     zero rows rather than regressing the status back.
- *
- *  2. We deliberately do NOT touch `claim_status`. That column tracks the
- *     in-store redemption lifecycle and is owned exclusively by the
- *     merchant fulfillment flow. Its value remains `'PENDING'`.
- *
- *  3. We record `funded_at` so the batch settlement job has a precise
- *     timestamp for cut-off window calculations.
- *
- * @returns `true` when a row was updated; `false` when no matching row was
- *          found (which may indicate a duplicate/late webhook or a lookup error).
+ * @returns `true` when a row was updated; `false` when no matching row was found.
  */
 async function promoteVoucherPayoutStatus(
   supabase: ReturnType<typeof getAdminClient>,
-  voucherId: string,
+  transactionId: string,
   flutterwaveTransactionId: number,
   flwRef: string,
 ): Promise<boolean> {
-  const { data: updatedRows, error: updateError } = await supabase
-    .from("claim_vouchers")
+  // Step 1: Update the parent transaction
+  const { data: updatedTransactions, error: txError } = await supabase
+    .from("transactions")
     .update({
-      payout_status: "PENDING_BATCH",
-      flutterwave_transaction_id: flutterwaveTransactionId.toString(),
-      flw_ref: flwRef,
-      funded_at: new Date().toISOString(),
+      status: "SUCCESSFUL",
+      gateway_tx_ref: flutterwaveTransactionId.toString(),
     })
-    .eq("voucher_id", voucherId)
-    // Idempotency guard: only update rows that are still in the UNFUNDED state.
-    // If this webhook fires twice, the second UPDATE matches 0 rows — safe.
-    .eq("payout_status", "UNFUNDED")
-    .select("voucher_id");
+    .eq("transaction_id", transactionId)
+    .eq("status", "GATEWAY_PROCESSING")
+    .select("transaction_id");
 
-  if (updateError) {
+  if (txError) {
     console.error(
-      `[flutterwave-webhook] Voucher payout_status update FAILED for voucher_id='${voucherId}':`,
-      updateError.code,
-      updateError.message,
-      updateError.details ?? "",
+      `[flutterwave-webhook] Transaction status update FAILED for transaction_id='${transactionId}':`,
+      txError.code,
+      txError.message,
+      txError.details ?? "",
     );
-    // Return false to signal that the caller should log a warning, but we
-    // still respond 200 to Flutterwave because the ledger row was already written.
     return false;
   }
 
-  const rowsAffected = updatedRows?.length ?? 0;
-
-  if (rowsAffected === 0) {
-    // Either the voucher doesn't exist, it was already promoted (idempotent
-    // retry), or it was in an unexpected state. All cases are non-fatal.
+  const txRowsAffected = updatedTransactions?.length ?? 0;
+  if (txRowsAffected === 0) {
     console.warn(
-      `[flutterwave-webhook] No rows updated for voucher_id='${voucherId}'. ` +
-        "The voucher may not exist, may have already been funded, or may be in an unexpected state.",
+      `[flutterwave-webhook] No transactions updated for transaction_id='${transactionId}'. It may not exist or was already processed.`,
     );
     return false;
+  }
+
+  // Step 2: Update all child shop_orders to PENDING
+  const { error: orderError } = await supabase
+    .from("shop_orders")
+    .update({
+      status: "PENDING",
+    })
+    .eq("transaction_id", transactionId)
+    .eq("status", "PENDING_PAYMENT");
+
+  if (orderError) {
+    console.error(
+      `[flutterwave-webhook] Shop orders update FAILED for transaction_id='${transactionId}':`,
+      orderError.code,
+      orderError.message,
+      orderError.details ?? "",
+    );
+    // We don't fail the webhook if child orders fail, as the parent is marked paid.
+    // In production, this would trigger a dead-letter queue or alert.
   }
 
   console.log(
-    `[flutterwave-webhook] Voucher promoted | voucher_id=${voucherId} | payout_status: UNFUNDED → PENDING_BATCH | flw_txn_id=${flutterwaveTransactionId}`,
+    `[flutterwave-webhook] Transaction promoted | transaction_id=${transactionId} | flw_txn_id=${flutterwaveTransactionId}`,
   );
   return true;
 }

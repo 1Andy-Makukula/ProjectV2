@@ -32,9 +32,18 @@ type CheckoutStage =
   | 'PROCESSING' // voucherId received, polling begins
   | 'ERROR';     // checkout-init failed
 
-interface CheckoutInitResponse {
-  voucher_id: string;
+interface ShopOrderResult {
+  shop_order_id: string;
   claim_code: string;
+  shop_id: string;
+  subtotal: number;
+}
+
+interface CheckoutInitResponse {
+  success: boolean;
+  transaction_id: string;
+  shop_orders: ShopOrderResult[];
+  payment_link: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -199,8 +208,8 @@ export function Checkout() {
   const { items, removeFromCart, clearCart, getTotalAmount } = useCart();
 
   const [stage, setStage] = useState<CheckoutStage>('CART');
-  const [voucherId, setVoucherId] = useState<string | null>(null);
-  const [claimCode, setClaimCode] = useState<string>('');
+  const [transactionId, setTransactionId] = useState<string | null>(null);
+  const [shopOrders, setShopOrders] = useState<ShopOrderResult[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const totalAmount = getTotalAmount();
@@ -225,12 +234,19 @@ export function Checkout() {
         { body: { ...payload, origin_type: 'LOCAL' } },
       );
 
-      if (error || !data?.voucher_id) {
+      if (error || !data?.transaction_id) {
         throw new Error(error?.message ?? 'Checkout initialisation failed. Please try again.');
       }
 
-      setVoucherId(data.voucher_id);
-      setClaimCode(data.claim_code ?? '');
+      setTransactionId(data.transaction_id);
+      setShopOrders(data.shop_orders ?? []);
+      
+      // If we are meant to redirect to Flutterwave, we would do it here.
+      // For now, we transition to processing screen which polls the ledger.
+      if (data.payment_link && data.payment_link !== '#') {
+        window.open(data.payment_link, '_blank'); // Open payment in new tab so polling can continue
+      }
+
       setStage('PROCESSING');
     } catch (err: any) {
       console.error('[Checkout] checkout-init error:', err);
@@ -246,11 +262,11 @@ export function Checkout() {
 
   // ---------- PROCESSING: hand off entirely to PaymentProcessingScreen ----
 
-  if (stage === 'PROCESSING' && voucherId) {
+  if (stage === 'PROCESSING' && transactionId) {
     return (
       <PaymentProcessingScreen
-        voucherId={voucherId}
-        claimCode={claimCode}
+        transactionId={transactionId}
+        shopOrders={shopOrders}
         onComplete={handleComplete}
       />
     );

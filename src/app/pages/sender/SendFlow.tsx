@@ -101,17 +101,10 @@ export function SendFlow() {
 
   const handleContinue = () => {
     if (!validateForm() || !item || !shop) return;
-
-    // Store the send flow data and navigate to summary
-    const sendData = {
-      item,
-      shop,
-      ...formData,
-    };
-
-    // Store in sessionStorage for the summary page
-    sessionStorage.setItem('sendFlowData', JSON.stringify(sendData));
-    navigate('/summary');
+    // V2: Navigate directly to the unified Checkout page.
+    // The cart state is managed by the useCart Zustand store;
+    // no sessionStorage handoff is needed.
+    navigate('/checkout');
   };
 
   if (loading) {
@@ -325,7 +318,7 @@ export function SendFlow() {
             onClick={handleContinue}
             className="w-full h-12 text-base font-medium bg-gradient-to-r from-primary to-primary-light"
           >
-            Continue to Summary
+            Continue to Checkout
           </Button>
         </motion.div>
       </div>

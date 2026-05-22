@@ -29,18 +29,16 @@ import {
 
 export interface PaymentProcessingScreenProps {
   /**
-   * The voucher UUID returned by the `checkout-init` Edge Function.
+   * The transaction UUID returned by the `checkout-init` Edge Function.
    * Passed directly into `usePaymentVerification` to begin polling.
    */
-  voucherId: string;
+  transactionId: string;
 
   /**
-   * The 8-character uppercase alphanumeric claim code returned by
-   * `checkout-init`. It is known before polling begins and displayed
-   * immediately on SUCCESS — the hook does not retrieve it; it only
-   * confirms that payment was received.
+   * The array of shop orders returned by `checkout-init`, containing
+   * the shop IDs and their respective claim codes.
    */
-  claimCode: string;
+  shopOrders: { shop_order_id: string; claim_code: string; shop_id: string }[];
 
   /**
    * Called when the user explicitly acknowledges the SUCCESS state by
@@ -181,10 +179,10 @@ function ClaimCodeDisplay({ code }: { code: string }) {
 }
 
 function SuccessView({
-  claimCode,
+  shopOrders,
   onComplete,
 }: {
-  claimCode: string;
+  shopOrders: { shop_order_id: string; claim_code: string; shop_id: string }[];
   onComplete: () => void;
 }) {
   return (
@@ -410,8 +408,8 @@ function TimeoutView({
 // ---------------------------------------------------------------------------
 
 export function PaymentProcessingScreen({
-  voucherId,
-  claimCode,
+  transactionId,
+  shopOrders,
   onComplete,
 }: PaymentProcessingScreenProps) {
 
@@ -421,7 +419,7 @@ export function PaymentProcessingScreen({
    * SUCCESS transition by reading `status` directly, keeping the render logic
    * self-contained and predictable.
    */
-  const { status, attemptCount, reset } = usePaymentVerification({ voucherId });
+  const { status, attemptCount, reset } = usePaymentVerification({ voucherId: transactionId });
 
   /**
    * Ref used to focus the "Continue" button automatically when the SUCCESS
@@ -492,7 +490,7 @@ export function PaymentProcessingScreen({
           {status === 'SUCCESS' && (
             <SuccessView
               key="success"
-              claimCode={claimCode}
+              shopOrders={shopOrders}
               onComplete={onComplete}
             />
           )}

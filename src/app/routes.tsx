@@ -14,7 +14,7 @@ import { GiftPage } from './pages/public/GiftPage';
 import { Home } from './pages/sender/Home';
 import { ShopDetail } from './pages/sender/ShopDetail';
 import { SendFlow } from './pages/sender/SendFlow';
-import { OrderSummary } from './pages/sender/OrderSummary';
+import { Navigate } from 'react-router';
 import { Confirmation } from './pages/sender/Confirmation';
 import { OrderDashboard } from './pages/sender/OrderDashboard';
 import { OrderDetail } from './pages/sender/OrderDetail';
@@ -78,8 +78,9 @@ export const router = createBrowserRouter([
         element: <ProtectedRoute allowedRoles={['sender']}><SendFlow /></ProtectedRoute>
       },
       {
+        // V1 /summary route retired — redirect to V2 /checkout
         path: 'summary',
-        element: <ProtectedRoute allowedRoles={['sender']}><OrderSummary /></ProtectedRoute>
+        element: <Navigate to="/checkout" replace />
       },
       {
         path: 'confirmation/:orderId',

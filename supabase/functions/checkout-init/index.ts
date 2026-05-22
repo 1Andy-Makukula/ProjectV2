@@ -291,6 +291,13 @@ async function insertTransaction(
 // Step C — Insert into `shop_orders` + `order_items` for each vendor
 // ---------------------------------------------------------------------------
 
+export interface ShopOrderResult {
+  shop_order_id: string;
+  claim_code: string;
+  shop_id: string;
+  subtotal: number;
+}
+
 /**
  * For each vendor in the payload:
  *   1. Generates a secure 8-char claim_code.
@@ -298,14 +305,14 @@ async function insertTransaction(
  *   3. Bulk-inserts all item_ids into `order_items` at the per-item price
  *      (subtotal / item count, rounded to the nearest integer).
  *
- * Returns an array of the created `shop_order_id` UUIDs.
+ * Returns an array of the created `ShopOrderResult` objects.
  */
 async function insertVendorOrders(
   adminClient: ReturnType<typeof getAdminClient>,
   transactionId: string,
   vendors: VendorGroup[],
-): Promise<string[]> {
-  const shopOrderIds: string[] = [];
+): Promise<ShopOrderResult[]> {
+  const shopOrders: ShopOrderResult[] = [];
 
   for (const vendor of vendors) {
     // --- 1. Generate claim code ---
@@ -336,7 +343,12 @@ async function insertVendorOrders(
     }
 
     const shopOrderId = shopOrderData.shop_order_id;
-    shopOrderIds.push(shopOrderId);
+    shopOrders.push({
+      shop_order_id: shopOrderId,
+      claim_code: claimCode,
+      shop_id: vendor.shop_id,
+      subtotal: vendor.subtotal,
+    });
 
     console.log(
       `[checkout-init] Shop order created | shop_order_id=${shopOrderId} | shop_id=${vendor.shop_id} | claim_code=${claimCode} | subtotal=${vendor.subtotal}`,
@@ -374,7 +386,7 @@ async function insertVendorOrders(
     );
   }
 
-  return shopOrderIds;
+  return shopOrders;
 }
 
 // ---------------------------------------------------------------------------
@@ -514,10 +526,10 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     );
 
     // --- 7. Insert shop orders + order items for each vendor (Step C) ---
-    const shopOrderIds = await insertVendorOrders(adminClient, transactionId, vendors);
+    const shopOrders = await insertVendorOrders(adminClient, transactionId, vendors);
 
     console.log(
-      `[checkout-init] All vendor orders created | transaction_id=${transactionId} | shop_order_ids=[${shopOrderIds.join(", ")}]`,
+      `[checkout-init] All vendor orders created | transaction_id=${transactionId} | shop_orders=${shopOrders.length}`,
     );
 
     // --- 8. Generate Flutterwave payment link (Step D) ---
@@ -532,7 +544,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     return json({
       success: true,
       transaction_id: transactionId,
-      shop_order_ids: shopOrderIds,
+      shop_orders: shopOrders,
       payment_link: paymentLink,
     });
   } catch (err: unknown) {

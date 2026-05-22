@@ -174,7 +174,7 @@ async function fetchAndLockOrder(
   // only the first UPDATE (Step 5) will match claim_status = 'PENDING'.
   // The second will find no matching row and the guard below will catch it
   // on re-fetch, or the Step 5 UPDATE will return 0 rows affected.
-  if (order.claim_status !== "PENDING_PAYMENT" && order.claim_status !== "PENDING") {
+  if (order.claim_status !== "PENDING") {
     const reason =
       order.claim_status === "FULFILLED" || order.claim_status === "PARTIAL_FULFILLMENT"
         ? "This order has already been fulfilled."
@@ -355,7 +355,7 @@ async function finaliseShopOrder(
     })
     // Idempotency fence: only update if still in a pending state.
     // If a second concurrent request races here, this UPDATE matches 0 rows.
-    .in("claim_status", ["PENDING_PAYMENT", "PENDING"])
+    .eq("claim_status", "PENDING")
     .eq("shop_order_id", shopOrderId)
     .select("shop_order_id");
 
