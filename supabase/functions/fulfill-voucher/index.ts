@@ -155,32 +155,18 @@ async function fetchAndLockOrder(
   db: ReturnType<typeof getAdminClient>,
   claimCode: string,
 ): Promise<ShopOrderRow | Response> {
+  // ATOMIC LOCK: Attempt to immediately reserve the row
   const { data: order, error } = await db
     .from("shop_orders")
-    .select("shop_order_id, shop_id, transaction_id, claim_status, subtotal")
+    .update({ claim_status: "PROCESSING_FULFILLMENT" })
     .eq("claim_code", claimCode)
-    .maybeSingle<ShopOrderRow>();
+    .eq("claim_status", "PENDING")
+    .select("shop_order_id, shop_id, transaction_id, claim_status, subtotal")
+    .single<ShopOrderRow>();
 
-  if (error) {
-    console.error("[fulfill-voucher] shop_orders lookup failed:", error.message);
-    return json({ error: "Failed to retrieve order. Please try again." }, 500);
-  }
-  if (!order) {
-    return json({ error: "Claim code not found.", rejection_reason: "Invalid or expired code." }, 400);
-  }
-
-  // Idempotency guard — reject any code not in PENDING state.
-  // This is the race-condition fence: if two requests arrive simultaneously,
-  // only the first UPDATE (Step 5) will match claim_status = 'PENDING'.
-  // The second will find no matching row and the guard below will catch it
-  // on re-fetch, or the Step 5 UPDATE will return 0 rows affected.
-  if (order.claim_status !== "PENDING") {
-    const reason =
-      order.claim_status === "FULFILLED" || order.claim_status === "PARTIAL_FULFILLMENT"
-        ? "This order has already been fulfilled."
-        : `Order is in an invalid state: ${order.claim_status}.`;
-    console.warn(`[fulfill-voucher] Rejected: claim_code=${claimCode} status=${order.claim_status}`);
-    return json({ error: reason, rejection_reason: reason }, 400);
+  if (error || !order) {
+    console.warn(`[fulfill-voucher] Lock failed for claim_code=${claimCode}: ${error?.message || "No matching PENDING row."}`);
+    return json({ error: "Invalid claim code or order is already being processed.", rejection_reason: "Invalid or already processed." }, 403);
   }
 
   return order;
@@ -353,9 +339,7 @@ async function finaliseShopOrder(
       settlement_target_time: settlementTargetTime,
       fulfilled_at: new Date().toISOString(),
     })
-    // Idempotency fence: only update if still in a pending state.
-    // If a second concurrent request races here, this UPDATE matches 0 rows.
-    .eq("claim_status", "PENDING")
+    .eq("claim_status", "PROCESSING_FULFILLMENT")
     .eq("shop_order_id", shopOrderId)
     .select("shop_order_id");
 
@@ -364,9 +348,7 @@ async function finaliseShopOrder(
   const rowsAffected = (data as unknown[])?.length ?? 0;
 
   if (rowsAffected === 0) {
-    // Another concurrent request won the race — this is a safe duplicate.
-    console.warn(`[fulfill-voucher] Race condition detected: shop_order_id=${shopOrderId} already finalised.`);
-    return false; // Signal to caller: duplicate request
+    throw new Error(`Failed to finalise shop_order: lock was lost or order not in PROCESSING_FULFILLMENT state.`);
   }
 
   console.log(`[fulfill-voucher] shop_order finalised | id=${shopOrderId} | status=${claimStatus} | settlement=${settlementTargetTime}`);
@@ -456,8 +438,7 @@ async function handleFulfillVoucher(req: Request): Promise<Response> {
   console.log(`[fulfill-voucher] Merchant verified | user=${merchantUserId} | shop=${order.shop_id}`);
 
   // 6–10: Execute the financial pipeline inside a try/catch.
-  //       If any step fails, we return 500 — no partial ledger writes should
-  //       go unlogged. The idempotency guard on shop_orders prevents double-runs.
+  //       If any step fails, we attempt a graceful rollback.
   try {
     // 6. Mark order_items COLLECTED / MISSING
     await updateItemStatuses(db, order.shop_order_id, present_item_ids, missing_item_ids);
@@ -477,19 +458,8 @@ async function handleFulfillVoucher(req: Request): Promise<Response> {
       await creditSenderWallet(db, order.transaction_id, order.shop_order_id, missing_total, claim_code);
     }
 
-    // 10. Finalise shop_order status + settlement window (race-condition fence)
-    const didFinalise = await finaliseShopOrder(db, order.shop_order_id, missing_item_ids.length > 0);
-
-    if (!didFinalise) {
-      // This request lost the race — a concurrent request already finalised the order.
-      // We still return a success-like response because the financial outcome is correct;
-      // we just flag it as a duplicate so the caller can log/suppress toasts.
-      return json({
-        success: true,
-        duplicate: true,
-        message: "Order was already finalised by a concurrent request.",
-      });
-    }
+    // 10. Finalise shop_order status to FULFILLED
+    await finaliseShopOrder(db, order.shop_order_id, missing_item_ids.length > 0);
 
     // 11. Immutable audit ledger
     await writeLedgerEvent(db, order.shop_order_id, merchantUserId, {
@@ -513,6 +483,21 @@ async function handleFulfillVoucher(req: Request): Promise<Response> {
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "An unexpected error occurred.";
     console.error("[fulfill-voucher] Pipeline failure:", msg);
+
+    // GRACEFUL ROLLBACK
+    console.log(`[fulfill-voucher] Initiating graceful rollback for shop_order=${order.shop_order_id}...`);
+    const { error: rollbackErr } = await db
+      .from("shop_orders")
+      .update({ claim_status: "PENDING" })
+      .eq("shop_order_id", order.shop_order_id)
+      .eq("claim_status", "PROCESSING_FULFILLMENT");
+
+    if (rollbackErr) {
+      console.error("[fulfill-voucher] FATAL: Rollback failed! Order is stuck in PROCESSING_FULFILLMENT:", rollbackErr.message);
+    } else {
+      console.log("[fulfill-voucher] Rollback successful. Order reverted to PENDING.");
+    }
+
     return json({ error: msg }, 500);
   }
 }

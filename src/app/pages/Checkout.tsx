@@ -9,7 +9,7 @@
  *   ERROR     → Inline error with retry
  */
 
-import { useState } from 'react';
+import { useState, memo, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, Trash2, Shield, ArrowLeft } from 'lucide-react';
@@ -143,25 +143,29 @@ function SecuringEscrowView() {
 }
 
 /** Cart line item row */
-function CartLineItem({
+const CartLineItem = memo(function CartLineItem({
   product,
   quantity,
   onRemove,
 }: {
   product: { id: string; title: string; price_zmw: number; images: string[]; shop?: { business_name?: string } };
   quantity: number;
-  onRemove: () => void;
+  onRemove: (id: string) => void;
 }) {
+  const handleRemove = useCallback(() => {
+    onRemove(product.id);
+  }, [onRemove, product.id]);
+
   return (
     <motion.div
       layout
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 8, transition: { duration: 0.2 } }}
-      className="flex items-center gap-4 py-4 border-b border-slate-100 last:border-0"
+      className="flex items-center gap-3 sm:gap-4 py-4 border-b border-slate-100 last:border-0"
     >
       {/* Thumbnail */}
-      <div className="h-16 w-16 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0">
+      <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0">
         {product.images?.[0] ? (
           <img src={product.images[0]} alt={product.title} className="h-full w-full object-cover" />
         ) : (
@@ -175,12 +179,12 @@ function CartLineItem({
       <div className="flex-1 min-w-0">
         <p className="font-medium text-slate-900 truncate">{product.title}</p>
         {product.shop?.business_name && (
-          <p className="text-xs text-slate-400 mt-0.5">{product.shop.business_name}</p>
+          <p className="text-xs text-slate-500 mt-0.5">{product.shop.business_name}</p>
         )}
         <p className="text-sm font-semibold text-[#F97316] mt-1">
           {formatCurrency(product.price_zmw * quantity, 'ZMW')}
           {quantity > 1 && (
-            <span className="ml-1 text-xs font-normal text-slate-400">
+            <span className="ml-1 text-xs font-normal text-slate-500">
               × {quantity}
             </span>
           )}
@@ -189,7 +193,7 @@ function CartLineItem({
 
       {/* Remove */}
       <button
-        onClick={onRemove}
+        onClick={handleRemove}
         className="p-2 text-slate-300 hover:text-red-400 transition-colors rounded-lg hover:bg-red-50"
         aria-label={`Remove ${product.title} from cart`}
       >
@@ -197,7 +201,7 @@ function CartLineItem({
       </button>
     </motion.div>
   );
-}
+});
 
 // ---------------------------------------------------------------------------
 // Root component
@@ -219,6 +223,12 @@ export function Checkout() {
   const handlePay = async () => {
     if (items.length === 0) {
       toast.error('Your cart is empty.');
+      return;
+    }
+
+    if (!navigator.onLine) {
+      setErrorMsg('No internet connection. Please check your network.');
+      setStage('ERROR');
       return;
     }
 
@@ -250,7 +260,8 @@ export function Checkout() {
       setStage('PROCESSING');
     } catch (err: any) {
       console.error('[Checkout] checkout-init error:', err);
-      setErrorMsg(err.message ?? 'Something went wrong. Please try again.');
+      const isNetworkError = err.message?.toLowerCase().includes('fetch') || !navigator.onLine;
+      setErrorMsg(isNetworkError ? 'Network error or timeout. Please check your connection and try again.' : (err.message ?? 'Something went wrong. Please try again.'));
       setStage('ERROR');
     }
   };
@@ -292,10 +303,10 @@ export function Checkout() {
           >
             {/* Sticky header */}
             <div className="sticky top-0 z-10 bg-white border-b border-slate-100">
-              <div className="flex items-center gap-3 px-5 py-4">
+              <div className="flex items-center gap-3 px-4 sm:px-5 py-4">
                 <button
                   onClick={() => navigate(-1)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                  className="p-1.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
                   aria-label="Go back"
                 >
                   <ArrowLeft className="h-5 w-5" />
@@ -304,14 +315,14 @@ export function Checkout() {
                   Your Cart
                 </h1>
                 {items.length > 0 && (
-                  <span className="ml-auto text-xs text-slate-400">
+                  <span className="ml-auto text-xs text-slate-500">
                     {items.length} {items.length === 1 ? 'item' : 'items'}
                   </span>
                 )}
               </div>
             </div>
 
-            <div className="px-5 py-6 space-y-4">
+            <div className="px-4 sm:px-5 py-6 space-y-4">
               {/* Error banner */}
               {stage === 'ERROR' && errorMsg && (
                 <motion.div
@@ -335,7 +346,7 @@ export function Checkout() {
                   </div>
                   <div>
                     <p className="font-semibold text-slate-700">Your cart is empty</p>
-                    <p className="text-sm text-slate-400 mt-1">
+                    <p className="text-sm text-slate-500 mt-1">
                       Add gifts to your cart from the shop catalogue.
                     </p>
                   </div>
@@ -352,14 +363,14 @@ export function Checkout() {
               {/* Line items */}
               {items.length > 0 && (
                 <>
-                  <div className="rounded-2xl bg-white border border-slate-100 px-5 divide-y divide-slate-50">
+                  <div className="rounded-2xl bg-white border border-slate-100 px-4 sm:px-5 divide-y divide-slate-50">
                     <AnimatePresence>
                       {items.map(({ product, quantity }) => (
                         <CartLineItem
                           key={product.id}
                           product={product as any}
                           quantity={quantity}
-                          onRemove={() => removeFromCart(product.id)}
+                          onRemove={removeFromCart}
                         />
                       ))}
                     </AnimatePresence>

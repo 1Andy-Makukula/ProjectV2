@@ -10,7 +10,7 @@
  *   REJECTED   → Error with reason
  */
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
@@ -62,6 +62,9 @@ const panel = {
 // Component
 // ---------------------------------------------------------------------------
 
+const fmt = (n: number) =>
+  new Intl.NumberFormat('en-ZM', { style: 'currency', currency: 'ZMW', maximumFractionDigits: 0 }).format(n);
+
 export function MerchantFulfill() {
   const navigate = useNavigate();
   const { profile } = useAuth();
@@ -77,57 +80,70 @@ export function MerchantFulfill() {
 
   // ---- helpers -------------------------------------------------------
 
-  const checkedIds   = items.filter(i => checked[i.order_item_id]).map(i => i.order_item_id);
-  const uncheckedIds = items.filter(i => !checked[i.order_item_id]).map(i => i.order_item_id);
-  const payoutTotal  = items
-    .filter(i => checked[i.order_item_id])
-    .reduce((sum, i) => sum + i.allocated_price, 0);
+  const { checkedIds, uncheckedIds, payoutTotal } = useMemo(() => {
+    const cIds: string[] = [];
+    const uIds: string[] = [];
+    let total = 0;
 
-  const fmt = (n: number) =>
-    new Intl.NumberFormat('en-ZM', { style: 'currency', currency: 'ZMW', maximumFractionDigits: 0 }).format(n);
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (checked[item.order_item_id]) {
+        cIds.push(item.order_item_id);
+        total += item.allocated_price;
+      } else {
+        uIds.push(item.order_item_id);
+      }
+    }
+
+    return { checkedIds: cIds, uncheckedIds: uIds, payoutTotal: total };
+  }, [items, checked]);
 
   // ---- fetch order ---------------------------------------------------
 
   const handleCodeComplete = useCallback(async (val: string) => {
     if (val.length !== 8) return;
+
+    if (!navigator.onLine) {
+      setRejectReason('No internet connection. Please check your network.');
+      setStage('REJECTED');
+      return;
+    }
+
     setStage('LOADING');
 
     try {
-      // 1. Resolve merchant's shop_id from their profile
-      const { data: ms, error: msErr } = await supabase
-        .from('merchant_shops')
-        .select('shop_id')
-        .eq('user_id', profile?.id)
-        .single();
-
-      if (msErr || !ms) throw new Error('Could not resolve your shop. Please log in again.');
-
-      // 2. Fetch shop_order by claim_code scoped to this shop
-      const { data: order, error: orderErr } = await supabase
+      // Unified Supabase Relational Query
+      // Fetches the order, enforces the merchant's ownership via !inner join,
+      // and retrieves all items in a single network round-trip.
+      const { data: orderData, error: orderErr } = await supabase
         .from('shop_orders')
-        .select('shop_order_id, shop_id, claim_code, subtotal')
+        .select(`
+          shop_order_id, 
+          shop_id, 
+          claim_code, 
+          subtotal,
+          merchant_shops!inner ( user_id ),
+          order_items (
+            order_item_id,
+            item_id,
+            allocated_price,
+            items ( name, image_url )
+          )
+        `)
         .eq('claim_code', val.toUpperCase())
-        .eq('shop_id', ms.shop_id)
+        .eq('merchant_shops.user_id', profile?.id)
         .single();
 
-      if (orderErr || !order) {
+      if (orderErr || !orderData) {
         setRejectReason('This code is invalid or does not belong to your shop.');
         setStage('REJECTED');
         return;
       }
 
-      // 3. Fetch order_items joined with item details
-      const { data: rawItems, error: itemsErr } = await supabase
-        .from('order_items')
-        .select(`
-          order_item_id,
-          item_id,
-          allocated_price,
-          items ( name, image_url )
-        `)
-        .eq('shop_order_id', order.shop_order_id);
-
-      if (itemsErr || !rawItems) throw new Error('Failed to load order items.');
+      const rawItems = orderData.order_items;
+      if (!rawItems || !Array.isArray(rawItems) || rawItems.length === 0) {
+        throw new Error('Failed to load order items.');
+      }
 
       const mapped: OrderItem[] = (rawItems as any[]).map(r => ({
         order_item_id:   r.order_item_id,
@@ -141,12 +157,14 @@ export function MerchantFulfill() {
       const initial: Record<string, boolean> = {};
       mapped.forEach(i => { initial[i.order_item_id] = true; });
 
-      setShopOrder(order as ShopOrder);
+      const { merchant_shops, order_items, ...cleanOrder } = orderData;
+      setShopOrder(cleanOrder as unknown as ShopOrder);
       setItems(mapped);
       setChecked(initial);
       setStage('CHECKLIST');
     } catch (err: any) {
-      setRejectReason(err.message ?? 'Verification failed. Please try again.');
+      const isNetworkError = err.message?.toLowerCase().includes('fetch') || !navigator.onLine;
+      setRejectReason(isNetworkError ? 'Network error. Please check your connection and try again.' : (err.message ?? 'Verification failed. Please try again.'));
       setStage('REJECTED');
     }
   }, [profile?.id]);
@@ -155,6 +173,13 @@ export function MerchantFulfill() {
 
   const handleConfirm = useCallback(async () => {
     if (submittingRef.current || !shopOrder) return;
+
+    if (!navigator.onLine) {
+      setRejectReason('No internet connection. Please check your network.');
+      setStage('REJECTED');
+      return;
+    }
+
     submittingRef.current = true;
     setStage('SUBMITTING');
 
@@ -186,7 +211,8 @@ export function MerchantFulfill() {
       toast.success('Handover confirmed!');
       setStage('SUCCESS');
     } catch (err: any) {
-      setRejectReason(err.message ?? 'Network error. Please try again.');
+      const isNetworkError = err.message?.toLowerCase().includes('fetch') || !navigator.onLine;
+      setRejectReason(isNetworkError ? 'Network error. Please check your connection and try again.' : (err.message ?? 'Network error. Please try again.'));
       setStage('REJECTED');
     } finally {
       submittingRef.current = false;

@@ -288,20 +288,46 @@ async function writeTransactionEvent(
 // ---------------------------------------------------------------------------
 
 /**
- * Updates the V2 Escrow tables to indicate that funds have arrived.
+ * Updates the V2 Escrow tables to indicate that funds have arrived,
+ * but ONLY after verifying the paid amount against the authoritative ledger.
  *
- * 1. Promotes the `transactions` table to 'SUCCESSFUL'.
- * 2. Promotes all associated `shop_orders` from 'PENDING_PAYMENT' to 'PENDING'.
- *
- * @returns `true` when a row was updated; `false` when no matching row was found.
+ * @returns `true` when a row was updated; `false` when no matching row was found or fraud detected.
  */
 async function promoteVoucherPayoutStatus(
   supabase: ReturnType<typeof getAdminClient>,
   transactionId: string,
   flutterwaveTransactionId: number,
   flwRef: string,
+  paidAmount: number,
+  paidCurrency: string,
 ): Promise<boolean> {
-  // Step 1: Update the parent transaction
+  // Step 1: Zero-Trust Ledger Verification
+  const { data: txn, error: lookupErr } = await supabase
+    .from("transactions")
+    .select("total_amount, status")
+    .eq("transaction_id", transactionId)
+    .single();
+
+  if (lookupErr || !txn) {
+    console.error(`[flutterwave-webhook] Transaction lookup FAILED for transaction_id='${transactionId}':`, lookupErr?.message);
+    return false;
+  }
+
+  if (txn.status !== "GATEWAY_PROCESSING") {
+    console.warn(`[flutterwave-webhook] Transaction '${transactionId}' is already in status '${txn.status}'. Ignoring.`);
+    return false;
+  }
+
+  if (paidAmount < txn.total_amount || paidCurrency !== "ZMW") {
+    console.error(
+      `[flutterwave-webhook] FRAUD ALERT: Partial payment or currency mismatch detected for transaction_id='${transactionId}'! ` +
+      `Expected: ${txn.total_amount} ZMW. Received: ${paidAmount} ${paidCurrency}. ` +
+      `Escrow remains locked in PENDING_PAYMENT.`
+    );
+    return false;
+  }
+
+  // Step 2: Update the parent transaction
   const { data: updatedTransactions, error: txError } = await supabase
     .from("transactions")
     .update({
@@ -315,22 +341,17 @@ async function promoteVoucherPayoutStatus(
   if (txError) {
     console.error(
       `[flutterwave-webhook] Transaction status update FAILED for transaction_id='${transactionId}':`,
-      txError.code,
       txError.message,
-      txError.details ?? "",
     );
     return false;
   }
 
   const txRowsAffected = updatedTransactions?.length ?? 0;
   if (txRowsAffected === 0) {
-    console.warn(
-      `[flutterwave-webhook] No transactions updated for transaction_id='${transactionId}'. It may not exist or was already processed.`,
-    );
     return false;
   }
 
-  // Step 2: Update all child shop_orders to PENDING
+  // Step 3: Update all child shop_orders to PENDING
   const { error: orderError } = await supabase
     .from("shop_orders")
     .update({
@@ -342,12 +363,8 @@ async function promoteVoucherPayoutStatus(
   if (orderError) {
     console.error(
       `[flutterwave-webhook] Shop orders update FAILED for transaction_id='${transactionId}':`,
-      orderError.code,
       orderError.message,
-      orderError.details ?? "",
     );
-    // We don't fail the webhook if child orders fail, as the parent is marked paid.
-    // In production, this would trigger a dead-letter queue or alert.
   }
 
   console.log(
@@ -419,6 +436,8 @@ async function handleFlutterwaveWebhook(req: Request): Promise<Response> {
       voucherId,
       data.id,
       data.flw_ref,
+      data.amount,
+      data.currency,
     );
 
     if (!promoted) {

@@ -9,15 +9,17 @@ import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
  */
 interface VendorGroup {
   shop_id: string;
-  subtotal: number;
   item_ids: string[]; // may contain duplicates when quantity > 1
+}
+
+interface SecureVendorGroup extends VendorGroup {
+  secureSubtotal: number;
 }
 
 /**
  * The full grouped cart payload accepted by this function.
  */
 interface CheckoutInitPayload {
-  total_amount: number;
   vendors: VendorGroup[];
   origin_type: "LOCAL" | "INTERNATIONAL";
 }
@@ -146,15 +148,6 @@ function getAdminClient() {
  * Throws a descriptive `Error` on any validation failure.
  */
 function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
-  // --- total_amount ---
-  if (
-    typeof raw.total_amount !== "number" ||
-    !Number.isFinite(raw.total_amount) ||
-    raw.total_amount <= 0
-  ) {
-    throw new Error("total_amount is required and must be a positive number.");
-  }
-
   // --- vendors ---
   if (!Array.isArray(raw.vendors) || raw.vendors.length === 0) {
     throw new Error("vendors must be a non-empty array.");
@@ -169,14 +162,6 @@ function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
     const shop_id = requireString(vObj.shop_id, `vendors[${i}].shop_id`);
     if (!shop_id) throw new Error(`vendors[${i}].shop_id is required.`);
 
-    if (
-      typeof vObj.subtotal !== "number" ||
-      !Number.isFinite(vObj.subtotal) ||
-      vObj.subtotal <= 0
-    ) {
-      throw new Error(`vendors[${i}].subtotal must be a positive number.`);
-    }
-
     if (!Array.isArray(vObj.item_ids) || vObj.item_ids.length === 0) {
       throw new Error(`vendors[${i}].item_ids must be a non-empty array.`);
     }
@@ -189,7 +174,6 @@ function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
 
     return {
       shop_id,
-      subtotal: vObj.subtotal as number,
       item_ids: (vObj.item_ids as string[]).map((id) => id.trim()),
     };
   });
@@ -204,7 +188,6 @@ function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
   }
 
   return {
-    total_amount: raw.total_amount as number,
     vendors,
     origin_type: origin_type as "LOCAL" | "INTERNATIONAL",
   };
@@ -310,7 +293,8 @@ export interface ShopOrderResult {
 async function insertVendorOrders(
   adminClient: ReturnType<typeof getAdminClient>,
   transactionId: string,
-  vendors: VendorGroup[],
+  vendors: SecureVendorGroup[],
+  priceMap: Map<string, number>,
 ): Promise<ShopOrderResult[]> {
   const shopOrders: ShopOrderResult[] = [];
 
@@ -324,7 +308,7 @@ async function insertVendorOrders(
       .insert({
         transaction_id: transactionId,
         shop_id: vendor.shop_id,
-        subtotal: vendor.subtotal,
+        subtotal: vendor.secureSubtotal,
         claim_code: claimCode,
         status: "PENDING_PAYMENT",
         created_at: new Date().toISOString(),
@@ -347,23 +331,19 @@ async function insertVendorOrders(
       shop_order_id: shopOrderId,
       claim_code: claimCode,
       shop_id: vendor.shop_id,
-      subtotal: vendor.subtotal,
+      subtotal: vendor.secureSubtotal,
     });
 
     console.log(
-      `[checkout-init] Shop order created | shop_order_id=${shopOrderId} | shop_id=${vendor.shop_id} | claim_code=${claimCode} | subtotal=${vendor.subtotal}`,
+      `[checkout-init] Shop order created | shop_order_id=${shopOrderId} | shop_id=${vendor.shop_id} | claim_code=${claimCode} | subtotal=${vendor.secureSubtotal}`,
     );
 
     // --- 3. Bulk insert order_items ---
-    // Per-item allocated price: distribute subtotal evenly across all units.
-    // Math.round keeps the stored value as an integer (ZMW, no fractional ngwe).
     const itemCount = vendor.item_ids.length;
-    const allocatedPricePerUnit = Math.round(vendor.subtotal / itemCount);
-
     const orderItemRows = vendor.item_ids.map((itemId) => ({
       shop_order_id: shopOrderId,
       item_id: itemId,
-      allocated_price: allocatedPricePerUnit,
+      allocated_price: priceMap.get(itemId) ?? 0,
       created_at: new Date().toISOString(),
     }));
 
@@ -382,7 +362,7 @@ async function insertVendorOrders(
     }
 
     console.log(
-      `[checkout-init] ${itemCount} order item(s) inserted | shop_order_id=${shopOrderId} | allocated_price_each=${allocatedPricePerUnit} ZMW`,
+      `[checkout-init] ${itemCount} order item(s) inserted | shop_order_id=${shopOrderId} | subtotal=${vendor.secureSubtotal} ZMW`,
     );
   }
 
@@ -490,7 +470,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     return json({ error: message }, 400);
   }
 
-  const { total_amount, vendors, origin_type } = payload;
+  const { vendors, origin_type } = payload;
 
   // --- 3. Build admin client ---
   let adminClient: ReturnType<typeof getAdminClient>;
@@ -507,8 +487,45 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
   if (callerResult instanceof Response) return callerResult;
   const caller = callerResult;
 
+  // --- 4.5. Enforce Server-Side Math ---
+  const allItemIds = [...new Set(vendors.flatMap(v => v.item_ids))];
+  if (allItemIds.length === 0) {
+    return json({ error: "Cart is empty." }, 400);
+  }
+
+  const { data: dbItems, error: itemsError } = await adminClient
+    .from("items")
+    .select("item_id, price_zmw")
+    .in("item_id", allItemIds);
+
+  if (itemsError || !dbItems || dbItems.length === 0) {
+    console.error("[checkout-init] Failed to fetch authoritative prices:", itemsError?.message);
+    return json({ error: "Failed to verify item prices." }, 500);
+  }
+
+  const priceMap = new Map<string, number>();
+  for (const item of dbItems) {
+    priceMap.set(item.item_id, item.price_zmw);
+  }
+
+  let secureGrandTotal = 0;
+  const secureVendors: SecureVendorGroup[] = [];
+
+  for (const v of vendors) {
+    let secureSubtotal = 0;
+    for (const id of v.item_ids) {
+      const price = priceMap.get(id);
+      if (typeof price !== "number") {
+        return json({ error: `Item ${id} is invalid or no longer available.` }, 400);
+      }
+      secureSubtotal += price;
+    }
+    secureGrandTotal += secureSubtotal;
+    secureVendors.push({ ...v, secureSubtotal });
+  }
+
   console.log(
-    `[checkout-init] Request authenticated | user=${caller.id} | vendors=${vendors.length} | total=${total_amount} ZMW | origin=${origin_type}`,
+    `[checkout-init] Request authenticated | user=${caller.id} | vendors=${vendors.length} | secure_total=${secureGrandTotal} ZMW | origin=${origin_type}`,
   );
 
   // --- 5. Generate gateway transaction reference ---
@@ -520,13 +537,13 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     const transactionId = await insertTransaction(
       adminClient,
       caller.id,
-      total_amount,
+      secureGrandTotal,
       origin_type,
       txRef,
     );
 
     // --- 7. Insert shop orders + order items for each vendor (Step C) ---
-    const shopOrders = await insertVendorOrders(adminClient, transactionId, vendors);
+    const shopOrders = await insertVendorOrders(adminClient, transactionId, secureVendors, priceMap);
 
     console.log(
       `[checkout-init] All vendor orders created | transaction_id=${transactionId} | shop_orders=${shopOrders.length}`,
@@ -535,7 +552,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     // --- 8. Generate Flutterwave payment link (Step D) ---
     const paymentLink = await generateFlutterwaveLink(
       transactionId,
-      total_amount,
+      secureGrandTotal,
       caller.email ?? "customer@kithly.com",
       caller.phone ?? "",
     );
