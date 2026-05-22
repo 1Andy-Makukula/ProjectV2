@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { supabase } from '../../../utils/supabase/client';
+import { supabase } from '../../../lib/supabaseClient';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { ArrowLeft, Store, MapPin } from 'lucide-react';

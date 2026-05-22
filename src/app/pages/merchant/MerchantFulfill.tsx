@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { ArrowLeft, ShieldCheck, PackageCheck, Package } from 'lucide-react';
-import { supabase } from '../../../utils/supabase/client';
+import { supabase } from '../../../lib/supabaseClient';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import {
   InputOTP,
@@ -54,8 +54,8 @@ interface ShopOrder {
 
 const panel = {
   hidden:  { opacity: 0, y: 18 },
-  visible: { opacity: 1, y: 0,  transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] } },
-  exit:    { opacity: 0, y: -10, transition: { duration: 0.22, ease: 'easeIn' } },
+  visible: { opacity: 1, y: 0,  transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+  exit:    { opacity: 0, y: -10, transition: { duration: 0.22, ease: 'easeIn' as const } },
 };
 
 // ---------------------------------------------------------------------------
@@ -352,7 +352,7 @@ export function MerchantFulfill() {
                 </div>
 
                 <div className="divide-y divide-slate-50">
-                  {items.map((item, idx) => {
+                  {items.map((item: OrderItem, idx: number) => {
                     const isChecked = checked[item.order_item_id] ?? true;
                     return (
                       <motion.label
@@ -395,8 +395,8 @@ export function MerchantFulfill() {
                         <Checkbox
                           id={`item-${item.order_item_id}`}
                           checked={isChecked}
-                          onCheckedChange={(v) =>
-                            setChecked(prev => ({ ...prev, [item.order_item_id]: !!v }))
+                          onCheckedChange={(v: boolean | 'indeterminate') =>
+                            setChecked((prev: Record<string, boolean>) => ({ ...prev, [item.order_item_id]: !!v }))
                           }
                           className={cn(
                             'h-5 w-5 rounded-md border-slate-300 flex-shrink-0',
@@ -491,7 +491,7 @@ export function MerchantFulfill() {
                 className="flex h-20 w-20 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm"
                 initial={{ scale: 0.7, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
                 aria-hidden
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
@@ -533,7 +533,7 @@ export function MerchantFulfill() {
                 className="flex h-20 w-20 items-center justify-center rounded-full border border-slate-200 bg-white"
                 initial={{ scale: 0.7, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
                 aria-hidden
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"

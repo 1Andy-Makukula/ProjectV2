@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Search, X, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router';
-import { supabase } from '../../../utils/supabase/client';
+import { supabase } from '../../../lib/supabaseClient';
 
 interface SearchResult {
   id: string;

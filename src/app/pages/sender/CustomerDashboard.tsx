@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
-import { supabase } from '../../../utils/supabase/client';
+import { supabase } from '../../../lib/supabaseClient';
 import { motion, AnimatePresence } from 'motion/react';
 import { TrendingUp, Gift, Store, ArrowLeft, Sparkles, Bell, X } from 'lucide-react';
 import {

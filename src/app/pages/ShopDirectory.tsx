@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Store, MapPin, Search } from 'lucide-react';
 import { motion } from 'motion/react';
-import { supabase } from '../../utils/supabase/client';
+import { supabase } from '../../lib/supabaseClient';
 import { Badge } from '../components/ui/badge';
 
 interface Shop {

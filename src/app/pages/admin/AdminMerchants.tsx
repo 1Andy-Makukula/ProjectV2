@@ -16,7 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../../components/ui/dialog';
-import { supabase } from '../../../utils/supabase/client';
+import { supabase } from '../../../lib/supabaseClient';
 import { callServer } from '../../../utils/server';
 import { toast } from 'sonner';
 
@@ -109,7 +109,7 @@ export function AdminMerchants() {
             name: merchant.name,
             email: merchant.email,
             created_at: merchant.created_at,
-            shop_name: assignment?.shop?.name || 'No shop assigned',
+            shop_name: (assignment?.shop as any)?.name || (Array.isArray(assignment?.shop) && (assignment.shop as any)[0]?.name) || 'No shop assigned',
           };
         })
       );
@@ -208,7 +208,7 @@ export function AdminMerchants() {
                     <Input
                       id="name"
                       value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="Enter merchant name"
                       required
                     />
@@ -220,7 +220,7 @@ export function AdminMerchants() {
                       id="email"
                       type="email"
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="merchant@example.com"
                       required
                     />
@@ -233,7 +233,7 @@ export function AdminMerchants() {
                         id="password"
                         type="text"
                         value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, password: e.target.value })}
                         placeholder="Auto-generated password"
                         required
                       />
@@ -254,14 +254,14 @@ export function AdminMerchants() {
                     <Label htmlFor="shop">Assign to Shop *</Label>
                     <Select
                       value={formData.shopId}
-                      onValueChange={(value) => setFormData({ ...formData, shopId: value })}
+                      onValueChange={(value: string) => setFormData({ ...formData, shopId: value })}
                       required
                     >
                       <SelectTrigger id="shop">
                         <SelectValue placeholder="Select a shop" />
                       </SelectTrigger>
                       <SelectContent>
-                        {shops.map((shop) => (
+                        {shops.map((shop: Shop) => (
                           <SelectItem key={shop.id} value={shop.id}>
                             {shop.name}
                           </SelectItem>
@@ -316,7 +316,7 @@ export function AdminMerchants() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {merchants.map((merchant) => (
+                    {merchants.map((merchant: Merchant) => (
                       <TableRow key={merchant.id}>
                         <TableCell className="font-light">{merchant.name}</TableCell>
                         <TableCell className="font-light">{merchant.email}</TableCell>

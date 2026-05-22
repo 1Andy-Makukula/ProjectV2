@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router';
-import { supabase } from '../../../utils/supabase/client';
+import { supabase } from '../../../lib/supabaseClient';
 import { formatCurrency } from '../../../utils/currency';
 import { createWhatsAppShareLink, getGiftPageUrl } from '../../../utils/whatsapp';
 import { QRCodeDisplay } from '../../components/shared/QRCodeDisplay';

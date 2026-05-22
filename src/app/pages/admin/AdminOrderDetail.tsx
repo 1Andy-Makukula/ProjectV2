@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '../../components/ui/alert-dialog';
-import { supabase } from '../../../utils/supabase/client';
+import { supabase } from '../../../lib/supabaseClient';
 import { formatCurrency } from '../../../utils/currency';
 import { callServer } from '../../../utils/server';
 import { getGiftPageUrl } from '../../../utils/whatsapp';

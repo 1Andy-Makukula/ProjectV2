@@ -7,7 +7,7 @@ import { Input } from '../../components/ui/input';
 import { Badge } from '../../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
-import { supabase } from '../../../utils/supabase/client';
+import { supabase } from '../../../lib/supabaseClient';
 import { formatCurrency } from '../../../utils/currency';
 import { callServer } from '../../../utils/server';
 import { toast } from 'sonner';
@@ -84,13 +84,13 @@ export function AdminOrders() {
 
     // Apply status filter
     if (statusFilter !== 'all') {
-      filtered = filtered.filter(order => order.status === statusFilter);
+      filtered = filtered.filter((order: Order) => order.status === statusFilter);
     }
 
     // Apply search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(order =>
+      filtered = filtered.filter((order: Order) =>
         order.code.toLowerCase().includes(query) ||
         order.sender_name.toLowerCase().includes(query) ||
         order.recipient_name.toLowerCase().includes(query) ||
@@ -104,7 +104,7 @@ export function AdminOrders() {
 
   const exportToCSV = () => {
     const headers = ['Code', 'Item', 'Shop', 'Sender', 'Recipient', 'Amount', 'Status', 'Created', 'Fulfilled'];
-    const rows = filteredOrders.map(order => [
+    const rows = filteredOrders.map((order: Order) => [
       order.code,
       order.item_name,
       order.shop_name,
@@ -118,7 +118,7 @@ export function AdminOrders() {
 
     const csvContent = [
       headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ...rows.map((row: any[]) => row.map((cell: any) => `"${cell}"`).join(','))
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -188,7 +188,7 @@ export function AdminOrders() {
 
   const getStatusCount = (status: StatusFilter) => {
     if (status === 'all') return orders.length;
-    return orders.filter(o => o.status === status).length;
+    return orders.filter((o: Order) => o.status === status).length;
   };
 
   return (
@@ -216,7 +216,7 @@ export function AdminOrders() {
               <Input
                 placeholder="Search by code, sender, recipient..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
                 className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/60"
               />
             </div>
@@ -234,7 +234,7 @@ export function AdminOrders() {
 
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
-        <Tabs value={statusFilter} onValueChange={(value) => setStatusFilter(value as StatusFilter)}>
+        <Tabs value={statusFilter} onValueChange={(value: string) => setStatusFilter(value as StatusFilter)}>
           <TabsList className="grid w-full grid-cols-6 mb-6">
             <TabsTrigger value="all" className="font-light">
               All ({getStatusCount('all')})
@@ -287,7 +287,7 @@ export function AdminOrders() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredOrders.map((order) => (
+                      {filteredOrders.map((order: Order) => (
                         <TableRow
                           key={order.id}
                           className="cursor-pointer hover:bg-orange-50"
@@ -332,7 +332,7 @@ export function AdminOrders() {
                               {order.status === 'payment_submitted' && (
                                 <Button
                                   size="sm"
-                                  onClick={(event) => {
+                                  onClick={(event: React.MouseEvent) => {
                                     event.stopPropagation();
                                     updateOrderStatus(order.id, order.status, 'paid');
                                   }}
@@ -345,7 +345,7 @@ export function AdminOrders() {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={(event) => {
+                                  onClick={(event: React.MouseEvent) => {
                                     event.stopPropagation();
                                     updateOrderStatus(order.id, order.status, 'expired');
                                   }}

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { supabase } from '../supabase/client';
-import type { User, Session } from 'https://esm.sh/@supabase/supabase-js@2.49.8';
+import { supabase } from '../../lib/supabaseClient';
+import type { User, Session } from '@supabase/supabase-js';
 
 interface UserProfile {
   id: string;
@@ -148,7 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .eq('id', user.id);
 
     if (!error) {
-      setProfile((prev) => (prev ? { ...prev, ...updates } : null));
+      setProfile((prev: UserProfile | null) => (prev ? { ...prev, ...updates } : null));
     }
 
     return { error };

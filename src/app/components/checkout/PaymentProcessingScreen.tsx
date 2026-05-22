@@ -22,6 +22,7 @@ import {
   usePaymentVerification,
   type PaymentVerificationStatus,
 } from '../../hooks/usePaymentVerification';
+import { WhatsAppShareButton } from '../shared/WhatsAppShareButton';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -54,13 +55,13 @@ export interface PaymentProcessingScreenProps {
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
-  exit:    { opacity: 0, y: -8,  transition: { duration: 0.25, ease: 'easeIn' } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+  exit:    { opacity: 0, y: -8,  transition: { duration: 0.25, ease: 'easeIn' as const } },
 };
 
 const fadeIn = {
   hidden:  { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.4, ease: 'easeOut' } },
+  visible: { opacity: 1, transition: { duration: 0.4, ease: 'easeOut' as const } },
   exit:    { opacity: 0, transition: { duration: 0.2 } },
 };
 
@@ -198,8 +199,7 @@ function SuccessView({
       <motion.div
         className="flex h-20 w-20 items-center justify-center rounded-full border border-slate-200 bg-white"
         initial={{ scale: 0.7, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
         aria-hidden
       >
         <motion.svg
@@ -210,15 +210,13 @@ function SuccessView({
           strokeLinecap="round"
           strokeLinejoin="round"
           className="h-9 w-9 text-slate-900"
-          initial={{ pathLength: 0 }}
           animate={{ pathLength: 1 }}
-          transition={{ duration: 0.5, ease: 'easeOut', delay: 0.25 }}
+          transition={{ duration: 0.5, ease: 'easeOut' as const, delay: 0.25 }}
         >
           <motion.path
             d="M4.5 12.75l6 6 9-13.5"
-            initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
-            transition={{ duration: 0.55, ease: 'easeOut', delay: 0.3 }}
+            transition={{ duration: 0.55, ease: 'easeOut' as const, delay: 0.3 }}
           />
         </motion.svg>
       </motion.div>
@@ -246,18 +244,43 @@ function SuccessView({
 
       {/* Claim code block */}
       <motion.div
-        className="flex w-full flex-col items-center gap-4"
+        className="flex w-full flex-col items-center gap-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
       >
-        <span className="text-xs font-medium uppercase tracking-widest text-slate-400">
-          Claim Code
-        </span>
-        <ClaimCodeDisplay code={claimCode} />
-        <p className="text-xs font-normal text-slate-400">
-          This code has also been sent to the recipient via WhatsApp.
-        </p>
+        <div className="text-center px-4">
+          <p className="text-sm font-medium text-slate-700">
+            Your funds are secured in escrow. Share the claim codes below with your recipient.
+          </p>
+        </div>
+
+        <div className="w-full flex flex-col gap-4">
+          {shopOrders.map((order, idx) => (
+            <motion.div 
+              key={order.shop_order_id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 + (idx * 0.1) }}
+              className="flex w-full flex-col items-center gap-5 rounded-2xl border border-slate-100 bg-slate-50 p-6"
+            >
+              <div className="text-center">
+                <span className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+                  Shop ID: {order.shop_id.slice(0, 8)}
+                </span>
+              </div>
+              
+              <ClaimCodeDisplay code={order.claim_code} />
+              
+              <div className="w-full pt-2">
+                <WhatsAppShareButton 
+                  claimCode={order.claim_code}
+                  shopName={`KithLy Merchant (${order.shop_id.slice(0, 4)})`}
+                />
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </motion.div>
 
       {/* Divider */}
@@ -306,7 +329,7 @@ function TimeoutView({
         className="flex h-20 w-20 items-center justify-center rounded-full border border-slate-200 bg-white"
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
         aria-hidden
       >
         <svg

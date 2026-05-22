@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import { supabase } from '../../../utils/supabase/client';
+import { supabase } from '../../../lib/supabaseClient';
 import { motion } from 'motion/react';
 import { Gift as GiftIcon, MapPin, Package, QrCode as QrCodeIcon } from 'lucide-react';
 import QRCode from 'qrcode';

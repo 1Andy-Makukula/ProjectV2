@@ -29,7 +29,7 @@ import {
 } from '../ui/input-otp';
 import { Button } from '../ui/button';
 import { cn } from '../ui/utils';
-import { supabase } from '../../../utils/supabase/client';
+import { supabase } from '../../../lib/supabaseClient';
 import { projectId } from '../../../utils/supabase/info';
 
 // ---------------------------------------------------------------------------

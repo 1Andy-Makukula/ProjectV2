@@ -7,7 +7,7 @@ import { motion } from 'motion/react';
 import { Link } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { useCart } from '../../hooks/useCart';
-import { supabase } from '../../../utils/supabase/client';
+import { supabase } from '../../../lib/supabaseClient';
 import { Badge } from '../ui/badge';
 import { SearchBar } from '../shared/SearchBar';
 import { NotificationSlider } from '../shared/NotificationSlider';
