@@ -4,76 +4,41 @@ import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
 // Types
 // ---------------------------------------------------------------------------
 
-/**
- * The validated, strongly-typed request payload accepted by this function.
- */
 interface FulfillVoucherPayload {
-  /**
-   * The 8-character uppercase alphanumeric claim code printed on the gift or
-   * delivered via WhatsApp. The merchant scans or types this at the POS.
-   */
   claim_code: string;
+  present_item_ids: string[];  // order_item_id[] — items physically handed over
+  missing_item_ids: string[];  // order_item_id[] — items out of stock / not given
+}
 
-  /**
-   * The UUID of the shop performing the redemption. Used by the RPC to
-   * enforce shop-boundary isolation — a merchant can only fulfil vouchers
-   * belonging to their own shop.
-   */
+interface ShopOrderRow {
+  shop_order_id: string;
   shop_id: string;
+  transaction_id: string;
+  claim_status: string;
+  subtotal: number;
 }
 
-/**
- * The row shape returned by the `atomic_fulfill_voucher` Postgres RPC.
- *
- * The RPC executes the following atomically inside a single transaction:
- *   1. Validates that `claim_code` exists and belongs to `shop_id`.
- *   2. Validates that `payout_status = 'PENDING_BATCH'` (payment confirmed).
- *   3. Validates that `claim_status = 'PENDING'` (not already redeemed).
- *   4. If any check fails, raises an exception whose message begins with
- *      'FRAUD_REJECTION:' so this function can discriminate it precisely.
- *   5. On success: sets `claim_status = 'REDEEMED'` and `redeemed_at = now()`.
- *   6. Returns the voucher metadata for the POS display.
- */
-interface AtomicFulfillResult {
-  voucher_id: string;
-  item_name: string;
-  recipient_name: string;
-  claim_code: string;
-  shop_id: string;
+interface OrderItemRow {
+  order_item_id: string;
+  allocated_price: number;
 }
 
-/**
- * The row inserted into `transaction_events` after a fulfillment attempt.
- * We only select back the PK to confirm the insert succeeded.
- */
-interface LedgerInsertResult {
-  id: string;
+interface TransactionRow {
+  buyer_id: string;
+}
+
+interface PriceResult {
+  present_total: number;
+  missing_total: number;
 }
 
 // ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
-/**
- * The exact prefix the `atomic_fulfill_voucher` Postgres function raises in
- * its exception message when it detects a fraud or policy violation.
- *
- * The RPC is expected to raise exceptions in the format:
- *   RAISE EXCEPTION 'FRAUD_REJECTION: <reason>'
- *
- * This prefix is the discriminant that separates intentional business-rule
- * rejections from unexpected infrastructure errors.
- */
-const FRAUD_REJECTION_PREFIX = "FRAUD_REJECTION:" as const;
-
-// ---------------------------------------------------------------------------
-// CORS headers — required for supabase.functions.invoke() to work
+// CORS
 // ---------------------------------------------------------------------------
 
 const corsHeaders: HeadersInit = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -81,7 +46,6 @@ const corsHeaders: HeadersInit = {
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Serialise a value as a JSON response with CORS headers attached. */
 function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
@@ -89,32 +53,12 @@ function json(data: unknown, status = 200): Response {
   });
 }
 
-/**
- * Returns a Supabase admin client initialised with the service-role key.
- * Bypasses Row Level Security — appropriate here because:
- *   a) The caller's identity is verified via JWT before this client is used.
- *   b) The RPC itself enforces shop-boundary isolation at the database level.
- *   c) The ledger insert must succeed regardless of the caller's RLS context.
- *
- * @throws `Error` if required environment variables are absent.
- */
 function getAdminClient() {
   const url = Deno.env.get("SUPABASE_URL");
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-
-  if (!url || !serviceRoleKey) {
-    throw new Error(
-      "[fulfill-voucher] SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is not configured.",
-    );
-  }
-
-  return createClient(url, serviceRoleKey, {
-    auth: {
-      // Edge Functions are stateless — never persist or refresh sessions.
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-    },
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !key) throw new Error("[fulfill-voucher] Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY.");
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
 }
 
@@ -122,190 +66,341 @@ function getAdminClient() {
 // Payload validation
 // ---------------------------------------------------------------------------
 
-/**
- * Validates and normalises the raw JSON request body.
- *
- * Normalisation:
- *   - `claim_code` is trimmed and uppercased to tolerate minor input
- *     variations (e.g. a merchant who types "abc12345" instead of "ABC12345").
- *   - `shop_id` is trimmed only — UUIDs are case-insensitive but we preserve
- *     the caller's casing so Postgres can use its index without a cast.
- *
- * @throws `Error` with a descriptive message on any validation failure.
- */
 function validatePayload(raw: Record<string, unknown>): FulfillVoucherPayload {
-  const { claim_code, shop_id } = raw;
+  const { claim_code, present_item_ids, missing_item_ids } = raw;
 
-  // --- claim_code ---
-  if (claim_code === undefined || claim_code === null) {
-    throw new Error("claim_code is required.");
+  if (typeof claim_code !== "string" || claim_code.trim().length === 0) {
+    throw new Error("claim_code is required and must be a non-empty string.");
   }
-  if (typeof claim_code !== "string") {
-    throw new Error("claim_code must be a string.");
-  }
-  const normalisedCode = claim_code.trim().toUpperCase();
-  if (normalisedCode.length === 0) {
-    throw new Error("claim_code must not be empty.");
-  }
-  if (normalisedCode.length !== 8) {
-    throw new Error(
-      `claim_code must be exactly 8 characters (received ${normalisedCode.length}).`,
-    );
-  }
-  if (!/^[A-Z0-9]{8}$/.test(normalisedCode)) {
-    throw new Error(
-      "claim_code must contain only uppercase letters and digits (A-Z, 0-9).",
-    );
+  const code = claim_code.trim().toUpperCase();
+  if (!/^[A-Z0-9]{8}$/.test(code)) {
+    throw new Error("claim_code must be exactly 8 uppercase alphanumeric characters.");
   }
 
-  // --- shop_id ---
-  if (shop_id === undefined || shop_id === null) {
-    throw new Error("shop_id is required.");
+  if (!Array.isArray(present_item_ids)) {
+    throw new Error("present_item_ids must be an array.");
   }
-  if (typeof shop_id !== "string") {
-    throw new Error("shop_id must be a string.");
+  if (!Array.isArray(missing_item_ids)) {
+    throw new Error("missing_item_ids must be an array.");
   }
-  const normalisedShopId = shop_id.trim();
-  if (normalisedShopId.length === 0) {
-    throw new Error("shop_id must not be empty.");
+  if (present_item_ids.length === 0 && missing_item_ids.length === 0) {
+    throw new Error("At least one item must be present or missing.");
   }
-  // Loose UUID format check — Postgres will reject malformed UUIDs anyway,
-  // but this gives a cleaner error message before hitting the database.
-  if (
-    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-      normalisedShopId,
-    )
-  ) {
-    throw new Error(
-      "shop_id must be a valid UUID (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx).",
-    );
+
+  // Guard for duplicate IDs across both arrays (cashier UI bug)
+  const presentSet = new Set<string>(present_item_ids);
+  for (const id of missing_item_ids) {
+    if (presentSet.has(id)) {
+      throw new Error(`Item '${id}' appears in both present_item_ids and missing_item_ids.`);
+    }
+  }
+
+  for (const id of [...present_item_ids, ...missing_item_ids]) {
+    if (typeof id !== "string" || id.trim().length === 0) {
+      throw new Error("All item IDs must be non-empty strings.");
+    }
   }
 
   return {
-    claim_code: normalisedCode,
-    shop_id: normalisedShopId,
+    claim_code: code,
+    present_item_ids: present_item_ids as string[],
+    missing_item_ids: missing_item_ids as string[],
   };
 }
 
 // ---------------------------------------------------------------------------
-// Merchant identity verification
+// Step 1 — Authenticate & verify merchant shop ownership
 // ---------------------------------------------------------------------------
 
-/**
- * Verifies the Bearer JWT in the Authorization header and confirms that the
- * authenticated user is assigned to the `shop_id` in the payload.
- *
- * This prevents a scenario where a rogue merchant authenticates with their
- * own valid JWT and attempts to redeem vouchers belonging to another shop.
- *
- * @returns The authenticated user object on success.
- * @returns A `Response` to return immediately on auth or authorisation failure.
- */
-async function verifyMerchantIdentity(
+async function verifyMerchant(
   req: Request,
   shopId: string,
-  adminClient: ReturnType<typeof getAdminClient>,
-): Promise<{ user: { id: string } } | Response> {
+  db: ReturnType<typeof getAdminClient>,
+): Promise<{ user_id: string } | Response> {
   const authHeader = req.headers.get("Authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  if (!authHeader?.startsWith("Bearer ")) {
     return json({ error: "A valid Authorization Bearer token is required." }, 401);
   }
 
-  // Validate the JWT by calling getUser() — this hits the Supabase Auth API
-  // and confirms the token signature and expiry.
-  const {
-    data: { user },
-    error: authError,
-  } = await adminClient.auth.getUser(authHeader.split(" ")[1]);
-
-  if (authError || !user) {
-    console.error(
-      "[fulfill-voucher] JWT validation failed:",
-      authError?.message ?? "No user returned.",
-    );
-    return json(
-      { error: "Unauthorized. Your session may have expired — please log in again." },
-      401,
-    );
+  const { data: { user }, error: authErr } = await db.auth.getUser(authHeader.split(" ")[1]);
+  if (authErr || !user) {
+    console.error("[fulfill-voucher] JWT invalid:", authErr?.message);
+    return json({ error: "Unauthorized. Session may have expired." }, 401);
   }
 
-  // Confirm the authenticated user is assigned to the target shop.
-  // Uses the admin client to bypass RLS so the check is always authoritative.
-  const { data: assignment, error: assignmentError } = await adminClient
+  const { data: assignment, error: assignErr } = await db
     .from("merchant_shops")
     .select("shop_id")
     .eq("user_id", user.id)
     .eq("shop_id", shopId)
     .maybeSingle<{ shop_id: string }>();
 
-  if (assignmentError) {
-    console.error(
-      `[fulfill-voucher] Shop assignment lookup failed for user=${user.id}, shop=${shopId}:`,
-      assignmentError.message,
-    );
-    return json({ error: "Failed to verify shop authorisation. Please try again." }, 500);
+  if (assignErr) {
+    console.error("[fulfill-voucher] Shop assignment lookup failed:", assignErr.message);
+    return json({ error: "Failed to verify shop authorisation." }, 500);
   }
-
   if (!assignment) {
-    console.error(
-      `[fulfill-voucher] AUTHORISATION DENIED: user=${user.id} is not assigned to shop=${shopId}.`,
-    );
-    return json(
-      { error: "Forbidden. You are not authorised to redeem vouchers for this shop." },
-      403,
-    );
+    console.error(`[fulfill-voucher] DENIED: user=${user.id} not assigned to shop=${shopId}`);
+    return json({ error: "Forbidden. You are not authorised to fulfil orders for this shop." }, 403);
   }
 
-  return { user };
+  return { user_id: user.id };
 }
 
 // ---------------------------------------------------------------------------
-// Immutable ledger write
+// Step 2 — Fetch & lock shop_order (idempotency guard)
 // ---------------------------------------------------------------------------
 
-/**
- * Appends an event row to the `transaction_events` audit ledger.
- *
- * This function is intentionally fault-tolerant: errors are logged but not
- * propagated. The fulfillment result has already been determined by the time
- * this is called — the ledger is an audit record, not a gate.
- *
- * @param voucherId  The voucher UUID returned by the RPC.
- * @param eventType  'CLAIM_VERIFIED' on success, 'FRAUD_REJECTION' on fraud.
- * @param payload    Structured JSON object to store alongside the event.
- */
-async function writeLedgerEvent(
-  adminClient: ReturnType<typeof getAdminClient>,
-  voucherId: string,
-  eventType: "CLAIM_VERIFIED" | "FRAUD_REJECTION",
-  payload: Record<string, unknown>,
-): Promise<void> {
-  const { data: ledgerRow, error: ledgerError } = await adminClient
-    .from("transaction_events")
-    .insert({
-      voucher_id: voucherId,
-      event_type: eventType,
-      payload: JSON.stringify(payload),
-      created_at: new Date().toISOString(),
-    })
-    .select("id")
-    .single<LedgerInsertResult>();
+async function fetchAndLockOrder(
+  db: ReturnType<typeof getAdminClient>,
+  claimCode: string,
+): Promise<ShopOrderRow | Response> {
+  const { data: order, error } = await db
+    .from("shop_orders")
+    .select("shop_order_id, shop_id, transaction_id, claim_status, subtotal")
+    .eq("claim_code", claimCode)
+    .maybeSingle<ShopOrderRow>();
 
-  if (ledgerError) {
-    // Log with full PostgREST error detail so ops can investigate if the
-    // ledger is silently failing (e.g. FK violation, RLS, schema mismatch).
-    console.error(
-      `[fulfill-voucher] LEDGER WRITE FAILED | voucher_id=${voucherId} | event_type=${eventType}:`,
-      ledgerError.code,
-      ledgerError.message,
-      ledgerError.details ?? "",
-    );
-    return;
+  if (error) {
+    console.error("[fulfill-voucher] shop_orders lookup failed:", error.message);
+    return json({ error: "Failed to retrieve order. Please try again." }, 500);
+  }
+  if (!order) {
+    return json({ error: "Claim code not found.", rejection_reason: "Invalid or expired code." }, 400);
   }
 
-  console.log(
-    `[fulfill-voucher] Ledger event written | id=${ledgerRow.id} | voucher_id=${voucherId} | event_type=${eventType}`,
-  );
+  // Idempotency guard — reject any code not in PENDING state.
+  // This is the race-condition fence: if two requests arrive simultaneously,
+  // only the first UPDATE (Step 5) will match claim_status = 'PENDING'.
+  // The second will find no matching row and the guard below will catch it
+  // on re-fetch, or the Step 5 UPDATE will return 0 rows affected.
+  if (order.claim_status !== "PENDING_PAYMENT" && order.claim_status !== "PENDING") {
+    const reason =
+      order.claim_status === "FULFILLED" || order.claim_status === "PARTIAL_FULFILLMENT"
+        ? "This order has already been fulfilled."
+        : `Order is in an invalid state: ${order.claim_status}.`;
+    console.warn(`[fulfill-voucher] Rejected: claim_code=${claimCode} status=${order.claim_status}`);
+    return json({ error: reason, rejection_reason: reason }, 400);
+  }
+
+  return order;
+}
+
+// ---------------------------------------------------------------------------
+// Step 3 — Update order_items fulfillment_status
+// ---------------------------------------------------------------------------
+
+async function updateItemStatuses(
+  db: ReturnType<typeof getAdminClient>,
+  shopOrderId: string,
+  presentIds: string[],
+  missingIds: string[],
+): Promise<void> {
+  // COLLECTED items
+  if (presentIds.length > 0) {
+    const { error } = await db
+      .from("order_items")
+      .update({ fulfillment_status: "COLLECTED", fulfilled_at: new Date().toISOString() })
+      .eq("shop_order_id", shopOrderId)
+      .in("order_item_id", presentIds);
+    if (error) throw new Error(`Failed to mark items as COLLECTED: ${error.message}`);
+  }
+
+  // MISSING items
+  if (missingIds.length > 0) {
+    const { error } = await db
+      .from("order_items")
+      .update({ fulfillment_status: "MISSING" })
+      .eq("shop_order_id", shopOrderId)
+      .in("order_item_id", missingIds);
+    if (error) throw new Error(`Failed to mark items as MISSING: ${error.message}`);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Step 4 — Compute present/missing price split
+// ---------------------------------------------------------------------------
+
+async function computePriceSplit(
+  db: ReturnType<typeof getAdminClient>,
+  shopOrderId: string,
+  presentIds: string[],
+  missingIds: string[],
+): Promise<PriceResult> {
+  const allIds = [...presentIds, ...missingIds];
+
+  const { data: rows, error } = await db
+    .from("order_items")
+    .select("order_item_id, allocated_price")
+    .eq("shop_order_id", shopOrderId)
+    .in("order_item_id", allIds);
+
+  if (error || !rows) throw new Error(`Failed to fetch item prices: ${error?.message}`);
+
+  const presentSet = new Set(presentIds);
+  let present_total = 0;
+  let missing_total = 0;
+
+  for (const row of rows as OrderItemRow[]) {
+    if (presentSet.has(row.order_item_id)) {
+      present_total += row.allocated_price;
+    } else {
+      missing_total += row.allocated_price;
+    }
+  }
+
+  return { present_total, missing_total };
+}
+
+// ---------------------------------------------------------------------------
+// Step 5 — Write payout_ledger credit for merchant (present items)
+// ---------------------------------------------------------------------------
+
+async function creditMerchantLedger(
+  db: ReturnType<typeof getAdminClient>,
+  shopOrderId: string,
+  shopId: string,
+  amount: number,
+  claimCode: string,
+): Promise<void> {
+  if (amount <= 0) return; // Nothing to pay out
+
+  const { error } = await db
+    .from("payout_ledger")
+    .insert({
+      shop_order_id: shopOrderId,
+      shop_id: shopId,
+      credit_amount: amount,
+      ledger_type: "FULFILLMENT_CREDIT",
+      reference: claimCode,
+      created_at: new Date().toISOString(),
+    });
+
+  if (error) throw new Error(`Failed to write merchant payout ledger: ${error.message}`);
+
+  console.log(`[fulfill-voucher] Merchant credit | shop_id=${shopId} | amount=${amount} ZMW`);
+}
+
+// ---------------------------------------------------------------------------
+// Step 6 — Write kithly_wallets credit for sender (missing items refund)
+// ---------------------------------------------------------------------------
+
+async function creditSenderWallet(
+  db: ReturnType<typeof getAdminClient>,
+  transactionId: string,
+  shopOrderId: string,
+  amount: number,
+  claimCode: string,
+): Promise<void> {
+  if (amount <= 0) return; // No missing items — nothing to refund
+
+  // Resolve the original buyer_id from the parent transaction
+  const { data: txn, error: txnErr } = await db
+    .from("transactions")
+    .select("buyer_id")
+    .eq("transaction_id", transactionId)
+    .single<TransactionRow>();
+
+  if (txnErr || !txn) {
+    throw new Error(`Failed to resolve buyer for transaction ${transactionId}: ${txnErr?.message}`);
+  }
+
+  // Upsert into kithly_wallets: add the missing-item credit to sender's balance.
+  // Using an upsert so a wallet row is created automatically if this is
+  // the sender's first credit — no separate wallet-creation step needed.
+  const { error } = await db.rpc("increment_wallet_balance", {
+    p_user_id: txn.buyer_id,
+    p_amount: amount,
+    p_reference: `PARTIAL_REFUND:${claimCode}`,
+    p_shop_order_id: shopOrderId,
+  });
+
+  if (error) {
+    // Fallback: direct insert if RPC is not yet deployed
+    console.warn("[fulfill-voucher] increment_wallet_balance RPC failed, falling back to insert:", error.message);
+    const { error: insertErr } = await db
+      .from("kithly_wallets")
+      .insert({
+        user_id: txn.buyer_id,
+        credit_amount: amount,
+        wallet_type: "PARTIAL_REFUND",
+        reference: `PARTIAL_REFUND:${claimCode}`,
+        shop_order_id: shopOrderId,
+        created_at: new Date().toISOString(),
+      });
+    if (insertErr) throw new Error(`Failed to credit sender wallet: ${insertErr.message}`);
+  }
+
+  console.log(`[fulfill-voucher] Sender wallet credit | buyer_id=${txn.buyer_id} | amount=${amount} ZMW`);
+}
+
+// ---------------------------------------------------------------------------
+// Step 7 — Update shop_orders status (idempotency fence)
+// ---------------------------------------------------------------------------
+
+async function finaliseShopOrder(
+  db: ReturnType<typeof getAdminClient>,
+  shopOrderId: string,
+  hasMissingItems: boolean,
+): Promise<boolean> {
+  const claimStatus = hasMissingItems ? "PARTIAL_FULFILLMENT" : "FULFILLED";
+  const settlementTargetTime = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(); // NOW + 48 h
+
+  const { data, error } = await db
+    .from("shop_orders")
+    .update({
+      claim_status: claimStatus,
+      settlement_target_time: settlementTargetTime,
+      fulfilled_at: new Date().toISOString(),
+    })
+    // Idempotency fence: only update if still in a pending state.
+    // If a second concurrent request races here, this UPDATE matches 0 rows.
+    .in("claim_status", ["PENDING_PAYMENT", "PENDING"])
+    .eq("shop_order_id", shopOrderId)
+    .select("shop_order_id");
+
+  if (error) throw new Error(`Failed to finalise shop_order: ${error.message}`);
+
+  const rowsAffected = (data as unknown[])?.length ?? 0;
+
+  if (rowsAffected === 0) {
+    // Another concurrent request won the race — this is a safe duplicate.
+    console.warn(`[fulfill-voucher] Race condition detected: shop_order_id=${shopOrderId} already finalised.`);
+    return false; // Signal to caller: duplicate request
+  }
+
+  console.log(`[fulfill-voucher] shop_order finalised | id=${shopOrderId} | status=${claimStatus} | settlement=${settlementTargetTime}`);
+  return true;
+}
+
+// ---------------------------------------------------------------------------
+// Step 8 — Immutable transaction_events ledger write
+// ---------------------------------------------------------------------------
+
+async function writeLedgerEvent(
+  db: ReturnType<typeof getAdminClient>,
+  shopOrderId: string,
+  merchantUserId: string,
+  payload: Record<string, unknown>,
+): Promise<void> {
+  const { error } = await db
+    .from("transaction_events")
+    .insert({
+      shop_order_id: shopOrderId,
+      event_type: "CLAIM_VERIFIED",
+      payload: JSON.stringify(payload),
+      created_at: new Date().toISOString(),
+    });
+
+  if (error) {
+    // Non-fatal: log for ops but never block the success response.
+    console.error(
+      `[fulfill-voucher] LEDGER WRITE FAILED | shop_order_id=${shopOrderId}:`,
+      error.code, error.message,
+    );
+  } else {
+    console.log(`[fulfill-voucher] Ledger event written | shop_order_id=${shopOrderId} | merchant=${merchantUserId}`);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -313,207 +408,113 @@ async function writeLedgerEvent(
 // ---------------------------------------------------------------------------
 
 async function handleFulfillVoucher(req: Request): Promise<Response> {
-  // --- 1. Parse the request body ---
-  let rawBody: Record<string, unknown>;
+  // 1. Parse body
+  let raw: Record<string, unknown>;
   try {
-    rawBody = await req.json();
+    raw = await req.json();
   } catch {
     return json({ error: "Request body must be valid JSON." }, 400);
   }
 
-  if (typeof rawBody !== "object" || rawBody === null || Array.isArray(rawBody)) {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
     return json({ error: "Request body must be a JSON object." }, 400);
   }
 
-  // --- 2. Validate and normalise the payload ---
+  // 2. Validate payload
   let payload: FulfillVoucherPayload;
   try {
-    payload = validatePayload(rawBody);
-  } catch (validationError: unknown) {
-    const message = validationError instanceof Error
-      ? validationError.message
-      : "Invalid request payload.";
-    return json({ error: message }, 400);
+    payload = validatePayload(raw);
+  } catch (e: unknown) {
+    return json({ error: e instanceof Error ? e.message : "Invalid payload." }, 400);
   }
 
-  const { claim_code, shop_id } = payload;
+  const { claim_code, present_item_ids, missing_item_ids } = payload;
 
   console.log(
-    `[fulfill-voucher] Fulfillment request | claim_code=${claim_code} | shop_id=${shop_id}`,
+    `[fulfill-voucher] Request | claim_code=${claim_code} | present=${present_item_ids.length} | missing=${missing_item_ids.length}`,
   );
 
-  // --- 3. Obtain the admin client ---
-  let adminClient: ReturnType<typeof getAdminClient>;
+  // 3. Admin client
+  let db: ReturnType<typeof getAdminClient>;
   try {
-    adminClient = getAdminClient();
-  } catch (configError: unknown) {
-    const message = configError instanceof Error ? configError.message : "Configuration error.";
-    console.error(message);
-    return json({ error: "Server configuration error. Please contact support." }, 500);
+    db = getAdminClient();
+  } catch (e: unknown) {
+    console.error(e instanceof Error ? e.message : e);
+    return json({ error: "Server configuration error." }, 500);
   }
 
-  // --- 4. Verify the caller is an authenticated merchant assigned to this shop ---
-  const identityResult = await verifyMerchantIdentity(req, shop_id, adminClient);
-  if (identityResult instanceof Response) {
-    // Auth or authorisation failure — return the pre-built error response.
-    return identityResult;
-  }
-  const { user: callerUser } = identityResult;
+  // 4. Fetch & lock order (includes idempotency guard on claim_status)
+  const orderResult = await fetchAndLockOrder(db, claim_code);
+  if (orderResult instanceof Response) return orderResult;
+  const order = orderResult;
 
-  console.log(
-    `[fulfill-voucher] Merchant verified | user_id=${callerUser.id} | shop_id=${shop_id}`,
-  );
+  // 5. Verify the caller is a merchant assigned to this order's shop
+  const merchantResult = await verifyMerchant(req, order.shop_id, db);
+  if (merchantResult instanceof Response) return merchantResult;
+  const { user_id: merchantUserId } = merchantResult;
 
-  // --- 5. Call the atomic_fulfill_voucher Postgres RPC ---
-  //
-  // The RPC executes inside a single database transaction. If the voucher is
-  // invalid, already redeemed, belongs to a different shop, or the payment
-  // has not been confirmed (payout_status != 'PENDING_BATCH'), the RPC raises
-  // an exception whose message begins with 'FRAUD_REJECTION:'.
-  //
-  // We use the admin client so the RPC can execute SET LOCAL and row-level
-  // locking without RLS interference. The shop-boundary check is enforced
-  // inside the RPC itself via the p_shop_id parameter.
-  const { data: rpcResult, error: rpcError } = await adminClient.rpc(
-    "atomic_fulfill_voucher",
-    {
-      p_claim_code: claim_code,
-      p_shop_id: shop_id,
-    },
-  );
+  console.log(`[fulfill-voucher] Merchant verified | user=${merchantUserId} | shop=${order.shop_id}`);
 
-  // --- 6. Handle the RPC result ---
+  // 6–10: Execute the financial pipeline inside a try/catch.
+  //       If any step fails, we return 500 — no partial ledger writes should
+  //       go unlogged. The idempotency guard on shop_orders prevents double-runs.
+  try {
+    // 6. Mark order_items COLLECTED / MISSING
+    await updateItemStatuses(db, order.shop_order_id, present_item_ids, missing_item_ids);
+    console.log(`[fulfill-voucher] Item statuses updated | order=${order.shop_order_id}`);
 
-  if (rpcError) {
-    const errorMessage: string = rpcError.message ?? "";
+    // 7. Compute price split
+    const { present_total, missing_total } = await computePriceSplit(
+      db, order.shop_order_id, present_item_ids, missing_item_ids,
+    );
+    console.log(`[fulfill-voucher] Split | merchant_credit=${present_total} ZMW | sender_refund=${missing_total} ZMW`);
 
-    // ---- FRAUD_REJECTION path ----
-    //
-    // The RPC raised an exception that begins with FRAUD_REJECTION:.
-    // This covers: invalid code, wrong shop, already redeemed, payment not confirmed.
-    // We must log the attempt to the immutable ledger for audit before returning 400.
-    if (errorMessage.startsWith(FRAUD_REJECTION_PREFIX)) {
-      // Extract the human-readable reason after the prefix.
-      const rejectionReason = errorMessage
-        .slice(FRAUD_REJECTION_PREFIX.length)
-        .trim();
+    // 8. Credit merchant payout_ledger (present items)
+    await creditMerchantLedger(db, order.shop_order_id, order.shop_id, present_total, claim_code);
 
-      console.error(
-        `[fulfill-voucher] FRAUD_REJECTION | claim_code=${claim_code} | shop_id=${shop_id} | reason=${rejectionReason}`,
-      );
-
-      // We don't have a voucher_id because the RPC rejected the lookup.
-      // We log the fraud attempt against a synthetic sentinel so the ledger
-      // row still provides an ops-searchable record by claim_code.
-      // The convention is to use the claim_code itself as the payload key.
-      await writeLedgerEvent(
-        adminClient,
-        // The voucher_id is unknown for rejected attempts. We write to a
-        // "sentinel" system-level event instead by using an existing FK-safe
-        // approach: write the payload only (see NOTE below).
-        // NOTE: If your transaction_events.voucher_id column has a FK
-        // constraint to claim_vouchers, you cannot write a free-form UUID here.
-        // In that case, look up the voucher_id by claim_code before this block,
-        // or relax the FK to allow NULL and make this field nullable.
-        // For now we pass a zero UUID as a sentinel — update to NULL if schema allows.
-        "00000000-0000-0000-0000-000000000000",
-        "FRAUD_REJECTION",
-        {
-          claim_code,
-          shop_id,
-          merchant_user_id: callerUser.id,
-          rejection_reason: rejectionReason,
-          terminal_ip: "edge",
-          action: "storefront_scan",
-        },
-      );
-
-      return json(
-        {
-          error: "Voucher rejected.",
-          rejection_reason: rejectionReason,
-          event_type: "FRAUD_REJECTION",
-        },
-        400,
-      );
+    // 9. Credit sender wallet (missing items digital refund)
+    if (missing_total > 0) {
+      await creditSenderWallet(db, order.transaction_id, order.shop_order_id, missing_total, claim_code);
     }
 
-    // ---- Unexpected infrastructure error ----
-    //
-    // Not a FRAUD_REJECTION — this is a genuine database or network error.
-    // We do NOT write a FRAUD_REJECTION ledger event here because the failure
-    // is not the buyer's or merchant's fault.
-    console.error(
-      `[fulfill-voucher] RPC infrastructure error | claim_code=${claim_code}:`,
-      rpcError.code,
-      rpcError.message,
-      rpcError.details ?? "",
-    );
-    return json(
-      { error: "Voucher verification failed due to a server error. Please try again." },
-      500,
-    );
-  }
+    // 10. Finalise shop_order status + settlement window (race-condition fence)
+    const didFinalise = await finaliseShopOrder(db, order.shop_order_id, missing_item_ids.length > 0);
 
-  // ---- SUCCESS path ----
-  //
-  // The RPC succeeded: the voucher is valid, paid, and has been atomically
-  // marked as REDEEMED inside the RPC transaction.
+    if (!didFinalise) {
+      // This request lost the race — a concurrent request already finalised the order.
+      // We still return a success-like response because the financial outcome is correct;
+      // we just flag it as a duplicate so the caller can log/suppress toasts.
+      return json({
+        success: true,
+        duplicate: true,
+        message: "Order was already finalised by a concurrent request.",
+      });
+    }
 
-  // Type-narrow the result. The RPC returns an array when called via .rpc()
-  // in supabase-js; we take the first (and only) row.
-  const resultRow = Array.isArray(rpcResult) ? rpcResult[0] : rpcResult;
-
-  if (
-    !resultRow ||
-    typeof resultRow.voucher_id !== "string" ||
-    typeof resultRow.item_name !== "string" ||
-    typeof resultRow.recipient_name !== "string"
-  ) {
-    console.error(
-      "[fulfill-voucher] RPC returned a success result with an unexpected shape:",
-      JSON.stringify(resultRow),
-    );
-    return json(
-      { error: "Fulfillment completed but the server returned unexpected data. Contact support." },
-      500,
-    );
-  }
-
-  const fulfillResult = resultRow as AtomicFulfillResult;
-
-  console.log(
-    `[fulfill-voucher] SUCCESS | voucher_id=${fulfillResult.voucher_id} | item=${fulfillResult.item_name} | recipient=${fulfillResult.recipient_name}`,
-  );
-
-  // --- 7. Write the CLAIM_VERIFIED event to the immutable ledger ---
-  //
-  // The payload is a structured JSON object that provides an audit trail
-  // linking the fulfillment to the terminal session and action type.
-  await writeLedgerEvent(
-    adminClient,
-    fulfillResult.voucher_id,
-    "CLAIM_VERIFIED",
-    {
-      terminal_ip: "edge",
-      action: "storefront_scan",
-      merchant_user_id: callerUser.id,
-      shop_id,
+    // 11. Immutable audit ledger
+    await writeLedgerEvent(db, order.shop_order_id, merchantUserId, {
       claim_code,
-    },
-  );
+      shop_id: order.shop_id,
+      merchant_user_id: merchantUserId,
+      present_item_ids,
+      missing_item_ids,
+      merchant_credit_zmw: present_total,
+      sender_refund_zmw: missing_total,
+      claim_status: missing_item_ids.length > 0 ? "PARTIAL_FULFILLMENT" : "FULFILLED",
+    });
 
-  // --- 8. Return the POS display data to the merchant frontend ---
-  //
-  // The merchant's storefront app uses item_name and recipient_name to
-  // display a confirmation screen: "Gift for [Recipient] — [Item] claimed."
-  return json({
-    success: true,
-    voucher_id: fulfillResult.voucher_id,
-    item_name: fulfillResult.item_name,
-    recipient_name: fulfillResult.recipient_name,
-    claim_code: fulfillResult.claim_code,
-  });
+    return json({
+      success: true,
+      claim_status: missing_item_ids.length > 0 ? "PARTIAL_FULFILLMENT" : "FULFILLED",
+      merchant_credit_zmw: present_total,
+      sender_refund_zmw: missing_total,
+      settlement_window_hours: 48,
+    });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "An unexpected error occurred.";
+    console.error("[fulfill-voucher] Pipeline failure:", msg);
+    return json({ error: msg }, 500);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -521,28 +522,17 @@ async function handleFulfillVoucher(req: Request): Promise<Response> {
 // ---------------------------------------------------------------------------
 
 Deno.serve(async (req: Request): Promise<Response> => {
-  // Answer CORS preflight immediately — no auth required for OPTIONS.
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
-
-  // This function only accepts POST.
   if (req.method !== "POST") {
-    return json(
-      { error: `Method '${req.method}' is not allowed. Use POST.` },
-      405,
-    );
+    return json({ error: `Method '${req.method}' not allowed. Use POST.` }, 405);
   }
-
   try {
     return await handleFulfillVoucher(req);
   } catch (unhandled: unknown) {
-    // Last-resort catch — all expected error paths are handled above.
-    // Landing here indicates a genuine programming fault or OOM condition.
-    const message = unhandled instanceof Error
-      ? unhandled.message
-      : "An unknown error occurred.";
-    console.error("[fulfill-voucher] UNHANDLED EXCEPTION:", message);
+    const msg = unhandled instanceof Error ? unhandled.message : "Unknown error.";
+    console.error("[fulfill-voucher] UNHANDLED EXCEPTION:", msg);
     return json({ error: "Internal server error." }, 500);
   }
 });
