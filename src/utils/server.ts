@@ -1,7 +1,7 @@
 import { supabase } from "../lib/supabaseClient";
 
 // 1. Grab your new V2 URL directly from the environment
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL_2 || '';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 
 // 2. Automatically derive the Edge Functions URL from the base URL
 const defaultFunctionsBaseUrl = `${supabaseUrl}/functions/v1/server`;
