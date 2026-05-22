@@ -4,3 +4,9 @@ dist
 .env
 build
 .DS_Store
+
+node_modules/
+dist/
+.output/
+.supabase/
+.temp/
