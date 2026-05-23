@@ -305,7 +305,7 @@ export function Home() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/impact')}
               title="Impact Dashboard"
               disabled={isSigningOut}
             >

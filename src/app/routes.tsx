@@ -5,7 +5,7 @@ import { Root } from './layouts/Root';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 
 // Public Pages
-import { Landing } from './pages/public/Landing';
+import { ConsumerStorefront } from './pages/ConsumerStorefront';
 import { SignUp } from './pages/public/SignUp';
 import { Login } from './pages/public/Login';
 import { GiftPage } from './pages/public/GiftPage';
@@ -20,6 +20,7 @@ import { OrderDashboard } from './pages/sender/OrderDashboard';
 import { OrderDetail } from './pages/sender/OrderDetail';
 import { Settings } from './pages/sender/Settings';
 import { CustomerDashboard } from './pages/sender/CustomerDashboard';
+import { DashboardHub } from './pages/sender/DashboardHub';
 import { Checkout } from './pages/Checkout';
 
 // Merchant Pages
@@ -29,6 +30,7 @@ import { MerchantOnboarding } from './pages/MerchantOnboarding';
 
 // Admin Pages
 import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { AdminMerchandising } from './pages/admin/AdminMerchandising';
 import { AdminShops } from './pages/admin/AdminShops';
 import { AdminShopForm } from './pages/admin/AdminShopForm';
 import { AdminItems } from './pages/admin/AdminItems';
@@ -52,8 +54,21 @@ export const router = createBrowserRouter([
     path: '/',
     Component: Root,
     children: [
+      // ── Architectural Boundaries ──────────────────────────────────────
+      // Public consumer surface — unauthenticated marketing, auth-aware redirect
+      { index: true, Component: ConsumerStorefront },
+
+      // Protected universal hub — resolves to role-correct dashboard
+      {
+        path: 'dashboard',
+        element: (
+          <ProtectedRoute allowedRoles={['sender', 'merchant', 'admin']}>
+            <DashboardHub />
+          </ProtectedRoute>
+        ),
+      },
+
       // Public routes
-      { index: true, Component: Landing },
       { path: 'signup', Component: SignUp },
       { path: 'login', Component: Login },
       { path: 'gift/:code', Component: GiftPage },
@@ -99,7 +114,8 @@ export const router = createBrowserRouter([
         element: <ProtectedRoute allowedRoles={['sender']}><Settings /></ProtectedRoute>
       },
       {
-        path: 'dashboard',
+        // Sender impact/generosity analytics dashboard
+        path: 'impact',
         element: <ProtectedRoute allowedRoles={['sender']}><CustomerDashboard /></ProtectedRoute>
       },
       {
@@ -131,6 +147,15 @@ export const router = createBrowserRouter([
       },
 
       // Admin routes
+      {
+        // Admin merchandising hub — shops, items, inventory navigation
+        path: 'admin-merch',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminMerchandising />
+          </ProtectedRoute>
+        ),
+      },
       {
         path: 'admin',
         element: <ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>

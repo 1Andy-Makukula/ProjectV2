@@ -65,18 +65,29 @@ export function Landing() {
             animate={{ opacity: 1, x: 0 }}
             className="flex items-center gap-3"
           >
-            <button
-              onClick={() => navigate('/login')}
-              className="text-white/90 hover:text-white text-sm font-medium transition-colors px-4 py-2 rounded-full hover:bg-white/10"
-            >
-              Sign in
-            </button>
-            <button
-              onClick={() => navigate('/signup')}
-              className="bg-white text-orange-700 text-sm font-semibold px-5 py-2 rounded-full hover:bg-white/90 transition-all shadow-lg"
-            >
-              Get Started
-            </button>
+            {user && profile ? (
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="bg-white text-slate-900 text-sm font-semibold px-5 py-2 rounded-full hover:bg-white/90 transition-all shadow-lg"
+              >
+                Go to Dashboard
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={() => navigate('/login')}
+                  className="text-white/90 hover:text-white text-sm font-medium transition-colors px-4 py-2 rounded-full hover:bg-white/10"
+                >
+                  Sign in
+                </button>
+                <button
+                  onClick={() => navigate('/signup')}
+                  className="bg-white text-orange-700 text-sm font-semibold px-5 py-2 rounded-full hover:bg-white/90 transition-all shadow-lg"
+                >
+                  Get Started
+                </button>
+              </>
+            )}
           </motion.div>
         </nav>
 
