@@ -15,6 +15,8 @@ interface AuthContextType {
   profile: UserProfile | null;
   session: Session | null;
   loading: boolean;
+  /** True when the profile row could not be fetched (e.g. RLS denial). */
+  profileError: boolean;
   signUp: (email: string, password: string, name: string, phone: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -29,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileError, setProfileError] = useState(false);
 
   useEffect(() => {
     // Get initial session
@@ -60,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const fetchProfile = async (userId: string) => {
+    setProfileError(false);
     try {
       const { data, error } = await supabase
         .from('users')
@@ -70,7 +74,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       setProfile(data);
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('Error fetching profile (possible RLS denial):', error);
+      setProfileError(true);
     } finally {
       setLoading(false);
     }
@@ -161,6 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         profile,
         session,
         loading,
+        profileError,
         signUp,
         signIn,
         signOut,
