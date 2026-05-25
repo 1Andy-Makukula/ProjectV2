@@ -1,4 +1,5 @@
 import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -18,10 +19,15 @@ interface SecureVendorGroup extends VendorGroup {
 
 /**
  * The full grouped cart payload accepted by this function.
+ * recipient_name, recipient_phone, and message are optional — they are
+ * captured in SendFlow.tsx and written to every shop_orders row created.
  */
 interface CheckoutInitPayload {
   vendors: VendorGroup[];
   origin_type: "LOCAL" | "INTERNATIONAL";
+  recipient_name?: string;
+  recipient_phone?: string;
+  message?: string;
 }
 
 /**
@@ -60,22 +66,15 @@ const VALID_ORIGIN_TYPES = new Set<string>(["LOCAL", "INTERNATIONAL"]);
 // CORS headers
 // ---------------------------------------------------------------------------
 
-const corsHeaders: HeadersInit = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 /** Serialise any value as a JSON Response with CORS headers attached. */
-function json(data: unknown, status = 200): Response {
+function json(req: Request, data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
   });
 }
 
@@ -187,9 +186,17 @@ function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
     );
   }
 
+  // --- optional recipient fields (graceful — no error if missing/empty) ---
+  const recipient_name  = typeof raw.recipient_name  === "string" ? raw.recipient_name.trim()  || undefined : undefined;
+  const recipient_phone = typeof raw.recipient_phone === "string" ? raw.recipient_phone.trim() || undefined : undefined;
+  const message         = typeof raw.message         === "string" ? raw.message.trim()         || undefined : undefined;
+
   return {
     vendors,
     origin_type: origin_type as "LOCAL" | "INTERNATIONAL",
+    recipient_name,
+    recipient_phone,
+    message,
   };
 }
 
@@ -207,7 +214,7 @@ async function authenticateCaller(
 ): Promise<{ id: string; email?: string; phone?: string } | Response> {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return json({ error: "A valid Authorization Bearer token is required." }, 401);
+    return json(req, { error: "A valid Authorization Bearer token is required." }, 401);
   }
 
   const jwt = authHeader.split(" ")[1];
@@ -222,6 +229,7 @@ async function authenticateCaller(
       authError?.message ?? "No user returned.",
     );
     return json(
+      req,
       { error: "Unauthorized. Your session may have expired — please log in again." },
       401,
     );
@@ -285,8 +293,9 @@ export interface ShopOrderResult {
  * For each vendor in the payload:
  *   1. Generates a secure 8-char claim_code.
  *   2. Inserts one row into `shop_orders`, linking it to the parent transaction.
- *   3. Bulk-inserts all item_ids into `order_items` at the per-item price
- *      (subtotal / item count, rounded to the nearest integer).
+ *      Recipient fields (recipient_name, recipient_phone, message) are included
+ *      when present in the payload.
+ *   3. Bulk-inserts all item_ids into `order_items` at the per-item price.
  *
  * Returns an array of the created `ShopOrderResult` objects.
  */
@@ -295,6 +304,9 @@ async function insertVendorOrders(
   transactionId: string,
   vendors: SecureVendorGroup[],
   priceMap: Map<string, number>,
+  recipientName?: string,
+  recipientPhone?: string,
+  message?: string,
 ): Promise<ShopOrderResult[]> {
   const shopOrders: ShopOrderResult[] = [];
 
@@ -303,16 +315,23 @@ async function insertVendorOrders(
     const claimCode = generateClaimCode(8);
 
     // --- 2. Insert shop_order ---
+    const shopOrderRow: Record<string, unknown> = {
+      transaction_id: transactionId,
+      shop_id: vendor.shop_id,
+      subtotal: vendor.secureSubtotal,
+      claim_code: claimCode,
+      claim_status: "PENDING_PAYMENT",
+      created_at: new Date().toISOString(),
+    };
+
+    // Attach recipient details when provided
+    if (recipientName)  shopOrderRow.recipient_name  = recipientName;
+    if (recipientPhone) shopOrderRow.recipient_phone = recipientPhone;
+    if (message)        shopOrderRow.message         = message;
+
     const { data: shopOrderData, error: shopOrderError } = await adminClient
       .from("shop_orders")
-      .insert({
-        transaction_id: transactionId,
-        shop_id: vendor.shop_id,
-        subtotal: vendor.secureSubtotal,
-        claim_code: claimCode,
-        status: "PENDING_PAYMENT",
-        created_at: new Date().toISOString(),
-      })
+      .insert(shopOrderRow)
       .select("shop_order_id")
       .single<ShopOrderInsertResult>();
 
@@ -395,15 +414,13 @@ async function generateFlutterwaveLink(
     );
   }
 
-  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-  // Derive the project ref from the Supabase URL (e.g. https://abcxyz.supabase.co → abcxyz)
-  const projectRef = supabaseUrl.replace("https://", "").split(".")[0];
+  const appUrl = (Deno.env.get("APP_URL") ?? "http://localhost:5173").replace(/\/$/, "");
 
   const payload = {
     tx_ref: transactionId,
     amount: totalAmount,
     currency: "ZMW",
-    redirect_url: `https://${projectRef}.supabase.co/functions/v1/flutterwave-webhook`,
+    redirect_url: `${appUrl}/confirmation/${transactionId}?tx_ref=${transactionId}`,
     customer: {
       email: buyerEmail,
       phonenumber: buyerPhone,
@@ -456,7 +473,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
   try {
     rawBody = await req.json();
   } catch {
-    return json({ error: "Request body must be valid JSON." }, 400);
+    return json(req, { error: "Request body must be valid JSON." }, 400);
   }
 
   // --- 2. Validate payload ---
@@ -467,10 +484,10 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     const message = validationError instanceof Error
       ? validationError.message
       : "Invalid request payload.";
-    return json({ error: message }, 400);
+    return json(req, { error: message }, 400);
   }
 
-  const { vendors, origin_type } = payload;
+  const { vendors, origin_type, recipient_name, recipient_phone, message } = payload;
 
   // --- 3. Build admin client ---
   let adminClient: ReturnType<typeof getAdminClient>;
@@ -479,7 +496,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
   } catch (configError: unknown) {
     const msg = configError instanceof Error ? configError.message : "Config error.";
     console.error(msg);
-    return json({ error: "Server configuration error. Please contact support." }, 500);
+    return json(req, { error: "Server configuration error. Please contact support." }, 500);
   }
 
   // --- 4. Authenticate caller ---
@@ -490,22 +507,22 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
   // --- 4.5. Enforce Server-Side Math ---
   const allItemIds = [...new Set(vendors.flatMap(v => v.item_ids))];
   if (allItemIds.length === 0) {
-    return json({ error: "Cart is empty." }, 400);
+    return json(req, { error: "Cart is empty." }, 400);
   }
 
   const { data: dbItems, error: itemsError } = await adminClient
     .from("items")
-    .select("item_id, price_zmw")
-    .in("item_id", allItemIds);
+    .select("id, price_zmw")
+    .in("id", allItemIds);
 
   if (itemsError || !dbItems || dbItems.length === 0) {
     console.error("[checkout-init] Failed to fetch authoritative prices:", itemsError?.message);
-    return json({ error: "Failed to verify item prices." }, 500);
+    return json(req, { error: "Failed to verify item prices." }, 500);
   }
 
   const priceMap = new Map<string, number>();
   for (const item of dbItems) {
-    priceMap.set(item.item_id, item.price_zmw);
+    priceMap.set(item.id, item.price_zmw);
   }
 
   let secureGrandTotal = 0;
@@ -516,7 +533,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     for (const id of v.item_ids) {
       const price = priceMap.get(id);
       if (typeof price !== "number") {
-        return json({ error: `Item ${id} is invalid or no longer available.` }, 400);
+        return json(req, { error: `Item ${id} is invalid or no longer available.` }, 400);
       }
       secureSubtotal += price;
     }
@@ -533,20 +550,35 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
   const txRef = `KITHLY-${Date.now()}-${generateClaimCode(6)}`;
 
   try {
-    // --- 6. Insert parent transaction (Step B) ---
-    const transactionId = await insertTransaction(
-      adminClient,
-      caller.id,
-      secureGrandTotal,
-      origin_type,
-      txRef,
+    // --- 6–7. Atomic DB transaction (prices re-verified inside Postgres) ---
+    const vendorsPayload = secureVendors.map((v) => ({
+      shop_id: v.shop_id,
+      item_ids: v.item_ids,
+    }));
+
+    const { data: checkoutResult, error: checkoutError } = await adminClient.rpc(
+      "checkout_init_atomic",
+      {
+        p_buyer_id: caller.id,
+        p_origin_type: origin_type,
+        p_gateway_tx_ref: txRef,
+        p_vendors: vendorsPayload,
+        p_recipient_name: recipient_name ?? null,
+        p_recipient_phone: recipient_phone ?? null,
+        p_message: message ?? null,
+      },
     );
 
-    // --- 7. Insert shop orders + order items for each vendor (Step C) ---
-    const shopOrders = await insertVendorOrders(adminClient, transactionId, secureVendors, priceMap);
+    if (checkoutError || !checkoutResult) {
+      console.error("[checkout-init] checkout_init_atomic failed:", checkoutError?.message);
+      throw new Error(checkoutError?.message ?? "Failed to create checkout records.");
+    }
+
+    const transactionId = checkoutResult.transaction_id as string;
+    const shopOrders = checkoutResult.shop_orders as ShopOrderResult[];
 
     console.log(
-      `[checkout-init] All vendor orders created | transaction_id=${transactionId} | shop_orders=${shopOrders.length}`,
+      `[checkout-init] Atomic checkout complete | transaction_id=${transactionId} | shop_orders=${shopOrders.length} | total=${checkoutResult.total_amount}`,
     );
 
     // --- 8. Generate Flutterwave payment link (Step D) ---
@@ -558,7 +590,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     );
 
     // --- 9. Respond to frontend ---
-    return json({
+    return json(req, {
       success: true,
       transaction_id: transactionId,
       shop_orders: shopOrders,
@@ -567,7 +599,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "An unexpected error occurred.";
     console.error("[checkout-init] Checkout pipeline failed:", message);
-    return json({ error: message }, 500);
+    return json(req, { error: message }, 500);
   }
 }
 
@@ -578,12 +610,12 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
 Deno.serve(async (req: Request): Promise<Response> => {
   // Answer CORS preflight immediately — no auth required for OPTIONS.
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders });
+    return new Response(null, { status: 204, headers: getCorsHeaders(req) });
   }
 
   // Only POST is accepted.
   if (req.method !== "POST") {
-    return json({ error: `Method '${req.method}' is not allowed. Use POST.` }, 405);
+    return json(req, { error: `Method '${req.method}' is not allowed. Use POST.` }, 405);
   }
 
   try {
@@ -591,6 +623,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
   } catch (unhandled: unknown) {
     const message = unhandled instanceof Error ? unhandled.message : "An unknown error occurred.";
     console.error("[checkout-init] UNHANDLED EXCEPTION:", message);
-    return json({ error: "Internal server error." }, 500);
+    return json(req, { error: "Internal server error." }, 500);
   }
 });

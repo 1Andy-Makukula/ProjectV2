@@ -1,173 +1,141 @@
-# KithLy Database Setup Instructions
+# KithLy V2 Database Schema (canonical)
 
-## Required Tables
+This document matches the **application code and Edge Functions** in this repo.
+Apply `supabase/migrations/20260525120000_v2_canonical_schema.sql` to align an existing Supabase project.
 
-Run these SQL commands in your Supabase SQL Editor:
+> **Legacy note:** Older exports used `transactions.id`, `sender_id`, `payment_status`, `items.base_price`, and `transaction_events.shop_order_id`. Those names are obsolete in V2.
 
-```sql
--- Users table
-CREATE TABLE users (
-  id UUID PRIMARY KEY DEFAULT auth.uid(),
-  name TEXT NOT NULL,
-  email TEXT UNIQUE NOT NULL,
-  phone TEXT,
-  role TEXT NOT NULL DEFAULT 'sender' CHECK (role IN ('sender', 'merchant', 'admin')),
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+## Core tables
 
--- Shops table
-CREATE TABLE shops (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  description TEXT,
-  location TEXT,
-  address TEXT,
-  image_url TEXT,
-  payout_method TEXT CHECK (payout_method IN ('airtel', 'mtn', 'bank')),
-  payout_details TEXT,
-  is_active BOOLEAN DEFAULT true,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+### `transactions`
+| Column | Type | Notes |
+|--------|------|-------|
+| `transaction_id` | UUID PK | Parent checkout record |
+| `buyer_id` | UUID FK → `users` | Payer |
+| `total_amount` | integer | Ngwee (ZMW × 100) or whole ZMW per deployment |
+| `status` | text | `GATEWAY_PROCESSING` → `SUCCESSFUL` |
+| `gateway_tx_ref` | text unique | `KITHLY-{ts}-{suffix}` — **not** overwritten on webhook |
+| `origin_type` | text | `LOCAL` \| `INTERNATIONAL` |
+| `created_at` | timestamptz | |
 
--- Items table
-CREATE TABLE items (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  shop_id UUID REFERENCES shops(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
-  description TEXT,
-  price INTEGER NOT NULL,
-  currency TEXT DEFAULT 'ZMW',
-  image_url TEXT,
-  is_available BOOLEAN DEFAULT true,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+Flutterwave `tx_ref` is set to `transaction_id` (UUID) in `checkout-init`.
 
--- Orders table
-CREATE TABLE orders (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  sender_id UUID REFERENCES users(id),
-  shop_id UUID REFERENCES shops(id),
-  item_id UUID REFERENCES items(id),
-  recipient_name TEXT NOT NULL,
-  recipient_phone TEXT NOT NULL,
-  message TEXT,
-  code TEXT UNIQUE NOT NULL,
-  status TEXT NOT NULL DEFAULT 'pending_payment' CHECK (status IN ('pending_payment', 'payment_submitted', 'paid', 'fulfilled', 'expired')),
-  amount INTEGER NOT NULL,
-  currency TEXT DEFAULT 'ZMW',
-  flutterwave_tx_ref TEXT UNIQUE,
-  flutterwave_transaction_id TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  paid_at TIMESTAMPTZ,
-  fulfilled_at TIMESTAMPTZ
-);
+### `shop_orders`
+| Column | Type | Notes |
+|--------|------|-------|
+| `shop_order_id` | UUID PK | One per vendor in a cart |
+| `transaction_id` | UUID FK | |
+| `shop_id` | UUID FK | |
+| `claim_code` | varchar(8) unique | Gift redemption code |
+| `claim_status` | text | `PENDING_PAYMENT` → `PENDING` → `PROCESSING_FULFILLMENT` → `FULFILLED` / `PARTIAL_FULFILLMENT` |
+| `subtotal` | integer | Server-calculated |
+| `recipient_name`, `recipient_phone`, `message` | text | Gift metadata |
 
--- Merchant shops junction table
-CREATE TABLE merchant_shops (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  shop_id UUID REFERENCES shops(id) ON DELETE CASCADE,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  UNIQUE(user_id, shop_id)
-);
+### `order_items`
+| Column | Type | Notes |
+|--------|------|-------|
+| `order_item_id` | UUID PK | |
+| `shop_order_id` | UUID FK | |
+| `item_id` | UUID FK → `items.id` | |
+| `allocated_price` | integer | Snapshot at checkout |
+| `fulfillment_status` | text | `PENDING` \| `COLLECTED` \| `MISSING` |
 
--- Create indexes for performance
-CREATE INDEX idx_orders_code ON orders(code);
-CREATE INDEX idx_orders_sender ON orders(sender_id);
-CREATE INDEX idx_orders_shop ON orders(shop_id);
-CREATE INDEX idx_orders_status ON orders(status);
-CREATE INDEX idx_merchant_shops_user ON merchant_shops(user_id);
-CREATE INDEX idx_items_shop ON items(shop_id);
+### `items`
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | UUID PK | |
+| `shop_id` | UUID FK | |
+| `name`, `description`, `image_url` | text | |
+| `price_zmw` | integer | Authoritative price for checkout-init |
 
--- Enable Row Level Security
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE shops ENABLE ROW LEVEL SECURITY;
-ALTER TABLE items ENABLE ROW LEVEL SECURITY;
-ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
-ALTER TABLE merchant_shops ENABLE ROW LEVEL SECURITY;
+### `transaction_events` (append-only audit)
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | UUID PK | |
+| `transaction_id` | UUID FK → `transactions` | Was `voucher_id` / `shop_order_id` in legacy |
+| `event_type` | text | e.g. `WEBHOOK_RECEIVED` |
+| `payload` | text / jsonb | Raw event body |
+| `created_at` | timestamptz | |
 
--- RLS Policies for users table
-CREATE POLICY "Users can read their own data" ON users FOR SELECT USING (auth.uid() = id);
-CREATE POLICY "Users can update their own data" ON users FOR UPDATE USING (auth.uid() = id);
-CREATE POLICY "Admins can read all users" ON users FOR SELECT USING ((SELECT role FROM users WHERE id = auth.uid()) = 'admin');
-CREATE POLICY "Admins can insert users" ON users FOR INSERT WITH CHECK ((SELECT role FROM users WHERE id = auth.uid()) = 'admin');
+### `merchant_shops`
+| Column | Type | Notes |
+|--------|------|-------|
+| `user_id` | UUID FK | Merchant staff |
+| `shop_id` | UUID FK | Shop they may fulfil / settle |
 
--- RLS Policies for shops table
-CREATE POLICY "Everyone can read active shops" ON shops FOR SELECT USING (is_active = true OR (SELECT role FROM users WHERE id = auth.uid()) = 'admin');
-CREATE POLICY "Admins can manage shops" ON shops FOR ALL USING ((SELECT role FROM users WHERE id = auth.uid()) = 'admin');
+## Payment flow (intended)
 
--- RLS Policies for items table
-CREATE POLICY "Everyone can read items from active shops" ON items FOR SELECT USING (
-  EXISTS (SELECT 1 FROM shops WHERE shops.id = items.shop_id AND shops.is_active = true)
-  OR (SELECT role FROM users WHERE id = auth.uid()) = 'admin'
-);
-CREATE POLICY "Admins can manage items" ON items FOR ALL USING ((SELECT role FROM users WHERE id = auth.uid()) = 'admin');
+1. `checkout-init` inserts `transactions` + `shop_orders` (`PENDING_PAYMENT`) + `order_items`.
+2. User pays on Flutterwave; redirect goes to `{APP_URL}/confirmation/{transaction_id}?tx_ref={transaction_id}`.
+3. `flutterwave-webhook` (POST only) sets `transactions.status = SUCCESSFUL` and `shop_orders.claim_status = PENDING`.
+4. Frontend polls `transactions.status` (or reads confirmation page).
 
--- RLS Policies for orders table
-CREATE POLICY "Anyone can read order by code (for recipient page)" ON orders FOR SELECT USING (true);
-CREATE POLICY "Senders can read their own orders" ON orders FOR SELECT USING (sender_id = auth.uid());
-CREATE POLICY "Senders can create orders" ON orders FOR INSERT WITH CHECK (sender_id = auth.uid());
-CREATE POLICY "Merchants can read their shop orders" ON orders FOR SELECT USING (
-  EXISTS (SELECT 1 FROM merchant_shops WHERE merchant_shops.shop_id = orders.shop_id AND merchant_shops.user_id = auth.uid())
-);
-CREATE POLICY "Merchants can update their shop orders" ON orders FOR UPDATE USING (
-  EXISTS (SELECT 1 FROM merchant_shops WHERE merchant_shops.shop_id = orders.shop_id AND merchant_shops.user_id = auth.uid())
-);
-CREATE POLICY "Admins can manage all orders" ON orders FOR ALL USING ((SELECT role FROM users WHERE id = auth.uid()) = 'admin');
+## Environment variables (Edge Functions)
 
--- RLS Policies for merchant_shops table
-CREATE POLICY "Merchants can read their assignments" ON merchant_shops FOR SELECT USING (user_id = auth.uid());
-CREATE POLICY "Admins can manage merchant assignments" ON merchant_shops FOR ALL USING ((SELECT role FROM users WHERE id = auth.uid()) = 'admin');
+| Variable | Used by |
+|----------|---------|
+| `APP_URL` | `checkout-init`, `server` — Flutterwave redirect target |
+| `FLUTTERWAVE_SECRET_KEY` | Payment init / verify |
+| `FLUTTERWAVE_WEBHOOK_SECRET` | Webhook signature |
+| `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | All privileged functions |
 
--- Auth trigger to create user record on signup
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO public.users (id, email, name, phone, role)
-  VALUES (
-    NEW.id,
-    NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'name', ''),
-    NULLIF(NEW.raw_user_meta_data->>'phone', ''),
-    'sender'
-  );
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+## Phase 2 — Atomic RPCs & RLS
 
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+| Migration | Purpose |
+|-----------|---------|
+| `20260525130000_v2_atomic_money_rpcs.sql` | `checkout_init_atomic`, `confirm_payment_atomic`, `fulfill_voucher_atomic`, `settle_payout_atomic`, `register_merchant_shop` |
+| `20260525140000_v2_rls_policies.sql` | Row-level security; blocks client `users.role` escalation |
 
--- Enable realtime for orders table
-ALTER PUBLICATION supabase_realtime ADD TABLE orders;
+Edge Functions call the RPCs with the **service role**. `register_merchant_shop` is callable by **authenticated** users via `supabase.rpc()`.
 
--- Create storage bucket for images
-INSERT INTO storage.buckets (id, name, public) VALUES ('kithly-images', 'kithly-images', true);
+## Applying migrations
 
--- Storage policies
-CREATE POLICY "Public can view images" ON storage.objects FOR SELECT USING (bucket_id = 'kithly-images');
-CREATE POLICY "Admins can upload images" ON storage.objects FOR INSERT WITH CHECK (
-  bucket_id = 'kithly-images' AND 
-  (SELECT role FROM users WHERE id = auth.uid()) = 'admin'
-);
-CREATE POLICY "Admins can delete images" ON storage.objects FOR DELETE USING (
-  bucket_id = 'kithly-images' AND 
-  (SELECT role FROM users WHERE id = auth.uid()) = 'admin'
-);
+```bash
+supabase db push
 ```
 
-## Environment Variables Needed
+Apply in order: `20260525120000` → `20260525130000` → `20260525140000`.
 
-Add these to your Supabase Edge Function secrets:
+Or paste each file into the Supabase SQL Editor.
 
-- `FLUTTERWAVE_PUBLIC_KEY` - Your Flutterwave public key
-- `FLUTTERWAVE_SECRET_KEY` - Your Flutterwave secret key
-- `FLUTTERWAVE_WEBHOOK_SECRET` - Your Flutterwave webhook secret hash
+## Phase 3 — Security, CI, ops
 
-## Test Data (Optional)
+| Change | Location |
+|--------|----------|
+| USSD gateway auth | `USSD_GATEWAY_SECRET` + `X-Kithly-USSD-Secret` or `X-USSD-HMAC` on `ussd-gateway` |
+| Restricted CORS | `APP_URL` / `ALLOWED_ORIGINS` via `supabase/functions/_shared/cors.ts` |
+| Receipt XSS fix | `src/lib/html.ts` + `receiptGenerator.ts` |
+| nginx security headers | `nginx.conf` |
+| Removed unused `jspdf` | CVE surface reduced |
+| GitHub Actions CI | `.github/workflows/ci.yml` |
+| Route code-splitting | `src/app/routes.tsx` |
+| Legacy deprecation | `supabase/LEGACY.md` |
 
-```sql
--- Create an admin user (replace with your email after signup)
-UPDATE users SET role = 'admin' WHERE email = 'your-email@example.com';
+### Edge Function secrets (Phase 3)
+
+| Variable | Function |
+|----------|----------|
+| `USSD_GATEWAY_SECRET` | `ussd-gateway` — required in production |
+| `ALLOWED_ORIGINS` | Browser-facing functions — comma-separated origins (optional; defaults to `APP_URL`) |
+
+## Tests
+
+```bash
+pnpm test              # unit tests
+pnpm test:integration  # optional; needs RUN_INTEGRATION_TESTS=true + Supabase secrets
 ```
+
+Runs validation helpers (`tests/money-validation.test.ts`), HTML escaping (`tests/html.test.ts`), upload rules (`tests/upload-validation.test.ts`), and optional RPC integration tests.
+
+## Phase 4 — Hardening & ops hygiene
+
+| Change | Location |
+|--------|----------|
+| V2 merchant ledger API | `get-merchant-ledger` → `shop_orders` pending settlement |
+| Server-side image upload | `upload-item-image` Edge Function + `src/utils/uploadImage.ts` |
+| Legacy sweeper off by default | `ENABLE_LEGACY_PAYOUT_SWEEPER` must be `true` to run V1 sweeper |
+| Secrets template | `.env.example` |
+| Rotation playbook | `SECURITY.md` |
+| Hardcoded project ref removed | `utils/supabase/info.tsx` re-exports env-based `projectId` |
+
+Deploy **`upload-item-image`** alongside other Edge Functions. Ensure Storage bucket `kithly-images` exists with public read for `items/` paths.

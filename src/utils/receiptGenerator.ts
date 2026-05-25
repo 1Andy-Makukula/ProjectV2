@@ -4,6 +4,8 @@
  * Works for both Merchant Fulfillment receipts and Sender payment receipts.
  */
 
+import { escapeHtml } from '../lib/html';
+
 export interface ReceiptData {
   shopName: string;
   itemName: string;
@@ -43,17 +45,24 @@ export function buildReceiptHTML(data: ReceiptData): string {
     txRef,
   } = data;
 
-  const dateLabel = fulfilledAt
-    ? `Fulfilled At: ${formatDate(fulfilledAt)}`
+  const safeShop = escapeHtml(shopName);
+  const safeItem = escapeHtml(itemName);
+  const safeRecipient = escapeHtml(recipientName);
+  const safeCode = escapeHtml(claimCode);
+  const safeTxRef = txRef ? escapeHtml(txRef) : null;
+
+  const dateKey = fulfilledAt ? 'Fulfilled At' : paidAt ? 'Paid At' : null;
+  const dateVal = fulfilledAt
+    ? formatDate(fulfilledAt)
     : paidAt
-      ? `Paid At: ${formatDate(paidAt)}`
-      : '';
+      ? formatDate(paidAt)
+      : null;
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>KithLy Receipt — ${claimCode}</title>
+  <title>KithLy Receipt — ${safeCode}</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -85,18 +94,18 @@ export function buildReceiptHTML(data: ReceiptData): string {
   </div>
 
   <div class="section-label">Transaction Details</div>
-  <div class="row"><span class="key">Shop</span><span class="val">${shopName}</span></div>
-  <div class="row"><span class="key">Gift Item</span><span class="val">${itemName}</span></div>
-  <div class="row"><span class="key">Recipient</span><span class="val">${recipientName}</span></div>
+  <div class="row"><span class="key">Shop</span><span class="val">${safeShop}</span></div>
+  <div class="row"><span class="key">Gift Item</span><span class="val">${safeItem}</span></div>
+  <div class="row"><span class="key">Recipient</span><span class="val">${safeRecipient}</span></div>
   <div class="row"><span class="key">Amount</span><span class="val amount">${formatZMW(amountNgwee)}</span></div>
-  ${dateLabel ? `<div class="row"><span class="key">${dateLabel.split(':')[0]}</span><span class="val">${dateLabel.split(': ')[1]}</span></div>` : ''}
-  ${txRef ? `<div class="row"><span class="key">Ref</span><span class="val" style="font-size:11px;color:#aaa">${txRef}</span></div>` : ''}
+  ${dateKey && dateVal ? `<div class="row"><span class="key">${dateKey}</span><span class="val">${escapeHtml(dateVal)}</span></div>` : ''}
+  ${safeTxRef ? `<div class="row"><span class="key">Ref</span><span class="val" style="font-size:11px;color:#aaa">${safeTxRef}</span></div>` : ''}
 
   <hr class="divider" />
 
   <div class="code-block">
     <div class="code-label">Claim Code</div>
-    <div class="code">${claimCode}</div>
+    <div class="code">${safeCode}</div>
     ${fulfilledAt ? '<div class="badge">✓ Gift Fulfilled</div>' : ''}
   </div>
 

@@ -259,7 +259,7 @@ async function writeTransactionEvent(
   const { data: ledgerRow, error: ledgerError } = await supabase
     .from("transaction_events")
     .insert({
-      voucher_id: voucherId,
+      transaction_id: voucherId,
       event_type: "WEBHOOK_RECEIVED",
       payload: rawBody,
       created_at: new Date().toISOString(),
@@ -332,7 +332,6 @@ async function promoteVoucherPayoutStatus(
     .from("transactions")
     .update({
       status: "SUCCESSFUL",
-      gateway_tx_ref: flutterwaveTransactionId.toString(),
     })
     .eq("transaction_id", transactionId)
     .eq("status", "GATEWAY_PROCESSING")
@@ -351,14 +350,14 @@ async function promoteVoucherPayoutStatus(
     return false;
   }
 
-  // Step 3: Update all child shop_orders to PENDING
+  // Step 3: Update all child shop_orders to PENDING (redeemable)
   const { error: orderError } = await supabase
     .from("shop_orders")
     .update({
-      status: "PENDING",
+      claim_status: "PENDING",
     })
     .eq("transaction_id", transactionId)
-    .eq("status", "PENDING_PAYMENT");
+    .eq("claim_status", "PENDING_PAYMENT");
 
   if (orderError) {
     console.error(
@@ -431,23 +430,26 @@ async function handleFlutterwaveWebhook(req: Request): Promise<Response> {
       `[flutterwave-webhook] Successful charge detected | voucher_id=${voucherId} | flw_txn_id=${data.id}`,
     );
 
-    const promoted = await promoteVoucherPayoutStatus(
-      supabase,
-      voucherId,
-      data.id,
-      data.flw_ref,
-      data.amount,
-      data.currency,
+    const idempotencyKey = `${voucherId}:${data.id}`;
+    const { data: confirmResult, error: confirmError } = await supabase.rpc(
+      "confirm_payment_atomic",
+      {
+        p_transaction_id: voucherId,
+        p_paid_amount: data.amount,
+        p_paid_currency: data.currency,
+        p_payload: rawBody,
+        p_idempotency_key: idempotencyKey,
+      },
     );
 
-    if (!promoted) {
-      // Log at WARN level. The ledger row is already committed. We still
-      // respond 200 so Flutterwave does not retry — retrying would only
-      // write a duplicate ledger row (which would reveal the issue) and
-      // attempt the same no-op UPDATE again. This is the correct trade-off.
+    if (confirmError) {
       console.warn(
-        `[flutterwave-webhook] Voucher '${voucherId}' payout_status was NOT updated (see above). ` +
-          "Ledger row is committed. Returning 200 to suppress retries.",
+        `[flutterwave-webhook] confirm_payment_atomic failed for '${voucherId}':`,
+        confirmError.message,
+      );
+    } else {
+      console.log(
+        `[flutterwave-webhook] Payment confirmed | transaction_id=${voucherId} | result=${JSON.stringify(confirmResult)}`,
       );
     }
   } else {

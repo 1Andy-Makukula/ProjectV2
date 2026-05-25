@@ -1,4 +1,5 @@
 import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
+import { redactPhone, verifyUssdGateway } from "../_shared/ussd-auth.ts";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -86,45 +87,54 @@ function getAdminClient() {
 // Core Handler
 // ---------------------------------------------------------------------------
 
-async function handleUssdRequest(req: Request): Promise<Response> {
-  // --- 1. Parse gateway payload ---
-  //
-  // Gateways like Africa's Talking usually send application/x-www-form-urlencoded,
-  // but some custom SMPP gateways send JSON. We gracefully handle both.
-  let phoneNumber: string | null = null;
-  let text: string | null = null;
-
-  const contentType = req.headers.get("content-type") || "";
-
+function parseUssdPayload(
+  rawBody: string,
+  contentType: string,
+): { phoneNumber: string | null; text: string | null } {
   try {
     if (contentType.includes("application/json")) {
-      const body = await req.json();
-      phoneNumber = body.phoneNumber || body.msisdn || body.sender;
-      text = body.text || body.ussdString || body.message;
-    } else {
-      const formData = await req.formData();
-      phoneNumber = formData.get("phoneNumber") as string || formData.get("msisdn") as string;
-      text = formData.get("text") as string || formData.get("ussdString") as string;
+      const body = JSON.parse(rawBody) as Record<string, unknown>;
+      return {
+        phoneNumber: String(body.phoneNumber ?? body.msisdn ?? body.sender ?? ""),
+        text: String(body.text ?? body.ussdString ?? body.message ?? ""),
+      };
     }
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Unknown parse error";
-    console.error("[ussd-gateway] Failed to parse request body:", msg);
-    return ussdResponse("END DECLINED: Invalid payload format", 400);
+    const params = new URLSearchParams(rawBody);
+    return {
+      phoneNumber: params.get("phoneNumber") ?? params.get("msisdn") ?? "",
+      text: params.get("text") ?? params.get("ussdString") ?? "",
+    };
+  } catch {
+    return { phoneNumber: null, text: null };
+  }
+}
+
+async function handleUssdRequest(req: Request): Promise<Response> {
+  const rawBody = await req.text();
+
+  if (!await verifyUssdGateway(req, rawBody)) {
+    console.error("[ussd-gateway] Gateway authentication failed.");
+    return ussdResponse("END DECLINED: Unauthorized", 401);
   }
 
-  if (!phoneNumber || text === null || text === undefined) {
+  const contentType = req.headers.get("content-type") || "";
+  const { phoneNumber, text } = parseUssdPayload(rawBody, contentType);
+
+  if (!phoneNumber || text === null || text === undefined || text === "") {
     console.error("[ussd-gateway] Missing required fields in payload.");
     return ussdResponse("END DECLINED: Missing parameters", 400);
   }
 
   const normalisedPhone = phoneNumber.trim();
-  
-  console.log(`[ussd-gateway] Received USSD request | phone=${normalisedPhone} | text=${text}`);
+
+  console.log(
+    `[ussd-gateway] USSD request | phone=${redactPhone(normalisedPhone)} | text_len=${text.length}`,
+  );
 
   // --- 2. Extract claim code ---
   const claimCode = extractClaimCode(text);
   if (!claimCode) {
-    console.error(`[ussd-gateway] Could not extract 8-char claim code from text: '${text}'`);
+    console.error("[ussd-gateway] Could not extract 8-char claim code from USSD text.");
     return ussdResponse("END DECLINED: Invalid gift code format", 400);
   }
 
@@ -193,7 +203,7 @@ async function handleUssdRequest(req: Request): Promise<Response> {
 
       // Log the rejected attempt
       await adminClient.from("transaction_events").insert({
-        voucher_id: "00000000-0000-0000-0000-000000000000",
+        transaction_id: null,
         event_type: "FRAUD_REJECTION",
         payload: JSON.stringify({
           claim_code: claimCode,
@@ -201,9 +211,7 @@ async function handleUssdRequest(req: Request): Promise<Response> {
           merchant_user_id: merchantUserId,
           rejection_reason: rejectionReason,
           terminal_type: "ussd",
-          merchant_phone: normalisedPhone,
         }),
-        created_at: new Date().toISOString(),
       });
 
       // Format plain-text rejection for the handset
@@ -228,17 +236,15 @@ async function handleUssdRequest(req: Request): Promise<Response> {
 
   // Log the successful fulfillment
   await adminClient.from("transaction_events").insert({
-    voucher_id: fulfillResult.voucher_id,
+    transaction_id: fulfillResult.voucher_id,
     event_type: "CLAIM_VERIFIED",
     payload: JSON.stringify({
       terminal_type: "ussd",
-      merchant_phone: normalisedPhone,
       action: "ussd_scan",
       merchant_user_id: merchantUserId,
       shop_id: shopId,
       claim_code: claimCode,
     }),
-    created_at: new Date().toISOString(),
   });
 
   // Render the plain-text approval for the handset

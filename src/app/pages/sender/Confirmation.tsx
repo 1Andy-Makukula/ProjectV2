@@ -1,426 +1,539 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
+import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../../../lib/supabaseClient';
+import { useAuth } from '../../../utils/auth/AuthContext';
 import { formatCurrency } from '../../../utils/currency';
-import { createWhatsAppShareLink, getGiftPageUrl } from '../../../utils/whatsapp';
-import { QRCodeDisplay } from '../../components/shared/QRCodeDisplay';
+import { getGiftPageUrl } from '../../../utils/whatsapp';
 import { Button } from '../../components/ui/button';
-import { Card, CardContent } from '../../components/ui/card';
-import { Gift, Share2, Copy, ArrowRight, Check, Download } from 'lucide-react';
-import { motion } from 'motion/react';
-// @ts-expect-error - canvas-confetti lacks local types until pnpm install runs
-import confetti from 'canvas-confetti';
+import { toast } from 'sonner';
+import {
+  CheckCircle2,
+  Copy,
+  ExternalLink,
+  Loader2,
+  Package,
+  Gift,
+  MapPin,
+  ArrowRight,
+  MessageSquare,
+} from 'lucide-react';
 
-interface Order {
-  id: string;
-  code: string;
-  recipient_name: string;
-  amount: number;
-  currency: string;
-  status: string;
-  created_at: string;
-  flutterwave_tx_ref: string | null;
-  flutterwave_transaction_id: string | null;
-  sender: {
-    name: string;
-  };
-  item: {
-    name: string;
-    image_url: string | null;
-  };
+// ---------------------------------------------------------------------------
+// V2 Schema Types
+// ---------------------------------------------------------------------------
+
+interface ShopOrderConfirm {
+  shop_order_id: string;
+  claim_code: string;
+  claim_status: string; // PENDING_PAYMENT | PENDING | REDEEMED
+  recipient_name: string | null;
+  message: string | null;
   shop: {
+    id: string;
     name: string;
-  };
+    location: string | null;
+  } | null;
+  order_items: Array<{
+    item: {
+      id: string;
+      name: string;
+      description: string | null;
+      image_url: string | null;
+    } | null;
+  }>;
 }
 
-export function Confirmation() {
-  const { orderId } = useParams<{ orderId: string }>();
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const [order, setOrder] = useState<Order | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
-  const confettiTriggered = useRef(false);
-  const fulfilledConfettiTriggered = useRef(false);
+interface TransactionConfirm {
+  transaction_id: string;
+  buyer_id: string;
+  total_amount: number;
+  status: string;         // GATEWAY_PROCESSING | SUCCESSFUL | FAILED
+  gateway_tx_ref: string | null;
+  created_at: string;
+  shop_orders: ShopOrderConfirm[];
+}
+
+// ---------------------------------------------------------------------------
+// Payment status polling hook
+// ---------------------------------------------------------------------------
+
+function usePaymentConfirmation(transactionId: string | null, txRef: string | null) {
+  const [transaction, setTransaction] = useState<TransactionConfirm | null>(null);
+  const [pollingStatus, setPollingStatus] = useState<
+    'idle' | 'polling' | 'confirmed' | 'failed'
+  >('idle');
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const attemptsRef = useRef(0);
+  const MAX_ATTEMPTS = 20;
+
+  const fetchTransaction = async (id: string): Promise<TransactionConfirm | null> => {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select(`
+        transaction_id,
+        buyer_id,
+        total_amount,
+        status,
+        gateway_tx_ref,
+        created_at,
+        shop_orders (
+          shop_order_id,
+          claim_code,
+          claim_status,
+          recipient_name,
+          message,
+          shop:shop_id (id, name, location),
+          order_items (
+            item:item_id (id, name, description, image_url)
+          )
+        )
+      `)
+      .eq('transaction_id', id)
+      .single();
+
+    if (error) {
+      console.error('[Confirmation] fetch error:', error);
+      return null;
+    }
+
+    return data as unknown as TransactionConfirm;
+  };
 
   useEffect(() => {
-    if (!orderId) return;
-    fetchOrder();
+    if (!transactionId) return;
 
-    const channel = supabase
-      .channel(`order-confirmation-${orderId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'orders',
-          filter: `id=eq.${orderId}`,
-        },
-        (payload: any) => {
-          setOrder((prev) => {
-            if (!prev) return prev;
-            if (prev.status !== 'fulfilled' && payload.new.status === 'fulfilled') {
-              if (!fulfilledConfettiTriggered.current) {
-                fulfilledConfettiTriggered.current = true;
-                triggerConfetti();
-              }
-            }
-            return { ...prev, ...payload.new } as any;
-          });
+    setPollingStatus('polling');
+    attemptsRef.current = 0;
+
+    const poll = async () => {
+      attemptsRef.current += 1;
+      const txn = await fetchTransaction(transactionId);
+
+      if (!txn) {
+        if (attemptsRef.current >= MAX_ATTEMPTS) {
+          clearInterval(pollingRef.current!);
+          setPollingStatus('failed');
         }
-      )
-      .subscribe();
+        return;
+      }
+
+      setTransaction(txn);
+
+      if (txn.status === 'SUCCESSFUL') {
+        clearInterval(pollingRef.current!);
+        setPollingStatus('confirmed');
+        return;
+      }
+
+      if (txn.status === 'FAILED' || txn.status === 'CANCELLED') {
+        clearInterval(pollingRef.current!);
+        setPollingStatus('failed');
+        return;
+      }
+
+      if (attemptsRef.current >= MAX_ATTEMPTS) {
+        clearInterval(pollingRef.current!);
+        setPollingStatus('failed');
+      }
+    };
+
+    // Kick off immediately, then poll every 3 seconds
+    poll();
+    pollingRef.current = setInterval(poll, 3000);
 
     return () => {
-      supabase.removeChannel(channel);
+      if (pollingRef.current) clearInterval(pollingRef.current);
     };
-  }, [orderId]);
+  }, [transactionId]);
 
-  useEffect(() => {
-    if (order && !confettiTriggered.current) {
-      confettiTriggered.current = true;
-      triggerConfetti();
-    }
-  }, [order]);
+  const verifyManually = async () => {
+    if (!txRef) return;
 
-  const fetchOrder = async () => {
-    if (!orderId) return;
+    setPollingStatus('polling');
 
     try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`
-          id,
-          code,
-          recipient_name,
-          amount,
-          currency,
-          status,
-          created_at,
-          flutterwave_tx_ref,
-          flutterwave_transaction_id,
-          sender:sender_id (name),
-          item:item_id (name, image_url),
-          shop:shop_id (name)
-        `)
-        .eq('id', orderId)
-        .single();
+      const { data, error } = await supabase.functions.invoke('server', {
+        body: { action: 'verify_payment', txRef },
+      });
 
       if (error) throw error;
-      
-      const orderData = data as unknown as Order;
-      
-      if (orderData.status === 'pending_payment' && (searchParams.get('status') === 'successful' || searchParams.get('status') === 'completed')) {
-        await supabase.functions.invoke('server', {
-          body: { action: 'verify_payment', txRef: orderData.flutterwave_tx_ref }
-        });
-        
-        const { data: newData, error: newError } = await supabase
-          .from('orders')
-          .select(`
-            id,
-            code,
-            recipient_name,
-            amount,
-            currency,
-            status,
-            created_at,
-            flutterwave_tx_ref,
-            flutterwave_transaction_id,
-            sender:sender_id (name),
-            item:item_id (name, image_url),
-            shop:shop_id (name)
-          `)
-          .eq('id', orderId)
-          .single();
-          
-        if (!newError) {
-          setOrder(newData as unknown as Order);
-          return;
-        }
+      if (data?.success && transactionId) {
+        const txn = await fetchTransaction(transactionId);
+        if (txn) setTransaction(txn);
+        setPollingStatus('confirmed');
+      } else {
+        setPollingStatus('failed');
       }
-
-      setOrder(orderData);
-    } catch (error) {
-      console.error('Error fetching order:', error);
-    } finally {
-      setLoading(false);
+    } catch (err: any) {
+      console.error('[Confirmation] verify error:', err);
+      toast.error(err.message || 'Verification failed');
+      setPollingStatus('failed');
     }
   };
 
-  const triggerConfetti = () => {
-    const duration = 3000;
-    const animationEnd = Date.now() + duration;
-    const defaults = {
-      startVelocity: 30,
-      spread: 360,
-      ticks: 60,
-      zIndex: 0,
-      colors: ['#22c55e', '#16a34a', '#FFD700', '#FFA500'],
-    };
+  return { transaction, pollingStatus, verifyManually };
+}
 
-    const interval: any = setInterval(() => {
-      const timeLeft = animationEnd - Date.now();
+// ---------------------------------------------------------------------------
+// Sub-views
+// ---------------------------------------------------------------------------
 
-      if (timeLeft <= 0) {
-        return clearInterval(interval);
+function PollingView({ attempt, max }: { attempt: number; max: number }) {
+  const progress = Math.min((attempt / max) * 100, 100);
+  return (
+    <div className="flex flex-col items-center gap-10 text-center">
+      <div className="relative flex items-center justify-center" aria-hidden>
+        <motion.span
+          className="absolute h-28 w-28 rounded-full border border-orange-100"
+          animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.1, 0.4] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.span
+          className="absolute h-20 w-20 rounded-full border border-orange-200"
+          animate={{ scale: [1, 1.1, 1], opacity: [0.6, 0.2, 0.6] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+        />
+        <motion.span
+          className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-primary-light shadow-md"
+          animate={{ scale: [1, 0.9, 1] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.15 }}
+        />
+      </div>
+      <div>
+        <h1 className="text-2xl font-semibold text-slate-900">Verifying your payment</h1>
+        <p className="mt-2 max-w-xs text-sm text-slate-500">
+          Your payment is being confirmed by the network. This usually takes a few seconds.
+        </p>
+      </div>
+      <div className="w-full max-w-xs">
+        <div className="mb-1.5 flex justify-between text-xs text-slate-400">
+          <span>Check {attempt} of {max}</span>
+          <span>{Math.round(progress)}%</span>
+        </div>
+        <div className="h-px w-full overflow-hidden rounded-full bg-slate-100">
+          <motion.div
+            className="h-full bg-primary"
+            initial={{ width: '0%' }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm; onDone: () => void }) {
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success(`${label} copied`);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.45 }}
+      className="flex w-full flex-col items-center gap-8"
+    >
+      {/* Confirmation mark */}
+      <motion.div
+        initial={{ scale: 0.7, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="flex h-20 w-20 items-center justify-center rounded-full border border-green-200 bg-green-50"
+      >
+        <CheckCircle2 className="h-10 w-10 text-green-500" strokeWidth={1.5} />
+      </motion.div>
+
+      <div className="text-center">
+        <h1 className="text-2xl font-semibold text-slate-900">Gift Secured!</h1>
+        <p className="mt-2 max-w-sm text-sm text-slate-500">
+          Your payment of{' '}
+          <span className="font-semibold text-primary">
+            {formatCurrency(transaction.total_amount, 'ZMW')}
+          </span>{' '}
+          is held in escrow. Share the claim code with your recipient.
+        </p>
+      </div>
+
+      {transaction.shop_orders.map((shopOrder, idx) => {
+        const firstItem = shopOrder.order_items?.[0]?.item;
+        const giftUrl = getGiftPageUrl(shopOrder.claim_code);
+
+        return (
+          <motion.div
+            key={shopOrder.shop_order_id}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 + idx * 0.1 }}
+            className="w-full overflow-hidden rounded-2xl border border-slate-100 bg-slate-50"
+          >
+            {/* Product row */}
+            <div className="flex items-center gap-3 border-b border-slate-100 p-4">
+              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-slate-200">
+                {firstItem?.image_url ? (
+                  <img src={firstItem.image_url} alt={firstItem.name ?? ''} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center">
+                    <Package className="h-6 w-6 text-slate-400" />
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-slate-900 truncate">{firstItem?.name ?? 'Gift item'}</p>
+                {shopOrder.shop && (
+                  <div className="mt-0.5 flex items-center gap-1 text-xs text-slate-500">
+                    <MapPin className="h-3 w-3" />
+                    {shopOrder.shop.name}
+                    {shopOrder.shop.location && ` · ${shopOrder.shop.location}`}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Claim code */}
+            <div className="px-4 py-4">
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Claim Code
+              </p>
+              <div className="flex items-center justify-between rounded-xl border border-orange-200 bg-white px-4 py-3">
+                <span className="font-mono text-2xl font-bold tracking-[0.3em] text-primary">
+                  {shopOrder.claim_code}
+                </span>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => copyToClipboard(shopOrder.claim_code, 'Claim code')}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => window.open(giftUrl, '_blank')}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Recipient info */}
+            {(shopOrder.recipient_name || shopOrder.message) && (
+              <div className="border-t border-slate-100 px-4 py-3 space-y-1">
+                {shopOrder.recipient_name && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Gift className="h-3.5 w-3.5 text-primary" />
+                    <span className="text-slate-600">For <span className="font-medium">{shopOrder.recipient_name}</span></span>
+                  </div>
+                )}
+                {shopOrder.message && (
+                  <div className="flex items-start gap-2 text-sm">
+                    <MessageSquare className="h-3.5 w-3.5 text-primary mt-0.5" />
+                    <span className="text-slate-500 italic">"{shopOrder.message}"</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </motion.div>
+        );
+      })}
+
+      <Button
+        onClick={onDone}
+        className="w-full max-w-xs rounded-xl bg-slate-900 py-5 font-medium text-white hover:bg-slate-800"
+      >
+        View All Orders
+        <ArrowRight className="ml-2 h-4 w-4" />
+      </Button>
+    </motion.div>
+  );
+}
+
+function FailedView({ onVerify, verifying }: { onVerify: () => void; verifying: boolean }) {
+  return (
+    <div className="flex flex-col items-center gap-8 text-center">
+      <div className="flex h-20 w-20 items-center justify-center rounded-full border border-amber-200 bg-amber-50">
+        <Loader2 className="h-9 w-9 text-amber-500" />
+      </div>
+      <div>
+        <h1 className="text-2xl font-semibold text-slate-900">Verification Delayed</h1>
+        <p className="mt-2 max-w-sm text-sm text-slate-500">
+          Our system is taking longer than usual to confirm your payment. If you were charged,
+          your gift code will appear after manual verification.
+        </p>
+      </div>
+      <div className="flex w-full max-w-xs flex-col gap-3">
+        <Button
+          onClick={onVerify}
+          disabled={verifying}
+          className="w-full rounded-xl bg-slate-900 py-5 font-medium text-white hover:bg-slate-800"
+        >
+          {verifying ? (
+            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Checking...</>
+          ) : 'Check Payment Status'}
+        </Button>
+        <Button
+          variant="ghost"
+          className="w-full text-slate-500 hover:text-slate-700"
+          onClick={() => window.open('mailto:support@kithly.com', '_blank')}
+        >
+          Contact Support
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Root component
+// ---------------------------------------------------------------------------
+
+export function Confirmation() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { profile } = useAuth();
+
+  // V2: The Flutterwave redirect appends tx_ref (our transaction_id) to the URL.
+  // Per the agreed design, transaction_id IS the gateway_tx_ref (KITHLY-{ts}-{suffix}).
+  // We also accept it as the route param if present in the query string.
+  const txRef = searchParams.get('tx_ref') || searchParams.get('transaction_id');
+
+  const [transactionId, setTransactionId] = useState<string | null>(null);
+  const [resolving, setResolving] = useState(true);
+
+  // Resolve the transaction_id from the tx_ref (gateway reference)
+  useEffect(() => {
+    if (!txRef) {
+      setResolving(false);
+      return;
+    }
+
+    const resolveTransaction = async () => {
+      const isUuid =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(txRef);
+
+      if (isUuid) {
+        setTransactionId(txRef);
+        setResolving(false);
+        return;
       }
 
-      const particleCount = 50 * (timeLeft / duration);
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('transaction_id')
+        .eq('gateway_tx_ref', txRef)
+        .single();
 
-      confetti({
-        ...defaults,
-        particleCount,
-        origin: { x: Math.random(), y: Math.random() - 0.2 },
-      });
-    }, 250);
-  };
+      if (error || !data) {
+        console.error('[Confirmation] could not resolve transaction from tx_ref:', txRef, error);
+        toast.error('Could not find your transaction. Please contact support.');
+        navigate('/orders');
+        return;
+      }
 
-  const handleCopyLink = async () => {
-    if (!order) return;
-    const giftUrl = getGiftPageUrl(order.code);
-    await navigator.clipboard.writeText(giftUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+      setTransactionId(data.transaction_id);
+      setResolving(false);
+    };
 
-  const handleWhatsAppShare = () => {
-    if (!order) return;
-    const giftUrl = getGiftPageUrl(order.code);
-    const whatsappUrl = createWhatsAppShareLink(
-      order.recipient_name,
-      order.sender?.name || 'Someone',
-      order.shop?.name || 'KithLy',
-      giftUrl
-    );
-    window.open(whatsappUrl, '_blank');
-  };
+    resolveTransaction();
+  }, [txRef]);
 
-  const handleDownloadReceipt = () => {
-    if (!order) return;
+  const [attemptCount, setAttemptCount] = useState(0);
+  const MAX_ATTEMPTS = 20;
 
-    // @ts-expect-error - jspdf types missing until pnpm install
-    import('jspdf').then(({ jsPDF }) => {
-      const doc = new jsPDF();
-      
-      // Header
-      doc.setFontSize(24);
-      doc.setTextColor(249, 115, 22); // KithLy Orange
-      doc.text('KithLy', 20, 30);
-      
-      doc.setFontSize(12);
-      doc.setTextColor(100);
-      doc.text('Official Gift Receipt', 20, 40);
-      
-      // Order Details
-      doc.setTextColor(0);
-      doc.text(`Date: ${new Date(order.created_at).toLocaleDateString()}`, 20, 60);
-      doc.text(`Recipient: ${order.recipient_name}`, 20, 70);
-      doc.text(`Merchant: ${order.shop?.name || 'KithLy Merchant'}`, 20, 80);
-      
-      // Item
-      doc.setFontSize(14);
-      doc.text('Item Details', 20, 100);
-      doc.setFontSize(12);
-      doc.text(`Item: ${order.item?.name || 'Gift'}`, 20, 110);
-      doc.text(`Amount: ${formatCurrency(order.amount, order.currency)}`, 20, 120);
-      
-      // Proof of Payment
-      doc.setFontSize(14);
-      doc.text('Proof of Payment', 20, 140);
-      doc.setFontSize(10);
-      doc.setTextColor(80);
-      doc.text(`Transaction Ref: ${order.flutterwave_tx_ref || 'N/A'}`, 20, 150);
-      doc.text(`Flutterwave ID: ${order.flutterwave_transaction_id || 'N/A'}`, 20, 160);
-      
-      // Footer Escrow Terms
-      doc.setFontSize(10);
-      doc.setTextColor(150);
-      doc.text('Payment is securely held in escrow until the recipient collects the gift.', 105, 280, { align: 'center' });
-      
-      doc.save(`KithLy_Receipt_${order.code}.pdf`);
-    });
-  };
+  const { transaction, pollingStatus, verifyManually } = usePaymentConfirmation(
+    transactionId,
+    txRef,
+  );
 
-  if (loading) {
+  // Increment display counter while polling
+  useEffect(() => {
+    if (pollingStatus !== 'polling') return;
+    const timer = setInterval(() => {
+      setAttemptCount((n) => Math.min(n + 1, MAX_ATTEMPTS));
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [pollingStatus]);
+
+  if (resolving) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-primary" />
       </div>
     );
   }
 
-  if (!order) {
+  if (!txRef) {
     return (
-      <div className="flex items-center justify-center min-h-screen px-6">
-        <div className="text-center max-w-md">
-          <h2 className="text-2xl font-medium mb-2">Order Not Found</h2>
-          <p className="text-muted-foreground mb-6">
-            This order doesn't exist or may have been removed.
+      <div className="flex min-h-screen items-center justify-center px-6">
+        <div className="text-center max-w-sm">
+          <h2 className="mb-2 text-xl font-semibold">Invalid confirmation link</h2>
+          <p className="mb-6 text-sm text-muted-foreground">
+            We couldn't identify your transaction. Please go to your orders to check the status.
           </p>
-          <Button onClick={() => navigate('/home')}>Back to Home</Button>
+          <Button onClick={() => navigate('/orders')}>View Orders</Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 flex items-center justify-center px-6 py-12">
-      <div className="max-w-2xl w-full">
-        {/* Success Icon with fade-in animation */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 1, duration: 0.5, type: 'spring' }}
-          className="text-center mb-8"
-        >
-          <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-lg">
-            <Gift className="w-12 h-12 text-white" />
-          </div>
-        </motion.div>
+    <div className="relative flex min-h-screen w-full flex-col items-center justify-center bg-white px-6 py-12">
+      {/* KithLy wordmark */}
+      <motion.div
+        className="absolute top-8 left-1/2 -translate-x-1/2"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
+        <span className="text-xs font-medium tracking-[0.28em] text-slate-300 uppercase">KithLy</span>
+      </motion.div>
 
-        {/* Heading */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.3 }}
-          className="text-center mb-8"
-        >
-          <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-primary to-amber-600 bg-clip-text text-transparent">
-            Gift sent successfully!
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            {order.recipient_name} will love this
-          </p>
-        </motion.div>
-
-        {/* Summary Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.5 }}
-        >
-          <Card className="mb-6 overflow-hidden shadow-xl border-2">
-            <CardContent className="p-6">
-              <div className="flex gap-4 items-start mb-6">
-                {order.item?.image_url && (
-                  <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
-                    <img
-                      src={order.item.image_url}
-                      alt={order.item.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-1">{order.item?.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-1">
-                    from {order.shop?.name}
-                  </p>
-                  <p className="text-lg font-bold text-primary">
-                    {formatCurrency(order.amount, order.currency)}
-                  </p>
-                </div>
-              </div>
-
-              {/* Code Display */}
-              {order.status === 'fulfilled' ? (
-                <motion.div
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="bg-green-50 rounded-xl p-6 text-center border-2 border-green-200"
-                >
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Check className="w-8 h-8 text-green-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-green-800 mb-2">Gift Collected!</h3>
-                  <p className="text-green-600">
-                    {order.recipient_name} has successfully received this gift.
-                  </p>
-                </motion.div>
-              ) : (
-                <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-6 text-center border-2 border-primary/20">
-                  <p className="text-sm text-muted-foreground mb-2">Gift Code</p>
-                  <div className="flex justify-center mb-4">
-                    <QRCodeDisplay value={order.code} size={150} />
-                  </div>
-                  <p className="text-4xl font-mono font-bold tracking-widest text-primary">
-                    {order.code}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Share this code with {order.recipient_name}
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Action Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.7 }}
-          className="space-y-3 mb-6"
-        >
-          <Button
-            onClick={handleWhatsAppShare}
-            className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-6 text-lg"
-            size="lg"
-          >
-            <Share2 className="w-5 h-5 mr-2" />
-            Share via WhatsApp
-          </Button>
-
-          <Button
-            onClick={handleCopyLink}
-            variant="outline"
-            className="w-full py-6 text-lg"
-            size="lg"
-          >
-            {copied ? (
-              <>
-                <Check className="w-5 h-5 mr-2" />
-                Link Copied!
-              </>
-            ) : (
-              <>
-                <Copy className="w-5 h-5 mr-2" />
-                Copy Gift Link
-              </>
-            )}
-          </Button>
-
-          {(order.status === 'paid' || order.status === 'fulfilled') && (
-            <Button
-              onClick={handleDownloadReceipt}
-              variant="outline"
-              className="w-full py-6 text-lg border-[#F97316] text-[#F97316] hover:bg-orange-50 transition-colors"
-              size="lg"
+      <div className="w-full max-w-md py-12">
+        <AnimatePresence mode="wait">
+          {(pollingStatus === 'idle' || pollingStatus === 'polling') && (
+            <motion.div
+              key="polling"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
             >
-              <Download className="w-5 h-5 mr-2" />
-              Download Official Receipt
-            </Button>
+              <PollingView attempt={attemptCount} max={MAX_ATTEMPTS} />
+            </motion.div>
           )}
-        </motion.div>
 
-        {/* View Orders Link */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.9 }}
-          className="text-center"
-        >
-          <Button
-            variant="link"
-            onClick={() => navigate('/orders')}
-            className="text-primary hover:text-primary/80"
-          >
-            View My Orders
-            <ArrowRight className="w-4 h-4 ml-1" />
-          </Button>
-        </motion.div>
+          {pollingStatus === 'confirmed' && transaction && (
+            <motion.div key="success" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <SuccessView
+                transaction={transaction}
+                onDone={() => navigate('/orders')}
+              />
+            </motion.div>
+          )}
+
+          {pollingStatus === 'failed' && (
+            <motion.div key="failed" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <FailedView
+                onVerify={verifyManually}
+                verifying={pollingStatus === 'polling'}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Escrow footer */}
+      <div className="absolute bottom-6 flex items-center gap-1.5">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.25"
+          strokeLinecap="round" strokeLinejoin="round"
+          className="h-3.5 w-3.5 text-slate-300" aria-hidden>
+          <rect x="3" y="7" width="10" height="8" rx="1.5" />
+          <path d="M5 7V5a3 3 0 0 1 6 0v2" />
+        </svg>
+        <span className="text-xs text-slate-400">Escrow-protected transaction</span>
       </div>
     </div>
   );

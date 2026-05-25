@@ -21,6 +21,8 @@ import {
 } from '../../components/ui/alert-dialog';
 import { supabase } from '../../../lib/supabaseClient';
 import { formatCurrency, toCents } from '../../../utils/currency';
+import { uploadItemImage } from '../../../utils/uploadImage';
+import { validateImageFile } from '../../../lib/uploadValidation';
 import { toast } from 'sonner';
 
 interface ItemFormData {
@@ -105,6 +107,12 @@ export function AdminItemForm() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const check = validateImageFile(file);
+      if (!check.ok) {
+        toast.error(check.reason);
+        e.target.value = '';
+        return;
+      }
       setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -116,27 +124,18 @@ export function AdminItemForm() {
 
   const uploadImage = async (): Promise<string> => {
     if (!imageFile) return formData.image_url;
+    if (!actualShopId) {
+      throw new Error('Shop context is required before uploading an image.');
+    }
 
     setUploading(true);
     try {
-      const fileExt = imageFile.name.split('.').pop();
-      const fileName = `item-${Date.now()}.${fileExt}`;
-      const filePath = `items/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('kithly-images')
-        .upload(filePath, imageFile);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('kithly-images')
-        .getPublicUrl(filePath);
-
+      const { publicUrl } = await uploadItemImage(imageFile, actualShopId);
       return publicUrl;
-    } catch (error: any) {
-      console.error('Error uploading image:', error);
-      toast.error('Failed to upload image');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Upload failed';
+      console.error('Error uploading image:', message);
+      toast.error(message);
       throw error;
     } finally {
       setUploading(false);
@@ -338,7 +337,7 @@ export function AdminItemForm() {
                   <Input
                     id="image"
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
                     onChange={handleImageChange}
                     className="flex-1"
                   />

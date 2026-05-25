@@ -1,47 +1,20 @@
-// KithLy Routes - React Router Configuration
+// KithLy Routes - React Router Configuration (route-level code splitting)
 
+import { lazy, Suspense, type ComponentType, type ReactNode } from 'react';
 import { createBrowserRouter } from 'react-router';
 import { Root } from './layouts/Root';
 import { ProtectedRoute } from '../components/ProtectedRoute';
+import { Navigate } from 'react-router';
 
-// Public Pages
+// Eager: auth surfaces + payment return path (low latency)
 import { ConsumerStorefront } from './pages/ConsumerStorefront';
 import { SignUp } from './pages/public/SignUp';
 import { Login } from './pages/public/Login';
 import { GiftPage } from './pages/public/GiftPage';
-
-// Sender Pages
-import { Home } from './pages/sender/Home';
-import { ShopDetail } from './pages/sender/ShopDetail';
-import { SendFlow } from './pages/sender/SendFlow';
-import { Navigate } from 'react-router';
 import { Confirmation } from './pages/sender/Confirmation';
-import { OrderDashboard } from './pages/sender/OrderDashboard';
-import { OrderDetail } from './pages/sender/OrderDetail';
-import { Settings } from './pages/sender/Settings';
-import { CustomerDashboard } from './pages/sender/CustomerDashboard';
-import { DashboardHub } from './pages/sender/DashboardHub';
 import { Checkout } from './pages/Checkout';
-
-// Merchant Pages
-import { MerchantDashboard } from './pages/merchant/MerchantDashboard';
-import { MerchantFulfill } from './pages/merchant/MerchantFulfill';
-import { MerchantOnboarding } from './pages/MerchantOnboarding';
-
-// Admin Pages
-import { AdminDashboard } from './pages/admin/AdminDashboard';
-import { AdminMerchandising } from './pages/admin/AdminMerchandising';
-import { AdminShops } from './pages/admin/AdminShops';
-import { AdminShopForm } from './pages/admin/AdminShopForm';
-import { AdminItems } from './pages/admin/AdminItems';
-import { AdminItemForm } from './pages/admin/AdminItemForm';
-import { AdminMerchants } from './pages/admin/AdminMerchants';
-import { AdminOrders } from './pages/admin/AdminOrders';
-import { AdminOrderDetail } from './pages/admin/AdminOrderDetail';
-
+import { DashboardHub } from './pages/sender/DashboardHub';
 import { NotFound } from './pages/NotFound';
-
-// Footer Pages
 import { About } from './pages/About';
 import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
@@ -49,16 +22,55 @@ import { Support } from './pages/Support';
 import { MerchantAgreement } from './pages/MerchantAgreement';
 import { ShopDirectory } from './pages/ShopDirectory';
 
+const lazyPage = <T extends Record<string, ComponentType<unknown>>>(
+  loader: () => Promise<T>,
+  name: keyof T,
+) =>
+  lazy(() =>
+    loader().then((m) => ({
+      default: m[name] as ComponentType<unknown>,
+    })),
+  );
+
+const Home = lazyPage(() => import('./pages/sender/Home'), 'Home');
+const ShopDetail = lazyPage(() => import('./pages/sender/ShopDetail'), 'ShopDetail');
+const SendFlow = lazyPage(() => import('./pages/sender/SendFlow'), 'SendFlow');
+const OrderDashboard = lazyPage(() => import('./pages/sender/OrderDashboard'), 'OrderDashboard');
+const OrderDetail = lazyPage(() => import('./pages/sender/OrderDetail'), 'OrderDetail');
+const Settings = lazyPage(() => import('./pages/sender/Settings'), 'Settings');
+const CustomerDashboard = lazyPage(() => import('./pages/sender/CustomerDashboard'), 'CustomerDashboard');
+const MerchantOnboarding = lazyPage(() => import('./pages/MerchantOnboarding'), 'MerchantOnboarding');
+const MerchantDashboard = lazyPage(() => import('./pages/merchant/MerchantDashboard'), 'MerchantDashboard');
+const MerchantFulfill = lazyPage(() => import('./pages/merchant/MerchantFulfill'), 'MerchantFulfill');
+const AdminDashboard = lazyPage(() => import('./pages/admin/AdminDashboard'), 'AdminDashboard');
+const AdminMerchandising = lazyPage(() => import('./pages/admin/AdminMerchandising'), 'AdminMerchandising');
+const AdminShops = lazyPage(() => import('./pages/admin/AdminShops'), 'AdminShops');
+const AdminShopForm = lazyPage(() => import('./pages/admin/AdminShopForm'), 'AdminShopForm');
+const AdminItems = lazyPage(() => import('./pages/admin/AdminItems'), 'AdminItems');
+const AdminItemForm = lazyPage(() => import('./pages/admin/AdminItemForm'), 'AdminItemForm');
+const AdminMerchants = lazyPage(() => import('./pages/admin/AdminMerchants'), 'AdminMerchants');
+const AdminOrders = lazyPage(() => import('./pages/admin/AdminOrders'), 'AdminOrders');
+const AdminOrderDetail = lazyPage(() => import('./pages/admin/AdminOrderDetail'), 'AdminOrderDetail');
+
+function PageFallback() {
+  return (
+    <div className="flex min-h-[40vh] items-center justify-center">
+      <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+    </div>
+  );
+}
+
+function Lazy({ children }: { children: ReactNode }) {
+  return <Suspense fallback={<PageFallback />}>{children}</Suspense>;
+}
+
 export const router = createBrowserRouter([
   {
     path: '/',
     Component: Root,
     children: [
-      // ── Architectural Boundaries ──────────────────────────────────────
-      // Public consumer surface — unauthenticated marketing, auth-aware redirect
       { index: true, Component: ConsumerStorefront },
 
-      // Protected universal hub — resolves to role-correct dashboard
       {
         path: 'dashboard',
         element: (
@@ -68,7 +80,6 @@ export const router = createBrowserRouter([
         ),
       },
 
-      // Public routes
       { path: 'signup', Component: SignUp },
       { path: 'login', Component: Login },
       { path: 'gift/:code', Component: GiftPage },
@@ -79,122 +90,208 @@ export const router = createBrowserRouter([
       { path: 'merchant-agreement', Component: MerchantAgreement },
       { path: 'shops', Component: ShopDirectory },
 
-      // Sender routes
       {
         path: 'home',
-        element: <ProtectedRoute allowedRoles={['sender']}><Home /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['sender']}>
+            <Lazy><Home /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'shop/:shopId',
-        element: <ProtectedRoute allowedRoles={['sender']}><ShopDetail /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['sender']}>
+            <Lazy><ShopDetail /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'send/:itemId',
-        element: <ProtectedRoute allowedRoles={['sender']}><SendFlow /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['sender']}>
+            <Lazy><SendFlow /></Lazy>
+          </ProtectedRoute>
+        ),
       },
-      {
-        // V1 /summary route retired — redirect to V2 /checkout
-        path: 'summary',
-        element: <Navigate to="/checkout" replace />
-      },
+      { path: 'summary', element: <Navigate to="/checkout" replace /> },
       {
         path: 'confirmation/:orderId',
-        element: <ProtectedRoute allowedRoles={['sender']}><Confirmation /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['sender']}>
+            <Confirmation />
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'orders',
-        element: <ProtectedRoute allowedRoles={['sender']}><OrderDashboard /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['sender']}>
+            <Lazy><OrderDashboard /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'orders/:orderId',
-        element: <ProtectedRoute allowedRoles={['sender']}><OrderDetail /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['sender']}>
+            <Lazy><OrderDetail /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'settings',
-        element: <ProtectedRoute allowedRoles={['sender']}><Settings /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['sender']}>
+            <Lazy><Settings /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
-        // Sender impact/generosity analytics dashboard
         path: 'impact',
-        element: <ProtectedRoute allowedRoles={['sender']}><CustomerDashboard /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['sender']}>
+            <Lazy><CustomerDashboard /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
-        // Any authenticated sender can access this to upgrade to merchant
         path: 'become-merchant',
-        element: <ProtectedRoute allowedRoles={['sender']}><MerchantOnboarding /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['sender']}>
+            <Lazy><MerchantOnboarding /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'checkout',
-        element: <ProtectedRoute allowedRoles={['sender']}><Checkout /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['sender']}>
+            <Checkout />
+          </ProtectedRoute>
+        ),
       },
 
-      // Merchant routes
       {
         path: 'merchant',
-        element: <ProtectedRoute allowedRoles={['merchant']}><MerchantDashboard /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['merchant']}>
+            <Lazy><MerchantDashboard /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'merchant/fulfill',
-        element: <ProtectedRoute allowedRoles={['merchant']}><MerchantFulfill /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['merchant']}>
+            <Lazy><MerchantFulfill /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'merchant/items/new',
-        element: <ProtectedRoute allowedRoles={['merchant']}><AdminItemForm /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['merchant']}>
+            <Lazy><AdminItemForm /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'merchant/items/:itemId/edit',
-        element: <ProtectedRoute allowedRoles={['merchant']}><AdminItemForm /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['merchant']}>
+            <Lazy><AdminItemForm /></Lazy>
+          </ProtectedRoute>
+        ),
       },
 
-      // Admin routes
       {
-        // Admin merchandising hub — shops, items, inventory navigation
         path: 'admin-merch',
         element: (
           <ProtectedRoute allowedRoles={['admin']}>
-            <AdminMerchandising />
+            <Lazy><AdminMerchandising /></Lazy>
           </ProtectedRoute>
         ),
       },
       {
         path: 'admin',
-        element: <ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><AdminDashboard /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'admin/shops',
-        element: <ProtectedRoute allowedRoles={['admin']}><AdminShops /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><AdminShops /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'admin/shops/new',
-        element: <ProtectedRoute allowedRoles={['admin']}><AdminShopForm /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><AdminShopForm /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'admin/shops/:shopId/edit',
-        element: <ProtectedRoute allowedRoles={['admin']}><AdminShopForm /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><AdminShopForm /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'admin/shops/:shopId/items',
-        element: <ProtectedRoute allowedRoles={['admin']}><AdminItems /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><AdminItems /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'admin/shops/:shopId/items/new',
-        element: <ProtectedRoute allowedRoles={['admin']}><AdminItemForm /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><AdminItemForm /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'admin/items/:itemId/edit',
-        element: <ProtectedRoute allowedRoles={['admin']}><AdminItemForm /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><AdminItemForm /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'admin/merchants',
-        element: <ProtectedRoute allowedRoles={['admin']}><AdminMerchants /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><AdminMerchants /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'admin/orders',
-        element: <ProtectedRoute allowedRoles={['admin']}><AdminOrders /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><AdminOrders /></Lazy>
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'admin/orders/:orderId',
-        element: <ProtectedRoute allowedRoles={['admin']}><AdminOrderDetail /></ProtectedRoute>
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><AdminOrderDetail /></Lazy>
+          </ProtectedRoute>
+        ),
       },
 
       { path: '*', Component: NotFound },

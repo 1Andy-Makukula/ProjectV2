@@ -4,9 +4,8 @@
  * Layer B — KithLy Payment Defense Flow
  *
  * Purpose:
- *   Heals dropped webhooks by polling the `transaction_events` table on a
- *   fixed interval until it confirms that Layer A (the Flutterwave webhook
- *   listener) has written a 'WEBHOOK_RECEIVED' event for the given voucherId.
+ *   Heals dropped webhooks by polling the authoritative `transactions` row on a
+ *   fixed interval until `status` becomes `SUCCESSFUL` (set by the webhook).
  *
  * Polling contract:
  *   - Fires every 3 000 ms (POLL_INTERVAL_MS).
@@ -38,8 +37,8 @@ const POLL_INTERVAL_MS = 3_000 as const;
  */
 const MAX_ATTEMPTS = 20 as const;
 
-/** The event_type sentinel value written by the webhook Edge Function. */
-const WEBHOOK_EVENT_TYPE = 'WEBHOOK_RECEIVED' as const;
+/** Terminal status written by the Flutterwave webhook handler. */
+const PAID_STATUS = 'SUCCESSFUL' as const;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -54,7 +53,7 @@ const WEBHOOK_EVENT_TYPE = 'WEBHOOK_RECEIVED' as const;
  *
  *   POLLING  — An interval is active and ticks are being dispatched.
  *
- *   SUCCESS  — A 'WEBHOOK_RECEIVED' event was found in transaction_events.
+ *   SUCCESS  — The transaction reached status SUCCESSFUL.
  *              The interval has been cleared.
  *
  *   TIMEOUT  — MAX_ATTEMPTS ticks elapsed without finding the event.
@@ -72,12 +71,9 @@ export type PaymentVerificationStatus =
   | 'TIMEOUT'
   | 'ERROR';
 
-/**
- * Row shape returned from `transaction_events` — we only select the PK to
- * confirm existence; the full payload stays server-side.
- */
-interface TransactionEventRow {
-  id: string;
+interface TransactionStatusRow {
+  transaction_id: string;
+  status: string;
 }
 
 /** Arguments accepted by the hook. */
@@ -188,9 +184,9 @@ export function usePaymentVerification({
   /**
    * Core poll function — executed on every interval tick.
    *
-   * Queries `transaction_events` for a row that proves the webhook fired:
-   *   voucher_id  = voucherId   (provided to the hook)
-   *   event_type  = 'WEBHOOK_RECEIVED'
+   * Queries `transactions` for payment confirmation:
+   *   transaction_id = voucherId (checkout-init UUID)
+   *   status         = 'SUCCESSFUL'
    *
    * We use `.maybeSingle()` rather than `.single()` so that "no rows found"
    * is returned as `{ data: null, error: null }` instead of throwing an
@@ -218,7 +214,7 @@ export function usePaymentVerification({
         setStatus('TIMEOUT');
       }
       console.warn(
-        `[usePaymentVerification] TIMEOUT: no WEBHOOK_RECEIVED event found for voucher '${currentVoucherId}' after ${maxAttempts} attempts (~${(maxAttempts * intervalMs) / 1_000}s).`,
+        `[usePaymentVerification] TIMEOUT: transaction '${currentVoucherId}' not SUCCESSFUL after ${maxAttempts} attempts (~${(maxAttempts * intervalMs) / 1_000}s).`,
       );
       return;
     }
@@ -228,14 +224,12 @@ export function usePaymentVerification({
     );
 
     // --- DATABASE QUERY ---
-    const { data: eventRow, error: queryError } = await supabase
-      .from('transaction_events')
-      .select('id')
-      .eq('voucher_id', currentVoucherId)
-      .eq('event_type', WEBHOOK_EVENT_TYPE)
-      // We only need to confirm existence — limit to 1 row for efficiency.
-      .limit(1)
-      .maybeSingle<TransactionEventRow>();
+    const { data: txnRow, error: queryError } = await supabase
+      .from('transactions')
+      .select('transaction_id, status')
+      .eq('transaction_id', currentVoucherId)
+      .eq('status', PAID_STATUS)
+      .maybeSingle<TransactionStatusRow>();
 
     // Guard: the component may have unmounted while the query was in flight.
     if (!isMountedRef.current) {
@@ -255,10 +249,10 @@ export function usePaymentVerification({
     }
 
     // --- SUCCESS BRANCH ---
-    if (eventRow !== null) {
+    if (txnRow !== null) {
       clearActiveInterval();
       console.log(
-        `[usePaymentVerification] SUCCESS: WEBHOOK_RECEIVED event found (transaction_event.id=${eventRow.id}) on attempt ${thisAttempt}.`,
+        `[usePaymentVerification] SUCCESS: transaction ${txnRow.transaction_id} is SUCCESSFUL on attempt ${thisAttempt}.`,
       );
       // Fire the callback before updating state so the parent can start its
       // own transition logic (e.g. navigation) before this component re-renders.

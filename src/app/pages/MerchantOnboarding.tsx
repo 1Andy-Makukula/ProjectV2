@@ -14,11 +14,7 @@ import { motion } from 'motion/react';
 // Allows an authenticated "sender" to register their physical shop and
 // upgrade their account role to "merchant" in a single form submission.
 //
-// Three-step Supabase transaction:
-//   1. Update the user's role to 'merchant' in the `users` table.
-//   2. Insert a new row into the `shops` table and capture the new shop ID.
-//   3. Insert a row into the `merchant_shops` junction table to establish
-//      the ownership relationship between the user and the shop.
+// Uses `register_merchant_shop` RPC — atomic role + shop + merchant_shops on the server.
 // ---------------------------------------------------------------------------
 
 export function MerchantOnboarding() {
@@ -76,56 +72,16 @@ export function MerchantOnboarding() {
     setLoading(true);
 
     try {
-      // ── Step 1: Upgrade the user's role to 'merchant' ──────────────────
-      const { error: roleError } = await supabase
-        .from('users')
-        .update({ role: 'merchant' })
-        .eq('id', userId);
+      const { data: result, error: rpcError } = await supabase.rpc('register_merchant_shop', {
+        p_shop_name: businessName.trim(),
+        p_location: location.trim(),
+      });
 
-      if (roleError) throw roleError;
-
-      // ── Step 2: Create the shop and immediately capture its generated ID ─
-      // We use .select().single() so we get back the full row, including `id`.
-      const { data: newShop, error: shopError } = await supabase
-        .from('shops')
-        .insert([
-          {
-            name: businessName.trim(),
-            location: location.trim(),
-            is_active: false, // Admin approval required before going live
-          },
-        ])
-        .select()
-        .single();
-
-      if (shopError) {
-        // Roll back the role change so the user is not stuck in a partial state
-        await supabase
-          .from('users')
-          .update({ role: 'sender' })
-          .eq('id', userId);
-        throw shopError;
+      if (rpcError) throw rpcError;
+      if (!result?.success) {
+        throw new Error('Shop registration failed.');
       }
 
-      // ── Step 3: Establish ownership in the junction table ─────────────
-      // The merchant_shops table links users to the shops they own.
-      const { error: mappingError } = await supabase
-        .from('merchant_shops')
-        .insert([
-          {
-            user_id: userId,
-            shop_id: newShop.id,
-          },
-        ]);
-
-      if (mappingError) {
-        // Both previous steps succeeded but the link failed — roll back both
-        await supabase.from('shops').delete().eq('id', newShop.id);
-        await supabase.from('users').update({ role: 'sender' }).eq('id', userId);
-        throw mappingError;
-      }
-
-      // ── All three steps succeeded ─────────────────────────────────────
       toast.success('Your shop has been submitted for review. You are now a merchant.');
       navigate('/merchant');
     } catch (err: any) {

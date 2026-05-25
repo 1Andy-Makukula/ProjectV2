@@ -1,3 +1,7 @@
+/**
+ * @deprecated V1 claim_vouchers batch sweeper. Use V2 `settle_payout_atomic` instead.
+ * See supabase/LEGACY.md. Do not deploy to new environments.
+ */
 import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
 
 // ---------------------------------------------------------------------------
@@ -500,6 +504,17 @@ async function settleMerchantBatch(
 // ---------------------------------------------------------------------------
 
 async function handleBatchPayoutSweep(req: Request): Promise<Response> {
+  if (Deno.env.get("ENABLE_LEGACY_PAYOUT_SWEEPER") !== "true") {
+    return json(
+      {
+        error: "Legacy V1 batch-payout-sweeper is disabled. Use V2 shop_orders settlement flow.",
+        deprecated: true,
+        docs: "supabase/LEGACY.md",
+      },
+      410,
+    );
+  }
+
   const authError = verifyOptionalSweeperSecret(req);
   if (authError) return authError;
 

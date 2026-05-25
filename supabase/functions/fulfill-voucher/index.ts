@@ -1,4 +1,5 @@
 import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
+import { getCorsHeaders } from "../_shared/cors.ts";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -36,20 +37,14 @@ interface PriceResult {
 // CORS
 // ---------------------------------------------------------------------------
 
-const corsHeaders: HeadersInit = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-function json(data: unknown, status = 200): Response {
+function json(req: Request, data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
   });
 }
 
@@ -113,19 +108,19 @@ function validatePayload(raw: Record<string, unknown>): FulfillVoucherPayload {
 // ---------------------------------------------------------------------------
 
 async function verifyMerchant(
-  req: Request,
+  httpReq: Request,
   shopId: string,
   db: ReturnType<typeof getAdminClient>,
 ): Promise<{ user_id: string } | Response> {
-  const authHeader = req.headers.get("Authorization");
+  const authHeader = httpReq.headers.get("Authorization");
   if (!authHeader?.startsWith("Bearer ")) {
-    return json({ error: "A valid Authorization Bearer token is required." }, 401);
+    return json(httpReq, { error: "A valid Authorization Bearer token is required." }, 401);
   }
 
   const { data: { user }, error: authErr } = await db.auth.getUser(authHeader.split(" ")[1]);
   if (authErr || !user) {
     console.error("[fulfill-voucher] JWT invalid:", authErr?.message);
-    return json({ error: "Unauthorized. Session may have expired." }, 401);
+    return json(httpReq, { error: "Unauthorized. Session may have expired." }, 401);
   }
 
   const { data: assignment, error: assignErr } = await db
@@ -137,43 +132,49 @@ async function verifyMerchant(
 
   if (assignErr) {
     console.error("[fulfill-voucher] Shop assignment lookup failed:", assignErr.message);
-    return json({ error: "Failed to verify shop authorisation." }, 500);
+    return json(httpReq, { error: "Failed to verify shop authorisation." }, 500);
   }
   if (!assignment) {
     console.error(`[fulfill-voucher] DENIED: user=${user.id} not assigned to shop=${shopId}`);
-    return json({ error: "Forbidden. You are not authorised to fulfil orders for this shop." }, 403);
+    return json(httpReq, { error: "Forbidden. You are not authorised to fulfil orders for this shop." }, 403);
   }
 
   return { user_id: user.id };
 }
 
 // ---------------------------------------------------------------------------
-// Step 2 — Fetch & lock shop_order (idempotency guard)
+// Step 2 — Fetch pending shop_order (read-only, before auth)
 // ---------------------------------------------------------------------------
 
-async function fetchAndLockOrder(
+async function fetchPendingOrder(
+  httpReq: Request,
   db: ReturnType<typeof getAdminClient>,
   claimCode: string,
 ): Promise<ShopOrderRow | Response> {
-  // ATOMIC LOCK: Attempt to immediately reserve the row
   const { data: order, error } = await db
     .from("shop_orders")
-    .update({ claim_status: "PROCESSING_FULFILLMENT" })
+    .select("shop_order_id, shop_id, transaction_id, claim_status, subtotal")
     .eq("claim_code", claimCode)
     .eq("claim_status", "PENDING")
-    .select("shop_order_id, shop_id, transaction_id, claim_status, subtotal")
-    .single<ShopOrderRow>();
+    .maybeSingle<ShopOrderRow>();
 
-  if (error || !order) {
-    console.warn(`[fulfill-voucher] Lock failed for claim_code=${claimCode}: ${error?.message || "No matching PENDING row."}`);
-    return json({ error: "Invalid claim code or order is already being processed.", rejection_reason: "Invalid or already processed." }, 403);
+  if (error) {
+    console.error(`[fulfill-voucher] Lookup failed for claim_code=${claimCode}:`, error.message);
+    return json(httpReq, { error: "Failed to look up order." }, 500);
+  }
+  if (!order) {
+    return json(
+      httpReq,
+      { error: "Invalid claim code or order is not ready for fulfillment.", rejection_reason: "Invalid or already processed." },
+      403,
+    );
   }
 
   return order;
 }
 
 // ---------------------------------------------------------------------------
-// Step 3 — Update order_items fulfillment_status
+// Step 3 — Update order_items fulfillment_status (legacy helpers; RPC preferred)
 // ---------------------------------------------------------------------------
 
 async function updateItemStatuses(
@@ -395,11 +396,11 @@ async function handleFulfillVoucher(req: Request): Promise<Response> {
   try {
     raw = await req.json();
   } catch {
-    return json({ error: "Request body must be valid JSON." }, 400);
+    return json(req, { error: "Request body must be valid JSON." }, 400);
   }
 
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
-    return json({ error: "Request body must be a JSON object." }, 400);
+    return json(req, { error: "Request body must be a JSON object." }, 400);
   }
 
   // 2. Validate payload
@@ -407,7 +408,7 @@ async function handleFulfillVoucher(req: Request): Promise<Response> {
   try {
     payload = validatePayload(raw);
   } catch (e: unknown) {
-    return json({ error: e instanceof Error ? e.message : "Invalid payload." }, 400);
+    return json(req, { error: e instanceof Error ? e.message : "Invalid payload." }, 400);
   }
 
   const { claim_code, present_item_ids, missing_item_ids } = payload;
@@ -422,84 +423,42 @@ async function handleFulfillVoucher(req: Request): Promise<Response> {
     db = getAdminClient();
   } catch (e: unknown) {
     console.error(e instanceof Error ? e.message : e);
-    return json({ error: "Server configuration error." }, 500);
+    return json(req, { error: "Server configuration error." }, 500);
   }
 
-  // 4. Fetch & lock order (includes idempotency guard on claim_status)
-  const orderResult = await fetchAndLockOrder(db, claim_code);
-  if (orderResult instanceof Response) return orderResult;
-  const order = orderResult;
+  // 4. Read pending order (no lock yet — prevents unauthenticated DoS)
+  const pendingResult = await fetchPendingOrder(req, db, claim_code);
+  if (pendingResult instanceof Response) return pendingResult;
+  const pendingOrder = pendingResult;
 
   // 5. Verify the caller is a merchant assigned to this order's shop
-  const merchantResult = await verifyMerchant(req, order.shop_id, db);
+  const merchantResult = await verifyMerchant(req, pendingOrder.shop_id, db);
   if (merchantResult instanceof Response) return merchantResult;
   const { user_id: merchantUserId } = merchantResult;
 
-  console.log(`[fulfill-voucher] Merchant verified | user=${merchantUserId} | shop=${order.shop_id}`);
+  console.log(`[fulfill-voucher] Merchant verified | user=${merchantUserId} | shop=${pendingOrder.shop_id}`);
 
-  // 6–10: Execute the financial pipeline inside a try/catch.
-  //       If any step fails, we attempt a graceful rollback.
-  try {
-    // 6. Mark order_items COLLECTED / MISSING
-    await updateItemStatuses(db, order.shop_order_id, present_item_ids, missing_item_ids);
-    console.log(`[fulfill-voucher] Item statuses updated | order=${order.shop_order_id}`);
+  // 6. Atomic financial pipeline (lock + ledger inside Postgres)
+  const { data: fulfillResult, error: fulfillError } = await db.rpc("fulfill_voucher_atomic", {
+    p_claim_code: claim_code,
+    p_present_item_ids: present_item_ids,
+    p_missing_item_ids: missing_item_ids,
+    p_merchant_user_id: merchantUserId,
+  });
 
-    // 7. Compute price split
-    const { present_total, missing_total } = await computePriceSplit(
-      db, order.shop_order_id, present_item_ids, missing_item_ids,
-    );
-    console.log(`[fulfill-voucher] Split | merchant_credit=${present_total} ZMW | sender_refund=${missing_total} ZMW`);
-
-    // 8. Credit merchant payout_ledger (present items)
-    await creditMerchantLedger(db, order.shop_order_id, order.shop_id, present_total, claim_code);
-
-    // 9. Credit sender wallet (missing items digital refund)
-    if (missing_total > 0) {
-      await creditSenderWallet(db, order.transaction_id, order.shop_order_id, missing_total, claim_code);
-    }
-
-    // 10. Finalise shop_order status to FULFILLED
-    await finaliseShopOrder(db, order.shop_order_id, missing_item_ids.length > 0);
-
-    // 11. Immutable audit ledger
-    await writeLedgerEvent(db, order.shop_order_id, merchantUserId, {
-      claim_code,
-      shop_id: order.shop_id,
-      merchant_user_id: merchantUserId,
-      present_item_ids,
-      missing_item_ids,
-      merchant_credit_zmw: present_total,
-      sender_refund_zmw: missing_total,
-      claim_status: missing_item_ids.length > 0 ? "PARTIAL_FULFILLMENT" : "FULFILLED",
-    });
-
-    return json({
-      success: true,
-      claim_status: missing_item_ids.length > 0 ? "PARTIAL_FULFILLMENT" : "FULFILLED",
-      merchant_credit_zmw: present_total,
-      sender_refund_zmw: missing_total,
-      settlement_window_hours: 48,
-    });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "An unexpected error occurred.";
-    console.error("[fulfill-voucher] Pipeline failure:", msg);
-
-    // GRACEFUL ROLLBACK
-    console.log(`[fulfill-voucher] Initiating graceful rollback for shop_order=${order.shop_order_id}...`);
-    const { error: rollbackErr } = await db
-      .from("shop_orders")
-      .update({ claim_status: "PENDING" })
-      .eq("shop_order_id", order.shop_order_id)
-      .eq("claim_status", "PROCESSING_FULFILLMENT");
-
-    if (rollbackErr) {
-      console.error("[fulfill-voucher] FATAL: Rollback failed! Order is stuck in PROCESSING_FULFILLMENT:", rollbackErr.message);
-    } else {
-      console.log("[fulfill-voucher] Rollback successful. Order reverted to PENDING.");
-    }
-
-    return json({ error: msg }, 500);
+  if (fulfillError || !fulfillResult?.success) {
+    const msg = fulfillError?.message ?? "Fulfillment failed.";
+    console.error("[fulfill-voucher] fulfill_voucher_atomic failed:", msg);
+    return json(req, { error: msg }, 500);
   }
+
+  return json(req, {
+    success: true,
+    claim_status: fulfillResult.claim_status,
+    merchant_credit_zmw: fulfillResult.merchant_credit_zmw,
+    sender_refund_zmw: fulfillResult.sender_refund_zmw,
+    settlement_window_hours: 48,
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -508,16 +467,16 @@ async function handleFulfillVoucher(req: Request): Promise<Response> {
 
 Deno.serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders });
+    return new Response(null, { status: 204, headers: getCorsHeaders(req) });
   }
   if (req.method !== "POST") {
-    return json({ error: `Method '${req.method}' not allowed. Use POST.` }, 405);
+    return json(req, { error: `Method '${req.method}' not allowed. Use POST.` }, 405);
   }
   try {
     return await handleFulfillVoucher(req);
   } catch (unhandled: unknown) {
     const msg = unhandled instanceof Error ? unhandled.message : "Unknown error.";
     console.error("[fulfill-voucher] UNHANDLED EXCEPTION:", msg);
-    return json({ error: "Internal server error." }, 500);
+    return json(req, { error: "Internal server error." }, 500);
   }
 });
