@@ -26,28 +26,40 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-interface Order {
-  id: string;
-  code: string;
-  recipient_name: string;
-  recipient_phone: string | null;
-  amount: number;
-  currency: string;
-  status: string;
+// ---------------------------------------------------------------------------
+// V2 Schema Types
+// ---------------------------------------------------------------------------
+
+interface OrderView {
+  // transaction fields
+  transaction_id: string;
+  buyer_id: string;
+  total_amount: number;
+  status: string;           // GATEWAY_PROCESSING | SUCCESSFUL | FAILED
+  gateway_tx_ref: string | null;
   created_at: string;
-  flutterwave_tx_ref: string | null;
-  items: { name: string; image_url: string | null } | null;
-  shops: { name: string } | null;
+
+  // derived from shop_orders (first shop order for display)
+  claim_code: string | null;
+  claim_status: string | null; // PENDING_PAYMENT | PENDING | REDEEMED
+  recipient_name: string | null;
+  shop_name: string | null;
+
+  // from order_items → items (first item for display thumbnail)
+  item_name: string | null;
+  item_image_url: string | null;
 }
 
-type StatusKey =
+// Derived unified status for display
+type DisplayStatus =
   | 'pending_payment'
-  | 'payment_submitted'
   | 'paid'
   | 'fulfilled'
   | 'completed'
   | 'expired'
   | 'cancelled';
+
+type StatusKey = DisplayStatus;
 
 const STATUS_CONFIG: Record<
   StatusKey,
@@ -55,11 +67,6 @@ const STATUS_CONFIG: Record<
 > = {
   pending_payment: {
     label: 'Pending',
-    dot: 'bg-amber-400',
-    pill: 'bg-amber-50 text-amber-700 ring-amber-200',
-  },
-  payment_submitted: {
-    label: 'Submitted',
     dot: 'bg-amber-400',
     pill: 'bg-amber-50 text-amber-700 ring-amber-200',
   },
@@ -90,8 +97,23 @@ const STATUS_CONFIG: Record<
   },
 };
 
-const getStatus = (raw: string) =>
-  STATUS_CONFIG[raw as StatusKey] ?? {
+/**
+ * Maps V2 transaction.status + shop_orders.claim_status to a display status.
+ *
+ * V2 status values:
+ *   transactions.status: GATEWAY_PROCESSING | SUCCESSFUL | FAILED | CANCELLED
+ *   shop_orders.claim_status: PENDING_PAYMENT | PENDING | REDEEMED | CANCELLED
+ */
+function deriveDisplayStatus(txStatus: string, claimStatus: string | null): DisplayStatus {
+  if (txStatus === 'GATEWAY_PROCESSING') return 'pending_payment';
+  if (txStatus === 'FAILED' || txStatus === 'CANCELLED') return 'cancelled';
+  if (claimStatus === 'REDEEMED') return 'fulfilled';
+  if (claimStatus === 'PENDING') return 'paid';
+  return 'pending_payment';
+}
+
+const getStatus = (raw: DisplayStatus) =>
+  STATUS_CONFIG[raw] ?? {
     label: raw,
     dot: 'bg-gray-400',
     pill: 'bg-gray-50 text-gray-500 ring-gray-200',
@@ -113,7 +135,7 @@ function formatDate(iso: string): string {
   });
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status }: { status: DisplayStatus }) {
   const cfg = getStatus(status);
 
   return (
@@ -180,30 +202,30 @@ export function OrderDashboard() {
   const navigate = useNavigate();
   const { profile } = useAuth();
 
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<OrderView[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [resumingPayment, setResumingPayment] = useState<string | null>(null);
 
-  const handleResumePayment = async (order: Order) => {
-    if (!order.flutterwave_tx_ref) {
+  const handleResumePayment = async (order: OrderView) => {
+    if (!order.gateway_tx_ref) {
       toast.error('No payment reference found. Please contact support.');
       return;
     }
 
-    setResumingPayment(order.id);
+    setResumingPayment(order.transaction_id);
 
     try {
       const { data, error } = await supabase.functions.invoke('server', {
         body: {
           action: 'initialize_payment',
-          orderId: order.id,
-          amount: order.amount,
-          currency: order.currency,
+          orderId: order.transaction_id,
+          amount: order.total_amount,
+          currency: 'ZMW',
           email: profile?.email || '',
           name: profile?.name || 'Customer',
-          phone: order.recipient_phone || '',
-          txRef: order.flutterwave_tx_ref,
+          phone: profile?.phone || '',
+          txRef: order.gateway_tx_ref,
         },
       });
 
@@ -226,32 +248,78 @@ export function OrderDashboard() {
       setLoading(true);
       setError(null);
 
+      // V2: Query transactions joined with the first shop_order and its first item.
+      // We use a subquery-style approach: fetch transactions, then for each
+      // fetch the first shop_order (claim_code, claim_status, recipient_name, shop name)
+      // and the first order_item → item (name, image_url).
       const { data, error: fetchError } = await supabase
-        .from('orders')
-        .select('*, items(name, image_url), shops(name)')
-        .eq('sender_id', profile.id)
+        .from('transactions')
+        .select(`
+          transaction_id,
+          buyer_id,
+          total_amount,
+          status,
+          gateway_tx_ref,
+          created_at,
+          shop_orders (
+            shop_order_id,
+            claim_code,
+            claim_status,
+            recipient_name,
+            shop:shop_id (name),
+            order_items (
+              item:item_id (name, image_url)
+            )
+          )
+        `)
+        .eq('buyer_id', profile.id)
         .order('created_at', { ascending: false });
 
       if (fetchError) {
         console.error('[OrderDashboard] fetch error:', fetchError);
         setError(fetchError.message);
-      } else {
-        setOrders((data as unknown as Order[]) ?? []);
+        setLoading(false);
+        return;
       }
 
+      // Flatten the nested V2 structure into a flat OrderView for rendering
+      const flatOrders: OrderView[] = (data ?? []).map((txn: any) => {
+        const firstShopOrder = txn.shop_orders?.[0];
+        const firstItem = firstShopOrder?.order_items?.[0]?.item;
+        const shop = firstShopOrder?.shop;
+
+        return {
+          transaction_id: txn.transaction_id,
+          buyer_id: txn.buyer_id,
+          total_amount: txn.total_amount,
+          status: txn.status,
+          gateway_tx_ref: txn.gateway_tx_ref,
+          created_at: txn.created_at,
+          claim_code: firstShopOrder?.claim_code ?? null,
+          claim_status: firstShopOrder?.claim_status ?? null,
+          recipient_name: firstShopOrder?.recipient_name ?? null,
+          shop_name: shop?.name ?? null,
+          item_name: firstItem?.name ?? null,
+          item_image_url: firstItem?.image_url ?? null,
+        };
+      });
+
+      setOrders(flatOrders);
       setLoading(false);
     };
 
     fetchOrders();
   }, [profile?.id]);
 
-  const totalSpend = orders.reduce((sum, order) => sum + order.amount, 0);
-  const completedCount = orders.filter(
-    (order) => order.status === 'fulfilled' || order.status === 'completed',
-  ).length;
-  const pendingCount = orders.filter((order) =>
-    ['pending_payment', 'payment_submitted', 'paid'].includes(order.status),
-  ).length;
+  const totalSpend = orders.reduce((sum, order) => sum + order.total_amount, 0);
+  const completedCount = orders.filter((order) => {
+    const ds = deriveDisplayStatus(order.status, order.claim_status);
+    return ds === 'fulfilled' || ds === 'completed';
+  }).length;
+  const pendingCount = orders.filter((order) => {
+    const ds = deriveDisplayStatus(order.status, order.claim_status);
+    return ds === 'pending_payment' || ds === 'paid';
+  }).length;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -292,7 +360,7 @@ export function OrderDashboard() {
           <StatCard
             icon={TrendingUp}
             label="Total Spent"
-            value={loading ? '—' : formatCurrency(totalSpend, orders[0]?.currency ?? 'ZMW')}
+            value={loading ? '—' : formatCurrency(totalSpend, 'ZMW')}
             accent="bg-orange-100 text-orange-600"
           />
           <StatCard
@@ -370,83 +438,87 @@ export function OrderDashboard() {
                 {loading && <TableSkeleton />}
 
                 {!loading &&
-                  orders.map((order, index) => (
-                    <motion.tr
-                      key={order.id}
-                      id={`order-row-${order.id}`}
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.04 }}
-                      onClick={() => navigate(`/orders/${order.id}`)}
-                      className="group cursor-pointer border-b border-gray-100 transition-colors hover:bg-orange-50/40"
-                    >
-                      <TableCell className="pl-6 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-gray-100">
-                            {order.items?.image_url ? (
-                              <img
-                                src={order.items.image_url}
-                                alt={order.items.name}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center">
-                                <Package className="h-5 w-5 text-gray-400" />
-                              </div>
-                            )}
+                  orders.map((order, index) => {
+                    const displayStatus = deriveDisplayStatus(order.status, order.claim_status);
+
+                    return (
+                      <motion.tr
+                        key={order.transaction_id}
+                        id={`order-row-${order.transaction_id}`}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.04 }}
+                        onClick={() => navigate(`/orders/${order.transaction_id}`)}
+                        className="group cursor-pointer border-b border-gray-100 transition-colors hover:bg-orange-50/40"
+                      >
+                        <TableCell className="pl-6 py-3">
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-gray-100">
+                              {order.item_image_url ? (
+                                <img
+                                  src={order.item_image_url}
+                                  alt={order.item_name ?? ''}
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center">
+                                  <Package className="h-5 w-5 text-gray-400" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium text-gray-900">
+                                {order.item_name ?? 'Product unavailable'}
+                              </p>
+                              <p className="font-mono text-xs text-muted-foreground">
+                                #{order.claim_code ?? '—'}
+                              </p>
+                            </div>
                           </div>
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-medium text-gray-900">
-                              {order.items?.name ?? 'Product unavailable'}
-                            </p>
-                            <p className="font-mono text-xs text-muted-foreground">
-                              #{order.code}
-                            </p>
-                          </div>
-                        </div>
-                      </TableCell>
+                        </TableCell>
 
-                      <TableCell className="text-sm text-gray-700">
-                        {order.recipient_name || '—'}
-                      </TableCell>
+                        <TableCell className="text-sm text-gray-700">
+                          {order.recipient_name || '—'}
+                        </TableCell>
 
-                      <TableCell className="text-sm text-gray-600">
-                        {order.shops?.name ?? '—'}
-                      </TableCell>
+                        <TableCell className="text-sm text-gray-600">
+                          {order.shop_name ?? '—'}
+                        </TableCell>
 
-                      <TableCell className="text-right">
-                        <span className="bg-gradient-to-r from-primary to-primary-light bg-clip-text text-sm font-semibold text-transparent">
-                          {formatCurrency(order.amount, order.currency)}
-                        </span>
-                      </TableCell>
+                        <TableCell className="text-right">
+                          <span className="bg-gradient-to-r from-primary to-primary-light bg-clip-text text-sm font-semibold text-transparent">
+                            {formatCurrency(order.total_amount, 'ZMW')}
+                          </span>
+                        </TableCell>
 
-                      <TableCell>
-                        <StatusBadge status={order.status} />
-                      </TableCell>
+                        <TableCell>
+                          <StatusBadge status={displayStatus} />
+                        </TableCell>
 
-                      <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
-                        {formatDate(order.created_at)}
-                      </TableCell>
+                        <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                          {formatDate(order.created_at)}
+                        </TableCell>
 
-                      <TableCell className="pr-4">
-                        {order.status === 'pending_payment' ? (
-                          <Button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleResumePayment(order);
-                            }}
-                            size="sm"
-                            className="bg-primary hover:bg-primary/90 text-white shadow-md font-semibold whitespace-nowrap px-4"
-                            disabled={resumingPayment === order.id}
-                          >
-                            {resumingPayment === order.id ? 'Loading...' : 'Complete Payment'}
-                          </Button>
-                        ) : (
-                          <ArrowRight className="h-4 w-4 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
-                        )}
-                      </TableCell>
-                    </motion.tr>
-                  ))}
+                        <TableCell className="pr-4">
+                          {displayStatus === 'pending_payment' ? (
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleResumePayment(order);
+                              }}
+                              size="sm"
+                              className="bg-primary hover:bg-primary/90 text-white shadow-md font-semibold whitespace-nowrap px-4"
+                              disabled={resumingPayment === order.transaction_id}
+                            >
+                              {resumingPayment === order.transaction_id ? 'Loading...' : 'Complete Payment'}
+                            </Button>
+                          ) : (
+                            <ArrowRight className="h-4 w-4 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+                          )}
+                        </TableCell>
+                      </motion.tr>
+                    );
+                  })}
               </TableBody>
             </Table>
           )}

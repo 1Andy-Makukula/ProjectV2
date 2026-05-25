@@ -12,21 +12,73 @@ import { formatCurrency } from '../../../utils/currency';
 import { callServer } from '../../../utils/server';
 import { toast } from 'sonner';
 
+// ---------------------------------------------------------------------------
+// V2 Schema Types
+// ---------------------------------------------------------------------------
+
+/**
+ * Flattened order view combining fields from:
+ *   transactions → shop_orders → order_items → items, shops
+ *   transactions.buyer → users
+ */
 interface Order {
-  id: string;
-  code: string;
-  item_name: string;
-  item_image_url: string | null;
-  shop_name: string;
-  sender_name: string;
-  recipient_name: string;
-  amount: number;
-  status: string;
+  // transaction fields
+  transaction_id: string;        // used as the primary "id" throughout
+  tx_status: string;             // GATEWAY_PROCESSING | SUCCESSFUL | FAILED | CANCELLED
+  total_amount: number;
+  gateway_tx_ref: string | null;
   created_at: string;
-  fulfilled_at: string | null;
+
+  // shop_order fields (first shop order for display)
+  shop_order_id: string | null;
+  claim_code: string | null;
+  claim_status: string | null;   // PENDING_PAYMENT | PENDING | REDEEMED | CANCELLED
+
+  // display fields
+  item_name: string | null;
+  item_image_url: string | null;
+  shop_name: string | null;
+  sender_name: string | null;
+  recipient_name: string | null;
+  amount: number;                // alias for total_amount
+  status: StatusFilter;          // derived unified status
+  fulfilled_at: string | null;   // shop_order.updated_at when REDEEMED
 }
 
-type StatusFilter = 'all' | 'pending_payment' | 'payment_submitted' | 'paid' | 'fulfilled' | 'expired';
+/** Unified display statuses that map multiple V2 states onto simple UI tabs */
+type StatusFilter = 'all' | 'pending_payment' | 'paid' | 'fulfilled' | 'expired' | 'cancelled';
+
+// ---------------------------------------------------------------------------
+// Status mapping
+// ---------------------------------------------------------------------------
+
+function deriveStatus(txStatus: string, claimStatus: string | null): Exclude<StatusFilter, 'all'> {
+  if (txStatus === 'GATEWAY_PROCESSING') return 'pending_payment';
+  if (txStatus === 'FAILED' || txStatus === 'CANCELLED') return 'cancelled';
+  if (claimStatus === 'REDEEMED') return 'fulfilled';
+  if (claimStatus === 'PENDING') return 'paid';
+  return 'pending_payment';
+}
+
+const STATUS_COLORS: Record<string, string> = {
+  fulfilled:       'bg-green-100 text-green-800 border-green-200',
+  paid:            'bg-blue-100 text-blue-800 border-blue-200',
+  pending_payment: 'bg-orange-100 text-orange-800 border-orange-200',
+  expired:         'bg-red-100 text-red-800 border-red-200',
+  cancelled:       'bg-red-100 text-red-800 border-red-200',
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  fulfilled:       'Fulfilled',
+  paid:            'Paid',
+  pending_payment: 'Pending',
+  expired:         'Expired',
+  cancelled:       'Cancelled',
+};
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 
 export function AdminOrders() {
   const navigate = useNavigate();
@@ -49,26 +101,63 @@ export function AdminOrders() {
     try {
       setLoading(true);
 
-      const { data: ordersData, error } = await supabase
-        .from('orders')
-        .select('*, items(name, image_url), shops(name), users!sender_id(name)')
+      // V2: Query transactions joined with shop_orders, order_items → items, shops, buyer
+      const { data, error } = await supabase
+        .from('transactions')
+        .select(`
+          transaction_id,
+          status,
+          total_amount,
+          gateway_tx_ref,
+          created_at,
+          buyer:buyer_id (name),
+          shop_orders (
+            shop_order_id,
+            claim_code,
+            claim_status,
+            recipient_name,
+            updated_at,
+            shop:shop_id (name),
+            order_items (
+              item:item_id (name, image_url)
+            )
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      const formattedOrders = (ordersData || []).map((order: any) => ({
-        id: order.id,
-        code: order.code,
-        item_name: order.items?.name || 'N/A',
-        item_image_url: order.items?.image_url || null,
-        shop_name: order.shops?.name || 'N/A',
-        sender_name: order.users?.name || 'N/A',
-        recipient_name: order.recipient_name,
-        amount: order.amount,
-        status: order.status,
-        created_at: order.created_at,
-        fulfilled_at: order.fulfilled_at,
-      }));
+      const formattedOrders: Order[] = (data ?? []).map((txn: any) => {
+        const firstShopOrder = txn.shop_orders?.[0];
+        const firstItem = firstShopOrder?.order_items?.[0]?.item;
+        const shop = firstShopOrder?.shop;
+        const claimStatus = firstShopOrder?.claim_status ?? null;
+        const derivedStatus = deriveStatus(txn.status, claimStatus);
+
+        return {
+          transaction_id: txn.transaction_id,
+          tx_status: txn.status,
+          total_amount: txn.total_amount,
+          gateway_tx_ref: txn.gateway_tx_ref,
+          created_at: txn.created_at,
+
+          shop_order_id: firstShopOrder?.shop_order_id ?? null,
+          claim_code: firstShopOrder?.claim_code ?? null,
+          claim_status: claimStatus,
+
+          item_name: firstItem?.name ?? null,
+          item_image_url: firstItem?.image_url ?? null,
+          shop_name: shop?.name ?? null,
+          sender_name: (txn.buyer as any)?.name ?? null,
+          recipient_name: firstShopOrder?.recipient_name ?? null,
+          amount: txn.total_amount,
+          status: derivedStatus,
+          fulfilled_at:
+            derivedStatus === 'fulfilled'
+              ? (firstShopOrder?.updated_at ?? null)
+              : null,
+        };
+      });
 
       setOrders(formattedOrders);
     } catch (error: any) {
@@ -82,20 +171,18 @@ export function AdminOrders() {
   const filterOrders = () => {
     let filtered = orders;
 
-    // Apply status filter
     if (statusFilter !== 'all') {
-      filtered = filtered.filter((order: Order) => order.status === statusFilter);
+      filtered = filtered.filter((order) => order.status === statusFilter);
     }
 
-    // Apply search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((order: Order) =>
-        order.code.toLowerCase().includes(query) ||
-        order.sender_name.toLowerCase().includes(query) ||
-        order.recipient_name.toLowerCase().includes(query) ||
-        order.item_name.toLowerCase().includes(query) ||
-        order.shop_name.toLowerCase().includes(query)
+      filtered = filtered.filter((order) =>
+        (order.claim_code ?? '').toLowerCase().includes(query) ||
+        (order.sender_name ?? '').toLowerCase().includes(query) ||
+        (order.recipient_name ?? '').toLowerCase().includes(query) ||
+        (order.item_name ?? '').toLowerCase().includes(query) ||
+        (order.shop_name ?? '').toLowerCase().includes(query)
       );
     }
 
@@ -104,13 +191,13 @@ export function AdminOrders() {
 
   const exportToCSV = () => {
     const headers = ['Code', 'Item', 'Shop', 'Sender', 'Recipient', 'Amount', 'Status', 'Created', 'Fulfilled'];
-    const rows = filteredOrders.map((order: Order) => [
-      order.code,
-      order.item_name,
-      order.shop_name,
-      order.sender_name,
-      order.recipient_name,
-      (order.amount / 100).toFixed(2),
+    const rows = filteredOrders.map((order) => [
+      order.claim_code ?? '',
+      order.item_name ?? '',
+      order.shop_name ?? '',
+      order.sender_name ?? '',
+      order.recipient_name ?? '',
+      (order.total_amount).toFixed(2),
       order.status,
       new Date(order.created_at).toLocaleDateString(),
       order.fulfilled_at ? new Date(order.fulfilled_at).toLocaleDateString() : 'N/A',
@@ -118,7 +205,7 @@ export function AdminOrders() {
 
     const csvContent = [
       headers.join(','),
-      ...rows.map((row: any[]) => row.map((cell: any) => `"${cell}"`).join(','))
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -131,31 +218,41 @@ export function AdminOrders() {
     toast.success('Orders exported to CSV');
   };
 
+  /**
+   * V2 status update logic:
+   *   "paid"      → call confirm_payment action, which sets transaction.status = SUCCESSFUL
+   *                  and all shop_orders.claim_status = PENDING
+   *   "expired"   → set transaction.status = CANCELLED + shop_orders.claim_status = CANCELLED
+   */
   const updateOrderStatus = async (
-    orderId: string,
-    currentStatus: string,
-    newStatus: Exclude<StatusFilter, 'all'>,
+    order: Order,
+    newStatus: 'paid' | 'expired',
   ) => {
-    if (currentStatus === newStatus) return;
-
     try {
-      setActionOrderId(orderId);
+      setActionOrderId(order.transaction_id);
 
       if (newStatus === 'paid') {
-        await callServer(`/orders/${orderId}/confirm-payment`);
+        // callServer invokes the server Edge Function's confirm_payment action
+        // which now updates transactions + shop_orders (V2).
+        await callServer(`/orders/${order.transaction_id}/confirm-payment`);
       } else {
-        const { error } = await supabase
-          .from('orders')
-          .update({
-            status: newStatus,
-            fulfilled_at: newStatus === 'fulfilled' ? new Date().toISOString() : null,
-          })
-          .eq('id', orderId);
+        // Mark as expired/cancelled in both tables
+        const { error: txError } = await supabase
+          .from('transactions')
+          .update({ status: 'CANCELLED' })
+          .eq('transaction_id', order.transaction_id);
 
-        if (error) throw error;
+        if (txError) throw txError;
+
+        if (order.shop_order_id) {
+          await supabase
+            .from('shop_orders')
+            .update({ claim_status: 'CANCELLED' })
+            .eq('transaction_id', order.transaction_id);
+        }
       }
 
-      toast.success(`Order marked as ${newStatus.split('_').join(' ')}`);
+      toast.success(`Order marked as ${newStatus}`);
       await loadOrders();
     } catch (error: any) {
       console.error('Error updating order:', error);
@@ -165,30 +262,15 @@ export function AdminOrders() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'fulfilled':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'paid':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'payment_submitted':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'pending_payment':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'expired':
-        return 'bg-red-100 text-red-800 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
+  const getStatusColor = (status: string) =>
+    STATUS_COLORS[status] ?? 'bg-gray-100 text-gray-800 border-gray-200';
 
-  const getStatusLabel = (status: string) => {
-    return status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-  };
+  const getStatusLabel = (status: string) =>
+    STATUS_LABELS[status] ?? status.split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
   const getStatusCount = (status: StatusFilter) => {
     if (status === 'all') return orders.length;
-    return orders.filter((o: Order) => o.status === status).length;
+    return orders.filter((o) => o.status === status).length;
   };
 
   return (
@@ -242,9 +324,6 @@ export function AdminOrders() {
             <TabsTrigger value="pending_payment" className="font-light">
               Pending ({getStatusCount('pending_payment')})
             </TabsTrigger>
-            <TabsTrigger value="payment_submitted" className="font-light">
-              Submitted ({getStatusCount('payment_submitted')})
-            </TabsTrigger>
             <TabsTrigger value="paid" className="font-light">
               Paid ({getStatusCount('paid')})
             </TabsTrigger>
@@ -253,6 +332,9 @@ export function AdminOrders() {
             </TabsTrigger>
             <TabsTrigger value="expired" className="font-light">
               Expired ({getStatusCount('expired')})
+            </TabsTrigger>
+            <TabsTrigger value="cancelled" className="font-light">
+              Cancelled ({getStatusCount('cancelled')})
             </TabsTrigger>
           </TabsList>
 
@@ -287,20 +369,22 @@ export function AdminOrders() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredOrders.map((order: Order) => (
+                      {filteredOrders.map((order) => (
                         <TableRow
-                          key={order.id}
+                          key={order.transaction_id}
                           className="cursor-pointer hover:bg-orange-50"
-                          onClick={() => navigate(`/admin/orders/${order.id}`)}
+                          onClick={() => navigate(`/admin/orders/${order.transaction_id}`)}
                         >
-                          <TableCell className="font-mono font-light">{order.code}</TableCell>
+                          <TableCell className="font-mono font-light">
+                            {order.claim_code ?? '—'}
+                          </TableCell>
                           <TableCell className="font-light">
                             <div className="flex items-center gap-3">
                               <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-gray-100">
                                 {order.item_image_url ? (
                                   <img
                                     src={order.item_image_url}
-                                    alt={order.item_name}
+                                    alt={order.item_name ?? ''}
                                     className="h-full w-full object-cover"
                                   />
                                 ) : (
@@ -309,13 +393,13 @@ export function AdminOrders() {
                                   </div>
                                 )}
                               </div>
-                              <span>{order.item_name}</span>
+                              <span>{order.item_name ?? 'N/A'}</span>
                             </div>
                           </TableCell>
-                          <TableCell className="font-light">{order.shop_name}</TableCell>
-                          <TableCell className="font-light">{order.sender_name}</TableCell>
-                          <TableCell className="font-light">{order.recipient_name}</TableCell>
-                          <TableCell className="font-light">{formatCurrency(order.amount)}</TableCell>
+                          <TableCell className="font-light">{order.shop_name ?? '—'}</TableCell>
+                          <TableCell className="font-light">{order.sender_name ?? '—'}</TableCell>
+                          <TableCell className="font-light">{order.recipient_name ?? '—'}</TableCell>
+                          <TableCell className="font-light">{formatCurrency(order.amount, 'ZMW')}</TableCell>
                           <TableCell>
                             <Badge className={`font-light ${getStatusColor(order.status)}`}>
                               {getStatusLabel(order.status)}
@@ -325,31 +409,33 @@ export function AdminOrders() {
                             {new Date(order.created_at).toLocaleDateString()}
                           </TableCell>
                           <TableCell className="font-light">
-                            {order.fulfilled_at ? new Date(order.fulfilled_at).toLocaleDateString() : '-'}
+                            {order.fulfilled_at
+                              ? new Date(order.fulfilled_at).toLocaleDateString()
+                              : '-'}
                           </TableCell>
                           <TableCell>
                             <div className="flex justify-end gap-2">
-                              {order.status === 'payment_submitted' && (
+                              {order.status === 'pending_payment' && (
                                 <Button
                                   size="sm"
                                   onClick={(event: React.MouseEvent) => {
                                     event.stopPropagation();
-                                    updateOrderStatus(order.id, order.status, 'paid');
+                                    updateOrderStatus(order, 'paid');
                                   }}
-                                  disabled={actionOrderId === order.id}
+                                  disabled={actionOrderId === order.transaction_id}
                                 >
                                   Mark as Paid
                                 </Button>
                               )}
-                              {!['fulfilled', 'expired'].includes(order.status) && (
+                              {!['fulfilled', 'expired', 'cancelled'].includes(order.status) && (
                                 <Button
                                   size="sm"
                                   variant="outline"
                                   onClick={(event: React.MouseEvent) => {
                                     event.stopPropagation();
-                                    updateOrderStatus(order.id, order.status, 'expired');
+                                    updateOrderStatus(order, 'expired');
                                   }}
-                                  disabled={actionOrderId === order.id}
+                                  disabled={actionOrderId === order.transaction_id}
                                 >
                                   Mark Expired
                                 </Button>

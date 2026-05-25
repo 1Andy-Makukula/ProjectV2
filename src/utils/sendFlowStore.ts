@@ -2,6 +2,16 @@ import { create } from 'zustand';
 import type { CartItem } from '../app/types';
 
 // ---------------------------------------------------------------------------
+// Recipient Details — passed through the checkout pipeline to shop_orders
+// ---------------------------------------------------------------------------
+
+export interface RecipientDetails {
+  name: string;
+  phone: string;
+  message: string;
+}
+
+// ---------------------------------------------------------------------------
 // Grouped Cart Payload — for checkout-init Edge Function
 // ---------------------------------------------------------------------------
 
@@ -14,6 +24,10 @@ export interface VendorGroup {
 export interface GroupedCartPayload {
   total_amount: number;
   vendors: VendorGroup[];
+  // Optional recipient fields — written to shop_orders by checkout-init
+  recipient_name?: string;
+  recipient_phone?: string;
+  message?: string;
 }
 
 /**
@@ -25,11 +39,17 @@ export interface GroupedCartPayload {
  * Groups items by shop_id and computes both per-vendor subtotals and
  * the overall total_amount in ZMW.
  *
+ * Optionally merges recipient details (from useSendFlowStore) into the payload
+ * so checkout-init can write them to every shop_orders row it creates.
+ *
  * @example
- * const payload = getGroupedCartPayload(useCart.getState().items);
- * // { total_amount: 450, vendors: [{ shop_id: '...', subtotal: 450, item_ids: ['...'] }] }
+ * const recipient = useSendFlowStore.getState().recipient;
+ * const payload = getGroupedCartPayload(useCart.getState().items, recipient ?? undefined);
  */
-export function getGroupedCartPayload(items: CartItem[]): GroupedCartPayload {
+export function getGroupedCartPayload(
+  items: CartItem[],
+  recipient?: RecipientDetails,
+): GroupedCartPayload {
   const vendorMap = new Map<string, { subtotal: number; item_ids: string[] }>();
 
   for (const { product, quantity } of items) {
@@ -52,8 +72,18 @@ export function getGroupedCartPayload(items: CartItem[]): GroupedCartPayload {
 
   const total_amount = vendors.reduce((sum, v) => sum + v.subtotal, 0);
 
-  return { total_amount, vendors };
+  return {
+    total_amount,
+    vendors,
+    ...(recipient?.name      && { recipient_name:  recipient.name }),
+    ...(recipient?.phone     && { recipient_phone: recipient.phone }),
+    ...(recipient?.message   && { message:          recipient.message }),
+  };
 }
+
+// ---------------------------------------------------------------------------
+// SendFlow Zustand Store
+// ---------------------------------------------------------------------------
 
 interface Item {
   id: string;
@@ -63,12 +93,6 @@ interface Item {
   image_url: string | null;
   shop_id: string;
   shop_name: string;
-}
-
-interface RecipientDetails {
-  name: string;
-  phone: string;
-  message: string;
 }
 
 interface SendFlowState {

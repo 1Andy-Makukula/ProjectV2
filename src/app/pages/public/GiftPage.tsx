@@ -5,24 +5,30 @@ import { motion } from 'motion/react';
 import { Gift as GiftIcon, MapPin, Package, QrCode as QrCodeIcon } from 'lucide-react';
 import QRCode from 'qrcode';
 
-interface Order {
-  id: string;
+// ---------------------------------------------------------------------------
+// V2 Schema Types
+// ---------------------------------------------------------------------------
+
+interface ShopOrder {
+  shop_order_id: string;
+  claim_code: string;
+  claim_status: string; // PENDING_PAYMENT | PENDING | REDEEMED
   recipient_name: string;
   message: string | null;
-  code: string;
-  status: string;
-  amount: number;
-  currency: string;
-  users: {
-    name: string;
+  transaction: {
+    buyer: {
+      name: string;
+    } | null;
   } | null;
-  items: {
-    id: string;
-    name: string;
-    description: string | null;
-    image_url: string | null;
-  } | null;
-  shops: {
+  order_items: Array<{
+    item: {
+      id: string;
+      name: string;
+      description: string | null;
+      image_url: string | null;
+    } | null;
+  }>;
+  shop: {
     name: string;
     location: string | null;
     address: string | null;
@@ -31,27 +37,30 @@ interface Order {
 
 export function GiftPage() {
   const { code } = useParams<{ code: string }>();
-  const [order, setOrder] = useState<Order | null>(null);
+  const [shopOrder, setShopOrder] = useState<ShopOrder | null>(null);
   const [loading, setLoading] = useState(true);
   const [qrDataUrl, setQrDataUrl] = useState('');
 
   useEffect(() => {
     if (!code) return;
 
-    fetchOrder();
+    fetchShopOrder();
 
+    // V2: Subscribe to shop_orders filtered by claim_code.
+    // When claim_status changes from PENDING_PAYMENT → PENDING (payment confirmed),
+    // re-fetch to reveal the QR code and collection instructions.
     const subscription = supabase
-      .channel(`order:${code}`)
+      .channel(`gift:${code}`)
       .on(
         'postgres_changes',
         {
           event: 'UPDATE',
           schema: 'public',
-          table: 'orders',
-          filter: `code=eq.${code}`,
+          table: 'shop_orders',
+          filter: `claim_code=eq.${code.toUpperCase()}`,
         },
         () => {
-          fetchOrder();
+          fetchShopOrder();
         },
       )
       .subscribe();
@@ -61,28 +70,42 @@ export function GiftPage() {
     };
   }, [code]);
 
-  const fetchOrder = async () => {
+  const fetchShopOrder = async () => {
     if (!code) return;
 
     try {
       const { data, error } = await supabase
-        .from('orders')
-        .select('*, items(*), shops(name, location, address), users!sender_id(name)')
-        .eq('code', code.toUpperCase())
+        .from('shop_orders')
+        .select(`
+          shop_order_id,
+          claim_code,
+          claim_status,
+          recipient_name,
+          message,
+          transaction:transaction_id (
+            buyer:buyer_id (name)
+          ),
+          order_items (
+            item:item_id (id, name, description, image_url)
+          ),
+          shop:shop_id (name, location, address)
+        `)
+        .eq('claim_code', code.toUpperCase())
         .single();
 
       if (error) throw error;
-      setOrder(data as unknown as Order);
+      setShopOrder(data as unknown as ShopOrder);
     } catch (error) {
-      console.error('Error fetching order:', error);
+      console.error('Error fetching shop order:', error);
     } finally {
       setLoading(false);
     }
   };
 
+  // Generate QR code when payment is confirmed (claim_status = 'PENDING')
   useEffect(() => {
-    if (order?.status === 'paid' && order.code) {
-      QRCode.toDataURL(order.code, {
+    if (shopOrder?.claim_status === 'PENDING' && shopOrder.claim_code) {
+      QRCode.toDataURL(shopOrder.claim_code, {
         width: 300,
         margin: 2,
         color: {
@@ -100,7 +123,7 @@ export function GiftPage() {
     }
 
     setQrDataUrl('');
-  }, [order]);
+  }, [shopOrder]);
 
   if (loading) {
     return (
@@ -110,7 +133,7 @@ export function GiftPage() {
     );
   }
 
-  if (!order) {
+  if (!shopOrder) {
     return (
       <div className="flex min-h-screen items-center justify-center px-6">
         <div className="max-w-md text-center">
@@ -123,10 +146,17 @@ export function GiftPage() {
     );
   }
 
-  const senderName = order.users?.name || 'Someone';
-  const productName = order.items?.name || 'Your gift';
-  const shopName = order.shops?.name || 'KithLy partner shop';
-  const shopLocation = order.shops?.location || order.shops?.address;
+  // Derive display values from V2 shape
+  const senderName = (shopOrder.transaction?.buyer as any)?.name || 'Someone';
+  const firstItem = shopOrder.order_items?.[0]?.item;
+  const productName = firstItem?.name || 'Your gift';
+  const shopName = shopOrder.shop?.name || 'KithLy partner shop';
+  const shopLocation = shopOrder.shop?.location || shopOrder.shop?.address;
+
+  // Map V2 claim_status to display state
+  const isPendingPayment = shopOrder.claim_status === 'PENDING_PAYMENT';
+  const isConfirmed = shopOrder.claim_status === 'PENDING';
+  const isFulfilled = shopOrder.claim_status === 'REDEEMED';
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(251,146,60,0.22),_transparent_30%),linear-gradient(180deg,_#fff7ed_0%,_#ffffff_45%,_#fffaf5_100%)] px-4 py-8 sm:px-6 sm:py-12">
@@ -149,7 +179,7 @@ export function GiftPage() {
             You&apos;ve Received a Gift
           </p>
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            {order.recipient_name}, this one is for you.
+            {shopOrder.recipient_name}, this one is for you.
           </h1>
           <p className="mt-3 text-sm text-white/90 sm:text-base">
             Sent with care by {senderName}
@@ -163,9 +193,9 @@ export function GiftPage() {
             transition={{ duration: 0.8 }}
             className="overflow-hidden rounded-[1.75rem] border border-orange-100 bg-orange-50/40"
           >
-            {order.items?.image_url ? (
+            {firstItem?.image_url ? (
               <img
-                src={order.items.image_url}
+                src={firstItem.image_url}
                 alt={productName}
                 className="aspect-square w-full object-cover sm:aspect-[4/3]"
               />
@@ -195,13 +225,13 @@ export function GiftPage() {
             )}
           </div>
 
-          {order.message && (
+          {shopOrder.message && (
             <div className="rounded-2xl border border-orange-200 bg-orange-50 px-5 py-4">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/80">
                 Message for you
               </p>
               <p className="mt-2 text-base italic leading-relaxed text-gray-700">
-                &quot;{order.message}&quot;
+                &quot;{shopOrder.message}&quot;
               </p>
             </div>
           )}
@@ -211,14 +241,15 @@ export function GiftPage() {
               Handshake Code
             </p>
             <p className="mt-3 break-all font-mono text-3xl font-bold tracking-[0.35em] text-primary sm:text-4xl">
-              {order.code}
+              {shopOrder.claim_code}
             </p>
             <p className="mt-3 text-sm text-muted-foreground">
               Show this code to the merchant when you collect your gift.
             </p>
           </div>
 
-          {(order.status === 'pending_payment' || order.status === 'payment_submitted') && (
+          {/* Pending payment state */}
+          {isPendingPayment && (
             <div className="rounded-3xl border border-amber-200 bg-amber-50 px-5 py-6 text-center">
               <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-amber-100">
                 <div className="h-6 w-6 rounded-full bg-primary animate-pulse" />
@@ -230,7 +261,8 @@ export function GiftPage() {
             </div>
           )}
 
-          {order.status === 'paid' && (
+          {/* Payment confirmed — show QR + collection instructions */}
+          {isConfirmed && (
             <div className="grid gap-5 lg:grid-cols-[1fr_1.1fr]">
               <div className="rounded-3xl border border-orange-200 bg-white p-5 text-center shadow-sm">
                 <div className="mb-3 flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-primary/80">
@@ -258,16 +290,17 @@ export function GiftPage() {
                   <li>Show this screen, the QR code, or your handshake code.</li>
                   <li>The merchant will verify the item image and hand over your gift.</li>
                 </ol>
-                {order.shops?.address && (
+                {shopOrder.shop?.address && (
                   <div className="mt-5 rounded-2xl border border-blue-100 bg-white/80 px-4 py-3 text-sm text-gray-700">
-                    <span className="font-semibold text-gray-900">Address:</span> {order.shops.address}
+                    <span className="font-semibold text-gray-900">Address:</span> {shopOrder.shop.address}
                   </div>
                 )}
               </div>
             </div>
           )}
 
-          {order.status === 'fulfilled' && (
+          {/* Gift collected / fulfilled */}
+          {isFulfilled && (
             <div className="rounded-3xl border border-green-200 bg-green-50 px-5 py-6 text-center">
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
                 <svg

@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 import { useCart } from '../hooks/useCart';
 import { supabase } from '../../lib/supabaseClient';
 import { getGroupedCartPayload } from '../../utils/sendFlowStore';
+import { useSendFlowStore } from '../../utils/sendFlowStore';
 import { PaymentProcessingScreen } from '../components/checkout/PaymentProcessingScreen';
 import { Button } from '../components/ui/button';
 import { formatCurrency } from '../../utils/currency';
@@ -210,6 +211,7 @@ const CartLineItem = memo(function CartLineItem({
 export function Checkout() {
   const navigate = useNavigate();
   const { items, removeFromCart, clearCart, getTotalAmount } = useCart();
+  const { recipient } = useSendFlowStore();
 
   const [stage, setStage] = useState<CheckoutStage>('CART');
   const [transactionId, setTransactionId] = useState<string | null>(null);
@@ -237,7 +239,9 @@ export function Checkout() {
     setErrorMsg(null);
 
     try {
-      const payload = getGroupedCartPayload(items);
+      // Include recipient details from the SendFlow store so checkout-init
+      // can persist them to each shop_orders row it creates.
+      const payload = getGroupedCartPayload(items, recipient ?? undefined);
 
       const { data, error } = await supabase.functions.invoke<CheckoutInitResponse>(
         'checkout-init',
@@ -251,10 +255,10 @@ export function Checkout() {
       setTransactionId(data.transaction_id);
       setShopOrders(data.shop_orders ?? []);
       
-      // If we are meant to redirect to Flutterwave, we would do it here.
-      // For now, we transition to processing screen which polls the ledger.
+      // Open the Flutterwave-hosted payment page in a new tab so the polling
+      // screen can remain active in this tab.
       if (data.payment_link && data.payment_link !== '#') {
-        window.open(data.payment_link, '_blank'); // Open payment in new tab so polling can continue
+        window.open(data.payment_link, '_blank');
       }
 
       setStage('PROCESSING');

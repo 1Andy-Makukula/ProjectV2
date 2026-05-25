@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { supabase } from '../../../lib/supabaseClient';
+import { useSendFlowStore } from '../../../utils/sendFlowStore';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
@@ -25,7 +26,7 @@ interface Shop {
   name: string;
 }
 
-interface SendFlowData {
+interface SendFlowFormData {
   recipientName: string;
   recipientPhone: string;
   message: string;
@@ -34,15 +35,17 @@ interface SendFlowData {
 export function SendFlow() {
   const { itemId } = useParams<{ itemId: string }>();
   const navigate = useNavigate();
+  const { setRecipient } = useSendFlowStore();
+
   const [item, setItem] = useState<Item | null>(null);
   const [shop, setShop] = useState<Shop | null>(null);
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState<SendFlowData>({
+  const [formData, setFormData] = useState<SendFlowFormData>({
     recipientName: '',
     recipientPhone: '+260',
     message: '',
   });
-  const [errors, setErrors] = useState<Partial<SendFlowData>>({});
+  const [errors, setErrors] = useState<Partial<SendFlowFormData>>({});
 
   useEffect(() => {
     fetchItemDetails();
@@ -79,7 +82,7 @@ export function SendFlow() {
   };
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<SendFlowData> = {};
+    const newErrors: Partial<SendFlowFormData> = {};
 
     if (!formData.recipientName.trim()) {
       newErrors.recipientName = 'Recipient name is required';
@@ -101,9 +104,15 @@ export function SendFlow() {
 
   const handleContinue = () => {
     if (!validateForm() || !item || !shop) return;
-    // V2: Navigate directly to the unified Checkout page.
-    // The cart state is managed by the useCart Zustand store;
-    // no sessionStorage handoff is needed.
+
+    // Persist recipient details into the Zustand store so Checkout.tsx can
+    // include them in the checkout-init payload → written to shop_orders.
+    setRecipient({
+      name:    formData.recipientName.trim(),
+      phone:   formData.recipientPhone.trim(),
+      message: formData.message.trim(),
+    });
+
     navigate('/checkout');
   };
 
@@ -239,13 +248,13 @@ export function SendFlow() {
                 )}
               </div>
 
-              {/* Sender Phone */}
+              {/* Recipient Phone */}
               <div>
                 <label
                   htmlFor="recipientPhone"
                   className="block text-sm font-medium mb-2"
                 >
-                  Sender Phone <span className="text-red-500">*</span>
+                  Recipient Phone <span className="text-red-500">*</span>
                 </label>
                 <Input
                   id="recipientPhone"

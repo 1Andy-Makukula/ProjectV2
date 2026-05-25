@@ -6,7 +6,7 @@
  * Consumes `usePaymentVerification` and renders one of three distinct states:
  *
  *   POLLING  → Minimalist pulsing indicator with ledger-verification copy
- *   SUCCESS  → Full-bleed confirmation with the claim code in display type
+ *   SUCCESS  → Full-bleed confirmation with the claim code in display type + confetti
  *   TIMEOUT  → Graceful degradation with recovery instructions
  *
  * Design language: Apple-derived — thin strokes, generous whitespace,
@@ -16,6 +16,7 @@
 
 import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import confetti from 'canvas-confetti';
 import { cn } from '../ui/utils';
 import { Button } from '../ui/button';
 import {
@@ -64,6 +65,39 @@ const fadeIn = {
   visible: { opacity: 1, transition: { duration: 0.4, ease: 'easeOut' as const } },
   exit:    { opacity: 0, transition: { duration: 0.2 } },
 };
+
+// ---------------------------------------------------------------------------
+// Confetti launcher
+// ---------------------------------------------------------------------------
+
+/**
+ * Fires a two-burst confetti celebration using canvas-confetti.
+ * Colours use the KithLy brand palette (orange/amber gradient).
+ * The two origin points simulate a stereo pop from the bottom corners.
+ */
+function launchConfetti(): void {
+  const brandColors = ['#F97316', '#FB923C', '#FDBA74', '#FED7AA', '#ffffff'];
+
+  const sharedOptions: confetti.Options = {
+    particleCount: 80,
+    spread: 80,
+    startVelocity: 45,
+    decay: 0.92,
+    gravity: 1.1,
+    ticks: 200,
+    colors: brandColors,
+    shapes: ['circle', 'square'] as confetti.Shape[],
+    scalar: 1.1,
+  };
+
+  // Left burst
+  confetti({ ...sharedOptions, origin: { x: 0.2, y: 0.75 }, angle: 60 });
+
+  // Right burst (slight delay for a staggered feel)
+  setTimeout(() => {
+    confetti({ ...sharedOptions, origin: { x: 0.8, y: 0.75 }, angle: 120 });
+  }, 120);
+}
 
 // ---------------------------------------------------------------------------
 // Sub-components
@@ -199,6 +233,7 @@ function SuccessView({
       <motion.div
         className="flex h-20 w-20 items-center justify-center rounded-full border border-slate-200 bg-white"
         initial={{ scale: 0.7, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
         aria-hidden
       >
@@ -257,7 +292,7 @@ function SuccessView({
 
         <div className="w-full flex flex-col gap-4">
           {shopOrders.map((order, idx) => (
-            <motion.div 
+            <motion.div
               key={order.shop_order_id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -269,11 +304,11 @@ function SuccessView({
                   Shop ID: {order.shop_id.slice(0, 8)}
                 </span>
               </div>
-              
+
               <ClaimCodeDisplay code={order.claim_code} />
-              
+
               <div className="w-full pt-2">
-                <WhatsAppShareButton 
+                <WhatsAppShareButton
                   claimCode={order.claim_code}
                   shopName={`KithLy Merchant (${order.shop_id.slice(0, 4)})`}
                 />
@@ -436,30 +471,21 @@ export function PaymentProcessingScreen({
   onComplete,
 }: PaymentProcessingScreenProps) {
 
-  /**
-   * The hook is the single source of truth for verification state.
-   * `onSuccess` is intentionally omitted here — the component handles its own
-   * SUCCESS transition by reading `status` directly, keeping the render logic
-   * self-contained and predictable.
-   */
   const { status, attemptCount, reset } = usePaymentVerification({ voucherId: transactionId });
 
-  /**
-   * Ref used to focus the "Continue" button automatically when the SUCCESS
-   * state renders, ensuring keyboard and assistive-technology users can
-   * proceed without a manual tab stop.
-   */
   const continueButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (status === 'SUCCESS') {
+      // Fire confetti immediately when payment is confirmed.
+      launchConfetti();
+
       // Small delay to allow the animation to settle before shifting focus.
       const timer = setTimeout(() => continueButtonRef.current?.focus(), 750);
       return () => clearTimeout(timer);
     }
   }, [status]);
 
-  // Derive the ARIA live-region message for screen readers.
   const liveMessage =
     status === 'SUCCESS'
       ? 'Payment confirmed. Your claim code is ready.'
@@ -476,7 +502,7 @@ export function PaymentProcessingScreen({
         'bg-white px-6 py-12',
       )}
     >
-      {/* ARIA live region — announces state changes to screen readers */}
+      {/* ARIA live region */}
       <span
         role="status"
         aria-live="polite"
@@ -488,7 +514,7 @@ export function PaymentProcessingScreen({
 
       {/* Centred card container */}
       <div className="w-full max-w-md">
-        {/* KithLy wordmark — thin, restrained */}
+        {/* KithLy wordmark */}
         <motion.div
           className="mb-14 flex items-center justify-center"
           initial={{ opacity: 0 }}
@@ -500,7 +526,7 @@ export function PaymentProcessingScreen({
           </span>
         </motion.div>
 
-        {/* Animated state panel — each status key triggers AnimatePresence */}
+        {/* Animated state panel */}
         <AnimatePresence mode="wait">
           {(status === 'IDLE' || status === 'POLLING') && (
             <PollingView
@@ -535,7 +561,6 @@ export function PaymentProcessingScreen({
           animate="visible"
         >
           <div className="flex items-center gap-1.5">
-            {/* Lock stroke icon — no emoji, pure SVG */}
             <svg
               viewBox="0 0 16 16"
               fill="none"
