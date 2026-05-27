@@ -99,12 +99,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.user) {
         await supabase
           .from('users')
-          .update({
+          .upsert({
+            id: data.user.id,
             name,
             email,
             phone,
-          })
-          .eq('id', data.user.id);
+          }, { onConflict: 'id' });
       }
 
       return { error: null };

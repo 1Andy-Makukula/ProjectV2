@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { Button } from '../../components/ui/button';
@@ -14,7 +14,14 @@ const SIDE_IMAGE =
 
 export function SignUp() {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
+  const { signUp, user, profile } = useAuth();
+
+  // Redirect once AuthContext has loaded the user's profile after sign-up
+  useEffect(() => {
+    if (user && profile) {
+      navigate('/shops', { replace: true });
+    }
+  }, [user, profile, navigate]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -78,7 +85,7 @@ export function SignUp() {
       toast.error(msg);
     } else {
       toast.success('Account created! Welcome to KithLy 🎉');
-      navigate('/dashboard');
+      // Navigation is handled by the useEffect above once AuthContext loads the profile
     }
   };
 
