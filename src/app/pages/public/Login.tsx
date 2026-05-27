@@ -22,8 +22,9 @@ export function Login() {
   const [loading, setLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const { user, profile, profileError } = useAuth();
+  const { user, profile, profileError, signOut } = useAuth();
 
+  // Redirect already-authenticated users with a valid profile
   useEffect(() => {
     if (user && profile) {
       if (profile.role === 'merchant') navigate('/merchant');
@@ -32,12 +33,13 @@ export function Login() {
     }
   }, [user, profile, navigate]);
 
+  // Stale/broken session: profile fetch failed → silently sign out and let
+  // the user log in fresh. Don't show a static banner on page load.
   useEffect(() => {
-    if (profileError) {
-      setLoading(false);
-      setErrorMsg('Failed to load user profile. Please try logging in again.');
+    if (profileError && user) {
+      signOut();
     }
-  }, [profileError]);
+  }, [profileError, user, signOut]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
