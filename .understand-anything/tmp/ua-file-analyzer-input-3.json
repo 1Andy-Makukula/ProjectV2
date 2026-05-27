@@ -1,0 +1,28 @@
+{
+  "projectRoot": "c:\\Users\\Owner\\Downloads\\ProjectV2",
+  "batchFiles": [
+    {
+      "path": "supabase/migrations/20260525120000_v2_canonical_schema.sql",
+      "language": "sql",
+      "sizeLines": 154,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260525130000_v2_atomic_money_rpcs.sql",
+      "language": "sql",
+      "sizeLines": 623,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260525140000_v2_rls_policies.sql",
+      "language": "sql",
+      "sizeLines": 183,
+      "fileCategory": "data"
+    }
+  ],
+  "batchImportData": {
+    "supabase/migrations/20260525120000_v2_canonical_schema.sql": [],
+    "supabase/migrations/20260525130000_v2_atomic_money_rpcs.sql": [],
+    "supabase/migrations/20260525140000_v2_rls_policies.sql": []
+  }
+}

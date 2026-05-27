@@ -1,0 +1,444 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "ProjectV2",
+    "languages": [
+      "typescript",
+      "sql"
+    ],
+    "frameworks": [
+      "react",
+      "supabase"
+    ],
+    "description": "KithLy V2 - Escrow-centric transaction workflow platform for gifts and merchant settlements.",
+    "analyzedAt": "2026-05-27T18:55:00.000Z",
+    "gitCommitHash": "latest"
+  },
+  "nodes": [
+    {
+      "id": "domain:catalog",
+      "type": "domain",
+      "name": "Product Catalog",
+      "summary": "Handles displaying product preview cards and detailed product information.",
+      "tags": [
+        "catalog",
+        "products"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entities": [
+          "Products",
+          "Categories"
+        ],
+        "businessRules": [
+          "Show Escrow Protected badges on products."
+        ],
+        "crossDomainInteractions": [
+          "Passes selected products to Checkout."
+        ]
+      }
+    },
+    {
+      "id": "domain:checkout-and-escrow",
+      "type": "domain",
+      "name": "Checkout and Escrow",
+      "summary": "Manages the checkout process, secure payment processing, and escrow temporal locks.",
+      "tags": [
+        "checkout",
+        "escrow",
+        "payments"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "Orders",
+          "Payments"
+        ],
+        "businessRules": [
+          "Funds are held in escrow until claim is fulfilled.",
+          "Enforce temporal lock on FX rates."
+        ],
+        "crossDomainInteractions": [
+          "Generates claim codes for the Gifts domain."
+        ]
+      }
+    },
+    {
+      "id": "domain:gifts-and-claims",
+      "type": "domain",
+      "name": "Gifts and Claims",
+      "summary": "Handles the generation, distribution, and redemption of gift claim codes.",
+      "tags": [
+        "gifts",
+        "claims"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entities": [
+          "Claim Vouchers",
+          "Recipients"
+        ],
+        "businessRules": [
+          "Vouchers must be validated against the escrow ledger before fulfillment."
+        ],
+        "crossDomainInteractions": [
+          "Sends fulfilled claim data to Merchant Settlement."
+        ]
+      }
+    },
+    {
+      "id": "domain:merchant-settlement",
+      "type": "domain",
+      "name": "Merchant Settlement",
+      "summary": "Provides merchants with a pending settlement pipeline and disbursement ledgers.",
+      "tags": [
+        "merchant",
+        "settlement"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entities": [
+          "Settlements",
+          "Pending Batches"
+        ],
+        "businessRules": [
+          "Only authenticated shop owners can view and initiate their settlements."
+        ],
+        "crossDomainInteractions": [
+          "Processes fulfilled claims from Gifts domain."
+        ]
+      }
+    },
+    {
+      "id": "domain:user-dashboard",
+      "type": "domain",
+      "name": "User Dashboard",
+      "summary": "Secure private hub for users to view order status, activity feeds, and escrow ledgers.",
+      "tags": [
+        "dashboard",
+        "user"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entities": [
+          "User Activity",
+          "Escrow Ledger"
+        ],
+        "businessRules": [
+          "Strictly separate private operations from public storefront."
+        ],
+        "crossDomainInteractions": [
+          "Reads data from Checkout and Gifts domains."
+        ]
+      }
+    },
+    {
+      "id": "flow:browse-products",
+      "type": "flow",
+      "name": "Browse Products",
+      "summary": "User navigates the catalog to find items.",
+      "tags": [
+        "catalog",
+        "browsing"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "View Catalog Page",
+        "entryType": "manual"
+      }
+    },
+    {
+      "id": "step:browse-products:view-grid",
+      "type": "step",
+      "name": "View Product Grid",
+      "summary": "Display responsive grid of products.",
+      "tags": [
+        "catalog",
+        "ui"
+      ],
+      "complexity": "simple",
+      "filePath": "src/app/pages/ShopDirectory.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:browse-products:view-details",
+      "type": "step",
+      "name": "View Product Details",
+      "summary": "Open full-screen detail modal for a specific product.",
+      "tags": [
+        "catalog",
+        "ui"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/app/pages/ShopDirectory.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:process-checkout",
+      "type": "flow",
+      "name": "Process Checkout",
+      "summary": "User checks out items, creating an escrowed transaction.",
+      "tags": [
+        "checkout",
+        "payment"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entryPoint": "Submit Checkout",
+        "entryType": "manual"
+      }
+    },
+    {
+      "id": "step:process-checkout:lock-fx",
+      "type": "step",
+      "name": "Lock FX Rate",
+      "summary": "Enforce temporal lock on exchange rate during checkout.",
+      "tags": [
+        "checkout",
+        "fx"
+      ],
+      "complexity": "complex",
+      "filePath": "src/app/components/checkout/FxTemporalLock.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:process-checkout:process-payment",
+      "type": "step",
+      "name": "Process Payment",
+      "summary": "Handle payment and put funds in escrow.",
+      "tags": [
+        "checkout",
+        "payment"
+      ],
+      "complexity": "complex",
+      "filePath": "src/app/components/checkout/PaymentProcessingScreen.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:manage-gifts",
+      "type": "flow",
+      "name": "Manage Gifts",
+      "summary": "Send and claim gifts.",
+      "tags": [
+        "gifts",
+        "claims"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "Send Flow / Claim Link",
+        "entryType": "manual"
+      }
+    },
+    {
+      "id": "step:manage-gifts:generate-code",
+      "type": "step",
+      "name": "Generate Claim Code",
+      "summary": "Create a unique voucher for the recipient.",
+      "tags": [
+        "gifts",
+        "voucher"
+      ],
+      "complexity": "simple",
+      "filePath": "src/app/pages/sender/SendFlow.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:manage-gifts:redeem-code",
+      "type": "step",
+      "name": "Redeem Claim Code",
+      "summary": "Recipient redeems the voucher, moving status to fulfilled.",
+      "tags": [
+        "gifts",
+        "redemption"
+      ],
+      "complexity": "moderate",
+      "filePath": "src/app/pages/sender/Confirmation.tsx",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "flow:merchant-settle",
+      "type": "flow",
+      "name": "Merchant Settle",
+      "summary": "Merchant views and requests pending settlements.",
+      "tags": [
+        "merchant",
+        "settlement"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "Merchant Dashboard",
+        "entryType": "manual"
+      }
+    },
+    {
+      "id": "step:merchant-settle:view-pipeline",
+      "type": "step",
+      "name": "View Pending Pipeline",
+      "summary": "Fetch and display PENDING_BATCH items.",
+      "tags": [
+        "merchant",
+        "data"
+      ],
+      "complexity": "moderate",
+      "filePath": "supabase/functions/server/index.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "step:merchant-settle:initiate-settlement",
+      "type": "step",
+      "name": "Initiate Settlement",
+      "summary": "Move funds from escrow to merchant account.",
+      "tags": [
+        "merchant",
+        "action"
+      ],
+      "complexity": "complex",
+      "filePath": "supabase/functions/server/index.ts",
+      "lineRange": [
+        0,
+        0
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "domain:catalog",
+      "target": "flow:browse-products",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "flow:browse-products",
+      "target": "step:browse-products:view-grid",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:browse-products",
+      "target": "step:browse-products:view-details",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "domain:checkout-and-escrow",
+      "target": "flow:process-checkout",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "flow:process-checkout",
+      "target": "step:process-checkout:lock-fx",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:process-checkout",
+      "target": "step:process-checkout:process-payment",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "domain:gifts-and-claims",
+      "target": "flow:manage-gifts",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "flow:manage-gifts",
+      "target": "step:manage-gifts:generate-code",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:manage-gifts",
+      "target": "step:manage-gifts:redeem-code",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "domain:merchant-settlement",
+      "target": "flow:merchant-settle",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "flow:merchant-settle",
+      "target": "step:merchant-settle:view-pipeline",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "flow:merchant-settle",
+      "target": "step:merchant-settle:initiate-settlement",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "domain:catalog",
+      "target": "domain:checkout-and-escrow",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Passes selected items",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:checkout-and-escrow",
+      "target": "domain:gifts-and-claims",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Escrow creates claim vouchers",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:gifts-and-claims",
+      "target": "domain:merchant-settlement",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Redeemed claims become pending settlements",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:user-dashboard",
+      "target": "domain:checkout-and-escrow",
+      "type": "cross_domain",
+      "direction": "forward",
+      "description": "Reads order history",
+      "weight": 0.6
+    }
+  ],
+  "layers": [],
+  "tour": []
+}

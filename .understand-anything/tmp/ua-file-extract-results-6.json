@@ -1,0 +1,2434 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 25,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": ".codex/environments/environment.toml",
+      "language": "toml",
+      "fileCategory": "config",
+      "totalLines": 11,
+      "nonEmptyLines": 9,
+      "sections": [
+        {
+          "heading": "setup",
+          "level": 1,
+          "line": 5
+        },
+        {
+          "heading": "[[actions]]",
+          "level": 1,
+          "line": 8
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 2
+      }
+    },
+    {
+      "path": ".understand-anything/.understandignore",
+      "language": "unknown",
+      "fileCategory": "code",
+      "totalLines": 35,
+      "nonEmptyLines": 29,
+      "metrics": {}
+    },
+    {
+      "path": "guidelines/Guidelines.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 61,
+      "nonEmptyLines": 46,
+      "sections": [
+        {
+          "heading": "General guidelines",
+          "level": 1,
+          "line": 11
+        },
+        {
+          "heading": "Design system guidelines",
+          "level": 1,
+          "line": 22
+        },
+        {
+          "heading": "Button",
+          "level": 2,
+          "line": 40
+        },
+        {
+          "heading": "Usage",
+          "level": 3,
+          "line": 44
+        },
+        {
+          "heading": "Variants",
+          "level": 3,
+          "line": 48
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 5
+      }
+    },
+    {
+      "path": "nginx.conf",
+      "language": "conf",
+      "fileCategory": "code",
+      "totalLines": 30,
+      "nonEmptyLines": 25,
+      "metrics": {}
+    },
+    {
+      "path": "postcss.config.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 15,
+      "nonEmptyLines": 15,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/App.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 13,
+      "nonEmptyLines": 11,
+      "functions": [
+        {
+          "name": "App",
+          "startLine": 7,
+          "endLine": 13,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "App",
+          "line": 7,
+          "isDefault": true
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/checkout/FxTemporalLock.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 470,
+      "nonEmptyLines": 419,
+      "functions": [
+        {
+          "name": "computeRemainingMs",
+          "startLine": 95,
+          "endLine": 109,
+          "params": [
+            "sessionCreatedAt"
+          ]
+        },
+        {
+          "name": "formatMmSs",
+          "startLine": 119,
+          "endLine": 124,
+          "params": [
+            "ms"
+          ]
+        },
+        {
+          "name": "computeDashOffset",
+          "startLine": 133,
+          "endLine": 137,
+          "params": [
+            "remainingMs",
+            "circumference"
+          ]
+        },
+        {
+          "name": "ProgressRing",
+          "startLine": 151,
+          "endLine": 199,
+          "params": [
+            "{\n  remainingMs,\n  isUrgent,\n  isExpired,\n}"
+          ]
+        },
+        {
+          "name": "CountdownDisplay",
+          "startLine": 205,
+          "endLine": 233,
+          "params": [
+            "{\n  formatted,\n  isUrgent,\n  isExpired,\n}"
+          ]
+        },
+        {
+          "name": "FxTemporalLock",
+          "startLine": 239,
+          "endLine": 468,
+          "params": [
+            "{\n  sessionCreatedAt,\n  onExpire,\n  lockedRateLabel,\n  currency = 'GBP',\n  className,\n}"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "FxTemporalLock",
+          "line": 239,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "computeRemainingMs",
+          "callee": "new Date(sessionCreatedAt).getTime",
+          "lineNumber": 96
+        },
+        {
+          "caller": "computeRemainingMs",
+          "callee": "Number.isNaN",
+          "lineNumber": 98
+        },
+        {
+          "caller": "computeRemainingMs",
+          "callee": "console.error",
+          "lineNumber": 100
+        },
+        {
+          "caller": "computeRemainingMs",
+          "callee": "Math.max",
+          "lineNumber": 108
+        },
+        {
+          "caller": "computeRemainingMs",
+          "callee": "Date.now",
+          "lineNumber": 108
+        },
+        {
+          "caller": "formatMmSs",
+          "callee": "Math.ceil",
+          "lineNumber": 120
+        },
+        {
+          "caller": "formatMmSs",
+          "callee": "Math.floor",
+          "lineNumber": 121
+        },
+        {
+          "caller": "formatMmSs",
+          "callee": "String(minutes).padStart",
+          "lineNumber": 123
+        },
+        {
+          "caller": "formatMmSs",
+          "callee": "String",
+          "lineNumber": 123
+        },
+        {
+          "caller": "formatMmSs",
+          "callee": "String(seconds).padStart",
+          "lineNumber": 123
+        },
+        {
+          "caller": "formatMmSs",
+          "callee": "String",
+          "lineNumber": 123
+        },
+        {
+          "caller": "computeDashOffset",
+          "callee": "Math.max",
+          "lineNumber": 134
+        },
+        {
+          "caller": "computeDashOffset",
+          "callee": "Math.min",
+          "lineNumber": 134
+        },
+        {
+          "caller": "ProgressRing",
+          "callee": "computeDashOffset",
+          "lineNumber": 160
+        },
+        {
+          "caller": "CountdownDisplay",
+          "callee": "cn",
+          "lineNumber": 222
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "useState",
+          "lineNumber": 249
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "computeRemainingMs",
+          "lineNumber": 250
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "useRef",
+          "lineNumber": 259
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "useEffect",
+          "lineNumber": 260
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "useRef",
+          "lineNumber": 267
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "useCallback",
+          "lineNumber": 271
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "computeRemainingMs",
+          "lineNumber": 272
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "setTimerState",
+          "lineNumber": 275
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "onExpireRef.current",
+          "lineNumber": 281
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "useEffect",
+          "lineNumber": 285
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "computeRemainingMs",
+          "lineNumber": 288
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "onExpireRef.current",
+          "lineNumber": 291
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "setInterval",
+          "lineNumber": 296
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "clearInterval",
+          "lineNumber": 301
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "formatMmSs",
+          "lineNumber": 309
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "Math.round",
+          "lineNumber": 312
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "cn",
+          "lineNumber": 323
+        },
+        {
+          "caller": "FxTemporalLock",
+          "callee": "cn",
+          "lineNumber": 404
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/checkout/InternationalCheckoutModal.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 478,
+      "nonEmptyLines": 428,
+      "functions": [
+        {
+          "name": "formatZmw",
+          "startLine": 115,
+          "endLine": 120,
+          "params": [
+            "amount"
+          ]
+        },
+        {
+          "name": "formatFx",
+          "startLine": 126,
+          "endLine": 138,
+          "params": [
+            "amount",
+            "currencyCode"
+          ]
+        },
+        {
+          "name": "formatRate",
+          "startLine": 144,
+          "endLine": 146,
+          "params": [
+            "rate"
+          ]
+        },
+        {
+          "name": "ReceiptRow",
+          "startLine": 156,
+          "endLine": 194,
+          "params": [
+            "{\n  label,\n  value,\n  subtle = false,\n  total = false,\n  mono = true,\n}"
+          ]
+        },
+        {
+          "name": "Divider",
+          "startLine": 199,
+          "endLine": 201,
+          "params": [
+            "{ className }"
+          ]
+        },
+        {
+          "name": "SafeHarbourBadge",
+          "startLine": 206,
+          "endLine": 237,
+          "params": []
+        },
+        {
+          "name": "InternationalCheckoutModal",
+          "startLine": 243,
+          "endLine": 476,
+          "params": [
+            "{\n  open,\n  onClose,\n  sessionCreatedAt,\n  basePriceZmw,\n  zmwInternationalPrice,\n  checkoutPrice,\n  currency,\n  fxRateApplied,\n  fxRateRaw,\n  rateSource,\n  itemName,\n  onInitiatePayment,\n}"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "InternationalCheckoutModal",
+          "line": 243,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "formatZmw",
+          "callee": "amount.toLocaleString",
+          "lineNumber": 116
+        },
+        {
+          "caller": "formatFx",
+          "callee": "new Intl.NumberFormat('en-GB', {\n      style: 'currency',\n      currency: currencyCode,\n      minimumFractionDigits: 2,\n      maximumFractionDigits: 2,\n    }).format",
+          "lineNumber": 128
+        },
+        {
+          "caller": "formatFx",
+          "callee": "amount.toFixed",
+          "lineNumber": 136
+        },
+        {
+          "caller": "formatRate",
+          "callee": "rate.toFixed",
+          "lineNumber": 145
+        },
+        {
+          "caller": "ReceiptRow",
+          "callee": "cn",
+          "lineNumber": 172
+        },
+        {
+          "caller": "ReceiptRow",
+          "callee": "cn",
+          "lineNumber": 180
+        },
+        {
+          "caller": "Divider",
+          "callee": "cn",
+          "lineNumber": 200
+        },
+        {
+          "caller": "SafeHarbourBadge",
+          "callee": "cn",
+          "lineNumber": 209
+        },
+        {
+          "caller": "InternationalCheckoutModal",
+          "callee": "useState",
+          "lineNumber": 266
+        },
+        {
+          "caller": "InternationalCheckoutModal",
+          "callee": "useCallback",
+          "lineNumber": 268
+        },
+        {
+          "caller": "InternationalCheckoutModal",
+          "callee": "setIsExpired",
+          "lineNumber": 269
+        },
+        {
+          "caller": "InternationalCheckoutModal",
+          "callee": "onClose",
+          "lineNumber": 272
+        },
+        {
+          "caller": "InternationalCheckoutModal",
+          "callee": "useCallback",
+          "lineNumber": 276
+        },
+        {
+          "caller": "InternationalCheckoutModal",
+          "callee": "onClose",
+          "lineNumber": 279
+        },
+        {
+          "caller": "InternationalCheckoutModal",
+          "callee": "formatRate",
+          "lineNumber": 288
+        },
+        {
+          "caller": "InternationalCheckoutModal",
+          "callee": "cn",
+          "lineNumber": 295
+        },
+        {
+          "caller": "InternationalCheckoutModal",
+          "callee": "formatZmw",
+          "lineNumber": 357
+        },
+        {
+          "caller": "InternationalCheckoutModal",
+          "callee": "formatZmw",
+          "lineNumber": 363
+        },
+        {
+          "caller": "InternationalCheckoutModal",
+          "callee": "formatZmw",
+          "lineNumber": 370
+        },
+        {
+          "caller": "InternationalCheckoutModal",
+          "callee": "formatRate",
+          "lineNumber": 378
+        },
+        {
+          "caller": "InternationalCheckoutModal",
+          "callee": "formatRate",
+          "lineNumber": 385
+        },
+        {
+          "caller": "InternationalCheckoutModal",
+          "callee": "formatFx",
+          "lineNumber": 394
+        },
+        {
+          "caller": "InternationalCheckoutModal",
+          "callee": "cn",
+          "lineNumber": 429
+        },
+        {
+          "caller": "InternationalCheckoutModal",
+          "callee": "formatFx",
+          "lineNumber": 441
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/checkout/PaymentProcessingScreen.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 590,
+      "nonEmptyLines": 540,
+      "functions": [
+        {
+          "name": "launchConfetti",
+          "startLine": 78,
+          "endLine": 100,
+          "params": []
+        },
+        {
+          "name": "PollingView",
+          "startLine": 108,
+          "endLine": 174,
+          "params": [
+            "{ attemptCount, maxAttempts }"
+          ]
+        },
+        {
+          "name": "ClaimCodeDisplay",
+          "startLine": 183,
+          "endLine": 214,
+          "params": [
+            "{ code }"
+          ]
+        },
+        {
+          "name": "SuccessView",
+          "startLine": 216,
+          "endLine": 340,
+          "params": [
+            "{\n  shopOrders,\n  onComplete,\n}"
+          ]
+        },
+        {
+          "name": "TimeoutView",
+          "startLine": 344,
+          "endLine": 462,
+          "params": [
+            "{\n  status,\n  onRetry,\n}"
+          ]
+        },
+        {
+          "name": "PaymentProcessingScreen",
+          "startLine": 468,
+          "endLine": 588,
+          "params": [
+            "{\n  transactionId,\n  shopOrders,\n  onComplete,\n}"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "PaymentProcessingScreen",
+          "line": 468,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "launchConfetti",
+          "callee": "confetti",
+          "lineNumber": 94
+        },
+        {
+          "caller": "launchConfetti",
+          "callee": "setTimeout",
+          "lineNumber": 97
+        },
+        {
+          "caller": "launchConfetti",
+          "callee": "confetti",
+          "lineNumber": 98
+        },
+        {
+          "caller": "PollingView",
+          "callee": "Math.min",
+          "lineNumber": 109
+        },
+        {
+          "caller": "PollingView",
+          "callee": "Math.round",
+          "lineNumber": 160
+        },
+        {
+          "caller": "ClaimCodeDisplay",
+          "callee": "code.toUpperCase().split",
+          "lineNumber": 184
+        },
+        {
+          "caller": "ClaimCodeDisplay",
+          "callee": "code.toUpperCase",
+          "lineNumber": 184
+        },
+        {
+          "caller": "ClaimCodeDisplay",
+          "callee": "code.split('').join",
+          "lineNumber": 190
+        },
+        {
+          "caller": "ClaimCodeDisplay",
+          "callee": "code.split",
+          "lineNumber": 190
+        },
+        {
+          "caller": "ClaimCodeDisplay",
+          "callee": "characters.map",
+          "lineNumber": 192
+        },
+        {
+          "caller": "ClaimCodeDisplay",
+          "callee": "cn",
+          "lineNumber": 202
+        },
+        {
+          "caller": "SuccessView",
+          "callee": "shopOrders.map",
+          "lineNumber": 294
+        },
+        {
+          "caller": "SuccessView",
+          "callee": "order.shop_id.slice",
+          "lineNumber": 304
+        },
+        {
+          "caller": "SuccessView",
+          "callee": "order.shop_id.slice",
+          "lineNumber": 313
+        },
+        {
+          "caller": "TimeoutView",
+          "callee": "window.open",
+          "lineNumber": 455
+        },
+        {
+          "caller": "PaymentProcessingScreen",
+          "callee": "usePaymentVerification",
+          "lineNumber": 474
+        },
+        {
+          "caller": "PaymentProcessingScreen",
+          "callee": "useRef",
+          "lineNumber": 476
+        },
+        {
+          "caller": "PaymentProcessingScreen",
+          "callee": "useEffect",
+          "lineNumber": 478
+        },
+        {
+          "caller": "PaymentProcessingScreen",
+          "callee": "launchConfetti",
+          "lineNumber": 481
+        },
+        {
+          "caller": "PaymentProcessingScreen",
+          "callee": "setTimeout",
+          "lineNumber": 484
+        },
+        {
+          "caller": "PaymentProcessingScreen",
+          "callee": "continueButtonRef.current?.focus",
+          "lineNumber": 484
+        },
+        {
+          "caller": "PaymentProcessingScreen",
+          "callee": "clearTimeout",
+          "lineNumber": 485
+        },
+        {
+          "caller": "PaymentProcessingScreen",
+          "callee": "cn",
+          "lineNumber": 500
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/figma/ImageWithFallback.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 27,
+      "nonEmptyLines": 22,
+      "functions": [
+        {
+          "name": "ImageWithFallback",
+          "startLine": 6,
+          "endLine": 27,
+          "params": [
+            "props"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ImageWithFallback",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ImageWithFallback",
+          "callee": "useState",
+          "lineNumber": 7
+        },
+        {
+          "caller": "handleError",
+          "callee": "setDidError",
+          "lineNumber": 10
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/layout/Footer.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 95,
+      "nonEmptyLines": 88,
+      "functions": [
+        {
+          "name": "Footer",
+          "startLine": 6,
+          "endLine": 95,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Footer",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Footer",
+          "callee": "useNavigate",
+          "lineNumber": 7
+        },
+        {
+          "caller": "Footer",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 8
+        },
+        {
+          "caller": "Footer",
+          "callee": "navigate",
+          "lineNumber": 42
+        },
+        {
+          "caller": "Footer",
+          "callee": "navigate",
+          "lineNumber": 43
+        },
+        {
+          "caller": "Footer",
+          "callee": "navigate",
+          "lineNumber": 44
+        },
+        {
+          "caller": "Footer",
+          "callee": "navigate",
+          "lineNumber": 45
+        },
+        {
+          "caller": "Footer",
+          "callee": "navigate",
+          "lineNumber": 53
+        },
+        {
+          "caller": "Footer",
+          "callee": "navigate",
+          "lineNumber": 54
+        },
+        {
+          "caller": "Footer",
+          "callee": "navigate",
+          "lineNumber": 55
+        },
+        {
+          "caller": "Footer",
+          "callee": "navigate",
+          "lineNumber": 56
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/layout/Header.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 205,
+      "nonEmptyLines": 186,
+      "functions": [
+        {
+          "name": "Header",
+          "startLine": 22,
+          "endLine": 205,
+          "params": [
+            "{\n  onMenuClick,\n  onCartClick,\n  onProfileClick,\n  onLogoClick,\n}"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "Header",
+          "line": 22,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Header",
+          "callee": "useAuth",
+          "lineNumber": 28
+        },
+        {
+          "caller": "Header",
+          "callee": "useCart",
+          "lineNumber": 30
+        },
+        {
+          "caller": "Header",
+          "callee": "getTotalItems",
+          "lineNumber": 31
+        },
+        {
+          "caller": "Header",
+          "callee": "useState",
+          "lineNumber": 33
+        },
+        {
+          "caller": "Header",
+          "callee": "useState",
+          "lineNumber": 34
+        },
+        {
+          "caller": "Header",
+          "callee": "useState",
+          "lineNumber": 35
+        },
+        {
+          "caller": "Header",
+          "callee": "useEffect",
+          "lineNumber": 37
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('orders')\n        .select('id, code, recipient_name, fulfilled_at, item:items(name), shop:shops(name)')\n        .eq('sender_id', user.id)\n        .eq('status', 'fulfilled')\n        .order('fulfilled_at', { ascending: false })\n        .limit",
+          "lineNumber": 41
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('orders')\n        .select('id, code, recipient_name, fulfilled_at, item:items(name), shop:shops(name)')\n        .eq('sender_id', user.id)\n        .eq('status', 'fulfilled')\n        .order",
+          "lineNumber": 41
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('orders')\n        .select('id, code, recipient_name, fulfilled_at, item:items(name), shop:shops(name)')\n        .eq('sender_id', user.id)\n        .eq",
+          "lineNumber": 41
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('orders')\n        .select('id, code, recipient_name, fulfilled_at, item:items(name), shop:shops(name)')\n        .eq",
+          "lineNumber": 41
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('orders')\n        .select",
+          "lineNumber": 41
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from",
+          "lineNumber": 41
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "setNotifications",
+          "lineNumber": 50
+        },
+        {
+          "caller": "Header",
+          "callee": "fetchNotifications",
+          "lineNumber": 54
+        },
+        {
+          "caller": "Header",
+          "callee": "supabase.channel('realtime-sender-notifications')\n      .on('postgres_changes', {\n        event: 'UPDATE',\n        schema: 'public',\n        table: 'orders',\n        filter: `sender_id=eq.${user.id}`\n      }, (payload: any) => {\n        if (payload.new.status === 'fulfilled' && payload.old.status !== 'fulfilled') {\n          toast.success(`🎉 Gift collected! Your recipient just picked up their item.`);\n          setUnreadCount(prev => prev + 1);\n          fetchNotifications(); // Refresh the list to get joined item/shop data\n        }\n      }).subscribe",
+          "lineNumber": 56
+        },
+        {
+          "caller": "Header",
+          "callee": "supabase.channel('realtime-sender-notifications')\n      .on",
+          "lineNumber": 56
+        },
+        {
+          "caller": "Header",
+          "callee": "supabase.channel",
+          "lineNumber": 56
+        },
+        {
+          "caller": "Header",
+          "callee": "toast.success",
+          "lineNumber": 64
+        },
+        {
+          "caller": "Header",
+          "callee": "setUnreadCount",
+          "lineNumber": 65
+        },
+        {
+          "caller": "Header",
+          "callee": "fetchNotifications",
+          "lineNumber": 66
+        },
+        {
+          "caller": "Header",
+          "callee": "supabase.removeChannel",
+          "lineNumber": 70
+        },
+        {
+          "caller": "Header",
+          "callee": "setIsNotificationsOpen",
+          "lineNumber": 109
+        },
+        {
+          "caller": "Header",
+          "callee": "setUnreadCount",
+          "lineNumber": 109
+        },
+        {
+          "caller": "Header",
+          "callee": "user?.full_name?.charAt",
+          "lineNumber": 152
+        },
+        {
+          "caller": "Header",
+          "callee": "user?.full_name?.split",
+          "lineNumber": 156
+        },
+        {
+          "caller": "Header",
+          "callee": "setIsNotificationsOpen",
+          "lineNumber": 183
+        },
+        {
+          "caller": "Header",
+          "callee": "notifications.map",
+          "lineNumber": 189
+        },
+        {
+          "caller": "Header",
+          "callee": "new Date(notif.fulfilled_at).toLocaleDateString",
+          "lineNumber": 195
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/merchant/CashierVerificationTerminal.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 727,
+      "nonEmptyLines": 659,
+      "functions": [
+        {
+          "name": "callFulfillVoucher",
+          "startLine": 85,
+          "endLine": 130,
+          "params": [
+            "claimCode",
+            "shopId",
+            "accessToken"
+          ]
+        },
+        {
+          "name": "ScanningView",
+          "startLine": 148,
+          "endLine": 179,
+          "params": []
+        },
+        {
+          "name": "ApprovedView",
+          "startLine": 183,
+          "endLine": 314,
+          "params": [
+            "{\n  result,\n  onReset,\n}"
+          ]
+        },
+        {
+          "name": "RejectedView",
+          "startLine": 318,
+          "endLine": 445,
+          "params": [
+            "{\n  result,\n  onReset,\n}"
+          ]
+        },
+        {
+          "name": "IdleView",
+          "startLine": 449,
+          "endLine": 554,
+          "params": [
+            "{\n  code,\n  onCodeChange,\n  onSubmit,\n  isDisabled,\n}"
+          ]
+        },
+        {
+          "name": "CashierVerificationTerminal",
+          "startLine": 560,
+          "endLine": 725,
+          "params": [
+            "{\n  shopId,\n  onApproved,\n}"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "CashierVerificationTerminal",
+          "line": 560,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "callFulfillVoucher",
+          "callee": "fetch",
+          "lineNumber": 93
+        },
+        {
+          "caller": "callFulfillVoucher",
+          "callee": "JSON.stringify",
+          "lineNumber": 99
+        },
+        {
+          "caller": "callFulfillVoucher",
+          "callee": "response.json",
+          "lineNumber": 104
+        },
+        {
+          "caller": "ApprovedView",
+          "callee": "cn",
+          "lineNumber": 246
+        },
+        {
+          "caller": "RejectedView",
+          "callee": "window.open",
+          "lineNumber": 438
+        },
+        {
+          "caller": "IdleView",
+          "callee": "cn",
+          "lineNumber": 517
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "useState",
+          "lineNumber": 567
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "useState",
+          "lineNumber": 568
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "useState",
+          "lineNumber": 569
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "useState",
+          "lineNumber": 570
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "useRef",
+          "lineNumber": 576
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "useCallback",
+          "lineNumber": 580
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "setStatus",
+          "lineNumber": 583
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "supabase.auth.getSession",
+          "lineNumber": 587
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "toast.error",
+          "lineNumber": 590
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "setStatus",
+          "lineNumber": 593
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "callFulfillVoucher",
+          "lineNumber": 597
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "setApprovedResult",
+          "lineNumber": 600
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "setStatus",
+          "lineNumber": 601
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "onApproved",
+          "lineNumber": 602
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "navigator.vibrate",
+          "lineNumber": 605
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "toast.success",
+          "lineNumber": 607
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "setRejectedResult",
+          "lineNumber": 611
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "setStatus",
+          "lineNumber": 615
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "navigator.vibrate",
+          "lineNumber": 617
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "toast.error",
+          "lineNumber": 619
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "console.error",
+          "lineNumber": 625
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "toast.error",
+          "lineNumber": 626
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "setStatus",
+          "lineNumber": 629
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "useCallback",
+          "lineNumber": 635
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "setCode",
+          "lineNumber": 636
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "setApprovedResult",
+          "lineNumber": 637
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "setRejectedResult",
+          "lineNumber": 638
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "setStatus",
+          "lineNumber": 639
+        },
+        {
+          "caller": "CashierVerificationTerminal",
+          "callee": "cn",
+          "lineNumber": 657
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/merchant/SettlementDashboard.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 242,
+      "nonEmptyLines": 223,
+      "functions": [
+        {
+          "name": "formatZmw",
+          "startLine": 54,
+          "endLine": 59,
+          "params": [
+            "amount"
+          ]
+        },
+        {
+          "name": "LedgerRow",
+          "startLine": 68,
+          "endLine": 117,
+          "params": [
+            "{ entry, isLast }"
+          ]
+        },
+        {
+          "name": "SettlementDashboard",
+          "startLine": 123,
+          "endLine": 240,
+          "params": [
+            "{ ledgerData, isLoading }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "SettlementDashboard",
+          "line": 123,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "formatZmw",
+          "callee": "amount.toLocaleString",
+          "lineNumber": 55
+        },
+        {
+          "caller": "LedgerRow",
+          "callee": "useSettlementCountdown",
+          "lineNumber": 69
+        },
+        {
+          "caller": "LedgerRow",
+          "callee": "cn",
+          "lineNumber": 75
+        },
+        {
+          "caller": "LedgerRow",
+          "callee": "formatZmw",
+          "lineNumber": 89
+        },
+        {
+          "caller": "LedgerRow",
+          "callee": "cn",
+          "lineNumber": 99
+        },
+        {
+          "caller": "LedgerRow",
+          "callee": "cn",
+          "lineNumber": 105
+        },
+        {
+          "caller": "SettlementDashboard",
+          "callee": "ledgerData.reduce",
+          "lineNumber": 125
+        },
+        {
+          "caller": "SettlementDashboard",
+          "callee": "formatZmw",
+          "lineNumber": 151
+        },
+        {
+          "caller": "SettlementDashboard",
+          "callee": "ledgerData.map",
+          "lineNumber": 226
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/shared/BackToTop.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 43,
+      "nonEmptyLines": 37,
+      "functions": [
+        {
+          "name": "BackToTop",
+          "startLine": 7,
+          "endLine": 43,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "BackToTop",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "BackToTop",
+          "callee": "useState",
+          "lineNumber": 8
+        },
+        {
+          "caller": "BackToTop",
+          "callee": "useEffect",
+          "lineNumber": 10
+        },
+        {
+          "caller": "toggleVisibility",
+          "callee": "setIsVisible",
+          "lineNumber": 12
+        },
+        {
+          "caller": "BackToTop",
+          "callee": "window.addEventListener",
+          "lineNumber": 15
+        },
+        {
+          "caller": "BackToTop",
+          "callee": "window.removeEventListener",
+          "lineNumber": 16
+        },
+        {
+          "caller": "scrollToTop",
+          "callee": "window.scrollTo",
+          "lineNumber": 20
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/shared/EmptyState.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 42,
+      "nonEmptyLines": 39,
+      "functions": [
+        {
+          "name": "EmptyState",
+          "startLine": 16,
+          "endLine": 42,
+          "params": [
+            "{ icon: Icon, title, description, action }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "EmptyState",
+          "line": 16,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/shared/HandshakeTerminal.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 266,
+      "nonEmptyLines": 244,
+      "functions": [
+        {
+          "name": "HandshakeTerminal",
+          "startLine": 22,
+          "endLine": 266,
+          "params": [
+            "{\n  onVerify,\n  onRedeem,\n  mode,\n  customerCode = 'ABCD-EFGH',\n}"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "HandshakeTerminal",
+          "line": 22,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "HandshakeTerminal",
+          "callee": "useState",
+          "lineNumber": 28
+        },
+        {
+          "caller": "HandshakeTerminal",
+          "callee": "useState",
+          "lineNumber": 29
+        },
+        {
+          "caller": "HandshakeTerminal",
+          "callee": "useState",
+          "lineNumber": 30
+        },
+        {
+          "caller": "HandshakeTerminal",
+          "callee": "useState",
+          "lineNumber": 31
+        },
+        {
+          "caller": "HandshakeTerminal",
+          "callee": "useState",
+          "lineNumber": 32
+        },
+        {
+          "caller": "handleVerify",
+          "callee": "toast.error",
+          "lineNumber": 36
+        },
+        {
+          "caller": "handleVerify",
+          "callee": "setIsVerifying",
+          "lineNumber": 40
+        },
+        {
+          "caller": "handleVerify",
+          "callee": "setVerificationStatus",
+          "lineNumber": 41
+        },
+        {
+          "caller": "handleVerify",
+          "callee": "setVerifiedItem",
+          "lineNumber": 42
+        },
+        {
+          "caller": "handleVerify",
+          "callee": "onVerify",
+          "lineNumber": 45
+        },
+        {
+          "caller": "handleVerify",
+          "callee": "setVerificationStatus",
+          "lineNumber": 48
+        },
+        {
+          "caller": "handleVerify",
+          "callee": "setVerifiedItem",
+          "lineNumber": 49
+        },
+        {
+          "caller": "handleVerify",
+          "callee": "toast.success",
+          "lineNumber": 50
+        },
+        {
+          "caller": "handleVerify",
+          "callee": "setVerificationStatus",
+          "lineNumber": 54
+        },
+        {
+          "caller": "handleVerify",
+          "callee": "toast.error",
+          "lineNumber": 55
+        },
+        {
+          "caller": "handleVerify",
+          "callee": "setVerificationStatus",
+          "lineNumber": 60
+        },
+        {
+          "caller": "handleVerify",
+          "callee": "toast.error",
+          "lineNumber": 61
+        },
+        {
+          "caller": "handleVerify",
+          "callee": "setIsVerifying",
+          "lineNumber": 63
+        },
+        {
+          "caller": "handleRedeem",
+          "callee": "setIsRedeeming",
+          "lineNumber": 70
+        },
+        {
+          "caller": "handleRedeem",
+          "callee": "setVerificationStatus",
+          "lineNumber": 73
+        },
+        {
+          "caller": "handleRedeem",
+          "callee": "onRedeem",
+          "lineNumber": 76
+        },
+        {
+          "caller": "handleRedeem",
+          "callee": "navigator.vibrate",
+          "lineNumber": 80
+        },
+        {
+          "caller": "handleRedeem",
+          "callee": "toast.success",
+          "lineNumber": 82
+        },
+        {
+          "caller": "handleRedeem",
+          "callee": "setVerificationStatus",
+          "lineNumber": 87
+        },
+        {
+          "caller": "handleRedeem",
+          "callee": "toast.error",
+          "lineNumber": 88
+        },
+        {
+          "caller": "handleRedeem",
+          "callee": "setVerificationStatus",
+          "lineNumber": 94
+        },
+        {
+          "caller": "handleRedeem",
+          "callee": "toast.error",
+          "lineNumber": 95
+        },
+        {
+          "caller": "handleRedeem",
+          "callee": "setIsRedeeming",
+          "lineNumber": 97
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/shared/HeroSlider.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 126,
+      "nonEmptyLines": 110,
+      "functions": [
+        {
+          "name": "HeroSlider",
+          "startLine": 14,
+          "endLine": 126,
+          "params": [
+            "{ slides, autoPlayInterval = 5000 }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "HeroSlider",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "HeroSlider",
+          "callee": "useState",
+          "lineNumber": 15
+        },
+        {
+          "caller": "HeroSlider",
+          "callee": "useEffect",
+          "lineNumber": 17
+        },
+        {
+          "caller": "HeroSlider",
+          "callee": "setInterval",
+          "lineNumber": 18
+        },
+        {
+          "caller": "HeroSlider",
+          "callee": "setCurrentIndex",
+          "lineNumber": 19
+        },
+        {
+          "caller": "HeroSlider",
+          "callee": "clearInterval",
+          "lineNumber": 22
+        },
+        {
+          "caller": "goToPrevious",
+          "callee": "setCurrentIndex",
+          "lineNumber": 26
+        },
+        {
+          "caller": "goToNext",
+          "callee": "setCurrentIndex",
+          "lineNumber": 30
+        },
+        {
+          "caller": "HeroSlider",
+          "callee": "slides.map",
+          "lineNumber": 111
+        },
+        {
+          "caller": "HeroSlider",
+          "callee": "setCurrentIndex",
+          "lineNumber": 114
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/shared/HorizontalProductRibbon.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 63,
+      "nonEmptyLines": 58,
+      "functions": [
+        {
+          "name": "HorizontalProductRibbon",
+          "startLine": 16,
+          "endLine": 63,
+          "params": [
+            "{\n  title,\n  subtitle,\n  products,\n  onViewAll,\n  onProductClick,\n}"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "HorizontalProductRibbon",
+          "line": 16,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "HorizontalProductRibbon",
+          "callee": "products.map",
+          "lineNumber": 50
+        },
+        {
+          "caller": "HorizontalProductRibbon",
+          "callee": "onProductClick",
+          "lineNumber": 54
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/shared/NotificationSlider.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 183,
+      "nonEmptyLines": 169,
+      "functions": [
+        {
+          "name": "NotificationSlider",
+          "startLine": 23,
+          "endLine": 183,
+          "params": [
+            "{ isOpen, onClose }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "NotificationSlider",
+          "line": 23,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "NotificationSlider",
+          "callee": "useAuth",
+          "lineNumber": 24
+        },
+        {
+          "caller": "NotificationSlider",
+          "callee": "useNavigate",
+          "lineNumber": 25
+        },
+        {
+          "caller": "NotificationSlider",
+          "callee": "useState",
+          "lineNumber": 26
+        },
+        {
+          "caller": "NotificationSlider",
+          "callee": "useState",
+          "lineNumber": 27
+        },
+        {
+          "caller": "NotificationSlider",
+          "callee": "useEffect",
+          "lineNumber": 29
+        },
+        {
+          "caller": "NotificationSlider",
+          "callee": "fetchNotifications",
+          "lineNumber": 31
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "setLoading",
+          "lineNumber": 37
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('notifications')\n        .select('*')\n        .eq('user_id', profile.id)\n        .order('created_at', { ascending: false })\n        .limit",
+          "lineNumber": 39
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('notifications')\n        .select('*')\n        .eq('user_id', profile.id)\n        .order",
+          "lineNumber": 39
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('notifications')\n        .select('*')\n        .eq",
+          "lineNumber": 39
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('notifications')\n        .select",
+          "lineNumber": 39
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from",
+          "lineNumber": 39
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "setNotifications",
+          "lineNumber": 47
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "console.error",
+          "lineNumber": 49
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "setLoading",
+          "lineNumber": 51
+        },
+        {
+          "caller": "markAsRead",
+          "callee": "setNotifications",
+          "lineNumber": 58
+        },
+        {
+          "caller": "markAsRead",
+          "callee": "prev.map",
+          "lineNumber": 59
+        },
+        {
+          "caller": "markAsRead",
+          "callee": "supabase.from('notifications').update({ is_read: true }).eq",
+          "lineNumber": 61
+        },
+        {
+          "caller": "markAsRead",
+          "callee": "supabase.from('notifications').update",
+          "lineNumber": 61
+        },
+        {
+          "caller": "markAsRead",
+          "callee": "supabase.from",
+          "lineNumber": 61
+        },
+        {
+          "caller": "markAsRead",
+          "callee": "console.error",
+          "lineNumber": 63
+        },
+        {
+          "caller": "formatDate",
+          "callee": "Date.now",
+          "lineNumber": 78
+        },
+        {
+          "caller": "formatDate",
+          "callee": "date.getTime",
+          "lineNumber": 78
+        },
+        {
+          "caller": "formatDate",
+          "callee": "Math.floor",
+          "lineNumber": 83
+        },
+        {
+          "caller": "formatDate",
+          "callee": "Math.floor",
+          "lineNumber": 86
+        },
+        {
+          "caller": "formatDate",
+          "callee": "Math.floor",
+          "lineNumber": 87
+        },
+        {
+          "caller": "formatDate",
+          "callee": "date.toLocaleDateString",
+          "lineNumber": 88
+        },
+        {
+          "caller": "NotificationSlider",
+          "callee": "notifications.map",
+          "lineNumber": 137
+        },
+        {
+          "caller": "NotificationSlider",
+          "callee": "markAsRead",
+          "lineNumber": 140
+        },
+        {
+          "caller": "NotificationSlider",
+          "callee": "getIcon",
+          "lineNumber": 145
+        },
+        {
+          "caller": "NotificationSlider",
+          "callee": "formatDate",
+          "lineNumber": 156
+        },
+        {
+          "caller": "NotificationSlider",
+          "callee": "onClose",
+          "lineNumber": 170
+        },
+        {
+          "caller": "NotificationSlider",
+          "callee": "navigate",
+          "lineNumber": 171
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/shared/PageTransition.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 21,
+      "nonEmptyLines": 18,
+      "functions": [
+        {
+          "name": "PageTransition",
+          "startLine": 10,
+          "endLine": 21,
+          "params": [
+            "{ children }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "PageTransition",
+          "line": 10,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/shared/ProductCard.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 338,
+      "nonEmptyLines": 303,
+      "functions": [
+        {
+          "name": "ProductDetailModal",
+          "startLine": 35,
+          "endLine": 170,
+          "params": [
+            "{\n  product,\n  onClose,\n  onAddToCart,\n}"
+          ]
+        },
+        {
+          "name": "ProductCard",
+          "startLine": 176,
+          "endLine": 338,
+          "params": [
+            "{ product, onClick }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ProductCard",
+          "line": 176,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ProductDetailModal",
+          "callee": "onClose",
+          "lineNumber": 53
+        },
+        {
+          "caller": "ProductDetailModal",
+          "callee": "formatZMW",
+          "lineNumber": 123
+        },
+        {
+          "caller": "ProductCard",
+          "callee": "useCart",
+          "lineNumber": 177
+        },
+        {
+          "caller": "ProductCard",
+          "callee": "useWishlist",
+          "lineNumber": 178
+        },
+        {
+          "caller": "ProductCard",
+          "callee": "useNavigate",
+          "lineNumber": 179
+        },
+        {
+          "caller": "ProductCard",
+          "callee": "isInWishlist",
+          "lineNumber": 180
+        },
+        {
+          "caller": "ProductCard",
+          "callee": "useState",
+          "lineNumber": 182
+        },
+        {
+          "caller": "handleClick",
+          "callee": "onClick",
+          "lineNumber": 187
+        },
+        {
+          "caller": "handleClick",
+          "callee": "navigate",
+          "lineNumber": 189
+        },
+        {
+          "caller": "handleAddToCart",
+          "callee": "e.stopPropagation",
+          "lineNumber": 195
+        },
+        {
+          "caller": "handleAddToCart",
+          "callee": "addToCart",
+          "lineNumber": 196
+        },
+        {
+          "caller": "handleAddToCart",
+          "callee": "toast.success",
+          "lineNumber": 197
+        },
+        {
+          "caller": "handleAddToCart",
+          "callee": "setModalOpen",
+          "lineNumber": 198
+        },
+        {
+          "caller": "handleWishlist",
+          "callee": "e.stopPropagation",
+          "lineNumber": 203
+        },
+        {
+          "caller": "handleWishlist",
+          "callee": "removeFromWishlist",
+          "lineNumber": 205
+        },
+        {
+          "caller": "handleWishlist",
+          "callee": "toast.success",
+          "lineNumber": 206
+        },
+        {
+          "caller": "handleWishlist",
+          "callee": "addToWishlist",
+          "lineNumber": 208
+        },
+        {
+          "caller": "handleWishlist",
+          "callee": "toast.success",
+          "lineNumber": 209
+        },
+        {
+          "caller": "openModal",
+          "callee": "e.stopPropagation",
+          "lineNumber": 215
+        },
+        {
+          "caller": "openModal",
+          "callee": "setModalOpen",
+          "lineNumber": 216
+        },
+        {
+          "caller": "ProductCard",
+          "callee": "formatZMW",
+          "lineNumber": 309
+        },
+        {
+          "caller": "ProductCard",
+          "callee": "setModalOpen",
+          "lineNumber": 331
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/shared/ProfileVerificationBanner.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 62,
+      "nonEmptyLines": 54,
+      "functions": [
+        {
+          "name": "ProfileVerificationBanner",
+          "startLine": 12,
+          "endLine": 62,
+          "params": [
+            "{ onComplete }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ProfileVerificationBanner",
+          "line": 12,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ProfileVerificationBanner",
+          "callee": "useAuth",
+          "lineNumber": 13
+        },
+        {
+          "caller": "ProfileVerificationBanner",
+          "callee": "checkProfileComplete",
+          "lineNumber": 15
+        },
+        {
+          "caller": "ProfileVerificationBanner",
+          "callee": "missingFields.push",
+          "lineNumber": 20
+        },
+        {
+          "caller": "ProfileVerificationBanner",
+          "callee": "missingFields.push",
+          "lineNumber": 21
+        },
+        {
+          "caller": "ProfileVerificationBanner",
+          "callee": "missingFields.push",
+          "lineNumber": 22
+        },
+        {
+          "caller": "ProfileVerificationBanner",
+          "callee": "missingFields.join",
+          "lineNumber": 44
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/shared/QRCodeDisplay.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 28,
+      "nonEmptyLines": 23,
+      "functions": [
+        {
+          "name": "QRCodeDisplay",
+          "startLine": 11,
+          "endLine": 28,
+          "params": [
+            "{ value, size = 200 }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "QRCodeDisplay",
+          "line": 11,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "QRCodeDisplay",
+          "callee": "useRef",
+          "lineNumber": 12
+        },
+        {
+          "caller": "QRCodeDisplay",
+          "callee": "useEffect",
+          "lineNumber": 14
+        },
+        {
+          "caller": "QRCodeDisplay",
+          "callee": "QRCode.toCanvas",
+          "lineNumber": 16
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/shared/SearchBar.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 114,
+      "nonEmptyLines": 102,
+      "functions": [
+        {
+          "name": "SearchBar",
+          "startLine": 15,
+          "endLine": 114,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "SearchBar",
+          "line": 15,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "SearchBar",
+          "callee": "useState",
+          "lineNumber": 16
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "useState",
+          "lineNumber": 17
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "useNavigate",
+          "lineNumber": 18
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "useState",
+          "lineNumber": 20
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "useState",
+          "lineNumber": 21
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "useEffect",
+          "lineNumber": 23
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "query.trim",
+          "lineNumber": 24
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "setResults",
+          "lineNumber": 25
+        },
+        {
+          "caller": "fetchSearchResults",
+          "callee": "setLoading",
+          "lineNumber": 30
+        },
+        {
+          "caller": "fetchSearchResults",
+          "callee": "supabase\n          .from('items')\n          .select('id, name, shops(name)')\n          .ilike('name', `%${query}%`)\n          .eq('is_available', true)\n          .limit",
+          "lineNumber": 32
+        },
+        {
+          "caller": "fetchSearchResults",
+          "callee": "supabase\n          .from('items')\n          .select('id, name, shops(name)')\n          .ilike('name', `%${query}%`)\n          .eq",
+          "lineNumber": 32
+        },
+        {
+          "caller": "fetchSearchResults",
+          "callee": "supabase\n          .from('items')\n          .select('id, name, shops(name)')\n          .ilike",
+          "lineNumber": 32
+        },
+        {
+          "caller": "fetchSearchResults",
+          "callee": "supabase\n          .from('items')\n          .select",
+          "lineNumber": 32
+        },
+        {
+          "caller": "fetchSearchResults",
+          "callee": "supabase\n          .from",
+          "lineNumber": 32
+        },
+        {
+          "caller": "fetchSearchResults",
+          "callee": "setResults",
+          "lineNumber": 41
+        },
+        {
+          "caller": "fetchSearchResults",
+          "callee": "(data || []).map",
+          "lineNumber": 42
+        },
+        {
+          "caller": "fetchSearchResults",
+          "callee": "console.error",
+          "lineNumber": 49
+        },
+        {
+          "caller": "fetchSearchResults",
+          "callee": "setLoading",
+          "lineNumber": 51
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "setTimeout",
+          "lineNumber": 55
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "fetchSearchResults",
+          "lineNumber": 56
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "clearTimeout",
+          "lineNumber": 59
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "setQuery",
+          "lineNumber": 69
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "setIsFocused",
+          "lineNumber": 70
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "setTimeout",
+          "lineNumber": 71
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "setIsFocused",
+          "lineNumber": 71
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "setQuery",
+          "lineNumber": 77
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "results.map",
+          "lineNumber": 93
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "navigate",
+          "lineNumber": 97
+        },
+        {
+          "caller": "SearchBar",
+          "callee": "setQuery",
+          "lineNumber": 98
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,2419 @@
+{
+  "nodes": [
+    {
+      "id": "file:src/app/components/shared/ShopCard.tsx",
+      "type": "file",
+      "name": "ShopCard.tsx",
+      "filePath": "src/app/components/shared/ShopCard.tsx",
+      "summary": "Implementation of ShopCard.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/shared/ShopCard.tsx:ShopCard",
+      "type": "function",
+      "name": "ShopCard",
+      "filePath": "src/app/components/shared/ShopCard.tsx",
+      "lineRange": [
+        26,
+        121
+      ],
+      "summary": "Function ShopCard executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/components/shared/StorefrontProductCard.tsx",
+      "type": "file",
+      "name": "StorefrontProductCard.tsx",
+      "filePath": "src/app/components/shared/StorefrontProductCard.tsx",
+      "summary": "Implementation of StorefrontProductCard.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/shared/StorefrontProductCard.tsx:StorefrontProductCard",
+      "type": "function",
+      "name": "StorefrontProductCard",
+      "filePath": "src/app/components/shared/StorefrontProductCard.tsx",
+      "lineRange": [
+        28,
+        121
+      ],
+      "summary": "Function StorefrontProductCard executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/components/shared/WhatsAppShareButton.tsx",
+      "type": "file",
+      "name": "WhatsAppShareButton.tsx",
+      "filePath": "src/app/components/shared/WhatsAppShareButton.tsx",
+      "summary": "Implementation of WhatsAppShareButton.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/shared/WhatsAppShareButton.tsx:WhatsAppShareButton",
+      "type": "function",
+      "name": "WhatsAppShareButton",
+      "filePath": "src/app/components/shared/WhatsAppShareButton.tsx",
+      "lineRange": [
+        10,
+        28
+      ],
+      "summary": "Function WhatsAppShareButton executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/accordion.tsx",
+      "type": "file",
+      "name": "accordion.tsx",
+      "filePath": "src/app/components/ui/accordion.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/ui/accordion.tsx:AccordionItem",
+      "type": "function",
+      "name": "AccordionItem",
+      "filePath": "src/app/components/ui/accordion.tsx",
+      "lineRange": [
+        15,
+        26
+      ],
+      "summary": "Function AccordionItem executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/accordion.tsx:AccordionTrigger",
+      "type": "function",
+      "name": "AccordionTrigger",
+      "filePath": "src/app/components/ui/accordion.tsx",
+      "lineRange": [
+        28,
+        48
+      ],
+      "summary": "Function AccordionTrigger executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/accordion.tsx:AccordionContent",
+      "type": "function",
+      "name": "AccordionContent",
+      "filePath": "src/app/components/ui/accordion.tsx",
+      "lineRange": [
+        50,
+        64
+      ],
+      "summary": "Function AccordionContent executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/alert-dialog.tsx",
+      "type": "file",
+      "name": "alert-dialog.tsx",
+      "filePath": "src/app/components/ui/alert-dialog.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/ui/alert-dialog.tsx:AlertDialogOverlay",
+      "type": "function",
+      "name": "AlertDialogOverlay",
+      "filePath": "src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        31,
+        45
+      ],
+      "summary": "Function AlertDialogOverlay executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/alert-dialog.tsx:AlertDialogContent",
+      "type": "function",
+      "name": "AlertDialogContent",
+      "filePath": "src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        47,
+        64
+      ],
+      "summary": "Function AlertDialogContent executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/alert-dialog.tsx:AlertDialogHeader",
+      "type": "function",
+      "name": "AlertDialogHeader",
+      "filePath": "src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        66,
+        77
+      ],
+      "summary": "Function AlertDialogHeader executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/alert-dialog.tsx:AlertDialogFooter",
+      "type": "function",
+      "name": "AlertDialogFooter",
+      "filePath": "src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        79,
+        93
+      ],
+      "summary": "Function AlertDialogFooter executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/alert-dialog.tsx:AlertDialogTitle",
+      "type": "function",
+      "name": "AlertDialogTitle",
+      "filePath": "src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        95,
+        106
+      ],
+      "summary": "Function AlertDialogTitle executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/alert-dialog.tsx:AlertDialogDescription",
+      "type": "function",
+      "name": "AlertDialogDescription",
+      "filePath": "src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        108,
+        119
+      ],
+      "summary": "Function AlertDialogDescription executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/alert-dialog.tsx:AlertDialogAction",
+      "type": "function",
+      "name": "AlertDialogAction",
+      "filePath": "src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        121,
+        131
+      ],
+      "summary": "Function AlertDialogAction executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/alert-dialog.tsx:AlertDialogCancel",
+      "type": "function",
+      "name": "AlertDialogCancel",
+      "filePath": "src/app/components/ui/alert-dialog.tsx",
+      "lineRange": [
+        133,
+        143
+      ],
+      "summary": "Function AlertDialogCancel executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/alert.tsx",
+      "type": "file",
+      "name": "alert.tsx",
+      "filePath": "src/app/components/ui/alert.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/ui/alert.tsx:Alert",
+      "type": "function",
+      "name": "Alert",
+      "filePath": "src/app/components/ui/alert.tsx",
+      "lineRange": [
+        22,
+        35
+      ],
+      "summary": "Function Alert executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/alert.tsx:AlertTitle",
+      "type": "function",
+      "name": "AlertTitle",
+      "filePath": "src/app/components/ui/alert.tsx",
+      "lineRange": [
+        37,
+        48
+      ],
+      "summary": "Function AlertTitle executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/alert.tsx:AlertDescription",
+      "type": "function",
+      "name": "AlertDescription",
+      "filePath": "src/app/components/ui/alert.tsx",
+      "lineRange": [
+        50,
+        64
+      ],
+      "summary": "Function AlertDescription executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/aspect-ratio.tsx",
+      "type": "file",
+      "name": "aspect-ratio.tsx",
+      "filePath": "src/app/components/ui/aspect-ratio.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/avatar.tsx",
+      "type": "file",
+      "name": "avatar.tsx",
+      "filePath": "src/app/components/ui/avatar.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/avatar.tsx:Avatar",
+      "type": "function",
+      "name": "Avatar",
+      "filePath": "src/app/components/ui/avatar.tsx",
+      "lineRange": [
+        8,
+        22
+      ],
+      "summary": "Function Avatar executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/avatar.tsx:AvatarImage",
+      "type": "function",
+      "name": "AvatarImage",
+      "filePath": "src/app/components/ui/avatar.tsx",
+      "lineRange": [
+        24,
+        35
+      ],
+      "summary": "Function AvatarImage executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/avatar.tsx:AvatarFallback",
+      "type": "function",
+      "name": "AvatarFallback",
+      "filePath": "src/app/components/ui/avatar.tsx",
+      "lineRange": [
+        37,
+        51
+      ],
+      "summary": "Function AvatarFallback executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/badge.tsx",
+      "type": "file",
+      "name": "badge.tsx",
+      "filePath": "src/app/components/ui/badge.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/badge.tsx:Badge",
+      "type": "function",
+      "name": "Badge",
+      "filePath": "src/app/components/ui/badge.tsx",
+      "lineRange": [
+        28,
+        44
+      ],
+      "summary": "Function Badge executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/breadcrumb.tsx",
+      "type": "file",
+      "name": "breadcrumb.tsx",
+      "filePath": "src/app/components/ui/breadcrumb.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/ui/breadcrumb.tsx:BreadcrumbList",
+      "type": "function",
+      "name": "BreadcrumbList",
+      "filePath": "src/app/components/ui/breadcrumb.tsx",
+      "lineRange": [
+        11,
+        22
+      ],
+      "summary": "Function BreadcrumbList executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/breadcrumb.tsx:BreadcrumbLink",
+      "type": "function",
+      "name": "BreadcrumbLink",
+      "filePath": "src/app/components/ui/breadcrumb.tsx",
+      "lineRange": [
+        34,
+        50
+      ],
+      "summary": "Function BreadcrumbLink executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/breadcrumb.tsx:BreadcrumbPage",
+      "type": "function",
+      "name": "BreadcrumbPage",
+      "filePath": "src/app/components/ui/breadcrumb.tsx",
+      "lineRange": [
+        52,
+        63
+      ],
+      "summary": "Function BreadcrumbPage executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/breadcrumb.tsx:BreadcrumbSeparator",
+      "type": "function",
+      "name": "BreadcrumbSeparator",
+      "filePath": "src/app/components/ui/breadcrumb.tsx",
+      "lineRange": [
+        65,
+        81
+      ],
+      "summary": "Function BreadcrumbSeparator executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/breadcrumb.tsx:BreadcrumbEllipsis",
+      "type": "function",
+      "name": "BreadcrumbEllipsis",
+      "filePath": "src/app/components/ui/breadcrumb.tsx",
+      "lineRange": [
+        83,
+        99
+      ],
+      "summary": "Function BreadcrumbEllipsis executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/button.tsx",
+      "type": "file",
+      "name": "button.tsx",
+      "filePath": "src/app/components/ui/button.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/ui/button.tsx:Button",
+      "type": "function",
+      "name": "Button",
+      "filePath": "src/app/components/ui/button.tsx",
+      "lineRange": [
+        38,
+        58
+      ],
+      "summary": "Function Button executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/calendar.tsx",
+      "type": "file",
+      "name": "calendar.tsx",
+      "filePath": "src/app/components/ui/calendar.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/ui/calendar.tsx:Calendar",
+      "type": "function",
+      "name": "Calendar",
+      "filePath": "src/app/components/ui/calendar.tsx",
+      "lineRange": [
+        10,
+        73
+      ],
+      "summary": "Function Calendar executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/components/ui/card.tsx",
+      "type": "file",
+      "name": "card.tsx",
+      "filePath": "src/app/components/ui/card.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/ui/card.tsx:Card",
+      "type": "function",
+      "name": "Card",
+      "filePath": "src/app/components/ui/card.tsx",
+      "lineRange": [
+        5,
+        16
+      ],
+      "summary": "Function Card executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/card.tsx:CardHeader",
+      "type": "function",
+      "name": "CardHeader",
+      "filePath": "src/app/components/ui/card.tsx",
+      "lineRange": [
+        18,
+        29
+      ],
+      "summary": "Function CardHeader executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/card.tsx:CardAction",
+      "type": "function",
+      "name": "CardAction",
+      "filePath": "src/app/components/ui/card.tsx",
+      "lineRange": [
+        51,
+        62
+      ],
+      "summary": "Function CardAction executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/carousel.tsx",
+      "type": "file",
+      "name": "carousel.tsx",
+      "filePath": "src/app/components/ui/carousel.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/components/ui/carousel.tsx:Carousel",
+      "type": "function",
+      "name": "Carousel",
+      "filePath": "src/app/components/ui/carousel.tsx",
+      "lineRange": [
+        45,
+        133
+      ],
+      "summary": "Function Carousel executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/ui/carousel.tsx:CarouselContent",
+      "type": "function",
+      "name": "CarouselContent",
+      "filePath": "src/app/components/ui/carousel.tsx",
+      "lineRange": [
+        135,
+        154
+      ],
+      "summary": "Function CarouselContent executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/carousel.tsx:CarouselItem",
+      "type": "function",
+      "name": "CarouselItem",
+      "filePath": "src/app/components/ui/carousel.tsx",
+      "lineRange": [
+        156,
+        172
+      ],
+      "summary": "Function CarouselItem executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/carousel.tsx:CarouselPrevious",
+      "type": "function",
+      "name": "CarouselPrevious",
+      "filePath": "src/app/components/ui/carousel.tsx",
+      "lineRange": [
+        174,
+        202
+      ],
+      "summary": "Function CarouselPrevious executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/carousel.tsx:CarouselNext",
+      "type": "function",
+      "name": "CarouselNext",
+      "filePath": "src/app/components/ui/carousel.tsx",
+      "lineRange": [
+        204,
+        232
+      ],
+      "summary": "Function CarouselNext executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/chart.tsx",
+      "type": "file",
+      "name": "chart.tsx",
+      "filePath": "src/app/components/ui/chart.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/components/ui/chart.tsx:ChartContainer",
+      "type": "function",
+      "name": "ChartContainer",
+      "filePath": "src/app/components/ui/chart.tsx",
+      "lineRange": [
+        37,
+        70
+      ],
+      "summary": "Function ChartContainer executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/chart.tsx:ChartStyle",
+      "type": "function",
+      "name": "ChartStyle",
+      "filePath": "src/app/components/ui/chart.tsx",
+      "lineRange": [
+        72,
+        103
+      ],
+      "summary": "Function ChartStyle executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/chart.tsx:ChartTooltipContent",
+      "type": "function",
+      "name": "ChartTooltipContent",
+      "filePath": "src/app/components/ui/chart.tsx",
+      "lineRange": [
+        107,
+        249
+      ],
+      "summary": "Function ChartTooltipContent executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/ui/chart.tsx:ChartLegendContent",
+      "type": "function",
+      "name": "ChartLegendContent",
+      "filePath": "src/app/components/ui/chart.tsx",
+      "lineRange": [
+        253,
+        305
+      ],
+      "summary": "Function ChartLegendContent executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/ui/chart.tsx:getPayloadConfigFromPayload",
+      "type": "function",
+      "name": "getPayloadConfigFromPayload",
+      "filePath": "src/app/components/ui/chart.tsx",
+      "lineRange": [
+        308,
+        344
+      ],
+      "summary": "Function getPayloadConfigFromPayload executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/checkbox.tsx",
+      "type": "file",
+      "name": "checkbox.tsx",
+      "filePath": "src/app/components/ui/checkbox.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/checkbox.tsx:Checkbox",
+      "type": "function",
+      "name": "Checkbox",
+      "filePath": "src/app/components/ui/checkbox.tsx",
+      "lineRange": [
+        9,
+        30
+      ],
+      "summary": "Function Checkbox executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/collapsible.tsx",
+      "type": "file",
+      "name": "collapsible.tsx",
+      "filePath": "src/app/components/ui/collapsible.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/command.tsx",
+      "type": "file",
+      "name": "command.tsx",
+      "filePath": "src/app/components/ui/command.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/ui/command.tsx:Command",
+      "type": "function",
+      "name": "Command",
+      "filePath": "src/app/components/ui/command.tsx",
+      "lineRange": [
+        16,
+        30
+      ],
+      "summary": "Function Command executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/command.tsx:CommandDialog",
+      "type": "function",
+      "name": "CommandDialog",
+      "filePath": "src/app/components/ui/command.tsx",
+      "lineRange": [
+        32,
+        54
+      ],
+      "summary": "Function CommandDialog executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/command.tsx:CommandInput",
+      "type": "function",
+      "name": "CommandInput",
+      "filePath": "src/app/components/ui/command.tsx",
+      "lineRange": [
+        56,
+        76
+      ],
+      "summary": "Function CommandInput executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/command.tsx:CommandList",
+      "type": "function",
+      "name": "CommandList",
+      "filePath": "src/app/components/ui/command.tsx",
+      "lineRange": [
+        78,
+        92
+      ],
+      "summary": "Function CommandList executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/command.tsx:CommandEmpty",
+      "type": "function",
+      "name": "CommandEmpty",
+      "filePath": "src/app/components/ui/command.tsx",
+      "lineRange": [
+        94,
+        104
+      ],
+      "summary": "Function CommandEmpty executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/command.tsx:CommandGroup",
+      "type": "function",
+      "name": "CommandGroup",
+      "filePath": "src/app/components/ui/command.tsx",
+      "lineRange": [
+        106,
+        120
+      ],
+      "summary": "Function CommandGroup executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/command.tsx:CommandSeparator",
+      "type": "function",
+      "name": "CommandSeparator",
+      "filePath": "src/app/components/ui/command.tsx",
+      "lineRange": [
+        122,
+        133
+      ],
+      "summary": "Function CommandSeparator executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/command.tsx:CommandItem",
+      "type": "function",
+      "name": "CommandItem",
+      "filePath": "src/app/components/ui/command.tsx",
+      "lineRange": [
+        135,
+        149
+      ],
+      "summary": "Function CommandItem executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/command.tsx:CommandShortcut",
+      "type": "function",
+      "name": "CommandShortcut",
+      "filePath": "src/app/components/ui/command.tsx",
+      "lineRange": [
+        151,
+        165
+      ],
+      "summary": "Function CommandShortcut executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/context-menu.tsx",
+      "type": "file",
+      "name": "context-menu.tsx",
+      "filePath": "src/app/components/ui/context-menu.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/components/ui/context-menu.tsx:ContextMenuSubTrigger",
+      "type": "function",
+      "name": "ContextMenuSubTrigger",
+      "filePath": "src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        56,
+        78
+      ],
+      "summary": "Function ContextMenuSubTrigger executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/context-menu.tsx:ContextMenuSubContent",
+      "type": "function",
+      "name": "ContextMenuSubContent",
+      "filePath": "src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        80,
+        94
+      ],
+      "summary": "Function ContextMenuSubContent executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/context-menu.tsx:ContextMenuContent",
+      "type": "function",
+      "name": "ContextMenuContent",
+      "filePath": "src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        96,
+        112
+      ],
+      "summary": "Function ContextMenuContent executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/context-menu.tsx:ContextMenuItem",
+      "type": "function",
+      "name": "ContextMenuItem",
+      "filePath": "src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        114,
+        135
+      ],
+      "summary": "Function ContextMenuItem executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/context-menu.tsx:ContextMenuCheckboxItem",
+      "type": "function",
+      "name": "ContextMenuCheckboxItem",
+      "filePath": "src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        137,
+        161
+      ],
+      "summary": "Function ContextMenuCheckboxItem executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/context-menu.tsx:ContextMenuRadioItem",
+      "type": "function",
+      "name": "ContextMenuRadioItem",
+      "filePath": "src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        163,
+        185
+      ],
+      "summary": "Function ContextMenuRadioItem executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/context-menu.tsx:ContextMenuLabel",
+      "type": "function",
+      "name": "ContextMenuLabel",
+      "filePath": "src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        187,
+        205
+      ],
+      "summary": "Function ContextMenuLabel executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/context-menu.tsx:ContextMenuSeparator",
+      "type": "function",
+      "name": "ContextMenuSeparator",
+      "filePath": "src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        207,
+        218
+      ],
+      "summary": "Function ContextMenuSeparator executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/context-menu.tsx:ContextMenuShortcut",
+      "type": "function",
+      "name": "ContextMenuShortcut",
+      "filePath": "src/app/components/ui/context-menu.tsx",
+      "lineRange": [
+        220,
+        234
+      ],
+      "summary": "Function ContextMenuShortcut executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/dialog.tsx",
+      "type": "file",
+      "name": "dialog.tsx",
+      "filePath": "src/app/components/ui/dialog.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/ui/dialog.tsx:DialogOverlay",
+      "type": "function",
+      "name": "DialogOverlay",
+      "filePath": "src/app/components/ui/dialog.tsx",
+      "lineRange": [
+        33,
+        47
+      ],
+      "summary": "Function DialogOverlay executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/dialog.tsx:DialogContent",
+      "type": "function",
+      "name": "DialogContent",
+      "filePath": "src/app/components/ui/dialog.tsx",
+      "lineRange": [
+        49,
+        73
+      ],
+      "summary": "Function DialogContent executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/dialog.tsx:DialogFooter",
+      "type": "function",
+      "name": "DialogFooter",
+      "filePath": "src/app/components/ui/dialog.tsx",
+      "lineRange": [
+        85,
+        96
+      ],
+      "summary": "Function DialogFooter executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/dialog.tsx:DialogTitle",
+      "type": "function",
+      "name": "DialogTitle",
+      "filePath": "src/app/components/ui/dialog.tsx",
+      "lineRange": [
+        98,
+        109
+      ],
+      "summary": "Function DialogTitle executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/dialog.tsx:DialogDescription",
+      "type": "function",
+      "name": "DialogDescription",
+      "filePath": "src/app/components/ui/dialog.tsx",
+      "lineRange": [
+        111,
+        122
+      ],
+      "summary": "Function DialogDescription executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/drawer.tsx",
+      "type": "file",
+      "name": "drawer.tsx",
+      "filePath": "src/app/components/ui/drawer.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/ui/drawer.tsx:DrawerOverlay",
+      "type": "function",
+      "name": "DrawerOverlay",
+      "filePath": "src/app/components/ui/drawer.tsx",
+      "lineRange": [
+        32,
+        46
+      ],
+      "summary": "Function DrawerOverlay executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/drawer.tsx:DrawerContent",
+      "type": "function",
+      "name": "DrawerContent",
+      "filePath": "src/app/components/ui/drawer.tsx",
+      "lineRange": [
+        48,
+        73
+      ],
+      "summary": "Function DrawerContent executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/drawer.tsx:DrawerTitle",
+      "type": "function",
+      "name": "DrawerTitle",
+      "filePath": "src/app/components/ui/drawer.tsx",
+      "lineRange": [
+        95,
+        106
+      ],
+      "summary": "Function DrawerTitle executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/drawer.tsx:DrawerDescription",
+      "type": "function",
+      "name": "DrawerDescription",
+      "filePath": "src/app/components/ui/drawer.tsx",
+      "lineRange": [
+        108,
+        119
+      ],
+      "summary": "Function DrawerDescription executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/dropdown-menu.tsx",
+      "type": "file",
+      "name": "dropdown-menu.tsx",
+      "filePath": "src/app/components/ui/dropdown-menu.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuContent",
+      "type": "function",
+      "name": "DropdownMenuContent",
+      "filePath": "src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        34,
+        52
+      ],
+      "summary": "Function DropdownMenuContent executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuItem",
+      "type": "function",
+      "name": "DropdownMenuItem",
+      "filePath": "src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        62,
+        83
+      ],
+      "summary": "Function DropdownMenuItem executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuCheckboxItem",
+      "type": "function",
+      "name": "DropdownMenuCheckboxItem",
+      "filePath": "src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        85,
+        109
+      ],
+      "summary": "Function DropdownMenuCheckboxItem executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuRadioItem",
+      "type": "function",
+      "name": "DropdownMenuRadioItem",
+      "filePath": "src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        122,
+        144
+      ],
+      "summary": "Function DropdownMenuRadioItem executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuLabel",
+      "type": "function",
+      "name": "DropdownMenuLabel",
+      "filePath": "src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        146,
+        164
+      ],
+      "summary": "Function DropdownMenuLabel executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuSeparator",
+      "type": "function",
+      "name": "DropdownMenuSeparator",
+      "filePath": "src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        166,
+        177
+      ],
+      "summary": "Function DropdownMenuSeparator executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuShortcut",
+      "type": "function",
+      "name": "DropdownMenuShortcut",
+      "filePath": "src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        179,
+        193
+      ],
+      "summary": "Function DropdownMenuShortcut executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuSubTrigger",
+      "type": "function",
+      "name": "DropdownMenuSubTrigger",
+      "filePath": "src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        201,
+        223
+      ],
+      "summary": "Function DropdownMenuSubTrigger executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuSubContent",
+      "type": "function",
+      "name": "DropdownMenuSubContent",
+      "filePath": "src/app/components/ui/dropdown-menu.tsx",
+      "lineRange": [
+        225,
+        239
+      ],
+      "summary": "Function DropdownMenuSubContent executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/ErrorBoundary.tsx",
+      "type": "file",
+      "name": "ErrorBoundary.tsx",
+      "filePath": "src/app/components/ui/ErrorBoundary.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/app/components/ui/ErrorBoundary.tsx:ErrorBoundary",
+      "type": "class",
+      "name": "ErrorBoundary",
+      "filePath": "src/app/components/ui/ErrorBoundary.tsx",
+      "lineRange": [
+        14,
+        55
+      ],
+      "summary": "Class ErrorBoundary providing object-oriented state and behavior.",
+      "tags": [
+        "class",
+        "oop",
+        "structure"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/components/ui/form.tsx",
+      "type": "file",
+      "name": "form.tsx",
+      "filePath": "src/app/components/ui/form.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/ui/form.tsx:FormField",
+      "type": "function",
+      "name": "FormField",
+      "filePath": "src/app/components/ui/form.tsx",
+      "lineRange": [
+        32,
+        43
+      ],
+      "summary": "Function FormField executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/form.tsx:useFormField",
+      "type": "function",
+      "name": "useFormField",
+      "filePath": "src/app/components/ui/form.tsx",
+      "lineRange": [
+        45,
+        66
+      ],
+      "summary": "Function useFormField executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/form.tsx:FormItem",
+      "type": "function",
+      "name": "FormItem",
+      "filePath": "src/app/components/ui/form.tsx",
+      "lineRange": [
+        76,
+        88
+      ],
+      "summary": "Function FormItem executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/form.tsx:FormLabel",
+      "type": "function",
+      "name": "FormLabel",
+      "filePath": "src/app/components/ui/form.tsx",
+      "lineRange": [
+        90,
+        105
+      ],
+      "summary": "Function FormLabel executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/form.tsx:FormControl",
+      "type": "function",
+      "name": "FormControl",
+      "filePath": "src/app/components/ui/form.tsx",
+      "lineRange": [
+        107,
+        124
+      ],
+      "summary": "Function FormControl executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/form.tsx:FormDescription",
+      "type": "function",
+      "name": "FormDescription",
+      "filePath": "src/app/components/ui/form.tsx",
+      "lineRange": [
+        126,
+        137
+      ],
+      "summary": "Function FormDescription executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/form.tsx:FormMessage",
+      "type": "function",
+      "name": "FormMessage",
+      "filePath": "src/app/components/ui/form.tsx",
+      "lineRange": [
+        139,
+        157
+      ],
+      "summary": "Function FormMessage executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/hover-card.tsx",
+      "type": "file",
+      "name": "hover-card.tsx",
+      "filePath": "src/app/components/ui/hover-card.tsx",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/hover-card.tsx:HoverCardContent",
+      "type": "function",
+      "name": "HoverCardContent",
+      "filePath": "src/app/components/ui/hover-card.tsx",
+      "lineRange": [
+        22,
+        42
+      ],
+      "summary": "Function HoverCardContent executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/app/components/shared/ShopCard.tsx",
+      "target": "function:src/app/components/shared/ShopCard.tsx:ShopCard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/shared/StorefrontProductCard.tsx",
+      "target": "function:src/app/components/shared/StorefrontProductCard.tsx:StorefrontProductCard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/shared/WhatsAppShareButton.tsx",
+      "target": "function:src/app/components/shared/WhatsAppShareButton.tsx:WhatsAppShareButton",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/accordion.tsx",
+      "target": "function:src/app/components/ui/accordion.tsx:AccordionItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/accordion.tsx",
+      "target": "function:src/app/components/ui/accordion.tsx:AccordionTrigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/accordion.tsx",
+      "target": "function:src/app/components/ui/accordion.tsx:AccordionContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/alert-dialog.tsx",
+      "target": "function:src/app/components/ui/alert-dialog.tsx:AlertDialogOverlay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/alert-dialog.tsx",
+      "target": "function:src/app/components/ui/alert-dialog.tsx:AlertDialogContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/alert-dialog.tsx",
+      "target": "function:src/app/components/ui/alert-dialog.tsx:AlertDialogHeader",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/alert-dialog.tsx",
+      "target": "function:src/app/components/ui/alert-dialog.tsx:AlertDialogFooter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/alert-dialog.tsx",
+      "target": "function:src/app/components/ui/alert-dialog.tsx:AlertDialogTitle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/alert-dialog.tsx",
+      "target": "function:src/app/components/ui/alert-dialog.tsx:AlertDialogDescription",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/alert-dialog.tsx",
+      "target": "function:src/app/components/ui/alert-dialog.tsx:AlertDialogAction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/alert-dialog.tsx",
+      "target": "function:src/app/components/ui/alert-dialog.tsx:AlertDialogCancel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/alert.tsx",
+      "target": "function:src/app/components/ui/alert.tsx:Alert",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/alert.tsx",
+      "target": "function:src/app/components/ui/alert.tsx:AlertTitle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/alert.tsx",
+      "target": "function:src/app/components/ui/alert.tsx:AlertDescription",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/avatar.tsx",
+      "target": "function:src/app/components/ui/avatar.tsx:Avatar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/avatar.tsx",
+      "target": "function:src/app/components/ui/avatar.tsx:AvatarImage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/avatar.tsx",
+      "target": "function:src/app/components/ui/avatar.tsx:AvatarFallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/badge.tsx",
+      "target": "function:src/app/components/ui/badge.tsx:Badge",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/breadcrumb.tsx",
+      "target": "function:src/app/components/ui/breadcrumb.tsx:BreadcrumbList",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/breadcrumb.tsx",
+      "target": "function:src/app/components/ui/breadcrumb.tsx:BreadcrumbLink",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/breadcrumb.tsx",
+      "target": "function:src/app/components/ui/breadcrumb.tsx:BreadcrumbPage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/breadcrumb.tsx",
+      "target": "function:src/app/components/ui/breadcrumb.tsx:BreadcrumbSeparator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/breadcrumb.tsx",
+      "target": "function:src/app/components/ui/breadcrumb.tsx:BreadcrumbEllipsis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/button.tsx",
+      "target": "function:src/app/components/ui/button.tsx:Button",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/calendar.tsx",
+      "target": "function:src/app/components/ui/calendar.tsx:Calendar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/card.tsx",
+      "target": "function:src/app/components/ui/card.tsx:Card",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/card.tsx",
+      "target": "function:src/app/components/ui/card.tsx:CardHeader",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/card.tsx",
+      "target": "function:src/app/components/ui/card.tsx:CardAction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/carousel.tsx",
+      "target": "function:src/app/components/ui/carousel.tsx:Carousel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/carousel.tsx",
+      "target": "function:src/app/components/ui/carousel.tsx:CarouselContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/carousel.tsx",
+      "target": "function:src/app/components/ui/carousel.tsx:CarouselItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/carousel.tsx",
+      "target": "function:src/app/components/ui/carousel.tsx:CarouselPrevious",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/carousel.tsx",
+      "target": "function:src/app/components/ui/carousel.tsx:CarouselNext",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/chart.tsx",
+      "target": "function:src/app/components/ui/chart.tsx:ChartContainer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/chart.tsx",
+      "target": "function:src/app/components/ui/chart.tsx:ChartStyle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/chart.tsx",
+      "target": "function:src/app/components/ui/chart.tsx:ChartTooltipContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/chart.tsx",
+      "target": "function:src/app/components/ui/chart.tsx:ChartLegendContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/chart.tsx",
+      "target": "function:src/app/components/ui/chart.tsx:getPayloadConfigFromPayload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/checkbox.tsx",
+      "target": "function:src/app/components/ui/checkbox.tsx:Checkbox",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/command.tsx",
+      "target": "function:src/app/components/ui/command.tsx:Command",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/command.tsx",
+      "target": "function:src/app/components/ui/command.tsx:CommandDialog",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/command.tsx",
+      "target": "function:src/app/components/ui/command.tsx:CommandInput",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/command.tsx",
+      "target": "function:src/app/components/ui/command.tsx:CommandList",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/command.tsx",
+      "target": "function:src/app/components/ui/command.tsx:CommandEmpty",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/command.tsx",
+      "target": "function:src/app/components/ui/command.tsx:CommandGroup",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/command.tsx",
+      "target": "function:src/app/components/ui/command.tsx:CommandSeparator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/command.tsx",
+      "target": "function:src/app/components/ui/command.tsx:CommandItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/command.tsx",
+      "target": "function:src/app/components/ui/command.tsx:CommandShortcut",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/context-menu.tsx",
+      "target": "function:src/app/components/ui/context-menu.tsx:ContextMenuSubTrigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/context-menu.tsx",
+      "target": "function:src/app/components/ui/context-menu.tsx:ContextMenuSubContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/context-menu.tsx",
+      "target": "function:src/app/components/ui/context-menu.tsx:ContextMenuContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/context-menu.tsx",
+      "target": "function:src/app/components/ui/context-menu.tsx:ContextMenuItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/context-menu.tsx",
+      "target": "function:src/app/components/ui/context-menu.tsx:ContextMenuCheckboxItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/context-menu.tsx",
+      "target": "function:src/app/components/ui/context-menu.tsx:ContextMenuRadioItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/context-menu.tsx",
+      "target": "function:src/app/components/ui/context-menu.tsx:ContextMenuLabel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/context-menu.tsx",
+      "target": "function:src/app/components/ui/context-menu.tsx:ContextMenuSeparator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/context-menu.tsx",
+      "target": "function:src/app/components/ui/context-menu.tsx:ContextMenuShortcut",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/dialog.tsx",
+      "target": "function:src/app/components/ui/dialog.tsx:DialogOverlay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/dialog.tsx",
+      "target": "function:src/app/components/ui/dialog.tsx:DialogContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/dialog.tsx",
+      "target": "function:src/app/components/ui/dialog.tsx:DialogFooter",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/dialog.tsx",
+      "target": "function:src/app/components/ui/dialog.tsx:DialogTitle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/dialog.tsx",
+      "target": "function:src/app/components/ui/dialog.tsx:DialogDescription",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/drawer.tsx",
+      "target": "function:src/app/components/ui/drawer.tsx:DrawerOverlay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/drawer.tsx",
+      "target": "function:src/app/components/ui/drawer.tsx:DrawerContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/drawer.tsx",
+      "target": "function:src/app/components/ui/drawer.tsx:DrawerTitle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/drawer.tsx",
+      "target": "function:src/app/components/ui/drawer.tsx:DrawerDescription",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuCheckboxItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuRadioItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuLabel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuSeparator",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuShortcut",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuSubTrigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/dropdown-menu.tsx",
+      "target": "function:src/app/components/ui/dropdown-menu.tsx:DropdownMenuSubContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/ErrorBoundary.tsx",
+      "target": "class:src/app/components/ui/ErrorBoundary.tsx:ErrorBoundary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/form.tsx",
+      "target": "function:src/app/components/ui/form.tsx:FormField",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/form.tsx",
+      "target": "function:src/app/components/ui/form.tsx:useFormField",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/form.tsx",
+      "target": "function:src/app/components/ui/form.tsx:FormItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/form.tsx",
+      "target": "function:src/app/components/ui/form.tsx:FormLabel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/form.tsx",
+      "target": "function:src/app/components/ui/form.tsx:FormControl",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/form.tsx",
+      "target": "function:src/app/components/ui/form.tsx:FormDescription",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/form.tsx",
+      "target": "function:src/app/components/ui/form.tsx:FormMessage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/ui/hover-card.tsx",
+      "target": "function:src/app/components/ui/hover-card.tsx:HoverCardContent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    }
+  ]
+}

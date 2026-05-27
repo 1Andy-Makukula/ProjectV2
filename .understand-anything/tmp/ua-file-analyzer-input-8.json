@@ -1,0 +1,182 @@
+{
+  "projectRoot": "c:\\Users\\Owner\\Downloads\\ProjectV2",
+  "batchFiles": [
+    {
+      "path": "src/app/components/ui/input-otp.tsx",
+      "language": "typescript",
+      "sizeLines": 77,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/input.tsx",
+      "language": "typescript",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/label.tsx",
+      "language": "typescript",
+      "sizeLines": 24,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/menubar.tsx",
+      "language": "typescript",
+      "sizeLines": 276,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/navigation-menu.tsx",
+      "language": "typescript",
+      "sizeLines": 168,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/pagination.tsx",
+      "language": "typescript",
+      "sizeLines": 127,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/popover.tsx",
+      "language": "typescript",
+      "sizeLines": 48,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/progress.tsx",
+      "language": "typescript",
+      "sizeLines": 31,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/radio-group.tsx",
+      "language": "typescript",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/resizable.tsx",
+      "language": "typescript",
+      "sizeLines": 56,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/scroll-area.tsx",
+      "language": "typescript",
+      "sizeLines": 58,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/select.tsx",
+      "language": "typescript",
+      "sizeLines": 189,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/separator.tsx",
+      "language": "typescript",
+      "sizeLines": 28,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/sheet.tsx",
+      "language": "typescript",
+      "sizeLines": 139,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/sidebar.tsx",
+      "language": "typescript",
+      "sizeLines": 726,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/skeleton.tsx",
+      "language": "typescript",
+      "sizeLines": 13,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/slider.tsx",
+      "language": "typescript",
+      "sizeLines": 63,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/sonner.tsx",
+      "language": "typescript",
+      "sizeLines": 25,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/switch.tsx",
+      "language": "typescript",
+      "sizeLines": 31,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/table.tsx",
+      "language": "typescript",
+      "sizeLines": 116,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/tabs.tsx",
+      "language": "typescript",
+      "sizeLines": 66,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/textarea.tsx",
+      "language": "typescript",
+      "sizeLines": 18,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/toggle-group.tsx",
+      "language": "typescript",
+      "sizeLines": 73,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/toggle.tsx",
+      "language": "typescript",
+      "sizeLines": 47,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/ui/tooltip.tsx",
+      "language": "typescript",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "src/app/components/ui/input-otp.tsx": [],
+    "src/app/components/ui/input.tsx": [],
+    "src/app/components/ui/label.tsx": [],
+    "src/app/components/ui/menubar.tsx": [],
+    "src/app/components/ui/navigation-menu.tsx": [],
+    "src/app/components/ui/pagination.tsx": [],
+    "src/app/components/ui/popover.tsx": [],
+    "src/app/components/ui/progress.tsx": [],
+    "src/app/components/ui/radio-group.tsx": [],
+    "src/app/components/ui/resizable.tsx": [],
+    "src/app/components/ui/scroll-area.tsx": [],
+    "src/app/components/ui/select.tsx": [],
+    "src/app/components/ui/separator.tsx": [],
+    "src/app/components/ui/sheet.tsx": [],
+    "src/app/components/ui/sidebar.tsx": [],
+    "src/app/components/ui/skeleton.tsx": [],
+    "src/app/components/ui/slider.tsx": [],
+    "src/app/components/ui/sonner.tsx": [],
+    "src/app/components/ui/switch.tsx": [],
+    "src/app/components/ui/table.tsx": [],
+    "src/app/components/ui/tabs.tsx": [],
+    "src/app/components/ui/textarea.tsx": [],
+    "src/app/components/ui/toggle-group.tsx": [],
+    "src/app/components/ui/toggle.tsx": [],
+    "src/app/components/ui/tooltip.tsx": []
+  }
+}

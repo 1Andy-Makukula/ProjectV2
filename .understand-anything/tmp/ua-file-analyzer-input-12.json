@@ -1,0 +1,182 @@
+{
+  "projectRoot": "c:\\Users\\Owner\\Downloads\\ProjectV2",
+  "batchFiles": [
+    {
+      "path": "supabase/.temp/linked-project.json",
+      "language": "json",
+      "sizeLines": 0,
+      "fileCategory": "config"
+    },
+    {
+      "path": "supabase/.temp/pooler-url",
+      "language": "unknown",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/.temp/postgres-version",
+      "language": "unknown",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/.temp/project-ref",
+      "language": "unknown",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/.temp/rest-version",
+      "language": "unknown",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/.temp/storage-migration",
+      "language": "unknown",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/.temp/storage-version",
+      "language": "unknown",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/DATABASE_SETUP.md",
+      "language": "markdown",
+      "sizeLines": 141,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "supabase/functions/_shared/cors.ts",
+      "language": "typescript",
+      "sizeLines": 33,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/functions/_shared/ussd-auth.ts",
+      "language": "typescript",
+      "sizeLines": 72,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/functions/batch-payout-sweeper/index.ts",
+      "language": "typescript",
+      "sizeLines": 654,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/functions/checkout-init/index.ts",
+      "language": "typescript",
+      "sizeLines": 628,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/functions/deno.d.ts",
+      "language": "typescript",
+      "sizeLines": 71,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/functions/deno.json",
+      "language": "json",
+      "sizeLines": 9,
+      "fileCategory": "config"
+    },
+    {
+      "path": "supabase/functions/flutterwave-webhook/index.ts",
+      "language": "typescript",
+      "sizeLines": 498,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/functions/fulfill-voucher/index.ts",
+      "language": "typescript",
+      "sizeLines": 482,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/functions/fx-rate-lock/index.ts",
+      "language": "typescript",
+      "sizeLines": 610,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/functions/get-merchant-ledger/index.ts",
+      "language": "typescript",
+      "sizeLines": 150,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/functions/server/index.ts",
+      "language": "typescript",
+      "sizeLines": 660,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/functions/server/kv_store.tsx",
+      "language": "typescript",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/functions/tsconfig.json",
+      "language": "json",
+      "sizeLines": 11,
+      "fileCategory": "config"
+    },
+    {
+      "path": "supabase/functions/upload-item-image/index.ts",
+      "language": "typescript",
+      "sizeLines": 120,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/functions/ussd-gateway/index.ts",
+      "language": "typescript",
+      "sizeLines": 280,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/LEGACY.md",
+      "language": "markdown",
+      "sizeLines": 16,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "supabase/snippets/layer_c_payment_sweep.sql",
+      "language": "sql",
+      "sizeLines": 517,
+      "fileCategory": "data"
+    }
+  ],
+  "batchImportData": {
+    "supabase/.temp/linked-project.json": [],
+    "supabase/.temp/pooler-url": [],
+    "supabase/.temp/postgres-version": [],
+    "supabase/.temp/project-ref": [],
+    "supabase/.temp/rest-version": [],
+    "supabase/.temp/storage-migration": [],
+    "supabase/.temp/storage-version": [],
+    "supabase/DATABASE_SETUP.md": [],
+    "supabase/functions/_shared/cors.ts": [],
+    "supabase/functions/_shared/ussd-auth.ts": [],
+    "supabase/functions/batch-payout-sweeper/index.ts": [],
+    "supabase/functions/checkout-init/index.ts": [],
+    "supabase/functions/deno.d.ts": [],
+    "supabase/functions/deno.json": [],
+    "supabase/functions/flutterwave-webhook/index.ts": [],
+    "supabase/functions/fulfill-voucher/index.ts": [],
+    "supabase/functions/fx-rate-lock/index.ts": [],
+    "supabase/functions/get-merchant-ledger/index.ts": [],
+    "supabase/functions/server/index.ts": [],
+    "supabase/functions/server/kv_store.tsx": [],
+    "supabase/functions/tsconfig.json": [],
+    "supabase/functions/upload-item-image/index.ts": [],
+    "supabase/functions/ussd-gateway/index.ts": [],
+    "supabase/LEGACY.md": [],
+    "supabase/snippets/layer_c_payment_sweep.sql": []
+  }
+}

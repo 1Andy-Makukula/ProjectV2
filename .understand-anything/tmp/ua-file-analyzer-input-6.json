@@ -1,0 +1,182 @@
+{
+  "projectRoot": "c:\\Users\\Owner\\Downloads\\ProjectV2",
+  "batchFiles": [
+    {
+      "path": ".codex/environments/environment.toml",
+      "language": "toml",
+      "sizeLines": 11,
+      "fileCategory": "config"
+    },
+    {
+      "path": ".understand-anything/.understandignore",
+      "language": "unknown",
+      "sizeLines": 35,
+      "fileCategory": "code"
+    },
+    {
+      "path": "guidelines/Guidelines.md",
+      "language": "markdown",
+      "sizeLines": 61,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "nginx.conf",
+      "language": "conf",
+      "sizeLines": 30,
+      "fileCategory": "code"
+    },
+    {
+      "path": "postcss.config.mjs",
+      "language": "javascript",
+      "sizeLines": 15,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/App.tsx",
+      "language": "typescript",
+      "sizeLines": 13,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/checkout/FxTemporalLock.tsx",
+      "language": "typescript",
+      "sizeLines": 470,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/checkout/InternationalCheckoutModal.tsx",
+      "language": "typescript",
+      "sizeLines": 478,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/checkout/PaymentProcessingScreen.tsx",
+      "language": "typescript",
+      "sizeLines": 590,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/figma/ImageWithFallback.tsx",
+      "language": "typescript",
+      "sizeLines": 27,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/layout/Footer.tsx",
+      "language": "typescript",
+      "sizeLines": 95,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/layout/Header.tsx",
+      "language": "typescript",
+      "sizeLines": 205,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/merchant/CashierVerificationTerminal.tsx",
+      "language": "typescript",
+      "sizeLines": 727,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/merchant/SettlementDashboard.tsx",
+      "language": "typescript",
+      "sizeLines": 242,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/shared/BackToTop.tsx",
+      "language": "typescript",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/shared/EmptyState.tsx",
+      "language": "typescript",
+      "sizeLines": 42,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/shared/HandshakeTerminal.tsx",
+      "language": "typescript",
+      "sizeLines": 266,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/shared/HeroSlider.tsx",
+      "language": "typescript",
+      "sizeLines": 126,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/shared/HorizontalProductRibbon.tsx",
+      "language": "typescript",
+      "sizeLines": 63,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/shared/NotificationSlider.tsx",
+      "language": "typescript",
+      "sizeLines": 183,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/shared/PageTransition.tsx",
+      "language": "typescript",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/shared/ProductCard.tsx",
+      "language": "typescript",
+      "sizeLines": 338,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/shared/ProfileVerificationBanner.tsx",
+      "language": "typescript",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/shared/QRCodeDisplay.tsx",
+      "language": "typescript",
+      "sizeLines": 28,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/components/shared/SearchBar.tsx",
+      "language": "typescript",
+      "sizeLines": 114,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    ".codex/environments/environment.toml": [],
+    ".understand-anything/.understandignore": [],
+    "guidelines/Guidelines.md": [],
+    "nginx.conf": [],
+    "postcss.config.mjs": [],
+    "src/app/App.tsx": [],
+    "src/app/components/checkout/FxTemporalLock.tsx": [],
+    "src/app/components/checkout/InternationalCheckoutModal.tsx": [],
+    "src/app/components/checkout/PaymentProcessingScreen.tsx": [],
+    "src/app/components/figma/ImageWithFallback.tsx": [],
+    "src/app/components/layout/Footer.tsx": [],
+    "src/app/components/layout/Header.tsx": [],
+    "src/app/components/merchant/CashierVerificationTerminal.tsx": [],
+    "src/app/components/merchant/SettlementDashboard.tsx": [],
+    "src/app/components/shared/BackToTop.tsx": [],
+    "src/app/components/shared/EmptyState.tsx": [],
+    "src/app/components/shared/HandshakeTerminal.tsx": [],
+    "src/app/components/shared/HeroSlider.tsx": [],
+    "src/app/components/shared/HorizontalProductRibbon.tsx": [],
+    "src/app/components/shared/NotificationSlider.tsx": [],
+    "src/app/components/shared/PageTransition.tsx": [],
+    "src/app/components/shared/ProductCard.tsx": [],
+    "src/app/components/shared/ProfileVerificationBanner.tsx": [],
+    "src/app/components/shared/QRCodeDisplay.tsx": [],
+    "src/app/components/shared/SearchBar.tsx": []
+  }
+}

@@ -1,0 +1,715 @@
+{
+  "nodes": [
+    {
+      "id": "file:src/app/pages/Support.tsx",
+      "type": "file",
+      "name": "Support.tsx",
+      "filePath": "src/app/pages/Support.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/Support.tsx:Support",
+      "type": "function",
+      "name": "Support",
+      "filePath": "src/app/pages/Support.tsx",
+      "lineRange": [
+        36,
+        208
+      ],
+      "summary": "Function Support executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/Terms.tsx",
+      "type": "file",
+      "name": "Terms.tsx",
+      "filePath": "src/app/pages/Terms.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/Terms.tsx:Section",
+      "type": "function",
+      "name": "Section",
+      "filePath": "src/app/pages/Terms.tsx",
+      "lineRange": [
+        14,
+        28
+      ],
+      "summary": "Function Section executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/Terms.tsx:Terms",
+      "type": "function",
+      "name": "Terms",
+      "filePath": "src/app/pages/Terms.tsx",
+      "lineRange": [
+        30,
+        161
+      ],
+      "summary": "Function Terms executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/Wishlist.tsx",
+      "type": "file",
+      "name": "Wishlist.tsx",
+      "filePath": "src/app/pages/Wishlist.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/routes.tsx",
+      "type": "file",
+      "name": "routes.tsx",
+      "filePath": "src/app/routes.tsx",
+      "summary": "Implementation of routes.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/app/types/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "src/app/types/index.ts",
+      "summary": "Module entry point that re-exports public components.",
+      "tags": [
+        "barrel",
+        "entry-point",
+        "exports"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/utils/formatters.ts",
+      "type": "file",
+      "name": "formatters.ts",
+      "filePath": "src/app/utils/formatters.ts",
+      "summary": "Implementation of formatters.ts.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/utils/formatters.ts:formatRelativeTime",
+      "type": "function",
+      "name": "formatRelativeTime",
+      "filePath": "src/app/utils/formatters.ts",
+      "lineRange": [
+        68,
+        81
+      ],
+      "summary": "Function formatRelativeTime executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/components/ProtectedRoute.tsx",
+      "type": "file",
+      "name": "ProtectedRoute.tsx",
+      "filePath": "src/components/ProtectedRoute.tsx",
+      "summary": "Implementation of ProtectedRoute.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/components/ProtectedRoute.tsx:ProtectedRoute",
+      "type": "function",
+      "name": "ProtectedRoute",
+      "filePath": "src/components/ProtectedRoute.tsx",
+      "lineRange": [
+        11,
+        54
+      ],
+      "summary": "Function ProtectedRoute executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:src/imports/pasted_text/kithly-feature-list.md",
+      "type": "document",
+      "name": "kithly-feature-list.md",
+      "filePath": "src/imports/pasted_text/kithly-feature-list.md",
+      "summary": "Project documentation and reference material.",
+      "tags": [
+        "documentation",
+        "guide",
+        "general"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/lib/html.ts",
+      "type": "file",
+      "name": "html.ts",
+      "filePath": "src/lib/html.ts",
+      "summary": "Implementation of html.ts.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/money/validation.ts",
+      "type": "file",
+      "name": "validation.ts",
+      "filePath": "src/lib/money/validation.ts",
+      "summary": "Implementation of validation.ts.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/money/validation.ts:partitionItemIds",
+      "type": "function",
+      "name": "partitionItemIds",
+      "filePath": "src/lib/money/validation.ts",
+      "lineRange": [
+        17,
+        31
+      ],
+      "summary": "Function partitionItemIds executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/supabaseClient.ts",
+      "type": "file",
+      "name": "supabaseClient.ts",
+      "filePath": "src/lib/supabaseClient.ts",
+      "summary": "Implementation of supabaseClient.ts.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/lib/uploadValidation.ts",
+      "type": "file",
+      "name": "uploadValidation.ts",
+      "filePath": "src/lib/uploadValidation.ts",
+      "summary": "Implementation of uploadValidation.ts.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/lib/uploadValidation.ts:validateImageFile",
+      "type": "function",
+      "name": "validateImageFile",
+      "filePath": "src/lib/uploadValidation.ts",
+      "lineRange": [
+        25,
+        48
+      ],
+      "summary": "Function validateImageFile executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/main.tsx",
+      "type": "file",
+      "name": "main.tsx",
+      "filePath": "src/main.tsx",
+      "summary": "Implementation of main.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/utils/auth/AuthContext.tsx",
+      "type": "file",
+      "name": "AuthContext.tsx",
+      "filePath": "src/utils/auth/AuthContext.tsx",
+      "summary": "Implementation of AuthContext.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/auth/AuthContext.tsx:AuthProvider",
+      "type": "function",
+      "name": "AuthProvider",
+      "filePath": "src/utils/auth/AuthContext.tsx",
+      "lineRange": [
+        29,
+        180
+      ],
+      "summary": "Function AuthProvider executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/utils/currency.ts",
+      "type": "file",
+      "name": "currency.ts",
+      "filePath": "src/utils/currency.ts",
+      "summary": "Implementation of currency.ts.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/utils/diagnostics.ts",
+      "type": "file",
+      "name": "diagnostics.ts",
+      "filePath": "src/utils/diagnostics.ts",
+      "summary": "Implementation of diagnostics.ts.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/diagnostics.ts:runAntigravityDiagnostics",
+      "type": "function",
+      "name": "runAntigravityDiagnostics",
+      "filePath": "src/utils/diagnostics.ts",
+      "lineRange": [
+        9,
+        180
+      ],
+      "summary": "Function runAntigravityDiagnostics executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/utils/phone.ts",
+      "type": "file",
+      "name": "phone.ts",
+      "filePath": "src/utils/phone.ts",
+      "summary": "Implementation of phone.ts.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/phone.ts:validateAndFormatZambianPhone",
+      "type": "function",
+      "name": "validateAndFormatZambianPhone",
+      "filePath": "src/utils/phone.ts",
+      "lineRange": [
+        9,
+        31
+      ],
+      "summary": "Function validateAndFormatZambianPhone executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/utils/receiptGenerator.ts",
+      "type": "file",
+      "name": "receiptGenerator.ts",
+      "filePath": "src/utils/receiptGenerator.ts",
+      "summary": "Implementation of receiptGenerator.ts.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/receiptGenerator.ts:buildReceiptHTML",
+      "type": "function",
+      "name": "buildReceiptHTML",
+      "filePath": "src/utils/receiptGenerator.ts",
+      "lineRange": [
+        36,
+        121
+      ],
+      "summary": "Function buildReceiptHTML executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/receiptGenerator.ts:printReceipt",
+      "type": "function",
+      "name": "printReceipt",
+      "filePath": "src/utils/receiptGenerator.ts",
+      "lineRange": [
+        127,
+        141
+      ],
+      "summary": "Function printReceipt executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/utils/sendFlowStore.ts",
+      "type": "file",
+      "name": "sendFlowStore.ts",
+      "filePath": "src/utils/sendFlowStore.ts",
+      "summary": "Implementation of sendFlowStore.ts.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/utils/sendFlowStore.ts:getGroupedCartPayload",
+      "type": "function",
+      "name": "getGroupedCartPayload",
+      "filePath": "src/utils/sendFlowStore.ts",
+      "lineRange": [
+        49,
+        82
+      ],
+      "summary": "Function getGroupedCartPayload executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/utils/server.ts",
+      "type": "file",
+      "name": "server.ts",
+      "filePath": "src/utils/server.ts",
+      "summary": "Implementation of server.ts.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/server.ts:callServer",
+      "type": "function",
+      "name": "callServer",
+      "filePath": "src/utils/server.ts",
+      "lineRange": [
+        18,
+        49
+      ],
+      "summary": "Function callServer executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/utils/uploadImage.ts",
+      "type": "file",
+      "name": "uploadImage.ts",
+      "filePath": "src/utils/uploadImage.ts",
+      "summary": "Implementation of uploadImage.ts.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/uploadImage.ts:uploadItemImage",
+      "type": "function",
+      "name": "uploadItemImage",
+      "filePath": "src/utils/uploadImage.ts",
+      "lineRange": [
+        13,
+        46
+      ],
+      "summary": "Function uploadItemImage executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/utils/whatsapp.ts",
+      "type": "file",
+      "name": "whatsapp.ts",
+      "filePath": "src/utils/whatsapp.ts",
+      "summary": "Implementation of whatsapp.ts.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/utils/whatsapp.ts:createWhatsAppShareLink",
+      "type": "function",
+      "name": "createWhatsAppShareLink",
+      "filePath": "src/utils/whatsapp.ts",
+      "lineRange": [
+        1,
+        11
+      ],
+      "summary": "Function createWhatsAppShareLink executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:supabase/.branches/_current_branch",
+      "type": "file",
+      "name": "_current_branch",
+      "filePath": "supabase/.branches/_current_branch",
+      "summary": "Implementation of _current_branch.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:supabase/.temp/cli-latest",
+      "type": "file",
+      "name": "cli-latest",
+      "filePath": "supabase/.temp/cli-latest",
+      "summary": "Implementation of cli-latest.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:supabase/.temp/gotrue-version",
+      "type": "file",
+      "name": "gotrue-version",
+      "filePath": "supabase/.temp/gotrue-version",
+      "summary": "Implementation of gotrue-version.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/app/pages/Support.tsx",
+      "target": "function:src/app/pages/Support.tsx:Support",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/Terms.tsx",
+      "target": "function:src/app/pages/Terms.tsx:Section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/Terms.tsx",
+      "target": "function:src/app/pages/Terms.tsx:Terms",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/utils/formatters.ts",
+      "target": "function:src/app/utils/formatters.ts:formatRelativeTime",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/components/ProtectedRoute.tsx",
+      "target": "function:src/components/ProtectedRoute.tsx:ProtectedRoute",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/money/validation.ts",
+      "target": "function:src/lib/money/validation.ts:partitionItemIds",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/lib/uploadValidation.ts",
+      "target": "function:src/lib/uploadValidation.ts:validateImageFile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/utils/auth/AuthContext.tsx",
+      "target": "function:src/utils/auth/AuthContext.tsx:AuthProvider",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/utils/diagnostics.ts",
+      "target": "function:src/utils/diagnostics.ts:runAntigravityDiagnostics",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/utils/phone.ts",
+      "target": "function:src/utils/phone.ts:validateAndFormatZambianPhone",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/utils/receiptGenerator.ts",
+      "target": "function:src/utils/receiptGenerator.ts:buildReceiptHTML",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/utils/receiptGenerator.ts",
+      "target": "function:src/utils/receiptGenerator.ts:printReceipt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/utils/sendFlowStore.ts",
+      "target": "function:src/utils/sendFlowStore.ts:getGroupedCartPayload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/utils/server.ts",
+      "target": "function:src/utils/server.ts:callServer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/utils/uploadImage.ts",
+      "target": "function:src/utils/uploadImage.ts:uploadItemImage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/utils/whatsapp.ts",
+      "target": "function:src/utils/whatsapp.ts:createWhatsAppShareLink",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "projectRoot": "c:\\Users\\Owner\\Downloads\\ProjectV2",
+  "batchFiles": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "language": "yaml",
+      "sizeLines": 54,
+      "fileCategory": "infra"
+    }
+  ],
+  "batchImportData": {
+    ".github/workflows/ci.yml": []
+  }
+}

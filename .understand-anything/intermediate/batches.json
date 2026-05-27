@@ -1,0 +1,2232 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "louvain",
+  "totalFiles": 208,
+  "totalBatches": 13,
+  "exportsByPath": {
+    ".understand-anything/.understandignore": [],
+    "nginx.conf": [],
+    "postcss.config.mjs": [],
+    "src/app/App.tsx": [
+      "App"
+    ],
+    "src/app/components/checkout/FxTemporalLock.tsx": [
+      "FxTemporalLock"
+    ],
+    "src/app/components/checkout/InternationalCheckoutModal.tsx": [
+      "InternationalCheckoutModal"
+    ],
+    "src/app/components/checkout/PaymentProcessingScreen.tsx": [
+      "PaymentProcessingScreen"
+    ],
+    "src/app/components/figma/ImageWithFallback.tsx": [
+      "ImageWithFallback"
+    ],
+    "src/app/components/layout/Footer.tsx": [
+      "Footer"
+    ],
+    "src/app/components/layout/Header.tsx": [
+      "Header"
+    ],
+    "src/app/components/merchant/CashierVerificationTerminal.tsx": [
+      "CashierVerificationTerminal"
+    ],
+    "src/app/components/merchant/SettlementDashboard.tsx": [
+      "SettlementDashboard"
+    ],
+    "src/app/components/shared/BackToTop.tsx": [
+      "BackToTop"
+    ],
+    "src/app/components/shared/EmptyState.tsx": [
+      "EmptyState"
+    ],
+    "src/app/components/shared/HandshakeTerminal.tsx": [
+      "HandshakeTerminal"
+    ],
+    "src/app/components/shared/HeroSlider.tsx": [
+      "HeroSlider"
+    ],
+    "src/app/components/shared/HorizontalProductRibbon.tsx": [
+      "HorizontalProductRibbon"
+    ],
+    "src/app/components/shared/NotificationSlider.tsx": [
+      "NotificationSlider"
+    ],
+    "src/app/components/shared/PageTransition.tsx": [
+      "PageTransition"
+    ],
+    "src/app/components/shared/ProductCard.tsx": [
+      "ProductCard"
+    ],
+    "src/app/components/shared/ProfileVerificationBanner.tsx": [
+      "ProfileVerificationBanner"
+    ],
+    "src/app/components/shared/QRCodeDisplay.tsx": [
+      "QRCodeDisplay"
+    ],
+    "src/app/components/shared/SearchBar.tsx": [
+      "SearchBar"
+    ],
+    "src/app/components/shared/ShopCard.tsx": [
+      "ShopCard"
+    ],
+    "src/app/components/shared/StorefrontProductCard.tsx": [
+      "StorefrontProductCard"
+    ],
+    "src/app/components/shared/WhatsAppShareButton.tsx": [
+      "WhatsAppShareButton"
+    ],
+    "src/app/components/ui/accordion.tsx": [
+      "Accordion",
+      "AccordionItem",
+      "AccordionTrigger",
+      "AccordionContent"
+    ],
+    "src/app/components/ui/alert-dialog.tsx": [
+      "AlertDialog",
+      "AlertDialogPortal",
+      "AlertDialogOverlay",
+      "AlertDialogTrigger",
+      "AlertDialogContent",
+      "AlertDialogHeader",
+      "AlertDialogFooter",
+      "AlertDialogTitle",
+      "AlertDialogDescription",
+      "AlertDialogAction",
+      "AlertDialogCancel"
+    ],
+    "src/app/components/ui/alert.tsx": [
+      "Alert",
+      "AlertTitle",
+      "AlertDescription"
+    ],
+    "src/app/components/ui/aspect-ratio.tsx": [
+      "AspectRatio"
+    ],
+    "src/app/components/ui/avatar.tsx": [
+      "Avatar",
+      "AvatarImage",
+      "AvatarFallback"
+    ],
+    "src/app/components/ui/badge.tsx": [
+      "Badge",
+      "badgeVariants"
+    ],
+    "src/app/components/ui/breadcrumb.tsx": [
+      "Breadcrumb",
+      "BreadcrumbList",
+      "BreadcrumbItem",
+      "BreadcrumbLink",
+      "BreadcrumbPage",
+      "BreadcrumbSeparator",
+      "BreadcrumbEllipsis"
+    ],
+    "src/app/components/ui/button.tsx": [
+      "Button",
+      "buttonVariants"
+    ],
+    "src/app/components/ui/calendar.tsx": [
+      "Calendar"
+    ],
+    "src/app/components/ui/card.tsx": [
+      "Card",
+      "CardHeader",
+      "CardFooter",
+      "CardTitle",
+      "CardAction",
+      "CardDescription",
+      "CardContent"
+    ],
+    "src/app/components/ui/carousel.tsx": [
+      "CarouselApi",
+      "Carousel",
+      "CarouselContent",
+      "CarouselItem",
+      "CarouselPrevious",
+      "CarouselNext"
+    ],
+    "src/app/components/ui/chart.tsx": [
+      "ChartContainer",
+      "ChartTooltip",
+      "ChartTooltipContent",
+      "ChartLegend",
+      "ChartLegendContent",
+      "ChartStyle"
+    ],
+    "src/app/components/ui/checkbox.tsx": [
+      "Checkbox"
+    ],
+    "src/app/components/ui/collapsible.tsx": [
+      "Collapsible",
+      "CollapsibleTrigger",
+      "CollapsibleContent"
+    ],
+    "src/app/components/ui/command.tsx": [
+      "Command",
+      "CommandDialog",
+      "CommandInput",
+      "CommandList",
+      "CommandEmpty",
+      "CommandGroup",
+      "CommandItem",
+      "CommandShortcut",
+      "CommandSeparator"
+    ],
+    "src/app/components/ui/context-menu.tsx": [
+      "ContextMenu",
+      "ContextMenuTrigger",
+      "ContextMenuContent",
+      "ContextMenuItem",
+      "ContextMenuCheckboxItem",
+      "ContextMenuRadioItem",
+      "ContextMenuLabel",
+      "ContextMenuSeparator",
+      "ContextMenuShortcut",
+      "ContextMenuGroup",
+      "ContextMenuPortal",
+      "ContextMenuSub",
+      "ContextMenuSubContent",
+      "ContextMenuSubTrigger",
+      "ContextMenuRadioGroup"
+    ],
+    "src/app/components/ui/dialog.tsx": [
+      "Dialog",
+      "DialogClose",
+      "DialogContent",
+      "DialogDescription",
+      "DialogFooter",
+      "DialogHeader",
+      "DialogOverlay",
+      "DialogPortal",
+      "DialogTitle",
+      "DialogTrigger"
+    ],
+    "src/app/components/ui/drawer.tsx": [
+      "Drawer",
+      "DrawerPortal",
+      "DrawerOverlay",
+      "DrawerTrigger",
+      "DrawerClose",
+      "DrawerContent",
+      "DrawerHeader",
+      "DrawerFooter",
+      "DrawerTitle",
+      "DrawerDescription"
+    ],
+    "src/app/components/ui/dropdown-menu.tsx": [
+      "DropdownMenu",
+      "DropdownMenuPortal",
+      "DropdownMenuTrigger",
+      "DropdownMenuContent",
+      "DropdownMenuGroup",
+      "DropdownMenuLabel",
+      "DropdownMenuItem",
+      "DropdownMenuCheckboxItem",
+      "DropdownMenuRadioGroup",
+      "DropdownMenuRadioItem",
+      "DropdownMenuSeparator",
+      "DropdownMenuShortcut",
+      "DropdownMenuSub",
+      "DropdownMenuSubTrigger",
+      "DropdownMenuSubContent"
+    ],
+    "src/app/components/ui/ErrorBoundary.tsx": [
+      "ErrorBoundary"
+    ],
+    "src/app/components/ui/form.tsx": [
+      "useFormField",
+      "Form",
+      "FormItem",
+      "FormLabel",
+      "FormControl",
+      "FormDescription",
+      "FormMessage",
+      "FormField"
+    ],
+    "src/app/components/ui/hover-card.tsx": [
+      "HoverCard",
+      "HoverCardTrigger",
+      "HoverCardContent"
+    ],
+    "src/app/components/ui/input-otp.tsx": [
+      "InputOTP",
+      "InputOTPGroup",
+      "InputOTPSlot",
+      "InputOTPSeparator"
+    ],
+    "src/app/components/ui/input.tsx": [
+      "Input"
+    ],
+    "src/app/components/ui/label.tsx": [
+      "Label"
+    ],
+    "src/app/components/ui/menubar.tsx": [
+      "Menubar",
+      "MenubarPortal",
+      "MenubarMenu",
+      "MenubarTrigger",
+      "MenubarContent",
+      "MenubarGroup",
+      "MenubarSeparator",
+      "MenubarLabel",
+      "MenubarItem",
+      "MenubarShortcut",
+      "MenubarCheckboxItem",
+      "MenubarRadioGroup",
+      "MenubarRadioItem",
+      "MenubarSub",
+      "MenubarSubTrigger",
+      "MenubarSubContent"
+    ],
+    "src/app/components/ui/navigation-menu.tsx": [
+      "NavigationMenu",
+      "NavigationMenuList",
+      "NavigationMenuItem",
+      "NavigationMenuContent",
+      "NavigationMenuTrigger",
+      "NavigationMenuLink",
+      "NavigationMenuIndicator",
+      "NavigationMenuViewport",
+      "navigationMenuTriggerStyle"
+    ],
+    "src/app/components/ui/pagination.tsx": [
+      "Pagination",
+      "PaginationContent",
+      "PaginationLink",
+      "PaginationItem",
+      "PaginationPrevious",
+      "PaginationNext",
+      "PaginationEllipsis"
+    ],
+    "src/app/components/ui/popover.tsx": [
+      "Popover",
+      "PopoverTrigger",
+      "PopoverContent",
+      "PopoverAnchor"
+    ],
+    "src/app/components/ui/progress.tsx": [
+      "Progress"
+    ],
+    "src/app/components/ui/radio-group.tsx": [
+      "RadioGroup",
+      "RadioGroupItem"
+    ],
+    "src/app/components/ui/resizable.tsx": [
+      "ResizablePanelGroup",
+      "ResizablePanel",
+      "ResizableHandle"
+    ],
+    "src/app/components/ui/scroll-area.tsx": [
+      "ScrollArea",
+      "ScrollBar"
+    ],
+    "src/app/components/ui/select.tsx": [
+      "Select",
+      "SelectContent",
+      "SelectGroup",
+      "SelectItem",
+      "SelectLabel",
+      "SelectScrollDownButton",
+      "SelectScrollUpButton",
+      "SelectSeparator",
+      "SelectTrigger",
+      "SelectValue"
+    ],
+    "src/app/components/ui/separator.tsx": [
+      "Separator"
+    ],
+    "src/app/components/ui/sheet.tsx": [
+      "Sheet",
+      "SheetTrigger",
+      "SheetClose",
+      "SheetContent",
+      "SheetHeader",
+      "SheetFooter",
+      "SheetTitle",
+      "SheetDescription"
+    ],
+    "src/app/components/ui/sidebar.tsx": [
+      "Sidebar",
+      "SidebarContent",
+      "SidebarFooter",
+      "SidebarGroup",
+      "SidebarGroupAction",
+      "SidebarGroupContent",
+      "SidebarGroupLabel",
+      "SidebarHeader",
+      "SidebarInput",
+      "SidebarInset",
+      "SidebarMenu",
+      "SidebarMenuAction",
+      "SidebarMenuBadge",
+      "SidebarMenuButton",
+      "SidebarMenuItem",
+      "SidebarMenuSkeleton",
+      "SidebarMenuSub",
+      "SidebarMenuSubButton",
+      "SidebarMenuSubItem",
+      "SidebarProvider",
+      "SidebarRail",
+      "SidebarSeparator",
+      "SidebarTrigger",
+      "useSidebar"
+    ],
+    "src/app/components/ui/skeleton.tsx": [
+      "Skeleton"
+    ],
+    "src/app/components/ui/slider.tsx": [
+      "Slider"
+    ],
+    "src/app/components/ui/sonner.tsx": [
+      "Toaster"
+    ],
+    "src/app/components/ui/switch.tsx": [
+      "Switch"
+    ],
+    "src/app/components/ui/table.tsx": [
+      "Table",
+      "TableHeader",
+      "TableBody",
+      "TableFooter",
+      "TableHead",
+      "TableRow",
+      "TableCell",
+      "TableCaption"
+    ],
+    "src/app/components/ui/tabs.tsx": [
+      "Tabs",
+      "TabsList",
+      "TabsTrigger",
+      "TabsContent"
+    ],
+    "src/app/components/ui/textarea.tsx": [
+      "Textarea"
+    ],
+    "src/app/components/ui/toggle-group.tsx": [
+      "ToggleGroup",
+      "ToggleGroupItem"
+    ],
+    "src/app/components/ui/toggle.tsx": [
+      "Toggle",
+      "toggleVariants"
+    ],
+    "src/app/components/ui/tooltip.tsx": [
+      "Tooltip",
+      "TooltipTrigger",
+      "TooltipContent",
+      "TooltipProvider"
+    ],
+    "src/app/components/ui/use-mobile.ts": [
+      "useIsMobile"
+    ],
+    "src/app/components/ui/utils.ts": [
+      "cn"
+    ],
+    "src/app/data/mock-data.ts": [
+      "districts",
+      "mockUsers",
+      "mockProfiles",
+      "mockShops",
+      "mockProducts",
+      "mockTransactions",
+      "heroSlides"
+    ],
+    "src/app/hooks/useAuth.ts": [
+      "useAuth"
+    ],
+    "src/app/hooks/useCart.ts": [
+      "useCart"
+    ],
+    "src/app/hooks/usePaymentVerification.ts": [
+      "usePaymentVerification"
+    ],
+    "src/app/hooks/useSettlementCountdown.ts": [
+      "useSettlementCountdown"
+    ],
+    "src/app/hooks/useWishlist.ts": [
+      "useWishlist"
+    ],
+    "src/app/layouts/Root.tsx": [
+      "Root"
+    ],
+    "src/app/pages/About.tsx": [
+      "About"
+    ],
+    "src/app/pages/admin/AdminDashboard.tsx": [
+      "AdminDashboard"
+    ],
+    "src/app/pages/admin/AdminItemForm.tsx": [
+      "AdminItemForm"
+    ],
+    "src/app/pages/admin/AdminItems.tsx": [
+      "AdminItems"
+    ],
+    "src/app/pages/admin/AdminMerchandising.tsx": [
+      "AdminMerchandising"
+    ],
+    "src/app/pages/admin/AdminMerchants.tsx": [
+      "AdminMerchants"
+    ],
+    "src/app/pages/admin/AdminOrderDetail.tsx": [
+      "AdminOrderDetail"
+    ],
+    "src/app/pages/admin/AdminOrders.tsx": [
+      "AdminOrders"
+    ],
+    "src/app/pages/admin/AdminShopForm.tsx": [
+      "AdminShopForm"
+    ],
+    "src/app/pages/admin/AdminShops.tsx": [
+      "AdminShops"
+    ],
+    "src/app/pages/AdminDashboard.tsx": [],
+    "src/app/pages/AuthPage.tsx": [],
+    "src/app/pages/Checkout.tsx": [
+      "Checkout"
+    ],
+    "src/app/pages/ConsumerStorefront.tsx": [
+      "ConsumerStorefront"
+    ],
+    "src/app/pages/CustomerDashboard.tsx": [],
+    "src/app/pages/LandingPage.tsx": [],
+    "src/app/pages/merchant/MerchantDashboard.tsx": [
+      "MerchantDashboard"
+    ],
+    "src/app/pages/merchant/MerchantFulfill.tsx": [
+      "MerchantFulfill"
+    ],
+    "src/app/pages/MerchantAgreement.tsx": [
+      "MerchantAgreement"
+    ],
+    "src/app/pages/MerchantOnboarding.tsx": [
+      "MerchantOnboarding"
+    ],
+    "src/app/pages/MerchantRedemption.tsx": [],
+    "src/app/pages/NotFound.tsx": [
+      "NotFound"
+    ],
+    "src/app/pages/Notifications.tsx": [],
+    "src/app/pages/Privacy.tsx": [
+      "Privacy"
+    ],
+    "src/app/pages/ProductDetail.tsx": [],
+    "src/app/pages/public/GiftPage.tsx": [
+      "GiftPage"
+    ],
+    "src/app/pages/public/Landing.tsx": [
+      "Landing"
+    ],
+    "src/app/pages/public/Login.tsx": [
+      "Login"
+    ],
+    "src/app/pages/public/SignUp.tsx": [
+      "SignUp"
+    ],
+    "src/app/pages/sender/Confirmation.tsx": [
+      "Confirmation"
+    ],
+    "src/app/pages/sender/CustomerDashboard.tsx": [
+      "CustomerDashboard"
+    ],
+    "src/app/pages/sender/DashboardHub.tsx": [
+      "DashboardHub"
+    ],
+    "src/app/pages/sender/Home.tsx": [
+      "Home"
+    ],
+    "src/app/pages/sender/OrderDashboard.tsx": [
+      "OrderDashboard"
+    ],
+    "src/app/pages/sender/OrderDetail.tsx": [
+      "OrderDetail"
+    ],
+    "src/app/pages/sender/OrderHistory.tsx": [],
+    "src/app/pages/sender/SendFlow.tsx": [
+      "SendFlow"
+    ],
+    "src/app/pages/sender/Settings.tsx": [
+      "Settings"
+    ],
+    "src/app/pages/sender/ShopDetail.tsx": [
+      "ShopDetail"
+    ],
+    "src/app/pages/ShopDirectory.tsx": [
+      "ShopDirectory"
+    ],
+    "src/app/pages/ShopProfile.tsx": [],
+    "src/app/pages/Support.tsx": [
+      "Support"
+    ],
+    "src/app/pages/Terms.tsx": [
+      "Terms"
+    ],
+    "src/app/pages/Wishlist.tsx": [],
+    "src/app/routes.tsx": [
+      "router"
+    ],
+    "src/app/types/index.ts": [],
+    "src/app/utils/formatters.ts": [
+      "formatZMW",
+      "generateClaimCode",
+      "validateNRC",
+      "validateTPIN",
+      "formatPhoneZM",
+      "daysUntilExpiry",
+      "formatRelativeTime"
+    ],
+    "src/components/ProtectedRoute.tsx": [
+      "ProtectedRoute"
+    ],
+    "src/lib/html.ts": [
+      "escapeHtml"
+    ],
+    "src/lib/money/validation.ts": [
+      "isUuid",
+      "normalizeClaimCode",
+      "partitionItemIds",
+      "resolveTransactionLookupKey"
+    ],
+    "src/lib/supabaseClient.ts": [
+      "supabase",
+      "projectId"
+    ],
+    "src/lib/uploadValidation.ts": [
+      "MAX_IMAGE_BYTES",
+      "ALLOWED_IMAGE_MIME_TYPES",
+      "validateImageFile"
+    ],
+    "src/main.tsx": [],
+    "src/utils/auth/AuthContext.tsx": [
+      "AuthProvider",
+      "useAuth"
+    ],
+    "src/utils/currency.ts": [
+      "formatCurrency",
+      "toCents"
+    ],
+    "src/utils/diagnostics.ts": [
+      "runAntigravityDiagnostics"
+    ],
+    "src/utils/phone.ts": [
+      "validateAndFormatZambianPhone"
+    ],
+    "src/utils/receiptGenerator.ts": [
+      "buildReceiptHTML",
+      "printReceipt"
+    ],
+    "src/utils/sendFlowStore.ts": [
+      "getGroupedCartPayload",
+      "useSendFlowStore"
+    ],
+    "src/utils/server.ts": [
+      "callServer"
+    ],
+    "src/utils/uploadImage.ts": [
+      "uploadItemImage"
+    ],
+    "src/utils/whatsapp.ts": [
+      "createWhatsAppShareLink",
+      "getGiftPageUrl"
+    ],
+    "supabase/.branches/_current_branch": [],
+    "supabase/.temp/cli-latest": [],
+    "supabase/.temp/gotrue-version": [],
+    "supabase/.temp/pooler-url": [],
+    "supabase/.temp/postgres-version": [],
+    "supabase/.temp/project-ref": [],
+    "supabase/.temp/rest-version": [],
+    "supabase/.temp/storage-migration": [],
+    "supabase/.temp/storage-version": [],
+    "supabase/functions/_shared/cors.ts": [
+      "getCorsHeaders",
+      "jsonWithCors"
+    ],
+    "supabase/functions/_shared/ussd-auth.ts": [
+      "verifyUssdGateway",
+      "redactPhone"
+    ],
+    "supabase/functions/batch-payout-sweeper/index.ts": [],
+    "supabase/functions/checkout-init/index.ts": [],
+    "supabase/functions/deno.d.ts": [],
+    "supabase/functions/flutterwave-webhook/index.ts": [],
+    "supabase/functions/fulfill-voucher/index.ts": [],
+    "supabase/functions/fx-rate-lock/index.ts": [],
+    "supabase/functions/get-merchant-ledger/index.ts": [],
+    "supabase/functions/server/index.ts": [],
+    "supabase/functions/server/kv_store.tsx": [],
+    "supabase/functions/upload-item-image/index.ts": [],
+    "supabase/functions/ussd-gateway/index.ts": [],
+    "tests/html.test.ts": [],
+    "tests/integration/payment-flow.integration.test.ts": [],
+    "tests/integration/rpc-contract.test.ts": [],
+    "tests/money-validation.test.ts": [],
+    "tests/upload-validation.test.ts": [],
+    "utils/supabase/info.tsx": [
+      "projectId"
+    ],
+    "vite.config.ts": [],
+    "vitest.config.ts": []
+  },
+  "batches": [
+    {
+      "batchIndex": 1,
+      "files": [
+        {
+          "path": "docker-compose.yml",
+          "language": "yaml",
+          "sizeLines": 17,
+          "fileCategory": "infra"
+        },
+        {
+          "path": "Dockerfile",
+          "language": "dockerfile",
+          "sizeLines": 38,
+          "fileCategory": "infra"
+        }
+      ],
+      "batchImportData": {
+        "docker-compose.yml": [],
+        "Dockerfile": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 2,
+      "files": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "language": "yaml",
+          "sizeLines": 54,
+          "fileCategory": "infra"
+        }
+      ],
+      "batchImportData": {
+        ".github/workflows/ci.yml": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 3,
+      "files": [
+        {
+          "path": "supabase/migrations/20260525120000_v2_canonical_schema.sql",
+          "language": "sql",
+          "sizeLines": 154,
+          "fileCategory": "data"
+        },
+        {
+          "path": "supabase/migrations/20260525130000_v2_atomic_money_rpcs.sql",
+          "language": "sql",
+          "sizeLines": 623,
+          "fileCategory": "data"
+        },
+        {
+          "path": "supabase/migrations/20260525140000_v2_rls_policies.sql",
+          "language": "sql",
+          "sizeLines": 183,
+          "fileCategory": "data"
+        }
+      ],
+      "batchImportData": {
+        "supabase/migrations/20260525120000_v2_canonical_schema.sql": [],
+        "supabase/migrations/20260525130000_v2_atomic_money_rpcs.sql": [],
+        "supabase/migrations/20260525140000_v2_rls_policies.sql": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 4,
+      "files": [
+        {
+          "path": ".env.example",
+          "language": "config",
+          "sizeLines": 15,
+          "fileCategory": "config"
+        },
+        {
+          "path": "ATTRIBUTIONS.md",
+          "language": "markdown",
+          "sizeLines": 3,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "AUDIT.md",
+          "language": "markdown",
+          "sizeLines": 330,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "README.md",
+          "language": "markdown",
+          "sizeLines": 0,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "SECURITY.md",
+          "language": "markdown",
+          "sizeLines": 32,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "default_shadcn_theme.css",
+          "language": "css",
+          "sizeLines": 120,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "index.html",
+          "language": "html",
+          "sizeLines": 15,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "package.json",
+          "language": "json",
+          "sizeLines": 103,
+          "fileCategory": "config"
+        },
+        {
+          "path": "pnpm-workspace.yaml",
+          "language": "yaml",
+          "sizeLines": 7,
+          "fileCategory": "config"
+        },
+        {
+          "path": "setup.sh",
+          "language": "shell",
+          "sizeLines": 23,
+          "fileCategory": "script"
+        },
+        {
+          "path": "tsconfig.json",
+          "language": "json",
+          "sizeLines": 30,
+          "fileCategory": "config"
+        },
+        {
+          "path": "tsconfig.node.json",
+          "language": "json",
+          "sizeLines": 10,
+          "fileCategory": "config"
+        },
+        {
+          "path": "vercel.json",
+          "language": "json",
+          "sizeLines": 7,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        ".env.example": [],
+        "ATTRIBUTIONS.md": [],
+        "AUDIT.md": [],
+        "README.md": [],
+        "SECURITY.md": [],
+        "default_shadcn_theme.css": [],
+        "index.html": [],
+        "package.json": [],
+        "pnpm-workspace.yaml": [],
+        "setup.sh": [],
+        "tsconfig.json": [],
+        "tsconfig.node.json": [],
+        "vercel.json": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 5,
+      "files": [
+        {
+          "path": "src/styles/fonts.css",
+          "language": "css",
+          "sizeLines": 0,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "src/styles/globals.css",
+          "language": "css",
+          "sizeLines": 0,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "src/styles/index.css",
+          "language": "css",
+          "sizeLines": 3,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "src/styles/tailwind.css",
+          "language": "css",
+          "sizeLines": 4,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "src/styles/theme.css",
+          "language": "css",
+          "sizeLines": 202,
+          "fileCategory": "markup"
+        }
+      ],
+      "batchImportData": {
+        "src/styles/fonts.css": [],
+        "src/styles/globals.css": [],
+        "src/styles/index.css": [],
+        "src/styles/tailwind.css": [],
+        "src/styles/theme.css": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 6,
+      "files": [
+        {
+          "path": ".codex/environments/environment.toml",
+          "language": "toml",
+          "sizeLines": 11,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".understand-anything/.understandignore",
+          "language": "unknown",
+          "sizeLines": 35,
+          "fileCategory": "code"
+        },
+        {
+          "path": "guidelines/Guidelines.md",
+          "language": "markdown",
+          "sizeLines": 61,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "nginx.conf",
+          "language": "conf",
+          "sizeLines": 30,
+          "fileCategory": "code"
+        },
+        {
+          "path": "postcss.config.mjs",
+          "language": "javascript",
+          "sizeLines": 15,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/App.tsx",
+          "language": "typescript",
+          "sizeLines": 13,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/checkout/FxTemporalLock.tsx",
+          "language": "typescript",
+          "sizeLines": 470,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/checkout/InternationalCheckoutModal.tsx",
+          "language": "typescript",
+          "sizeLines": 478,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/checkout/PaymentProcessingScreen.tsx",
+          "language": "typescript",
+          "sizeLines": 590,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/figma/ImageWithFallback.tsx",
+          "language": "typescript",
+          "sizeLines": 27,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/layout/Footer.tsx",
+          "language": "typescript",
+          "sizeLines": 95,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/layout/Header.tsx",
+          "language": "typescript",
+          "sizeLines": 205,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/merchant/CashierVerificationTerminal.tsx",
+          "language": "typescript",
+          "sizeLines": 727,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/merchant/SettlementDashboard.tsx",
+          "language": "typescript",
+          "sizeLines": 242,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/shared/BackToTop.tsx",
+          "language": "typescript",
+          "sizeLines": 43,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/shared/EmptyState.tsx",
+          "language": "typescript",
+          "sizeLines": 42,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/shared/HandshakeTerminal.tsx",
+          "language": "typescript",
+          "sizeLines": 266,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/shared/HeroSlider.tsx",
+          "language": "typescript",
+          "sizeLines": 126,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/shared/HorizontalProductRibbon.tsx",
+          "language": "typescript",
+          "sizeLines": 63,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/shared/NotificationSlider.tsx",
+          "language": "typescript",
+          "sizeLines": 183,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/shared/PageTransition.tsx",
+          "language": "typescript",
+          "sizeLines": 21,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/shared/ProductCard.tsx",
+          "language": "typescript",
+          "sizeLines": 338,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/shared/ProfileVerificationBanner.tsx",
+          "language": "typescript",
+          "sizeLines": 62,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/shared/QRCodeDisplay.tsx",
+          "language": "typescript",
+          "sizeLines": 28,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/shared/SearchBar.tsx",
+          "language": "typescript",
+          "sizeLines": 114,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".codex/environments/environment.toml": [],
+        ".understand-anything/.understandignore": [],
+        "guidelines/Guidelines.md": [],
+        "nginx.conf": [],
+        "postcss.config.mjs": [],
+        "src/app/App.tsx": [],
+        "src/app/components/checkout/FxTemporalLock.tsx": [],
+        "src/app/components/checkout/InternationalCheckoutModal.tsx": [],
+        "src/app/components/checkout/PaymentProcessingScreen.tsx": [],
+        "src/app/components/figma/ImageWithFallback.tsx": [],
+        "src/app/components/layout/Footer.tsx": [],
+        "src/app/components/layout/Header.tsx": [],
+        "src/app/components/merchant/CashierVerificationTerminal.tsx": [],
+        "src/app/components/merchant/SettlementDashboard.tsx": [],
+        "src/app/components/shared/BackToTop.tsx": [],
+        "src/app/components/shared/EmptyState.tsx": [],
+        "src/app/components/shared/HandshakeTerminal.tsx": [],
+        "src/app/components/shared/HeroSlider.tsx": [],
+        "src/app/components/shared/HorizontalProductRibbon.tsx": [],
+        "src/app/components/shared/NotificationSlider.tsx": [],
+        "src/app/components/shared/PageTransition.tsx": [],
+        "src/app/components/shared/ProductCard.tsx": [],
+        "src/app/components/shared/ProfileVerificationBanner.tsx": [],
+        "src/app/components/shared/QRCodeDisplay.tsx": [],
+        "src/app/components/shared/SearchBar.tsx": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 7,
+      "files": [
+        {
+          "path": "src/app/components/shared/ShopCard.tsx",
+          "language": "typescript",
+          "sizeLines": 121,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/shared/StorefrontProductCard.tsx",
+          "language": "typescript",
+          "sizeLines": 121,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/shared/WhatsAppShareButton.tsx",
+          "language": "typescript",
+          "sizeLines": 28,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/accordion.tsx",
+          "language": "typescript",
+          "sizeLines": 66,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/alert-dialog.tsx",
+          "language": "typescript",
+          "sizeLines": 157,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/alert.tsx",
+          "language": "typescript",
+          "sizeLines": 66,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/aspect-ratio.tsx",
+          "language": "typescript",
+          "sizeLines": 11,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/avatar.tsx",
+          "language": "typescript",
+          "sizeLines": 53,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/badge.tsx",
+          "language": "typescript",
+          "sizeLines": 46,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/breadcrumb.tsx",
+          "language": "typescript",
+          "sizeLines": 109,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/button.tsx",
+          "language": "typescript",
+          "sizeLines": 60,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/calendar.tsx",
+          "language": "typescript",
+          "sizeLines": 75,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/card.tsx",
+          "language": "typescript",
+          "sizeLines": 92,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/carousel.tsx",
+          "language": "typescript",
+          "sizeLines": 241,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/chart.tsx",
+          "language": "typescript",
+          "sizeLines": 353,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/checkbox.tsx",
+          "language": "typescript",
+          "sizeLines": 32,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/collapsible.tsx",
+          "language": "typescript",
+          "sizeLines": 33,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/command.tsx",
+          "language": "typescript",
+          "sizeLines": 177,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/context-menu.tsx",
+          "language": "typescript",
+          "sizeLines": 252,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/dialog.tsx",
+          "language": "typescript",
+          "sizeLines": 135,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/drawer.tsx",
+          "language": "typescript",
+          "sizeLines": 132,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/dropdown-menu.tsx",
+          "language": "typescript",
+          "sizeLines": 257,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/ErrorBoundary.tsx",
+          "language": "typescript",
+          "sizeLines": 55,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/form.tsx",
+          "language": "typescript",
+          "sizeLines": 168,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/hover-card.tsx",
+          "language": "typescript",
+          "sizeLines": 44,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/app/components/shared/ShopCard.tsx": [],
+        "src/app/components/shared/StorefrontProductCard.tsx": [],
+        "src/app/components/shared/WhatsAppShareButton.tsx": [],
+        "src/app/components/ui/accordion.tsx": [],
+        "src/app/components/ui/alert-dialog.tsx": [],
+        "src/app/components/ui/alert.tsx": [],
+        "src/app/components/ui/aspect-ratio.tsx": [],
+        "src/app/components/ui/avatar.tsx": [],
+        "src/app/components/ui/badge.tsx": [],
+        "src/app/components/ui/breadcrumb.tsx": [],
+        "src/app/components/ui/button.tsx": [],
+        "src/app/components/ui/calendar.tsx": [],
+        "src/app/components/ui/card.tsx": [],
+        "src/app/components/ui/carousel.tsx": [],
+        "src/app/components/ui/chart.tsx": [],
+        "src/app/components/ui/checkbox.tsx": [],
+        "src/app/components/ui/collapsible.tsx": [],
+        "src/app/components/ui/command.tsx": [],
+        "src/app/components/ui/context-menu.tsx": [],
+        "src/app/components/ui/dialog.tsx": [],
+        "src/app/components/ui/drawer.tsx": [],
+        "src/app/components/ui/dropdown-menu.tsx": [],
+        "src/app/components/ui/ErrorBoundary.tsx": [],
+        "src/app/components/ui/form.tsx": [],
+        "src/app/components/ui/hover-card.tsx": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 8,
+      "files": [
+        {
+          "path": "src/app/components/ui/input-otp.tsx",
+          "language": "typescript",
+          "sizeLines": 77,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/input.tsx",
+          "language": "typescript",
+          "sizeLines": 21,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/label.tsx",
+          "language": "typescript",
+          "sizeLines": 24,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/menubar.tsx",
+          "language": "typescript",
+          "sizeLines": 276,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/navigation-menu.tsx",
+          "language": "typescript",
+          "sizeLines": 168,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/pagination.tsx",
+          "language": "typescript",
+          "sizeLines": 127,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/popover.tsx",
+          "language": "typescript",
+          "sizeLines": 48,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/progress.tsx",
+          "language": "typescript",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/radio-group.tsx",
+          "language": "typescript",
+          "sizeLines": 45,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/resizable.tsx",
+          "language": "typescript",
+          "sizeLines": 56,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/scroll-area.tsx",
+          "language": "typescript",
+          "sizeLines": 58,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/select.tsx",
+          "language": "typescript",
+          "sizeLines": 189,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/separator.tsx",
+          "language": "typescript",
+          "sizeLines": 28,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/sheet.tsx",
+          "language": "typescript",
+          "sizeLines": 139,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/sidebar.tsx",
+          "language": "typescript",
+          "sizeLines": 726,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/skeleton.tsx",
+          "language": "typescript",
+          "sizeLines": 13,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/slider.tsx",
+          "language": "typescript",
+          "sizeLines": 63,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/sonner.tsx",
+          "language": "typescript",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/switch.tsx",
+          "language": "typescript",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/table.tsx",
+          "language": "typescript",
+          "sizeLines": 116,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/tabs.tsx",
+          "language": "typescript",
+          "sizeLines": 66,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/textarea.tsx",
+          "language": "typescript",
+          "sizeLines": 18,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/toggle-group.tsx",
+          "language": "typescript",
+          "sizeLines": 73,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/toggle.tsx",
+          "language": "typescript",
+          "sizeLines": 47,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/tooltip.tsx",
+          "language": "typescript",
+          "sizeLines": 61,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/app/components/ui/input-otp.tsx": [],
+        "src/app/components/ui/input.tsx": [],
+        "src/app/components/ui/label.tsx": [],
+        "src/app/components/ui/menubar.tsx": [],
+        "src/app/components/ui/navigation-menu.tsx": [],
+        "src/app/components/ui/pagination.tsx": [],
+        "src/app/components/ui/popover.tsx": [],
+        "src/app/components/ui/progress.tsx": [],
+        "src/app/components/ui/radio-group.tsx": [],
+        "src/app/components/ui/resizable.tsx": [],
+        "src/app/components/ui/scroll-area.tsx": [],
+        "src/app/components/ui/select.tsx": [],
+        "src/app/components/ui/separator.tsx": [],
+        "src/app/components/ui/sheet.tsx": [],
+        "src/app/components/ui/sidebar.tsx": [],
+        "src/app/components/ui/skeleton.tsx": [],
+        "src/app/components/ui/slider.tsx": [],
+        "src/app/components/ui/sonner.tsx": [],
+        "src/app/components/ui/switch.tsx": [],
+        "src/app/components/ui/table.tsx": [],
+        "src/app/components/ui/tabs.tsx": [],
+        "src/app/components/ui/textarea.tsx": [],
+        "src/app/components/ui/toggle-group.tsx": [],
+        "src/app/components/ui/toggle.tsx": [],
+        "src/app/components/ui/tooltip.tsx": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 9,
+      "files": [
+        {
+          "path": "src/app/components/ui/use-mobile.ts",
+          "language": "typescript",
+          "sizeLines": 21,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/components/ui/utils.ts",
+          "language": "typescript",
+          "sizeLines": 6,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/data/mock-data.ts",
+          "language": "typescript",
+          "sizeLines": 286,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/hooks/useAuth.ts",
+          "language": "typescript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/hooks/useCart.ts",
+          "language": "typescript",
+          "sizeLines": 95,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/hooks/usePaymentVerification.ts",
+          "language": "typescript",
+          "sizeLines": 341,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/hooks/useSettlementCountdown.ts",
+          "language": "typescript",
+          "sizeLines": 62,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/hooks/useWishlist.ts",
+          "language": "typescript",
+          "sizeLines": 53,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/layouts/Root.tsx",
+          "language": "typescript",
+          "sizeLines": 22,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/About.tsx",
+          "language": "typescript",
+          "sizeLines": 124,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/admin/AdminDashboard.tsx",
+          "language": "typescript",
+          "sizeLines": 519,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/admin/AdminItemForm.tsx",
+          "language": "typescript",
+          "sizeLines": 412,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/admin/AdminItems.tsx",
+          "language": "typescript",
+          "sizeLines": 235,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/admin/AdminMerchandising.tsx",
+          "language": "typescript",
+          "sizeLines": 535,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/admin/AdminMerchants.tsx",
+          "language": "typescript",
+          "sizeLines": 349,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/admin/AdminOrderDetail.tsx",
+          "language": "typescript",
+          "sizeLines": 606,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/admin/AdminOrders.tsx",
+          "language": "typescript",
+          "sizeLines": 457,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/admin/AdminShopForm.tsx",
+          "language": "typescript",
+          "sizeLines": 397,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/admin/AdminShops.tsx",
+          "language": "typescript",
+          "sizeLines": 257,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/AdminDashboard.tsx",
+          "language": "typescript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/AuthPage.tsx",
+          "language": "typescript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/Checkout.tsx",
+          "language": "typescript",
+          "sizeLines": 423,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/ConsumerStorefront.tsx",
+          "language": "typescript",
+          "sizeLines": 515,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/CustomerDashboard.tsx",
+          "language": "typescript",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/LandingPage.tsx",
+          "language": "typescript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/app/components/ui/use-mobile.ts": [],
+        "src/app/components/ui/utils.ts": [],
+        "src/app/data/mock-data.ts": [],
+        "src/app/hooks/useAuth.ts": [],
+        "src/app/hooks/useCart.ts": [],
+        "src/app/hooks/usePaymentVerification.ts": [],
+        "src/app/hooks/useSettlementCountdown.ts": [],
+        "src/app/hooks/useWishlist.ts": [],
+        "src/app/layouts/Root.tsx": [],
+        "src/app/pages/About.tsx": [],
+        "src/app/pages/admin/AdminDashboard.tsx": [],
+        "src/app/pages/admin/AdminItemForm.tsx": [],
+        "src/app/pages/admin/AdminItems.tsx": [],
+        "src/app/pages/admin/AdminMerchandising.tsx": [],
+        "src/app/pages/admin/AdminMerchants.tsx": [],
+        "src/app/pages/admin/AdminOrderDetail.tsx": [],
+        "src/app/pages/admin/AdminOrders.tsx": [],
+        "src/app/pages/admin/AdminShopForm.tsx": [],
+        "src/app/pages/admin/AdminShops.tsx": [],
+        "src/app/pages/AdminDashboard.tsx": [],
+        "src/app/pages/AuthPage.tsx": [],
+        "src/app/pages/Checkout.tsx": [],
+        "src/app/pages/ConsumerStorefront.tsx": [],
+        "src/app/pages/CustomerDashboard.tsx": [],
+        "src/app/pages/LandingPage.tsx": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 10,
+      "files": [
+        {
+          "path": "src/app/pages/merchant/MerchantDashboard.tsx",
+          "language": "typescript",
+          "sizeLines": 723,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/merchant/MerchantFulfill.tsx",
+          "language": "typescript",
+          "sizeLines": 575,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/MerchantAgreement.tsx",
+          "language": "typescript",
+          "sizeLines": 61,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/MerchantOnboarding.tsx",
+          "language": "typescript",
+          "sizeLines": 264,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/MerchantRedemption.tsx",
+          "language": "typescript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/NotFound.tsx",
+          "language": "typescript",
+          "sizeLines": 42,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/Notifications.tsx",
+          "language": "typescript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/Privacy.tsx",
+          "language": "typescript",
+          "sizeLines": 186,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/ProductDetail.tsx",
+          "language": "typescript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/public/GiftPage.tsx",
+          "language": "typescript",
+          "sizeLines": 334,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/public/Landing.tsx",
+          "language": "typescript",
+          "sizeLines": 397,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/public/Login.tsx",
+          "language": "typescript",
+          "sizeLines": 277,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/public/SignUp.tsx",
+          "language": "typescript",
+          "sizeLines": 308,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/sender/Confirmation.tsx",
+          "language": "typescript",
+          "sizeLines": 540,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/sender/CustomerDashboard.tsx",
+          "language": "typescript",
+          "sizeLines": 312,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/sender/DashboardHub.tsx",
+          "language": "typescript",
+          "sizeLines": 568,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/sender/Home.tsx",
+          "language": "typescript",
+          "sizeLines": 555,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/sender/OrderDashboard.tsx",
+          "language": "typescript",
+          "sizeLines": 529,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/sender/OrderDetail.tsx",
+          "language": "typescript",
+          "sizeLines": 466,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/sender/OrderHistory.tsx",
+          "language": "typescript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/sender/SendFlow.tsx",
+          "language": "typescript",
+          "sizeLines": 336,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/sender/Settings.tsx",
+          "language": "typescript",
+          "sizeLines": 333,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/sender/ShopDetail.tsx",
+          "language": "typescript",
+          "sizeLines": 232,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/ShopDirectory.tsx",
+          "language": "typescript",
+          "sizeLines": 145,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/ShopProfile.tsx",
+          "language": "typescript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/app/pages/merchant/MerchantDashboard.tsx": [],
+        "src/app/pages/merchant/MerchantFulfill.tsx": [],
+        "src/app/pages/MerchantAgreement.tsx": [],
+        "src/app/pages/MerchantOnboarding.tsx": [],
+        "src/app/pages/MerchantRedemption.tsx": [],
+        "src/app/pages/NotFound.tsx": [],
+        "src/app/pages/Notifications.tsx": [],
+        "src/app/pages/Privacy.tsx": [],
+        "src/app/pages/ProductDetail.tsx": [],
+        "src/app/pages/public/GiftPage.tsx": [],
+        "src/app/pages/public/Landing.tsx": [],
+        "src/app/pages/public/Login.tsx": [],
+        "src/app/pages/public/SignUp.tsx": [],
+        "src/app/pages/sender/Confirmation.tsx": [],
+        "src/app/pages/sender/CustomerDashboard.tsx": [],
+        "src/app/pages/sender/DashboardHub.tsx": [],
+        "src/app/pages/sender/Home.tsx": [],
+        "src/app/pages/sender/OrderDashboard.tsx": [],
+        "src/app/pages/sender/OrderDetail.tsx": [],
+        "src/app/pages/sender/OrderHistory.tsx": [],
+        "src/app/pages/sender/SendFlow.tsx": [],
+        "src/app/pages/sender/Settings.tsx": [],
+        "src/app/pages/sender/ShopDetail.tsx": [],
+        "src/app/pages/ShopDirectory.tsx": [],
+        "src/app/pages/ShopProfile.tsx": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 11,
+      "files": [
+        {
+          "path": "src/app/pages/Support.tsx",
+          "language": "typescript",
+          "sizeLines": 208,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/Terms.tsx",
+          "language": "typescript",
+          "sizeLines": 161,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/pages/Wishlist.tsx",
+          "language": "typescript",
+          "sizeLines": 1,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/routes.tsx",
+          "language": "typescript",
+          "sizeLines": 300,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/types/index.ts",
+          "language": "typescript",
+          "sizeLines": 117,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/app/utils/formatters.ts",
+          "language": "typescript",
+          "sizeLines": 81,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/components/ProtectedRoute.tsx",
+          "language": "typescript",
+          "sizeLines": 54,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/imports/pasted_text/kithly-feature-list.md",
+          "language": "markdown",
+          "sizeLines": 712,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "src/lib/html.ts",
+          "language": "typescript",
+          "sizeLines": 9,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/money/validation.ts",
+          "language": "typescript",
+          "sizeLines": 35,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/supabaseClient.ts",
+          "language": "typescript",
+          "sizeLines": 28,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/lib/uploadValidation.ts",
+          "language": "typescript",
+          "sizeLines": 48,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/main.tsx",
+          "language": "typescript",
+          "sizeLines": 6,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/auth/AuthContext.tsx",
+          "language": "typescript",
+          "sizeLines": 188,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/currency.ts",
+          "language": "typescript",
+          "sizeLines": 10,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/diagnostics.ts",
+          "language": "typescript",
+          "sizeLines": 180,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/phone.ts",
+          "language": "typescript",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/receiptGenerator.ts",
+          "language": "typescript",
+          "sizeLines": 141,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/sendFlowStore.ts",
+          "language": "typescript",
+          "sizeLines": 112,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/server.ts",
+          "language": "typescript",
+          "sizeLines": 49,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/uploadImage.ts",
+          "language": "typescript",
+          "sizeLines": 46,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/utils/whatsapp.ts",
+          "language": "typescript",
+          "sizeLines": 16,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/.branches/_current_branch",
+          "language": "unknown",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/.temp/cli-latest",
+          "language": "unknown",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/.temp/gotrue-version",
+          "language": "unknown",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/app/pages/Support.tsx": [],
+        "src/app/pages/Terms.tsx": [],
+        "src/app/pages/Wishlist.tsx": [],
+        "src/app/routes.tsx": [],
+        "src/app/types/index.ts": [],
+        "src/app/utils/formatters.ts": [],
+        "src/components/ProtectedRoute.tsx": [],
+        "src/imports/pasted_text/kithly-feature-list.md": [],
+        "src/lib/html.ts": [],
+        "src/lib/money/validation.ts": [],
+        "src/lib/supabaseClient.ts": [],
+        "src/lib/uploadValidation.ts": [],
+        "src/main.tsx": [],
+        "src/utils/auth/AuthContext.tsx": [],
+        "src/utils/currency.ts": [],
+        "src/utils/diagnostics.ts": [],
+        "src/utils/phone.ts": [],
+        "src/utils/receiptGenerator.ts": [],
+        "src/utils/sendFlowStore.ts": [],
+        "src/utils/server.ts": [],
+        "src/utils/uploadImage.ts": [],
+        "src/utils/whatsapp.ts": [],
+        "supabase/.branches/_current_branch": [],
+        "supabase/.temp/cli-latest": [],
+        "supabase/.temp/gotrue-version": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 12,
+      "files": [
+        {
+          "path": "supabase/.temp/linked-project.json",
+          "language": "json",
+          "sizeLines": 0,
+          "fileCategory": "config"
+        },
+        {
+          "path": "supabase/.temp/pooler-url",
+          "language": "unknown",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/.temp/postgres-version",
+          "language": "unknown",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/.temp/project-ref",
+          "language": "unknown",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/.temp/rest-version",
+          "language": "unknown",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/.temp/storage-migration",
+          "language": "unknown",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/.temp/storage-version",
+          "language": "unknown",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/DATABASE_SETUP.md",
+          "language": "markdown",
+          "sizeLines": 141,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "supabase/functions/_shared/cors.ts",
+          "language": "typescript",
+          "sizeLines": 33,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/functions/_shared/ussd-auth.ts",
+          "language": "typescript",
+          "sizeLines": 72,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/functions/batch-payout-sweeper/index.ts",
+          "language": "typescript",
+          "sizeLines": 654,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/functions/checkout-init/index.ts",
+          "language": "typescript",
+          "sizeLines": 628,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/functions/deno.d.ts",
+          "language": "typescript",
+          "sizeLines": 71,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/functions/deno.json",
+          "language": "json",
+          "sizeLines": 9,
+          "fileCategory": "config"
+        },
+        {
+          "path": "supabase/functions/flutterwave-webhook/index.ts",
+          "language": "typescript",
+          "sizeLines": 498,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/functions/fulfill-voucher/index.ts",
+          "language": "typescript",
+          "sizeLines": 482,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/functions/fx-rate-lock/index.ts",
+          "language": "typescript",
+          "sizeLines": 610,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/functions/get-merchant-ledger/index.ts",
+          "language": "typescript",
+          "sizeLines": 150,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/functions/server/index.ts",
+          "language": "typescript",
+          "sizeLines": 660,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/functions/server/kv_store.tsx",
+          "language": "typescript",
+          "sizeLines": 0,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/functions/tsconfig.json",
+          "language": "json",
+          "sizeLines": 11,
+          "fileCategory": "config"
+        },
+        {
+          "path": "supabase/functions/upload-item-image/index.ts",
+          "language": "typescript",
+          "sizeLines": 120,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/functions/ussd-gateway/index.ts",
+          "language": "typescript",
+          "sizeLines": 280,
+          "fileCategory": "code"
+        },
+        {
+          "path": "supabase/LEGACY.md",
+          "language": "markdown",
+          "sizeLines": 16,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "supabase/snippets/layer_c_payment_sweep.sql",
+          "language": "sql",
+          "sizeLines": 517,
+          "fileCategory": "data"
+        }
+      ],
+      "batchImportData": {
+        "supabase/.temp/linked-project.json": [],
+        "supabase/.temp/pooler-url": [],
+        "supabase/.temp/postgres-version": [],
+        "supabase/.temp/project-ref": [],
+        "supabase/.temp/rest-version": [],
+        "supabase/.temp/storage-migration": [],
+        "supabase/.temp/storage-version": [],
+        "supabase/DATABASE_SETUP.md": [],
+        "supabase/functions/_shared/cors.ts": [],
+        "supabase/functions/_shared/ussd-auth.ts": [],
+        "supabase/functions/batch-payout-sweeper/index.ts": [],
+        "supabase/functions/checkout-init/index.ts": [],
+        "supabase/functions/deno.d.ts": [],
+        "supabase/functions/deno.json": [],
+        "supabase/functions/flutterwave-webhook/index.ts": [],
+        "supabase/functions/fulfill-voucher/index.ts": [],
+        "supabase/functions/fx-rate-lock/index.ts": [],
+        "supabase/functions/get-merchant-ledger/index.ts": [],
+        "supabase/functions/server/index.ts": [],
+        "supabase/functions/server/kv_store.tsx": [],
+        "supabase/functions/tsconfig.json": [],
+        "supabase/functions/upload-item-image/index.ts": [],
+        "supabase/functions/ussd-gateway/index.ts": [],
+        "supabase/LEGACY.md": [],
+        "supabase/snippets/layer_c_payment_sweep.sql": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 13,
+      "files": [
+        {
+          "path": "supabase/snippets/v2_schema_migration.sql",
+          "language": "sql",
+          "sizeLines": 97,
+          "fileCategory": "data"
+        },
+        {
+          "path": "tests/html.test.ts",
+          "language": "typescript",
+          "sizeLines": 14,
+          "fileCategory": "code"
+        },
+        {
+          "path": "tests/integration/payment-flow.integration.test.ts",
+          "language": "typescript",
+          "sizeLines": 41,
+          "fileCategory": "code"
+        },
+        {
+          "path": "tests/integration/rpc-contract.test.ts",
+          "language": "typescript",
+          "sizeLines": 40,
+          "fileCategory": "code"
+        },
+        {
+          "path": "tests/money-validation.test.ts",
+          "language": "typescript",
+          "sizeLines": 31,
+          "fileCategory": "code"
+        },
+        {
+          "path": "tests/upload-validation.test.ts",
+          "language": "typescript",
+          "sizeLines": 25,
+          "fileCategory": "code"
+        },
+        {
+          "path": "utils/supabase/info.tsx",
+          "language": "typescript",
+          "sizeLines": 5,
+          "fileCategory": "code"
+        },
+        {
+          "path": "vite.config.ts",
+          "language": "typescript",
+          "sizeLines": 50,
+          "fileCategory": "code"
+        },
+        {
+          "path": "vitest.config.ts",
+          "language": "typescript",
+          "sizeLines": 8,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "supabase/snippets/v2_schema_migration.sql": [],
+        "tests/html.test.ts": [],
+        "tests/integration/payment-flow.integration.test.ts": [],
+        "tests/integration/rpc-contract.test.ts": [],
+        "tests/money-validation.test.ts": [],
+        "tests/upload-validation.test.ts": [],
+        "utils/supabase/info.tsx": [],
+        "vite.config.ts": [],
+        "vitest.config.ts": []
+      },
+      "neighborMap": {}
+    }
+  ]
+}

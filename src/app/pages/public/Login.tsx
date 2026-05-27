@@ -7,6 +7,8 @@ import { Label } from '../../components/ui/label';
 import { Eye, EyeOff, Gift } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
+import { useAuth } from '../../../utils/auth/AuthContext';
+import { useEffect } from 'react';
 
 // HD lifestyle image from Unsplash (friends laughing together)
 const SIDE_IMAGE =
@@ -20,6 +22,22 @@ export function Login() {
   const [loading, setLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const { user, profile, profileError } = useAuth();
+
+  useEffect(() => {
+    if (user && profile) {
+      if (profile.role === 'merchant') navigate('/merchant');
+      else if (profile.role === 'admin') navigate('/admin');
+      else navigate('/shops');
+    }
+  }, [user, profile, navigate]);
+
+  useEffect(() => {
+    if (profileError) {
+      setLoading(false);
+      setErrorMsg('Failed to load user profile. Please try logging in again.');
+    }
+  }, [profileError]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,32 +66,8 @@ export function Login() {
       return;
     }
 
-    const userId = signInData?.user?.id;
-
-    // Step 2: Fetch role directly — don't wait for AuthContext to settle
-    let role = 'sender'; // safe default
-    if (userId) {
-      const { data: profileData, error: profileError } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', userId)
-        .single();
-
-      if (profileError) {
-        // RLS might block — default to sender
-        console.warn('Profile fetch failed (may be RLS):', profileError.message);
-      } else if (profileData?.role) {
-        role = profileData.role;
-      }
-    }
-
-    setLoading(false);
+    // Wait for AuthContext to detect session, fetch profile, and trigger the useEffect
     toast.success('Welcome back! Redirecting…');
-
-    // Step 3: Role-based routing
-    if (role === 'merchant') navigate('/merchant');
-    else if (role === 'admin') navigate('/admin');
-    else navigate('/dashboard');
   };
 
   const handleForgotPassword = async () => {

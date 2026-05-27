@@ -1,0 +1,5136 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 25,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "src/app/pages/merchant/MerchantDashboard.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 723,
+      "nonEmptyLines": 650,
+      "functions": [
+        {
+          "name": "ShopProfileCard",
+          "startLine": 67,
+          "endLine": 198,
+          "params": [
+            "{\n  profileName,\n  profileLocation,\n  profileImageUrl,\n  profileSaving,\n  profileSaved,\n  payoutAccount,\n  businessHours,\n  fileInputRef,\n  onNameChange,\n  onLocationChange,\n  onPayoutAccountChange,\n  onBusinessHoursChange,\n  onImageChange,\n  onSave,\n}"
+          ]
+        },
+        {
+          "name": "MerchantDashboard",
+          "startLine": 205,
+          "endLine": 686,
+          "params": []
+        },
+        {
+          "name": "AnimatedMetric",
+          "startLine": 692,
+          "endLine": 723,
+          "params": [
+            "{\n  value,\n  isCurrency,\n}"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "MerchantDashboard",
+          "line": 205,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ShopProfileCard",
+          "callee": "fileInputRef.current?.click",
+          "lineNumber": 98
+        },
+        {
+          "caller": "ShopProfileCard",
+          "callee": "onNameChange",
+          "lineNumber": 135
+        },
+        {
+          "caller": "ShopProfileCard",
+          "callee": "onLocationChange",
+          "lineNumber": 145
+        },
+        {
+          "caller": "ShopProfileCard",
+          "callee": "onPayoutAccountChange",
+          "lineNumber": 161
+        },
+        {
+          "caller": "ShopProfileCard",
+          "callee": "onBusinessHoursChange",
+          "lineNumber": 174
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useNavigate",
+          "lineNumber": 206
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useAuth",
+          "lineNumber": 207
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useState",
+          "lineNumber": 210
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useState",
+          "lineNumber": 211
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useState",
+          "lineNumber": 212
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useState",
+          "lineNumber": 213
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useState",
+          "lineNumber": 214
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useState",
+          "lineNumber": 221
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useState",
+          "lineNumber": 222
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useState",
+          "lineNumber": 225
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useState",
+          "lineNumber": 226
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useState",
+          "lineNumber": 227
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useState",
+          "lineNumber": 228
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useState",
+          "lineNumber": 229
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useState",
+          "lineNumber": 230
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useState",
+          "lineNumber": 231
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useRef",
+          "lineNumber": 232
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useEffect",
+          "lineNumber": 234
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "fetchMerchantData",
+          "lineNumber": 235
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "useEffect",
+          "lineNumber": 238
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "supabase\n        .channel(`shop:${shopId}`)\n        .on(\n          'postgres_changes',\n          {\n            event: 'INSERT',\n            schema: 'public',\n            table: 'orders',\n            filter: `shop_id=eq.${shopId}`,\n          },\n          () => {\n            fetchOrders(shopId);\n            fetchAnalytics(shopId);\n          }\n        )\n        .on(\n          'postgres_changes',\n          {\n            event: 'UPDATE',\n            schema: 'public',\n            table: 'orders',\n            filter: `shop_id=eq.${shopId}`,\n          },\n          () => {\n            fetchOrders(shopId);\n            fetchAnalytics(shopId);\n          }\n        )\n        .subscribe",
+          "lineNumber": 240
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "supabase\n        .channel(`shop:${shopId}`)\n        .on(\n          'postgres_changes',\n          {\n            event: 'INSERT',\n            schema: 'public',\n            table: 'orders',\n            filter: `shop_id=eq.${shopId}`,\n          },\n          () => {\n            fetchOrders(shopId);\n            fetchAnalytics(shopId);\n          }\n        )\n        .on",
+          "lineNumber": 240
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "supabase\n        .channel(`shop:${shopId}`)\n        .on",
+          "lineNumber": 240
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "supabase\n        .channel",
+          "lineNumber": 240
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "fetchOrders",
+          "lineNumber": 251
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "fetchAnalytics",
+          "lineNumber": 252
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "fetchOrders",
+          "lineNumber": 264
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "fetchAnalytics",
+          "lineNumber": 265
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "subscription.unsubscribe",
+          "lineNumber": 271
+        },
+        {
+          "caller": "fetchMerchantData",
+          "callee": "supabase\n        .from('merchant_shops')\n        .select('shop_id, shop:shops(id, name, location, image_url, payout_account, business_hours)')\n        .eq('user_id', profile.id)\n        .single",
+          "lineNumber": 280
+        },
+        {
+          "caller": "fetchMerchantData",
+          "callee": "supabase\n        .from('merchant_shops')\n        .select('shop_id, shop:shops(id, name, location, image_url, payout_account, business_hours)')\n        .eq",
+          "lineNumber": 280
+        },
+        {
+          "caller": "fetchMerchantData",
+          "callee": "supabase\n        .from('merchant_shops')\n        .select",
+          "lineNumber": 280
+        },
+        {
+          "caller": "fetchMerchantData",
+          "callee": "supabase\n        .from",
+          "lineNumber": 280
+        },
+        {
+          "caller": "fetchMerchantData",
+          "callee": "setShopId",
+          "lineNumber": 291
+        },
+        {
+          "caller": "fetchMerchantData",
+          "callee": "setShopName",
+          "lineNumber": 292
+        },
+        {
+          "caller": "fetchMerchantData",
+          "callee": "setProfileName",
+          "lineNumber": 295
+        },
+        {
+          "caller": "fetchMerchantData",
+          "callee": "setProfileLocation",
+          "lineNumber": 296
+        },
+        {
+          "caller": "fetchMerchantData",
+          "callee": "setProfileImageUrl",
+          "lineNumber": 297
+        },
+        {
+          "caller": "fetchMerchantData",
+          "callee": "setPayoutAccount",
+          "lineNumber": 298
+        },
+        {
+          "caller": "fetchMerchantData",
+          "callee": "setBusinessHours",
+          "lineNumber": 299
+        },
+        {
+          "caller": "fetchMerchantData",
+          "callee": "fetchOrders",
+          "lineNumber": 301
+        },
+        {
+          "caller": "fetchMerchantData",
+          "callee": "fetchAnalytics",
+          "lineNumber": 302
+        },
+        {
+          "caller": "fetchMerchantData",
+          "callee": "console.error",
+          "lineNumber": 304
+        },
+        {
+          "caller": "fetchMerchantData",
+          "callee": "setLoading",
+          "lineNumber": 306
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "supabase\n        .from('orders')\n        .select('*, items(name, image_url)')\n        .eq('shop_id', currentShopId)\n        .order",
+          "lineNumber": 312
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "supabase\n        .from('orders')\n        .select('*, items(name, image_url)')\n        .eq",
+          "lineNumber": 312
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "supabase\n        .from('orders')\n        .select",
+          "lineNumber": 312
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "supabase\n        .from",
+          "lineNumber": 312
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "((data || []) as any[]).map",
+          "lineNumber": 320
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "normalizedOrders.filter",
+          "lineNumber": 325
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "normalizedOrders.filter",
+          "lineNumber": 326
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "setActiveOrders",
+          "lineNumber": 328
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "setFulfilledOrders",
+          "lineNumber": 329
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "console.error",
+          "lineNumber": 331
+        },
+        {
+          "caller": "fetchAnalytics",
+          "callee": "supabase\n        .from('merchant_balances')\n        .select('available_balance')\n        .eq('shop_id', currentShopId)\n        .single",
+          "lineNumber": 338
+        },
+        {
+          "caller": "fetchAnalytics",
+          "callee": "supabase\n        .from('merchant_balances')\n        .select('available_balance')\n        .eq",
+          "lineNumber": 338
+        },
+        {
+          "caller": "fetchAnalytics",
+          "callee": "supabase\n        .from('merchant_balances')\n        .select",
+          "lineNumber": 338
+        },
+        {
+          "caller": "fetchAnalytics",
+          "callee": "supabase\n        .from",
+          "lineNumber": 338
+        },
+        {
+          "caller": "fetchAnalytics",
+          "callee": "supabase\n        .from('orders')\n        .select('amount, fulfilled_at')\n        .eq('shop_id', currentShopId)\n        .eq",
+          "lineNumber": 345
+        },
+        {
+          "caller": "fetchAnalytics",
+          "callee": "supabase\n        .from('orders')\n        .select('amount, fulfilled_at')\n        .eq",
+          "lineNumber": 345
+        },
+        {
+          "caller": "fetchAnalytics",
+          "callee": "supabase\n        .from('orders')\n        .select",
+          "lineNumber": 345
+        },
+        {
+          "caller": "fetchAnalytics",
+          "callee": "supabase\n        .from",
+          "lineNumber": 345
+        },
+        {
+          "caller": "fetchAnalytics",
+          "callee": "ordersData?.reduce",
+          "lineNumber": 351
+        },
+        {
+          "caller": "fetchAnalytics",
+          "callee": "oneWeekAgo.setDate",
+          "lineNumber": 354
+        },
+        {
+          "caller": "fetchAnalytics",
+          "callee": "oneWeekAgo.getDate",
+          "lineNumber": 354
+        },
+        {
+          "caller": "fetchAnalytics",
+          "callee": "ordersData?.filter",
+          "lineNumber": 355
+        },
+        {
+          "caller": "fetchAnalytics",
+          "callee": "weekOrders?.reduce",
+          "lineNumber": 359
+        },
+        {
+          "caller": "fetchAnalytics",
+          "callee": "setAnalytics",
+          "lineNumber": 361
+        },
+        {
+          "caller": "fetchAnalytics",
+          "callee": "console.error",
+          "lineNumber": 370
+        },
+        {
+          "caller": "handleFulfillOrder",
+          "callee": "navigate",
+          "lineNumber": 375
+        },
+        {
+          "caller": "handleEditProduct",
+          "callee": "console.log",
+          "lineNumber": 379
+        },
+        {
+          "caller": "handleDeleteProduct",
+          "callee": "console.log",
+          "lineNumber": 383
+        },
+        {
+          "caller": "handleWithdrawRequest",
+          "callee": "setWithdrawing",
+          "lineNumber": 388
+        },
+        {
+          "caller": "handleWithdrawRequest",
+          "callee": "supabase.functions.invoke",
+          "lineNumber": 390
+        },
+        {
+          "caller": "handleWithdrawRequest",
+          "callee": "setAnalytics",
+          "lineNumber": 399
+        },
+        {
+          "caller": "handleWithdrawRequest",
+          "callee": "alert",
+          "lineNumber": 400
+        },
+        {
+          "caller": "handleWithdrawRequest",
+          "callee": "console.error",
+          "lineNumber": 402
+        },
+        {
+          "caller": "handleWithdrawRequest",
+          "callee": "alert",
+          "lineNumber": 403
+        },
+        {
+          "caller": "handleWithdrawRequest",
+          "callee": "setWithdrawing",
+          "lineNumber": 405
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "e.preventDefault",
+          "lineNumber": 410
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "supabase.auth.signOut",
+          "lineNumber": 414
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "localStorage.clear",
+          "lineNumber": 417
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "sessionStorage.clear",
+          "lineNumber": 418
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "navigate",
+          "lineNumber": 421
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "console.error",
+          "lineNumber": 423
+        },
+        {
+          "caller": "handleSaveProfile",
+          "callee": "setProfileSaving",
+          "lineNumber": 430
+        },
+        {
+          "caller": "handleSaveProfile",
+          "callee": "supabase\n      .from('shops')\n      .update({\n        name: profileName,\n        location: profileLocation,\n        payout_account: payoutAccount,\n        business_hours: businessHours,\n      })\n      .eq",
+          "lineNumber": 432
+        },
+        {
+          "caller": "handleSaveProfile",
+          "callee": "supabase\n      .from('shops')\n      .update",
+          "lineNumber": 432
+        },
+        {
+          "caller": "handleSaveProfile",
+          "callee": "supabase\n      .from",
+          "lineNumber": 432
+        },
+        {
+          "caller": "handleSaveProfile",
+          "callee": "setShopName",
+          "lineNumber": 443
+        },
+        {
+          "caller": "handleSaveProfile",
+          "callee": "setProfileSaved",
+          "lineNumber": 444
+        },
+        {
+          "caller": "handleSaveProfile",
+          "callee": "setTimeout",
+          "lineNumber": 445
+        },
+        {
+          "caller": "handleSaveProfile",
+          "callee": "setProfileSaved",
+          "lineNumber": 445
+        },
+        {
+          "caller": "handleSaveProfile",
+          "callee": "console.error",
+          "lineNumber": 447
+        },
+        {
+          "caller": "handleSaveProfile",
+          "callee": "setProfileSaving",
+          "lineNumber": 450
+        },
+        {
+          "caller": "handleImageChange",
+          "callee": "setProfileImageUrl",
+          "lineNumber": 458
+        },
+        {
+          "caller": "handleImageChange",
+          "callee": "reader.readAsDataURL",
+          "lineNumber": 459
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "navigate",
+          "lineNumber": 482
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "navigate",
+          "lineNumber": 488
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "[\n            { label: 'Total Fulfilled',   value: analytics.totalFulfilled,   icon: Package,    isCurrency: false },\n            { label: 'Total Value',        value: analytics.totalValue,        icon: TrendingUp, isCurrency: true  },\n            { label: 'This Week',          value: analytics.weekFulfilled,     icon: Package,    isCurrency: false },\n            { label: 'Available for Withdrawal',  value: analytics.availableBalance,  icon: TrendingUp, isCurrency: true  },\n          ].map",
+          "lineNumber": 503
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "activeOrders.map",
+          "lineNumber": 560
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "order.id.split('-')[0].toUpperCase",
+          "lineNumber": 585
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "order.id.split",
+          "lineNumber": 585
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "new Date(order.paid_at).toLocaleDateString",
+          "lineNumber": 592
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "handleFulfillOrder",
+          "lineNumber": 595
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "fulfilledOrders.map",
+          "lineNumber": 615
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "formatCurrency",
+          "lineNumber": 640
+        },
+        {
+          "caller": "MerchantDashboard",
+          "callee": "new Date(order.fulfilled_at).toLocaleDateString",
+          "lineNumber": 643
+        },
+        {
+          "caller": "AnimatedMetric",
+          "callee": "useState",
+          "lineNumber": 699
+        },
+        {
+          "caller": "AnimatedMetric",
+          "callee": "useEffect",
+          "lineNumber": 701
+        },
+        {
+          "caller": "AnimatedMetric",
+          "callee": "performance.now",
+          "lineNumber": 704
+        },
+        {
+          "caller": "tick",
+          "callee": "Math.min",
+          "lineNumber": 707
+        },
+        {
+          "caller": "tick",
+          "callee": "Math.pow",
+          "lineNumber": 708
+        },
+        {
+          "caller": "tick",
+          "callee": "setDisplayValue",
+          "lineNumber": 709
+        },
+        {
+          "caller": "tick",
+          "callee": "Math.round",
+          "lineNumber": 709
+        },
+        {
+          "caller": "tick",
+          "callee": "window.requestAnimationFrame",
+          "lineNumber": 712
+        },
+        {
+          "caller": "AnimatedMetric",
+          "callee": "setDisplayValue",
+          "lineNumber": 716
+        },
+        {
+          "caller": "AnimatedMetric",
+          "callee": "window.requestAnimationFrame",
+          "lineNumber": 717
+        },
+        {
+          "caller": "AnimatedMetric",
+          "callee": "window.cancelAnimationFrame",
+          "lineNumber": 719
+        },
+        {
+          "caller": "AnimatedMetric",
+          "callee": "formatCurrency",
+          "lineNumber": 722
+        },
+        {
+          "caller": "AnimatedMetric",
+          "callee": "displayValue.toLocaleString",
+          "lineNumber": 722
+        }
+      ],
+      "metrics": {
+        "importCount": 9,
+        "exportCount": 1,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/merchant/MerchantFulfill.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 575,
+      "nonEmptyLines": 511,
+      "functions": [
+        {
+          "name": "fmt",
+          "startLine": 65,
+          "endLine": 66,
+          "params": [
+            "n"
+          ]
+        },
+        {
+          "name": "MerchantFulfill",
+          "startLine": 68,
+          "endLine": 573,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "MerchantFulfill",
+          "line": 68,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "fmt",
+          "callee": "new Intl.NumberFormat('en-ZM', { style: 'currency', currency: 'ZMW', maximumFractionDigits: 0 }).format",
+          "lineNumber": 66
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "useNavigate",
+          "lineNumber": 69
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "useAuth",
+          "lineNumber": 70
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "useState",
+          "lineNumber": 72
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "useState",
+          "lineNumber": 73
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "useState",
+          "lineNumber": 74
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "useState",
+          "lineNumber": 75
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "useState",
+          "lineNumber": 76
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "useState",
+          "lineNumber": 77
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "useRef",
+          "lineNumber": 79
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "useMemo",
+          "lineNumber": 83
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "cIds.push",
+          "lineNumber": 91
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "uIds.push",
+          "lineNumber": 94
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "useCallback",
+          "lineNumber": 103
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setRejectReason",
+          "lineNumber": 107
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setStage",
+          "lineNumber": 108
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setStage",
+          "lineNumber": 112
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "supabase\n        .from('shop_orders')\n        .select(`\n          shop_order_id, \n          shop_id, \n          claim_code, \n          subtotal,\n          merchant_shops!inner ( user_id ),\n          order_items (\n            order_item_id,\n            item_id,\n            allocated_price,\n            items ( name, image_url )\n          )\n        `)\n        .eq('claim_code', val.toUpperCase())\n        .eq('merchant_shops.user_id', profile?.id)\n        .single",
+          "lineNumber": 118
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "supabase\n        .from('shop_orders')\n        .select(`\n          shop_order_id, \n          shop_id, \n          claim_code, \n          subtotal,\n          merchant_shops!inner ( user_id ),\n          order_items (\n            order_item_id,\n            item_id,\n            allocated_price,\n            items ( name, image_url )\n          )\n        `)\n        .eq('claim_code', val.toUpperCase())\n        .eq",
+          "lineNumber": 118
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "supabase\n        .from('shop_orders')\n        .select(`\n          shop_order_id, \n          shop_id, \n          claim_code, \n          subtotal,\n          merchant_shops!inner ( user_id ),\n          order_items (\n            order_item_id,\n            item_id,\n            allocated_price,\n            items ( name, image_url )\n          )\n        `)\n        .eq",
+          "lineNumber": 118
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "supabase\n        .from('shop_orders')\n        .select",
+          "lineNumber": 118
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "supabase\n        .from",
+          "lineNumber": 118
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "val.toUpperCase",
+          "lineNumber": 133
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setRejectReason",
+          "lineNumber": 138
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setStage",
+          "lineNumber": 139
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "Array.isArray",
+          "lineNumber": 144
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "(rawItems as any[]).map",
+          "lineNumber": 148
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "mapped.forEach",
+          "lineNumber": 158
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setShopOrder",
+          "lineNumber": 161
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setItems",
+          "lineNumber": 162
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setChecked",
+          "lineNumber": 163
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setStage",
+          "lineNumber": 164
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "err.message?.toLowerCase().includes",
+          "lineNumber": 166
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "err.message?.toLowerCase",
+          "lineNumber": 166
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setRejectReason",
+          "lineNumber": 167
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setStage",
+          "lineNumber": 168
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "useCallback",
+          "lineNumber": 174
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setRejectReason",
+          "lineNumber": 178
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setStage",
+          "lineNumber": 179
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setStage",
+          "lineNumber": 184
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "supabase.auth.getSession",
+          "lineNumber": 187
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "supabase.functions.invoke",
+          "lineNumber": 197
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setRejectReason",
+          "lineNumber": 203
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "navigator.vibrate",
+          "lineNumber": 204
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "toast.error",
+          "lineNumber": 205
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setStage",
+          "lineNumber": 206
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "navigator.vibrate",
+          "lineNumber": 210
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "toast.success",
+          "lineNumber": 211
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setStage",
+          "lineNumber": 212
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "err.message?.toLowerCase().includes",
+          "lineNumber": 214
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "err.message?.toLowerCase",
+          "lineNumber": 214
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setRejectReason",
+          "lineNumber": 215
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setStage",
+          "lineNumber": 216
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "useCallback",
+          "lineNumber": 224
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setCode",
+          "lineNumber": 225
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setShopOrder",
+          "lineNumber": 226
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setItems",
+          "lineNumber": 227
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setChecked",
+          "lineNumber": 228
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setRejectReason",
+          "lineNumber": 229
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setStage",
+          "lineNumber": 230
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "navigate",
+          "lineNumber": 241
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "[0,1,2,3].map",
+          "lineNumber": 282
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "[4,5,6,7].map",
+          "lineNumber": 288
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "items.map",
+          "lineNumber": 355
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "cn",
+          "lineNumber": 364
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "cn",
+          "lineNumber": 383
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "setChecked",
+          "lineNumber": 399
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "cn",
+          "lineNumber": 401
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "cn",
+          "lineNumber": 415
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "fmt",
+          "lineNumber": 433
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "cn",
+          "lineNumber": 441
+        },
+        {
+          "caller": "MerchantFulfill",
+          "callee": "window.open",
+          "lineNumber": 562
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/MerchantAgreement.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 61,
+      "nonEmptyLines": 54,
+      "functions": [
+        {
+          "name": "MerchantAgreement",
+          "startLine": 5,
+          "endLine": 61,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "MerchantAgreement",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/MerchantOnboarding.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 264,
+      "nonEmptyLines": 240,
+      "functions": [
+        {
+          "name": "MerchantOnboarding",
+          "startLine": 20,
+          "endLine": 264,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "MerchantOnboarding",
+          "line": 20,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "MerchantOnboarding",
+          "callee": "useNavigate",
+          "lineNumber": 21
+        },
+        {
+          "caller": "MerchantOnboarding",
+          "callee": "useState",
+          "lineNumber": 24
+        },
+        {
+          "caller": "MerchantOnboarding",
+          "callee": "useState",
+          "lineNumber": 25
+        },
+        {
+          "caller": "MerchantOnboarding",
+          "callee": "useState",
+          "lineNumber": 28
+        },
+        {
+          "caller": "MerchantOnboarding",
+          "callee": "useState",
+          "lineNumber": 29
+        },
+        {
+          "caller": "MerchantOnboarding",
+          "callee": "useState",
+          "lineNumber": 30
+        },
+        {
+          "caller": "MerchantOnboarding",
+          "callee": "useState",
+          "lineNumber": 31
+        },
+        {
+          "caller": "MerchantOnboarding",
+          "callee": "useEffect",
+          "lineNumber": 34
+        },
+        {
+          "caller": "checkSession",
+          "callee": "supabase.auth.getUser",
+          "lineNumber": 36
+        },
+        {
+          "caller": "checkSession",
+          "callee": "toast.error",
+          "lineNumber": 40
+        },
+        {
+          "caller": "checkSession",
+          "callee": "navigate",
+          "lineNumber": 41
+        },
+        {
+          "caller": "checkSession",
+          "callee": "setUserId",
+          "lineNumber": 45
+        },
+        {
+          "caller": "checkSession",
+          "callee": "setAuthChecking",
+          "lineNumber": 46
+        },
+        {
+          "caller": "MerchantOnboarding",
+          "callee": "checkSession",
+          "lineNumber": 49
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "e.preventDefault",
+          "lineNumber": 54
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setErrorMsg",
+          "lineNumber": 55
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "businessName.trim",
+          "lineNumber": 58
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setErrorMsg",
+          "lineNumber": 59
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "location.trim",
+          "lineNumber": 62
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setErrorMsg",
+          "lineNumber": 63
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setErrorMsg",
+          "lineNumber": 67
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "navigate",
+          "lineNumber": 68
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setLoading",
+          "lineNumber": 72
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "supabase.rpc",
+          "lineNumber": 75
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "businessName.trim",
+          "lineNumber": 76
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "location.trim",
+          "lineNumber": 77
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.success",
+          "lineNumber": 85
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "navigate",
+          "lineNumber": 86
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setErrorMsg",
+          "lineNumber": 89
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.error",
+          "lineNumber": 90
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setLoading",
+          "lineNumber": 92
+        },
+        {
+          "caller": "MerchantOnboarding",
+          "callee": "setBusinessName",
+          "lineNumber": 174
+        },
+        {
+          "caller": "MerchantOnboarding",
+          "callee": "setLocation",
+          "lineNumber": 196
+        },
+        {
+          "caller": "MerchantOnboarding",
+          "callee": "navigate",
+          "lineNumber": 254
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/MerchantRedemption.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/NotFound.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 42,
+      "nonEmptyLines": 35,
+      "functions": [
+        {
+          "name": "NotFound",
+          "startLine": 7,
+          "endLine": 42,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "NotFound",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "NotFound",
+          "callee": "useNavigate",
+          "lineNumber": 8
+        },
+        {
+          "caller": "NotFound",
+          "callee": "navigate",
+          "lineNumber": 34
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/Notifications.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/Privacy.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 186,
+      "nonEmptyLines": 171,
+      "functions": [
+        {
+          "name": "Section",
+          "startLine": 14,
+          "endLine": 28,
+          "params": [
+            "{ icon: Icon, title, children }"
+          ]
+        },
+        {
+          "name": "Privacy",
+          "startLine": 30,
+          "endLine": 186,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Privacy",
+          "line": 30,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Privacy",
+          "callee": "[\n                { name: 'Flutterwave', role: 'Payment processing (mobile money, hosted checkout)', link: 'https://flutterwave.com/zm/privacy-policy' },\n                { name: 'Twilio', role: 'WhatsApp recipient notifications', link: 'https://www.twilio.com/en-us/legal/privacy' },\n                { name: 'Supabase', role: 'Database, authentication, edge computing', link: 'https://supabase.com/privacy' },\n              ].map",
+          "lineNumber": 133
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/ProductDetail.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/public/GiftPage.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 334,
+      "nonEmptyLines": 308,
+      "functions": [
+        {
+          "name": "GiftPage",
+          "startLine": 38,
+          "endLine": 334,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "GiftPage",
+          "line": 38,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "GiftPage",
+          "callee": "useParams",
+          "lineNumber": 39
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "useState",
+          "lineNumber": 40
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "useState",
+          "lineNumber": 41
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "useState",
+          "lineNumber": 42
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "useEffect",
+          "lineNumber": 44
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "fetchShopOrder",
+          "lineNumber": 47
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "supabase\n      .channel(`gift:${code}`)\n      .on(\n        'postgres_changes',\n        {\n          event: 'UPDATE',\n          schema: 'public',\n          table: 'shop_orders',\n          filter: `claim_code=eq.${code.toUpperCase()}`,\n        },\n        () => {\n          fetchShopOrder();\n        },\n      )\n      .subscribe",
+          "lineNumber": 52
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "supabase\n      .channel(`gift:${code}`)\n      .on",
+          "lineNumber": 52
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "supabase\n      .channel",
+          "lineNumber": 52
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "code.toUpperCase",
+          "lineNumber": 60
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "fetchShopOrder",
+          "lineNumber": 63
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "subscription.unsubscribe",
+          "lineNumber": 69
+        },
+        {
+          "caller": "fetchShopOrder",
+          "callee": "supabase\n        .from('shop_orders')\n        .select(`\n          shop_order_id,\n          claim_code,\n          claim_status,\n          recipient_name,\n          message,\n          transaction:transaction_id (\n            buyer:buyer_id (name)\n          ),\n          order_items (\n            item:item_id (id, name, description, image_url)\n          ),\n          shop:shop_id (name, location, address)\n        `)\n        .eq('claim_code', code.toUpperCase())\n        .single",
+          "lineNumber": 77
+        },
+        {
+          "caller": "fetchShopOrder",
+          "callee": "supabase\n        .from('shop_orders')\n        .select(`\n          shop_order_id,\n          claim_code,\n          claim_status,\n          recipient_name,\n          message,\n          transaction:transaction_id (\n            buyer:buyer_id (name)\n          ),\n          order_items (\n            item:item_id (id, name, description, image_url)\n          ),\n          shop:shop_id (name, location, address)\n        `)\n        .eq",
+          "lineNumber": 77
+        },
+        {
+          "caller": "fetchShopOrder",
+          "callee": "supabase\n        .from('shop_orders')\n        .select",
+          "lineNumber": 77
+        },
+        {
+          "caller": "fetchShopOrder",
+          "callee": "supabase\n        .from",
+          "lineNumber": 77
+        },
+        {
+          "caller": "fetchShopOrder",
+          "callee": "code.toUpperCase",
+          "lineNumber": 93
+        },
+        {
+          "caller": "fetchShopOrder",
+          "callee": "setShopOrder",
+          "lineNumber": 97
+        },
+        {
+          "caller": "fetchShopOrder",
+          "callee": "console.error",
+          "lineNumber": 99
+        },
+        {
+          "caller": "fetchShopOrder",
+          "callee": "setLoading",
+          "lineNumber": 101
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "useEffect",
+          "lineNumber": 106
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "QRCode.toDataURL(shopOrder.claim_code, {\n        width: 300,\n        margin: 2,\n        color: {\n          dark: '#1f2937',\n          light: '#ffffff',\n        },\n      })\n        .then((url) => {\n          setQrDataUrl(url);\n        })\n        .catch",
+          "lineNumber": 108
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "QRCode.toDataURL(shopOrder.claim_code, {\n        width: 300,\n        margin: 2,\n        color: {\n          dark: '#1f2937',\n          light: '#ffffff',\n        },\n      })\n        .then",
+          "lineNumber": 108
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "QRCode.toDataURL",
+          "lineNumber": 108
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "setQrDataUrl",
+          "lineNumber": 117
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "console.error",
+          "lineNumber": 120
+        },
+        {
+          "caller": "GiftPage",
+          "callee": "setQrDataUrl",
+          "lineNumber": 125
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/public/Landing.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 397,
+      "nonEmptyLines": 373,
+      "functions": [
+        {
+          "name": "Landing",
+          "startLine": 12,
+          "endLine": 397,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Landing",
+          "line": 12,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Landing",
+          "callee": "useNavigate",
+          "lineNumber": 13
+        },
+        {
+          "caller": "Landing",
+          "callee": "useAuth",
+          "lineNumber": 14
+        },
+        {
+          "caller": "Landing",
+          "callee": "useEffect",
+          "lineNumber": 16
+        },
+        {
+          "caller": "Landing",
+          "callee": "navigate",
+          "lineNumber": 18
+        },
+        {
+          "caller": "Landing",
+          "callee": "navigate",
+          "lineNumber": 19
+        },
+        {
+          "caller": "Landing",
+          "callee": "navigate",
+          "lineNumber": 20
+        },
+        {
+          "caller": "Landing",
+          "callee": "navigate",
+          "lineNumber": 70
+        },
+        {
+          "caller": "Landing",
+          "callee": "navigate",
+          "lineNumber": 78
+        },
+        {
+          "caller": "Landing",
+          "callee": "navigate",
+          "lineNumber": 84
+        },
+        {
+          "caller": "Landing",
+          "callee": "navigate",
+          "lineNumber": 141
+        },
+        {
+          "caller": "Landing",
+          "callee": "navigate",
+          "lineNumber": 148
+        },
+        {
+          "caller": "Landing",
+          "callee": "navigate",
+          "lineNumber": 164
+        },
+        {
+          "caller": "Landing",
+          "callee": "[2, 6, 8, 15, 20].map",
+          "lineNumber": 187
+        },
+        {
+          "caller": "Landing",
+          "callee": "[\n              {\n                icon: Gift,\n                color: 'from-orange-500 to-red-500',\n                bg: 'bg-orange-50',\n                step: '01',\n                title: 'Choose a Gift',\n                desc: 'Browse curated items from local shops near your recipient.',\n              },\n              {\n                icon: Send,\n                color: 'from-red-500 to-rose-600',\n                bg: 'bg-red-50',\n                step: '02',\n                title: 'Send It',\n                desc: 'Add a heartfelt message and share the gift link via WhatsApp.',\n              },\n              {\n                icon: Package,\n                color: 'from-amber-500 to-orange-500',\n                bg: 'bg-amber-50',\n                step: '03',\n                title: 'They Collect',\n                desc: 'Your recipient walks in, shows the QR code, and picks it up.',\n              },\n            ].map",
+          "lineNumber": 259
+        },
+        {
+          "caller": "Landing",
+          "callee": "navigate",
+          "lineNumber": 330
+        },
+        {
+          "caller": "Landing",
+          "callee": "[\n              { label: 'Zero delivery costs', desc: 'Customers collect in-store' },\n              { label: 'Instant notifications', desc: 'Know when a gift is claimed' },\n              { label: 'Trusted payments', desc: 'Settled via mobile money' },\n              { label: 'Full dashboard', desc: 'Manage orders and inventory' },\n            ].map",
+          "lineNumber": 348
+        },
+        {
+          "caller": "Landing",
+          "callee": "navigate",
+          "lineNumber": 383
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/public/Login.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 277,
+      "nonEmptyLines": 252,
+      "functions": [
+        {
+          "name": "Login",
+          "startLine": 15,
+          "endLine": 277,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Login",
+          "line": 15,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Login",
+          "callee": "useNavigate",
+          "lineNumber": 16
+        },
+        {
+          "caller": "Login",
+          "callee": "useState",
+          "lineNumber": 18
+        },
+        {
+          "caller": "Login",
+          "callee": "useState",
+          "lineNumber": 19
+        },
+        {
+          "caller": "Login",
+          "callee": "useState",
+          "lineNumber": 20
+        },
+        {
+          "caller": "Login",
+          "callee": "useState",
+          "lineNumber": 21
+        },
+        {
+          "caller": "Login",
+          "callee": "useState",
+          "lineNumber": 22
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "e.preventDefault",
+          "lineNumber": 25
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setErrorMsg",
+          "lineNumber": 26
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setErrorMsg",
+          "lineNumber": 29
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.error",
+          "lineNumber": 30
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setLoading",
+          "lineNumber": 34
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "supabase.auth.signInWithPassword",
+          "lineNumber": 38
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setLoading",
+          "lineNumber": 44
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setErrorMsg",
+          "lineNumber": 46
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.error",
+          "lineNumber": 47
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "supabase\n        .from('users')\n        .select('role')\n        .eq('id', userId)\n        .single",
+          "lineNumber": 56
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "supabase\n        .from('users')\n        .select('role')\n        .eq",
+          "lineNumber": 56
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "supabase\n        .from('users')\n        .select",
+          "lineNumber": 56
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "supabase\n        .from",
+          "lineNumber": 56
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "console.warn",
+          "lineNumber": 64
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setLoading",
+          "lineNumber": 70
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.success",
+          "lineNumber": 71
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "navigate",
+          "lineNumber": 74
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "navigate",
+          "lineNumber": 75
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "navigate",
+          "lineNumber": 76
+        },
+        {
+          "caller": "handleForgotPassword",
+          "callee": "toast.error",
+          "lineNumber": 81
+        },
+        {
+          "caller": "handleForgotPassword",
+          "callee": "supabase.auth.resetPasswordForEmail",
+          "lineNumber": 85
+        },
+        {
+          "caller": "handleForgotPassword",
+          "callee": "setErrorMsg",
+          "lineNumber": 88
+        },
+        {
+          "caller": "handleForgotPassword",
+          "callee": "toast.error",
+          "lineNumber": 89
+        },
+        {
+          "caller": "handleForgotPassword",
+          "callee": "toast.success",
+          "lineNumber": 91
+        },
+        {
+          "caller": "handleForgotPassword",
+          "callee": "setShowForgotPassword",
+          "lineNumber": 92
+        },
+        {
+          "caller": "Login",
+          "callee": "setFormData",
+          "lineNumber": 171
+        },
+        {
+          "caller": "Login",
+          "callee": "setFormData",
+          "lineNumber": 191
+        },
+        {
+          "caller": "Login",
+          "callee": "setShowPassword",
+          "lineNumber": 199
+        },
+        {
+          "caller": "Login",
+          "callee": "setShowForgotPassword",
+          "lineNumber": 211
+        },
+        {
+          "caller": "Login",
+          "callee": "setErrorMsg",
+          "lineNumber": 211
+        },
+        {
+          "caller": "Login",
+          "callee": "setShowForgotPassword",
+          "lineNumber": 232
+        },
+        {
+          "caller": "Login",
+          "callee": "setErrorMsg",
+          "lineNumber": 232
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/public/SignUp.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 308,
+      "nonEmptyLines": 282,
+      "functions": [
+        {
+          "name": "SignUp",
+          "startLine": 15,
+          "endLine": 308,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "SignUp",
+          "line": 15,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "SignUp",
+          "callee": "useNavigate",
+          "lineNumber": 16
+        },
+        {
+          "caller": "SignUp",
+          "callee": "useAuth",
+          "lineNumber": 17
+        },
+        {
+          "caller": "SignUp",
+          "callee": "useState",
+          "lineNumber": 19
+        },
+        {
+          "caller": "SignUp",
+          "callee": "useState",
+          "lineNumber": 27
+        },
+        {
+          "caller": "SignUp",
+          "callee": "useState",
+          "lineNumber": 28
+        },
+        {
+          "caller": "SignUp",
+          "callee": "useState",
+          "lineNumber": 29
+        },
+        {
+          "caller": "SignUp",
+          "callee": "useState",
+          "lineNumber": 30
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "e.preventDefault",
+          "lineNumber": 33
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setErrorMsg",
+          "lineNumber": 34
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setErrorMsg",
+          "lineNumber": 38
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.error",
+          "lineNumber": 39
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setErrorMsg",
+          "lineNumber": 45
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.error",
+          "lineNumber": 46
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setErrorMsg",
+          "lineNumber": 52
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.error",
+          "lineNumber": 53
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "formData.email.includes",
+          "lineNumber": 57
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setErrorMsg",
+          "lineNumber": 59
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.error",
+          "lineNumber": 60
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setLoading",
+          "lineNumber": 64
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "signUp",
+          "lineNumber": 66
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setLoading",
+          "lineNumber": 73
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setErrorMsg",
+          "lineNumber": 77
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.error",
+          "lineNumber": 78
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.success",
+          "lineNumber": 80
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "navigate",
+          "lineNumber": 81
+        },
+        {
+          "caller": "SignUp",
+          "callee": "[\n                  'https://i.pravatar.cc/40?img=1',\n                  'https://i.pravatar.cc/40?img=5',\n                  'https://i.pravatar.cc/40?img=9',\n                  'https://i.pravatar.cc/40?img=12',\n                ].map",
+          "lineNumber": 119
+        },
+        {
+          "caller": "SignUp",
+          "callee": "setFormData",
+          "lineNumber": 178
+        },
+        {
+          "caller": "SignUp",
+          "callee": "setFormData",
+          "lineNumber": 194
+        },
+        {
+          "caller": "SignUp",
+          "callee": "setFormData",
+          "lineNumber": 210
+        },
+        {
+          "caller": "SignUp",
+          "callee": "setFormData",
+          "lineNumber": 227
+        },
+        {
+          "caller": "SignUp",
+          "callee": "setShowPassword",
+          "lineNumber": 234
+        },
+        {
+          "caller": "SignUp",
+          "callee": "setFormData",
+          "lineNumber": 253
+        },
+        {
+          "caller": "SignUp",
+          "callee": "setShowConfirmPassword",
+          "lineNumber": 261
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/sender/Confirmation.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 540,
+      "nonEmptyLines": 485,
+      "functions": [
+        {
+          "name": "usePaymentConfirmation",
+          "startLine": 61,
+          "endLine": 176,
+          "params": [
+            "transactionId",
+            "txRef"
+          ]
+        },
+        {
+          "name": "PollingView",
+          "startLine": 182,
+          "endLine": 225,
+          "params": [
+            "{ attempt, max }"
+          ]
+        },
+        {
+          "name": "SuccessView",
+          "startLine": 227,
+          "endLine": 354,
+          "params": [
+            "{ transaction, onDone }"
+          ]
+        },
+        {
+          "name": "FailedView",
+          "startLine": 356,
+          "endLine": 389,
+          "params": [
+            "{ onVerify, verifying }"
+          ]
+        },
+        {
+          "name": "Confirmation",
+          "startLine": 395,
+          "endLine": 540,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Confirmation",
+          "line": 395,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "usePaymentConfirmation",
+          "callee": "useState",
+          "lineNumber": 62
+        },
+        {
+          "caller": "usePaymentConfirmation",
+          "callee": "useState",
+          "lineNumber": 63
+        },
+        {
+          "caller": "usePaymentConfirmation",
+          "callee": "useRef",
+          "lineNumber": 66
+        },
+        {
+          "caller": "usePaymentConfirmation",
+          "callee": "useRef",
+          "lineNumber": 67
+        },
+        {
+          "caller": "fetchTransaction",
+          "callee": "supabase\n      .from('transactions')\n      .select(`\n        transaction_id,\n        buyer_id,\n        total_amount,\n        status,\n        gateway_tx_ref,\n        created_at,\n        shop_orders (\n          shop_order_id,\n          claim_code,\n          claim_status,\n          recipient_name,\n          message,\n          shop:shop_id (id, name, location),\n          order_items (\n            item:item_id (id, name, description, image_url)\n          )\n        )\n      `)\n      .eq('transaction_id', id)\n      .single",
+          "lineNumber": 71
+        },
+        {
+          "caller": "fetchTransaction",
+          "callee": "supabase\n      .from('transactions')\n      .select(`\n        transaction_id,\n        buyer_id,\n        total_amount,\n        status,\n        gateway_tx_ref,\n        created_at,\n        shop_orders (\n          shop_order_id,\n          claim_code,\n          claim_status,\n          recipient_name,\n          message,\n          shop:shop_id (id, name, location),\n          order_items (\n            item:item_id (id, name, description, image_url)\n          )\n        )\n      `)\n      .eq",
+          "lineNumber": 71
+        },
+        {
+          "caller": "fetchTransaction",
+          "callee": "supabase\n      .from('transactions')\n      .select",
+          "lineNumber": 71
+        },
+        {
+          "caller": "fetchTransaction",
+          "callee": "supabase\n      .from",
+          "lineNumber": 71
+        },
+        {
+          "caller": "fetchTransaction",
+          "callee": "console.error",
+          "lineNumber": 96
+        },
+        {
+          "caller": "usePaymentConfirmation",
+          "callee": "useEffect",
+          "lineNumber": 103
+        },
+        {
+          "caller": "usePaymentConfirmation",
+          "callee": "setPollingStatus",
+          "lineNumber": 106
+        },
+        {
+          "caller": "poll",
+          "callee": "fetchTransaction",
+          "lineNumber": 111
+        },
+        {
+          "caller": "poll",
+          "callee": "clearInterval",
+          "lineNumber": 115
+        },
+        {
+          "caller": "poll",
+          "callee": "setPollingStatus",
+          "lineNumber": 116
+        },
+        {
+          "caller": "poll",
+          "callee": "setTransaction",
+          "lineNumber": 121
+        },
+        {
+          "caller": "poll",
+          "callee": "clearInterval",
+          "lineNumber": 124
+        },
+        {
+          "caller": "poll",
+          "callee": "setPollingStatus",
+          "lineNumber": 125
+        },
+        {
+          "caller": "poll",
+          "callee": "clearInterval",
+          "lineNumber": 130
+        },
+        {
+          "caller": "poll",
+          "callee": "setPollingStatus",
+          "lineNumber": 131
+        },
+        {
+          "caller": "poll",
+          "callee": "clearInterval",
+          "lineNumber": 136
+        },
+        {
+          "caller": "poll",
+          "callee": "setPollingStatus",
+          "lineNumber": 137
+        },
+        {
+          "caller": "usePaymentConfirmation",
+          "callee": "poll",
+          "lineNumber": 142
+        },
+        {
+          "caller": "usePaymentConfirmation",
+          "callee": "setInterval",
+          "lineNumber": 143
+        },
+        {
+          "caller": "usePaymentConfirmation",
+          "callee": "clearInterval",
+          "lineNumber": 146
+        },
+        {
+          "caller": "verifyManually",
+          "callee": "setPollingStatus",
+          "lineNumber": 153
+        },
+        {
+          "caller": "verifyManually",
+          "callee": "supabase.functions.invoke",
+          "lineNumber": 156
+        },
+        {
+          "caller": "verifyManually",
+          "callee": "fetchTransaction",
+          "lineNumber": 162
+        },
+        {
+          "caller": "verifyManually",
+          "callee": "setTransaction",
+          "lineNumber": 163
+        },
+        {
+          "caller": "verifyManually",
+          "callee": "setPollingStatus",
+          "lineNumber": 164
+        },
+        {
+          "caller": "verifyManually",
+          "callee": "setPollingStatus",
+          "lineNumber": 166
+        },
+        {
+          "caller": "verifyManually",
+          "callee": "console.error",
+          "lineNumber": 169
+        },
+        {
+          "caller": "verifyManually",
+          "callee": "toast.error",
+          "lineNumber": 170
+        },
+        {
+          "caller": "verifyManually",
+          "callee": "setPollingStatus",
+          "lineNumber": 171
+        },
+        {
+          "caller": "PollingView",
+          "callee": "Math.min",
+          "lineNumber": 183
+        },
+        {
+          "caller": "PollingView",
+          "callee": "Math.round",
+          "lineNumber": 212
+        },
+        {
+          "caller": "copyToClipboard",
+          "callee": "navigator.clipboard.writeText",
+          "lineNumber": 229
+        },
+        {
+          "caller": "copyToClipboard",
+          "callee": "toast.success",
+          "lineNumber": 230
+        },
+        {
+          "caller": "SuccessView",
+          "callee": "formatCurrency",
+          "lineNumber": 255
+        },
+        {
+          "caller": "SuccessView",
+          "callee": "transaction.shop_orders.map",
+          "lineNumber": 261
+        },
+        {
+          "caller": "SuccessView",
+          "callee": "getGiftPageUrl",
+          "lineNumber": 263
+        },
+        {
+          "caller": "SuccessView",
+          "callee": "copyToClipboard",
+          "lineNumber": 309
+        },
+        {
+          "caller": "SuccessView",
+          "callee": "window.open",
+          "lineNumber": 316
+        },
+        {
+          "caller": "FailedView",
+          "callee": "window.open",
+          "lineNumber": 382
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "useNavigate",
+          "lineNumber": 396
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "useSearchParams",
+          "lineNumber": 397
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "useAuth",
+          "lineNumber": 398
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "searchParams.get",
+          "lineNumber": 403
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "searchParams.get",
+          "lineNumber": 403
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "useState",
+          "lineNumber": 405
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "useState",
+          "lineNumber": 406
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "useEffect",
+          "lineNumber": 409
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "setResolving",
+          "lineNumber": 411
+        },
+        {
+          "caller": "resolveTransaction",
+          "callee": "/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test",
+          "lineNumber": 417
+        },
+        {
+          "caller": "resolveTransaction",
+          "callee": "setTransactionId",
+          "lineNumber": 420
+        },
+        {
+          "caller": "resolveTransaction",
+          "callee": "setResolving",
+          "lineNumber": 421
+        },
+        {
+          "caller": "resolveTransaction",
+          "callee": "supabase\n        .from('transactions')\n        .select('transaction_id')\n        .eq('gateway_tx_ref', txRef)\n        .single",
+          "lineNumber": 425
+        },
+        {
+          "caller": "resolveTransaction",
+          "callee": "supabase\n        .from('transactions')\n        .select('transaction_id')\n        .eq",
+          "lineNumber": 425
+        },
+        {
+          "caller": "resolveTransaction",
+          "callee": "supabase\n        .from('transactions')\n        .select",
+          "lineNumber": 425
+        },
+        {
+          "caller": "resolveTransaction",
+          "callee": "supabase\n        .from",
+          "lineNumber": 425
+        },
+        {
+          "caller": "resolveTransaction",
+          "callee": "console.error",
+          "lineNumber": 432
+        },
+        {
+          "caller": "resolveTransaction",
+          "callee": "toast.error",
+          "lineNumber": 433
+        },
+        {
+          "caller": "resolveTransaction",
+          "callee": "navigate",
+          "lineNumber": 434
+        },
+        {
+          "caller": "resolveTransaction",
+          "callee": "setTransactionId",
+          "lineNumber": 438
+        },
+        {
+          "caller": "resolveTransaction",
+          "callee": "setResolving",
+          "lineNumber": 439
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "resolveTransaction",
+          "lineNumber": 442
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "useState",
+          "lineNumber": 445
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "usePaymentConfirmation",
+          "lineNumber": 448
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "useEffect",
+          "lineNumber": 454
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "setInterval",
+          "lineNumber": 456
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "setAttemptCount",
+          "lineNumber": 457
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "Math.min",
+          "lineNumber": 457
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "clearInterval",
+          "lineNumber": 459
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "navigate",
+          "lineNumber": 478
+        },
+        {
+          "caller": "Confirmation",
+          "callee": "navigate",
+          "lineNumber": 512
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 1,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/sender/CustomerDashboard.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 312,
+      "nonEmptyLines": 288,
+      "functions": [
+        {
+          "name": "MetricCardSkeleton",
+          "startLine": 17,
+          "endLine": 28,
+          "params": []
+        },
+        {
+          "name": "MetricCard",
+          "startLine": 39,
+          "endLine": 69,
+          "params": [
+            "{\n  icon: Icon,\n  iconBg,\n  iconColor,\n  label,\n  value,\n  subLabel,\n}"
+          ]
+        },
+        {
+          "name": "CustomerDashboard",
+          "startLine": 71,
+          "endLine": 312,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "CustomerDashboard",
+          "line": 71,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "CustomerDashboard",
+          "callee": "useNavigate",
+          "lineNumber": 72
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "useAuth",
+          "lineNumber": 73
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "useState",
+          "lineNumber": 75
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "useState",
+          "lineNumber": 76
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "useState",
+          "lineNumber": 77
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "useState",
+          "lineNumber": 78
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "useState",
+          "lineNumber": 80
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "useState",
+          "lineNumber": 81
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('notifications')\n        .select('*')\n        .eq('user_id', profile.id)\n        .order('created_at', { ascending: false })\n        .limit",
+          "lineNumber": 86
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('notifications')\n        .select('*')\n        .eq('user_id', profile.id)\n        .order",
+          "lineNumber": 86
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('notifications')\n        .select('*')\n        .eq",
+          "lineNumber": 86
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('notifications')\n        .select",
+          "lineNumber": 86
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from",
+          "lineNumber": 86
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "setDashboardNotifications",
+          "lineNumber": 94
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "console.error",
+          "lineNumber": 96
+        },
+        {
+          "caller": "markAsRead",
+          "callee": "setDashboardNotifications",
+          "lineNumber": 102
+        },
+        {
+          "caller": "markAsRead",
+          "callee": "prev.map",
+          "lineNumber": 103
+        },
+        {
+          "caller": "markAsRead",
+          "callee": "supabase.from('notifications').update({ is_read: true }).eq",
+          "lineNumber": 105
+        },
+        {
+          "caller": "markAsRead",
+          "callee": "supabase.from('notifications').update",
+          "lineNumber": 105
+        },
+        {
+          "caller": "markAsRead",
+          "callee": "supabase.from",
+          "lineNumber": 105
+        },
+        {
+          "caller": "markAsRead",
+          "callee": "console.error",
+          "lineNumber": 107
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "useEffect",
+          "lineNumber": 111
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "fetchMetrics",
+          "lineNumber": 113
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "fetchNotifications",
+          "lineNumber": 114
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "supabase\n      .channel('dashboard-notifications')\n      .on(\n        'postgres_changes',\n        {\n          event: 'INSERT',\n          schema: 'public',\n          table: 'notifications',\n          filter: `user_id=eq.${profile.id}`,\n        },\n        (payload) => {\n          const newNotif = payload.new;\n          setDashboardNotifications((prev) => [newNotif, ...prev].slice(0, 5));\n          setLatestNotification(newNotif);\n          setTimeout(() => setLatestNotification(null), 5000); // Hide banner after 5s\n        }\n      )\n      .subscribe",
+          "lineNumber": 116
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "supabase\n      .channel('dashboard-notifications')\n      .on",
+          "lineNumber": 116
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "supabase\n      .channel",
+          "lineNumber": 116
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "setDashboardNotifications",
+          "lineNumber": 128
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "[newNotif, ...prev].slice",
+          "lineNumber": 128
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "setLatestNotification",
+          "lineNumber": 129
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "setTimeout",
+          "lineNumber": 130
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "setLatestNotification",
+          "lineNumber": 130
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "supabase.removeChannel",
+          "lineNumber": 136
+        },
+        {
+          "caller": "fetchMetrics",
+          "callee": "setMetricsLoading",
+          "lineNumber": 143
+        },
+        {
+          "caller": "fetchMetrics",
+          "callee": "supabase\n        .from('orders')\n        .select('amount, shop_id')\n        .eq",
+          "lineNumber": 146
+        },
+        {
+          "caller": "fetchMetrics",
+          "callee": "supabase\n        .from('orders')\n        .select",
+          "lineNumber": 146
+        },
+        {
+          "caller": "fetchMetrics",
+          "callee": "supabase\n        .from",
+          "lineNumber": 146
+        },
+        {
+          "caller": "fetchMetrics",
+          "callee": "setTotalGenerosity",
+          "lineNumber": 154
+        },
+        {
+          "caller": "fetchMetrics",
+          "callee": "rows.reduce",
+          "lineNumber": 154
+        },
+        {
+          "caller": "fetchMetrics",
+          "callee": "setGiftsDelivered",
+          "lineNumber": 155
+        },
+        {
+          "caller": "fetchMetrics",
+          "callee": "setShopsSupported",
+          "lineNumber": 156
+        },
+        {
+          "caller": "fetchMetrics",
+          "callee": "rows.map",
+          "lineNumber": 156
+        },
+        {
+          "caller": "fetchMetrics",
+          "callee": "console.error",
+          "lineNumber": 158
+        },
+        {
+          "caller": "fetchMetrics",
+          "callee": "setTotalGenerosity",
+          "lineNumber": 159
+        },
+        {
+          "caller": "fetchMetrics",
+          "callee": "setGiftsDelivered",
+          "lineNumber": 160
+        },
+        {
+          "caller": "fetchMetrics",
+          "callee": "setShopsSupported",
+          "lineNumber": 161
+        },
+        {
+          "caller": "fetchMetrics",
+          "callee": "setMetricsLoading",
+          "lineNumber": 163
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "navigate",
+          "lineNumber": 176
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "setLatestNotification",
+          "lineNumber": 209
+        },
+        {
+          "caller": "CustomerDashboard",
+          "callee": "formatCurrency",
+          "lineNumber": 257
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 1,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/sender/DashboardHub.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 568,
+      "nonEmptyLines": 511,
+      "functions": [
+        {
+          "name": "getStatus",
+          "startLine": 60,
+          "endLine": 61,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "relativeTime",
+          "startLine": 65,
+          "endLine": 73,
+          "params": [
+            "iso"
+          ]
+        },
+        {
+          "name": "absTime",
+          "startLine": 75,
+          "endLine": 80,
+          "params": [
+            "iso"
+          ]
+        },
+        {
+          "name": "StatusPill",
+          "startLine": 84,
+          "endLine": 92,
+          "params": [
+            "{ status }"
+          ]
+        },
+        {
+          "name": "MetricTile",
+          "startLine": 94,
+          "endLine": 107,
+          "params": [
+            "{ icon: Icon, label, value, sub }"
+          ]
+        },
+        {
+          "name": "RowSkeleton",
+          "startLine": 109,
+          "endLine": 126,
+          "params": []
+        },
+        {
+          "name": "ClaimCode",
+          "startLine": 128,
+          "endLine": 152,
+          "params": [
+            "{ order, onCopy }"
+          ]
+        },
+        {
+          "name": "DashboardHub",
+          "startLine": 156,
+          "endLine": 568,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "DashboardHub",
+          "line": 156,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "relativeTime",
+          "callee": "Date.now",
+          "lineNumber": 66
+        },
+        {
+          "caller": "relativeTime",
+          "callee": "new Date(iso).getTime",
+          "lineNumber": 66
+        },
+        {
+          "caller": "relativeTime",
+          "callee": "Math.floor",
+          "lineNumber": 70
+        },
+        {
+          "caller": "relativeTime",
+          "callee": "Math.floor",
+          "lineNumber": 71
+        },
+        {
+          "caller": "relativeTime",
+          "callee": "new Date(iso).toLocaleDateString",
+          "lineNumber": 72
+        },
+        {
+          "caller": "absTime",
+          "callee": "new Date(iso).toLocaleString",
+          "lineNumber": 76
+        },
+        {
+          "caller": "StatusPill",
+          "callee": "getStatus",
+          "lineNumber": 85
+        },
+        {
+          "caller": "RowSkeleton",
+          "callee": "Array.from({ length: 5 }).map",
+          "lineNumber": 112
+        },
+        {
+          "caller": "RowSkeleton",
+          "callee": "Array.from",
+          "lineNumber": 112
+        },
+        {
+          "caller": "ClaimCode",
+          "callee": "onCopy",
+          "lineNumber": 138
+        },
+        {
+          "caller": "ClaimCode",
+          "callee": "relativeTime",
+          "lineNumber": 149
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "useNavigate",
+          "lineNumber": 157
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "useAuth",
+          "lineNumber": 158
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "useState",
+          "lineNumber": 160
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "useState",
+          "lineNumber": 161
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "useState",
+          "lineNumber": 162
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "useState",
+          "lineNumber": 163
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "useEffect",
+          "lineNumber": 166
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "navigate",
+          "lineNumber": 167
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "useEffect",
+          "lineNumber": 171
+        },
+        {
+          "caller": "load",
+          "callee": "setOrdersLoading",
+          "lineNumber": 176
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n        .from('orders')\n        .select(`\n          id, code, recipient_name, amount, currency, status,\n          created_at, fulfilled_at, paid_at,\n          item:item_id (name, image_url),\n          shop:shop_id (name, location)\n        `)\n        .eq('sender_id', profile!.id)\n        .order('created_at', { ascending: false })\n        .limit",
+          "lineNumber": 177
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n        .from('orders')\n        .select(`\n          id, code, recipient_name, amount, currency, status,\n          created_at, fulfilled_at, paid_at,\n          item:item_id (name, image_url),\n          shop:shop_id (name, location)\n        `)\n        .eq('sender_id', profile!.id)\n        .order",
+          "lineNumber": 177
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n        .from('orders')\n        .select(`\n          id, code, recipient_name, amount, currency, status,\n          created_at, fulfilled_at, paid_at,\n          item:item_id (name, image_url),\n          shop:shop_id (name, location)\n        `)\n        .eq",
+          "lineNumber": 177
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n        .from('orders')\n        .select",
+          "lineNumber": 177
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n        .from",
+          "lineNumber": 177
+        },
+        {
+          "caller": "load",
+          "callee": "setOrders",
+          "lineNumber": 190
+        },
+        {
+          "caller": "load",
+          "callee": "setOrdersLoading",
+          "lineNumber": 191
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "load",
+          "lineNumber": 194
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "useEffect",
+          "lineNumber": 199
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "supabase\n      .channel('realtime-sender-notifications')\n      .on('postgres_changes', {\n        event: 'UPDATE',\n        schema: 'public',\n        table: 'orders',\n        filter: `sender_id=eq.${uid}`,\n      }, (payload: any) => {\n        const n = payload.new;\n        const o = payload.old;\n\n        // Update the order in the table\n        setOrders(prev => prev.map(ord => ord.id === n.id ? { ...ord, ...n } : ord));\n\n        // Build activity event\n        let message = `Order #${n.code} updated`;\n        let type: ActivityEvent['type'] = 'update';\n        if (o.status !== 'fulfilled' && n.status === 'fulfilled') {\n          message = `${n.recipient_name} collected the gift at the shop.`;\n          type = 'fulfilled';\n          toast.success('Gift collected — escrow disbursed.');\n        } else if (o.status !== 'paid' && n.status === 'paid') {\n          message = `Payment confirmed. Funds locked in escrow for order #${n.code}.`;\n          type = 'paid';\n        }\n\n        setFeed(prev => [{\n          id: `${n.id}-${Date.now()}`,\n          orderId: n.id,\n          code: n.code,\n          message,\n          timestamp: new Date().toISOString(),\n          type,\n        }, ...prev].slice(0, 20));\n      })\n      .subscribe",
+          "lineNumber": 203
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "supabase\n      .channel('realtime-sender-notifications')\n      .on",
+          "lineNumber": 203
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "supabase\n      .channel",
+          "lineNumber": 203
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "setOrders",
+          "lineNumber": 215
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "prev.map",
+          "lineNumber": 215
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "toast.success",
+          "lineNumber": 223
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "setFeed",
+          "lineNumber": 229
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "[{\n          id: `${n.id}-${Date.now()}`,\n          orderId: n.id,\n          code: n.code,\n          message,\n          timestamp: new Date().toISOString(),\n          type,\n        }, ...prev].slice",
+          "lineNumber": 229
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "Date.now",
+          "lineNumber": 230
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "new Date().toISOString",
+          "lineNumber": 234
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "supabase.removeChannel",
+          "lineNumber": 240
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "useMemo",
+          "lineNumber": 244
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "orders.reduce",
+          "lineNumber": 245
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "orders.filter(o => o.status === 'paid').reduce",
+          "lineNumber": 246
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "orders.filter",
+          "lineNumber": 246
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "orders.filter",
+          "lineNumber": 247
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "['fulfilled', 'completed'].includes",
+          "lineNumber": 247
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "orders.filter",
+          "lineNumber": 248
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "['pending_payment', 'payment_submitted'].includes",
+          "lineNumber": 248
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "useMemo",
+          "lineNumber": 252
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "orders.filter",
+          "lineNumber": 253
+        },
+        {
+          "caller": "handleCopy",
+          "callee": "navigator.clipboard.writeText(code).then",
+          "lineNumber": 258
+        },
+        {
+          "caller": "handleCopy",
+          "callee": "navigator.clipboard.writeText",
+          "lineNumber": 258
+        },
+        {
+          "caller": "handleCopy",
+          "callee": "setCopiedCode",
+          "lineNumber": 259
+        },
+        {
+          "caller": "handleCopy",
+          "callee": "setTimeout",
+          "lineNumber": 260
+        },
+        {
+          "caller": "handleCopy",
+          "callee": "setCopiedCode",
+          "lineNumber": 260
+        },
+        {
+          "caller": "handleCopy",
+          "callee": "toast.success",
+          "lineNumber": 261
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "navigate",
+          "lineNumber": 283
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "navigate",
+          "lineNumber": 294
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "formatCurrency",
+          "lineNumber": 310
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "formatCurrency",
+          "lineNumber": 316
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "orders.map",
+          "lineNumber": 385
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "getStatus",
+          "lineNumber": 386
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "navigate",
+          "lineNumber": 393
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "formatCurrency",
+          "lineNumber": 421
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "relativeTime",
+          "lineNumber": 437
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "feed.map",
+          "lineNumber": 472
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "absTime",
+          "lineNumber": 488
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "[1, 2].map",
+          "lineNumber": 512
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "activeClaims.map",
+          "lineNumber": 522
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "[\n            { label: 'All Orders', href: '/orders' },\n            { label: 'Send a Gift', href: '/home' },\n            { label: 'Impact Report', href: '/impact' },\n            { label: 'Settings', href: '/settings' },\n          ].map",
+          "lineNumber": 550
+        },
+        {
+          "caller": "DashboardHub",
+          "callee": "navigate",
+          "lineNumber": 558
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 1,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/sender/Home.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 555,
+      "nonEmptyLines": 500,
+      "functions": [
+        {
+          "name": "HeroSkeleton",
+          "startLine": 67,
+          "endLine": 69,
+          "params": []
+        },
+        {
+          "name": "ShopTileSkeleton",
+          "startLine": 71,
+          "endLine": 81,
+          "params": []
+        },
+        {
+          "name": "PromoBanner",
+          "startLine": 102,
+          "endLine": 121,
+          "params": [
+            "{ data }"
+          ]
+        },
+        {
+          "name": "Home",
+          "startLine": 127,
+          "endLine": 555,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Home",
+          "line": 127,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Home",
+          "callee": "useNavigate",
+          "lineNumber": 128
+        },
+        {
+          "caller": "Home",
+          "callee": "useAuth",
+          "lineNumber": 129
+        },
+        {
+          "caller": "Home",
+          "callee": "useState",
+          "lineNumber": 131
+        },
+        {
+          "caller": "Home",
+          "callee": "useState",
+          "lineNumber": 132
+        },
+        {
+          "caller": "Home",
+          "callee": "useState",
+          "lineNumber": 133
+        },
+        {
+          "caller": "Home",
+          "callee": "useState",
+          "lineNumber": 135
+        },
+        {
+          "caller": "Home",
+          "callee": "useState",
+          "lineNumber": 136
+        },
+        {
+          "caller": "Home",
+          "callee": "useState",
+          "lineNumber": 137
+        },
+        {
+          "caller": "Home",
+          "callee": "useState",
+          "lineNumber": 138
+        },
+        {
+          "caller": "Home",
+          "callee": "useState",
+          "lineNumber": 139
+        },
+        {
+          "caller": "Home",
+          "callee": "useState",
+          "lineNumber": 140
+        },
+        {
+          "caller": "Home",
+          "callee": "useRef",
+          "lineNumber": 142
+        },
+        {
+          "caller": "Home",
+          "callee": "useEffect",
+          "lineNumber": 145
+        },
+        {
+          "caller": "Home",
+          "callee": "fetchBanners",
+          "lineNumber": 147
+        },
+        {
+          "caller": "Home",
+          "callee": "fetchShops",
+          "lineNumber": 148
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('orders')\n        .select('id, code, recipient_name, fulfilled_at, item:items(name), shop:shops(name)')\n        .eq('sender_id', user?.id || profile.id)\n        .eq('status', 'fulfilled')\n        .order('fulfilled_at', { ascending: false })\n        .limit",
+          "lineNumber": 151
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('orders')\n        .select('id, code, recipient_name, fulfilled_at, item:items(name), shop:shops(name)')\n        .eq('sender_id', user?.id || profile.id)\n        .eq('status', 'fulfilled')\n        .order",
+          "lineNumber": 151
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('orders')\n        .select('id, code, recipient_name, fulfilled_at, item:items(name), shop:shops(name)')\n        .eq('sender_id', user?.id || profile.id)\n        .eq",
+          "lineNumber": 151
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('orders')\n        .select('id, code, recipient_name, fulfilled_at, item:items(name), shop:shops(name)')\n        .eq",
+          "lineNumber": 151
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from('orders')\n        .select",
+          "lineNumber": 151
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "supabase\n        .from",
+          "lineNumber": 151
+        },
+        {
+          "caller": "fetchNotifications",
+          "callee": "setNotifications",
+          "lineNumber": 160
+        },
+        {
+          "caller": "Home",
+          "callee": "fetchNotifications",
+          "lineNumber": 164
+        },
+        {
+          "caller": "Home",
+          "callee": "supabase.channel('realtime-sender-notifications')\n      .on('postgres_changes', {\n        event: 'UPDATE',\n        schema: 'public',\n        table: 'orders',\n        filter: `sender_id=eq.${user?.id || profile.id}`\n      }, (payload: any) => {\n        if (payload.new.status === 'fulfilled' && payload.old.status !== 'fulfilled') {\n          toast.success(`🎉 Gift collected! Your recipient just picked up their item.`);\n          setUnreadCount(prev => prev + 1);\n          fetchNotifications(); // Refresh the list to get joined item/shop data\n        }\n      }).subscribe",
+          "lineNumber": 166
+        },
+        {
+          "caller": "Home",
+          "callee": "supabase.channel('realtime-sender-notifications')\n      .on",
+          "lineNumber": 166
+        },
+        {
+          "caller": "Home",
+          "callee": "supabase.channel",
+          "lineNumber": 166
+        },
+        {
+          "caller": "Home",
+          "callee": "toast.success",
+          "lineNumber": 174
+        },
+        {
+          "caller": "Home",
+          "callee": "setUnreadCount",
+          "lineNumber": 175
+        },
+        {
+          "caller": "Home",
+          "callee": "fetchNotifications",
+          "lineNumber": 176
+        },
+        {
+          "caller": "Home",
+          "callee": "supabase.removeChannel",
+          "lineNumber": 180
+        },
+        {
+          "caller": "Home",
+          "callee": "useEffect",
+          "lineNumber": 183
+        },
+        {
+          "caller": "Home",
+          "callee": "setCurrentSlide",
+          "lineNumber": 185
+        },
+        {
+          "caller": "Home",
+          "callee": "useEffect",
+          "lineNumber": 189
+        },
+        {
+          "caller": "Home",
+          "callee": "setInterval",
+          "lineNumber": 191
+        },
+        {
+          "caller": "Home",
+          "callee": "setCurrentSlide",
+          "lineNumber": 192
+        },
+        {
+          "caller": "Home",
+          "callee": "clearInterval",
+          "lineNumber": 195
+        },
+        {
+          "caller": "fetchBanners",
+          "callee": "setBannersLoading",
+          "lineNumber": 201
+        },
+        {
+          "caller": "fetchBanners",
+          "callee": "supabase\n        .from('banners')\n        .select('id, image_url, title')\n        .eq('is_active', true)\n        .order",
+          "lineNumber": 204
+        },
+        {
+          "caller": "fetchBanners",
+          "callee": "supabase\n        .from('banners')\n        .select('id, image_url, title')\n        .eq",
+          "lineNumber": 204
+        },
+        {
+          "caller": "fetchBanners",
+          "callee": "supabase\n        .from('banners')\n        .select",
+          "lineNumber": 204
+        },
+        {
+          "caller": "fetchBanners",
+          "callee": "supabase\n        .from",
+          "lineNumber": 204
+        },
+        {
+          "caller": "fetchBanners",
+          "callee": "setBanners",
+          "lineNumber": 211
+        },
+        {
+          "caller": "fetchBanners",
+          "callee": "setBanners",
+          "lineNumber": 215
+        },
+        {
+          "caller": "fetchBanners",
+          "callee": "console.error",
+          "lineNumber": 217
+        },
+        {
+          "caller": "fetchBanners",
+          "callee": "setBanners",
+          "lineNumber": 218
+        },
+        {
+          "caller": "fetchBanners",
+          "callee": "setBannersLoading",
+          "lineNumber": 220
+        },
+        {
+          "caller": "fetchShops",
+          "callee": "setShopsLoading",
+          "lineNumber": 227
+        },
+        {
+          "caller": "fetchShops",
+          "callee": "supabase\n        .from('shops')\n        .select(`\n          id,\n          name,\n          description,\n          location,\n          image_url,\n          items:items(count)\n        `)\n        .eq('is_active', true)\n        .order",
+          "lineNumber": 230
+        },
+        {
+          "caller": "fetchShops",
+          "callee": "supabase\n        .from('shops')\n        .select(`\n          id,\n          name,\n          description,\n          location,\n          image_url,\n          items:items(count)\n        `)\n        .eq",
+          "lineNumber": 230
+        },
+        {
+          "caller": "fetchShops",
+          "callee": "supabase\n        .from('shops')\n        .select",
+          "lineNumber": 230
+        },
+        {
+          "caller": "fetchShops",
+          "callee": "supabase\n        .from",
+          "lineNumber": 230
+        },
+        {
+          "caller": "fetchShops",
+          "callee": "(data ?? []).map",
+          "lineNumber": 245
+        },
+        {
+          "caller": "fetchShops",
+          "callee": "setShops",
+          "lineNumber": 250
+        },
+        {
+          "caller": "fetchShops",
+          "callee": "console.error",
+          "lineNumber": 252
+        },
+        {
+          "caller": "fetchShops",
+          "callee": "setShops",
+          "lineNumber": 253
+        },
+        {
+          "caller": "fetchShops",
+          "callee": "setShopsLoading",
+          "lineNumber": 255
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "e.preventDefault",
+          "lineNumber": 260
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "setIsSigningOut",
+          "lineNumber": 263
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "supabase.auth.signOut",
+          "lineNumber": 265
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "localStorage.clear",
+          "lineNumber": 268
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "sessionStorage.clear",
+          "lineNumber": 269
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "navigate",
+          "lineNumber": 272
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "console.error",
+          "lineNumber": 274
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "setIsSigningOut",
+          "lineNumber": 276
+        },
+        {
+          "caller": "scrollToShops",
+          "callee": "shopsSectionRef.current?.scrollIntoView",
+          "lineNumber": 281
+        },
+        {
+          "caller": "Home",
+          "callee": "user?.full_name?.split",
+          "lineNumber": 297
+        },
+        {
+          "caller": "Home",
+          "callee": "profile?.name?.split",
+          "lineNumber": 297
+        },
+        {
+          "caller": "Home",
+          "callee": "setIsNotificationsOpen",
+          "lineNumber": 301
+        },
+        {
+          "caller": "Home",
+          "callee": "setUnreadCount",
+          "lineNumber": 301
+        },
+        {
+          "caller": "Home",
+          "callee": "navigate",
+          "lineNumber": 308
+        },
+        {
+          "caller": "Home",
+          "callee": "navigate",
+          "lineNumber": 317
+        },
+        {
+          "caller": "Home",
+          "callee": "banners.map",
+          "lineNumber": 389
+        },
+        {
+          "caller": "Home",
+          "callee": "setCurrentSlide",
+          "lineNumber": 392
+        },
+        {
+          "caller": "Home",
+          "callee": "navigate",
+          "lineNumber": 412
+        },
+        {
+          "caller": "Home",
+          "callee": "[1, 2, 3].map",
+          "lineNumber": 436
+        },
+        {
+          "caller": "Home",
+          "callee": "shops.map",
+          "lineNumber": 458
+        },
+        {
+          "caller": "Home",
+          "callee": "navigate",
+          "lineNumber": 466
+        },
+        {
+          "caller": "Home",
+          "callee": "Math.floor",
+          "lineNumber": 503
+        },
+        {
+          "caller": "Home",
+          "callee": "setIsNotificationsOpen",
+          "lineNumber": 533
+        },
+        {
+          "caller": "Home",
+          "callee": "notifications.map",
+          "lineNumber": 539
+        },
+        {
+          "caller": "Home",
+          "callee": "new Date(notif.fulfilled_at).toLocaleDateString",
+          "lineNumber": 545
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/sender/OrderDashboard.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 529,
+      "nonEmptyLines": 483,
+      "functions": [
+        {
+          "name": "deriveDisplayStatus",
+          "startLine": 107,
+          "endLine": 113,
+          "params": [
+            "txStatus",
+            "claimStatus"
+          ]
+        },
+        {
+          "name": "getStatus",
+          "startLine": 115,
+          "endLine": 120,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "formatDate",
+          "startLine": 122,
+          "endLine": 136,
+          "params": [
+            "iso"
+          ]
+        },
+        {
+          "name": "StatusBadge",
+          "startLine": 138,
+          "endLine": 149,
+          "params": [
+            "{ status }"
+          ]
+        },
+        {
+          "name": "StatCard",
+          "startLine": 151,
+          "endLine": 173,
+          "params": [
+            "{\n  icon: Icon,\n  label,\n  value,\n  accent,\n}"
+          ]
+        },
+        {
+          "name": "TableSkeleton",
+          "startLine": 175,
+          "endLine": 199,
+          "params": []
+        },
+        {
+          "name": "OrderDashboard",
+          "startLine": 201,
+          "endLine": 529,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "OrderDashboard",
+          "line": 201,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "formatDate",
+          "callee": "Date.now",
+          "lineNumber": 124
+        },
+        {
+          "caller": "formatDate",
+          "callee": "date.getTime",
+          "lineNumber": 124
+        },
+        {
+          "caller": "formatDate",
+          "callee": "Math.floor",
+          "lineNumber": 129
+        },
+        {
+          "caller": "formatDate",
+          "callee": "Math.floor",
+          "lineNumber": 130
+        },
+        {
+          "caller": "formatDate",
+          "callee": "date.toLocaleDateString",
+          "lineNumber": 131
+        },
+        {
+          "caller": "StatusBadge",
+          "callee": "getStatus",
+          "lineNumber": 139
+        },
+        {
+          "caller": "TableSkeleton",
+          "callee": "Array.from({ length: 5 }).map",
+          "lineNumber": 178
+        },
+        {
+          "caller": "TableSkeleton",
+          "callee": "Array.from",
+          "lineNumber": 178
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "useNavigate",
+          "lineNumber": 202
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "useAuth",
+          "lineNumber": 203
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "useState",
+          "lineNumber": 205
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "useState",
+          "lineNumber": 206
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "useState",
+          "lineNumber": 207
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "useState",
+          "lineNumber": 208
+        },
+        {
+          "caller": "handleResumePayment",
+          "callee": "toast.error",
+          "lineNumber": 212
+        },
+        {
+          "caller": "handleResumePayment",
+          "callee": "setResumingPayment",
+          "lineNumber": 216
+        },
+        {
+          "caller": "handleResumePayment",
+          "callee": "supabase.functions.invoke",
+          "lineNumber": 219
+        },
+        {
+          "caller": "handleResumePayment",
+          "callee": "window.location.assign",
+          "lineNumber": 235
+        },
+        {
+          "caller": "handleResumePayment",
+          "callee": "console.error",
+          "lineNumber": 237
+        },
+        {
+          "caller": "handleResumePayment",
+          "callee": "toast.error",
+          "lineNumber": 238
+        },
+        {
+          "caller": "handleResumePayment",
+          "callee": "setResumingPayment",
+          "lineNumber": 240
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "useEffect",
+          "lineNumber": 244
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "setLoading",
+          "lineNumber": 248
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "setError",
+          "lineNumber": 249
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "supabase\n        .from('transactions')\n        .select(`\n          transaction_id,\n          buyer_id,\n          total_amount,\n          status,\n          gateway_tx_ref,\n          created_at,\n          shop_orders (\n            shop_order_id,\n            claim_code,\n            claim_status,\n            recipient_name,\n            shop:shop_id (name),\n            order_items (\n              item:item_id (name, image_url)\n            )\n          )\n        `)\n        .eq('buyer_id', profile.id)\n        .order",
+          "lineNumber": 255
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "supabase\n        .from('transactions')\n        .select(`\n          transaction_id,\n          buyer_id,\n          total_amount,\n          status,\n          gateway_tx_ref,\n          created_at,\n          shop_orders (\n            shop_order_id,\n            claim_code,\n            claim_status,\n            recipient_name,\n            shop:shop_id (name),\n            order_items (\n              item:item_id (name, image_url)\n            )\n          )\n        `)\n        .eq",
+          "lineNumber": 255
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "supabase\n        .from('transactions')\n        .select",
+          "lineNumber": 255
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "supabase\n        .from",
+          "lineNumber": 255
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "console.error",
+          "lineNumber": 279
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "setError",
+          "lineNumber": 280
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "setLoading",
+          "lineNumber": 281
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "(data ?? []).map",
+          "lineNumber": 286
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "setOrders",
+          "lineNumber": 307
+        },
+        {
+          "caller": "fetchOrders",
+          "callee": "setLoading",
+          "lineNumber": 308
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "fetchOrders",
+          "lineNumber": 311
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "orders.reduce",
+          "lineNumber": 314
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "orders.filter",
+          "lineNumber": 315
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "deriveDisplayStatus",
+          "lineNumber": 316
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "orders.filter",
+          "lineNumber": 319
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "deriveDisplayStatus",
+          "lineNumber": 320
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "navigate",
+          "lineNumber": 333
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "formatCurrency",
+          "lineNumber": 363
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "navigate",
+          "lineNumber": 413
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "orders.map",
+          "lineNumber": 441
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "deriveDisplayStatus",
+          "lineNumber": 442
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "navigate",
+          "lineNumber": 451
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "formatCurrency",
+          "lineNumber": 490
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "formatDate",
+          "lineNumber": 499
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "e.stopPropagation",
+          "lineNumber": 506
+        },
+        {
+          "caller": "OrderDashboard",
+          "callee": "handleResumePayment",
+          "lineNumber": 507
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 1,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/sender/OrderDetail.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 466,
+      "nonEmptyLines": 425,
+      "functions": [
+        {
+          "name": "deriveDisplayStatus",
+          "startLine": 84,
+          "endLine": 90,
+          "params": [
+            "txStatus",
+            "claimStatus"
+          ]
+        },
+        {
+          "name": "InfoRow",
+          "startLine": 99,
+          "endLine": 111,
+          "params": [
+            "{ icon: Icon, label, value }"
+          ]
+        },
+        {
+          "name": "Section",
+          "startLine": 113,
+          "endLine": 122,
+          "params": [
+            "{ title, children }"
+          ]
+        },
+        {
+          "name": "SkeletonDetail",
+          "startLine": 124,
+          "endLine": 133,
+          "params": []
+        },
+        {
+          "name": "OrderDetail",
+          "startLine": 135,
+          "endLine": 466,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "OrderDetail",
+          "line": 135,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "OrderDetail",
+          "callee": "useParams",
+          "lineNumber": 136
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "useNavigate",
+          "lineNumber": 137
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "useAuth",
+          "lineNumber": 138
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "useState",
+          "lineNumber": 140
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "useState",
+          "lineNumber": 141
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "useState",
+          "lineNumber": 142
+        },
+        {
+          "caller": "fetchTransaction",
+          "callee": "setLoading",
+          "lineNumber": 147
+        },
+        {
+          "caller": "fetchTransaction",
+          "callee": "supabase\n      .from('transactions')\n      .select(`\n        transaction_id,\n        buyer_id,\n        total_amount,\n        status,\n        gateway_tx_ref,\n        origin_type,\n        created_at,\n        updated_at,\n        buyer:buyer_id (name, email, phone),\n        shop_orders (\n          shop_order_id,\n          claim_code,\n          claim_status,\n          subtotal,\n          recipient_name,\n          recipient_phone,\n          message,\n          created_at,\n          updated_at,\n          shop:shop_id (id, name, location, address),\n          order_items (\n            item:item_id (id, name, description, image_url, price_zmw)\n          )\n        )\n      `)\n      .eq('transaction_id', orderId)\n      .single",
+          "lineNumber": 149
+        },
+        {
+          "caller": "fetchTransaction",
+          "callee": "supabase\n      .from('transactions')\n      .select(`\n        transaction_id,\n        buyer_id,\n        total_amount,\n        status,\n        gateway_tx_ref,\n        origin_type,\n        created_at,\n        updated_at,\n        buyer:buyer_id (name, email, phone),\n        shop_orders (\n          shop_order_id,\n          claim_code,\n          claim_status,\n          subtotal,\n          recipient_name,\n          recipient_phone,\n          message,\n          created_at,\n          updated_at,\n          shop:shop_id (id, name, location, address),\n          order_items (\n            item:item_id (id, name, description, image_url, price_zmw)\n          )\n        )\n      `)\n      .eq",
+          "lineNumber": 149
+        },
+        {
+          "caller": "fetchTransaction",
+          "callee": "supabase\n      .from('transactions')\n      .select",
+          "lineNumber": 149
+        },
+        {
+          "caller": "fetchTransaction",
+          "callee": "supabase\n      .from",
+          "lineNumber": 149
+        },
+        {
+          "caller": "fetchTransaction",
+          "callee": "console.error",
+          "lineNumber": 181
+        },
+        {
+          "caller": "fetchTransaction",
+          "callee": "toast.error",
+          "lineNumber": 182
+        },
+        {
+          "caller": "fetchTransaction",
+          "callee": "navigate",
+          "lineNumber": 183
+        },
+        {
+          "caller": "fetchTransaction",
+          "callee": "setTransaction",
+          "lineNumber": 187
+        },
+        {
+          "caller": "fetchTransaction",
+          "callee": "setLoading",
+          "lineNumber": 188
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "useEffect",
+          "lineNumber": 191
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "fetchTransaction",
+          "lineNumber": 192
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "useEffect",
+          "lineNumber": 196
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "supabase\n      .channel(`order-detail:${orderId}`)\n      .on(\n        'postgres_changes',\n        {\n          event: 'UPDATE',\n          schema: 'public',\n          table: 'shop_orders',\n          filter: `transaction_id=eq.${orderId}`,\n        },\n        () => {\n          fetchTransaction();\n        },\n      )\n      .subscribe",
+          "lineNumber": 199
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "supabase\n      .channel(`order-detail:${orderId}`)\n      .on",
+          "lineNumber": 199
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "supabase\n      .channel",
+          "lineNumber": 199
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "fetchTransaction",
+          "lineNumber": 210
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "subscription.unsubscribe",
+          "lineNumber": 216
+        },
+        {
+          "caller": "handleResumePayment",
+          "callee": "toast.error",
+          "lineNumber": 222
+        },
+        {
+          "caller": "handleResumePayment",
+          "callee": "setResumingPayment",
+          "lineNumber": 226
+        },
+        {
+          "caller": "handleResumePayment",
+          "callee": "supabase.functions.invoke",
+          "lineNumber": 229
+        },
+        {
+          "caller": "handleResumePayment",
+          "callee": "window.location.assign",
+          "lineNumber": 245
+        },
+        {
+          "caller": "handleResumePayment",
+          "callee": "console.error",
+          "lineNumber": 247
+        },
+        {
+          "caller": "handleResumePayment",
+          "callee": "toast.error",
+          "lineNumber": 248
+        },
+        {
+          "caller": "handleResumePayment",
+          "callee": "setResumingPayment",
+          "lineNumber": 250
+        },
+        {
+          "caller": "copyToClipboard",
+          "callee": "navigator.clipboard.writeText",
+          "lineNumber": 255
+        },
+        {
+          "caller": "copyToClipboard",
+          "callee": "toast.success",
+          "lineNumber": 256
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "deriveDisplayStatus",
+          "lineNumber": 276
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "navigate",
+          "lineNumber": 291
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "transaction.transaction_id.slice",
+          "lineNumber": 298
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "transaction.shop_orders.map",
+          "lineNumber": 340
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "getGiftPageUrl",
+          "lineNumber": 341
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "shopOrder.order_items.map",
+          "lineNumber": 352
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "formatCurrency",
+          "lineNumber": 369
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "copyToClipboard",
+          "lineNumber": 387
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "window.open",
+          "lineNumber": 395
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "formatCurrency",
+          "lineNumber": 448
+        },
+        {
+          "caller": "OrderDetail",
+          "callee": "new Date(transaction.created_at).toLocaleString",
+          "lineNumber": 460
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 1,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/sender/OrderHistory.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/sender/SendFlow.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 336,
+      "nonEmptyLines": 306,
+      "functions": [
+        {
+          "name": "SendFlow",
+          "startLine": 35,
+          "endLine": 336,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "SendFlow",
+          "line": 35,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "SendFlow",
+          "callee": "useParams",
+          "lineNumber": 36
+        },
+        {
+          "caller": "SendFlow",
+          "callee": "useNavigate",
+          "lineNumber": 37
+        },
+        {
+          "caller": "SendFlow",
+          "callee": "useSendFlowStore",
+          "lineNumber": 38
+        },
+        {
+          "caller": "SendFlow",
+          "callee": "useState",
+          "lineNumber": 40
+        },
+        {
+          "caller": "SendFlow",
+          "callee": "useState",
+          "lineNumber": 41
+        },
+        {
+          "caller": "SendFlow",
+          "callee": "useState",
+          "lineNumber": 42
+        },
+        {
+          "caller": "SendFlow",
+          "callee": "useState",
+          "lineNumber": 43
+        },
+        {
+          "caller": "SendFlow",
+          "callee": "useState",
+          "lineNumber": 48
+        },
+        {
+          "caller": "SendFlow",
+          "callee": "useEffect",
+          "lineNumber": 50
+        },
+        {
+          "caller": "SendFlow",
+          "callee": "fetchItemDetails",
+          "lineNumber": 51
+        },
+        {
+          "caller": "fetchItemDetails",
+          "callee": "supabase\n        .from('items')\n        .select('*')\n        .eq('id', itemId)\n        .single",
+          "lineNumber": 59
+        },
+        {
+          "caller": "fetchItemDetails",
+          "callee": "supabase\n        .from('items')\n        .select('*')\n        .eq",
+          "lineNumber": 59
+        },
+        {
+          "caller": "fetchItemDetails",
+          "callee": "supabase\n        .from('items')\n        .select",
+          "lineNumber": 59
+        },
+        {
+          "caller": "fetchItemDetails",
+          "callee": "supabase\n        .from",
+          "lineNumber": 59
+        },
+        {
+          "caller": "fetchItemDetails",
+          "callee": "setItem",
+          "lineNumber": 66
+        },
+        {
+          "caller": "fetchItemDetails",
+          "callee": "supabase\n        .from('shops')\n        .select('id, name')\n        .eq('id', itemData.shop_id)\n        .single",
+          "lineNumber": 69
+        },
+        {
+          "caller": "fetchItemDetails",
+          "callee": "supabase\n        .from('shops')\n        .select('id, name')\n        .eq",
+          "lineNumber": 69
+        },
+        {
+          "caller": "fetchItemDetails",
+          "callee": "supabase\n        .from('shops')\n        .select",
+          "lineNumber": 69
+        },
+        {
+          "caller": "fetchItemDetails",
+          "callee": "supabase\n        .from",
+          "lineNumber": 69
+        },
+        {
+          "caller": "fetchItemDetails",
+          "callee": "setShop",
+          "lineNumber": 76
+        },
+        {
+          "caller": "fetchItemDetails",
+          "callee": "console.error",
+          "lineNumber": 78
+        },
+        {
+          "caller": "fetchItemDetails",
+          "callee": "setLoading",
+          "lineNumber": 80
+        },
+        {
+          "caller": "validateForm",
+          "callee": "formData.recipientName.trim",
+          "lineNumber": 87
+        },
+        {
+          "caller": "validateForm",
+          "callee": "formData.recipientPhone.trim",
+          "lineNumber": 91
+        },
+        {
+          "caller": "validateForm",
+          "callee": "formData.recipientPhone.trim",
+          "lineNumber": 93
+        },
+        {
+          "caller": "validateForm",
+          "callee": "setErrors",
+          "lineNumber": 101
+        },
+        {
+          "caller": "validateForm",
+          "callee": "Object.keys",
+          "lineNumber": 102
+        },
+        {
+          "caller": "handleContinue",
+          "callee": "validateForm",
+          "lineNumber": 106
+        },
+        {
+          "caller": "handleContinue",
+          "callee": "setRecipient",
+          "lineNumber": 110
+        },
+        {
+          "caller": "handleContinue",
+          "callee": "formData.recipientName.trim",
+          "lineNumber": 111
+        },
+        {
+          "caller": "handleContinue",
+          "callee": "formData.recipientPhone.trim",
+          "lineNumber": 112
+        },
+        {
+          "caller": "handleContinue",
+          "callee": "formData.message.trim",
+          "lineNumber": 113
+        },
+        {
+          "caller": "handleContinue",
+          "callee": "navigate",
+          "lineNumber": 116
+        },
+        {
+          "caller": "SendFlow",
+          "callee": "navigate",
+          "lineNumber": 135
+        },
+        {
+          "caller": "SendFlow",
+          "callee": "navigate",
+          "lineNumber": 149
+        },
+        {
+          "caller": "SendFlow",
+          "callee": "navigate",
+          "lineNumber": 167
+        },
+        {
+          "caller": "SendFlow",
+          "callee": "formatCurrency",
+          "lineNumber": 207
+        },
+        {
+          "caller": "SendFlow",
+          "callee": "setFormData",
+          "lineNumber": 240
+        },
+        {
+          "caller": "SendFlow",
+          "callee": "setFormData",
+          "lineNumber": 265
+        },
+        {
+          "caller": "SendFlow",
+          "callee": "setFormData",
+          "lineNumber": 292
+        }
+      ],
+      "metrics": {
+        "importCount": 7,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/sender/Settings.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 333,
+      "nonEmptyLines": 308,
+      "functions": [
+        {
+          "name": "Settings",
+          "startLine": 14,
+          "endLine": 333,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Settings",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "Settings",
+          "callee": "useNavigate",
+          "lineNumber": 15
+        },
+        {
+          "caller": "Settings",
+          "callee": "useAuth",
+          "lineNumber": 16
+        },
+        {
+          "caller": "Settings",
+          "callee": "useState",
+          "lineNumber": 17
+        },
+        {
+          "caller": "Settings",
+          "callee": "useState",
+          "lineNumber": 18
+        },
+        {
+          "caller": "Settings",
+          "callee": "useState",
+          "lineNumber": 21
+        },
+        {
+          "caller": "Settings",
+          "callee": "useState",
+          "lineNumber": 22
+        },
+        {
+          "caller": "Settings",
+          "callee": "useState",
+          "lineNumber": 23
+        },
+        {
+          "caller": "handleSaveProfile",
+          "callee": "setLoading",
+          "lineNumber": 34
+        },
+        {
+          "caller": "handleSaveProfile",
+          "callee": "updateProfile",
+          "lineNumber": 41
+        },
+        {
+          "caller": "handleSaveProfile",
+          "callee": "toast.success",
+          "lineNumber": 45
+        },
+        {
+          "caller": "handleSaveProfile",
+          "callee": "console.error",
+          "lineNumber": 47
+        },
+        {
+          "caller": "handleSaveProfile",
+          "callee": "toast.error",
+          "lineNumber": 48
+        },
+        {
+          "caller": "handleSaveProfile",
+          "callee": "setLoading",
+          "lineNumber": 50
+        },
+        {
+          "caller": "handleResetPassword",
+          "callee": "toast.error",
+          "lineNumber": 56
+        },
+        {
+          "caller": "handleResetPassword",
+          "callee": "setResetLoading",
+          "lineNumber": 60
+        },
+        {
+          "caller": "handleResetPassword",
+          "callee": "resetPassword",
+          "lineNumber": 62
+        },
+        {
+          "caller": "handleResetPassword",
+          "callee": "toast.success",
+          "lineNumber": 66
+        },
+        {
+          "caller": "handleResetPassword",
+          "callee": "console.error",
+          "lineNumber": 68
+        },
+        {
+          "caller": "handleResetPassword",
+          "callee": "toast.error",
+          "lineNumber": 69
+        },
+        {
+          "caller": "handleResetPassword",
+          "callee": "setResetLoading",
+          "lineNumber": 71
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "e.preventDefault",
+          "lineNumber": 76
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "supabase.auth.signOut",
+          "lineNumber": 80
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "localStorage.clear",
+          "lineNumber": 83
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "sessionStorage.clear",
+          "lineNumber": 84
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "navigate",
+          "lineNumber": 87
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "console.error",
+          "lineNumber": 89
+        },
+        {
+          "caller": "Settings",
+          "callee": "navigate",
+          "lineNumber": 102
+        },
+        {
+          "caller": "Settings",
+          "callee": "setName",
+          "lineNumber": 139
+        },
+        {
+          "caller": "Settings",
+          "callee": "setEmail",
+          "lineNumber": 154
+        },
+        {
+          "caller": "Settings",
+          "callee": "setPhone",
+          "lineNumber": 169
+        }
+      ],
+      "metrics": {
+        "importCount": 7,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/sender/ShopDetail.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 232,
+      "nonEmptyLines": 214,
+      "functions": [
+        {
+          "name": "ShopDetail",
+          "startLine": 28,
+          "endLine": 232,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ShopDetail",
+          "line": 28,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ShopDetail",
+          "callee": "useParams",
+          "lineNumber": 29
+        },
+        {
+          "caller": "ShopDetail",
+          "callee": "useNavigate",
+          "lineNumber": 30
+        },
+        {
+          "caller": "ShopDetail",
+          "callee": "useState",
+          "lineNumber": 31
+        },
+        {
+          "caller": "ShopDetail",
+          "callee": "useState",
+          "lineNumber": 32
+        },
+        {
+          "caller": "ShopDetail",
+          "callee": "useState",
+          "lineNumber": 33
+        },
+        {
+          "caller": "ShopDetail",
+          "callee": "useEffect",
+          "lineNumber": 35
+        },
+        {
+          "caller": "ShopDetail",
+          "callee": "fetchShopDetails",
+          "lineNumber": 36
+        },
+        {
+          "caller": "fetchShopDetails",
+          "callee": "supabase\n        .from('shops')\n        .select('*')\n        .eq('id', shopId)\n        .eq('is_active', true)\n        .single",
+          "lineNumber": 44
+        },
+        {
+          "caller": "fetchShopDetails",
+          "callee": "supabase\n        .from('shops')\n        .select('*')\n        .eq('id', shopId)\n        .eq",
+          "lineNumber": 44
+        },
+        {
+          "caller": "fetchShopDetails",
+          "callee": "supabase\n        .from('shops')\n        .select('*')\n        .eq",
+          "lineNumber": 44
+        },
+        {
+          "caller": "fetchShopDetails",
+          "callee": "supabase\n        .from('shops')\n        .select",
+          "lineNumber": 44
+        },
+        {
+          "caller": "fetchShopDetails",
+          "callee": "supabase\n        .from",
+          "lineNumber": 44
+        },
+        {
+          "caller": "fetchShopDetails",
+          "callee": "setShop",
+          "lineNumber": 52
+        },
+        {
+          "caller": "fetchShopDetails",
+          "callee": "supabase\n        .from('items')\n        .select('*')\n        .eq('shop_id', shopId)\n        .order",
+          "lineNumber": 55
+        },
+        {
+          "caller": "fetchShopDetails",
+          "callee": "supabase\n        .from('items')\n        .select('*')\n        .eq",
+          "lineNumber": 55
+        },
+        {
+          "caller": "fetchShopDetails",
+          "callee": "supabase\n        .from('items')\n        .select",
+          "lineNumber": 55
+        },
+        {
+          "caller": "fetchShopDetails",
+          "callee": "supabase\n        .from",
+          "lineNumber": 55
+        },
+        {
+          "caller": "fetchShopDetails",
+          "callee": "setItems",
+          "lineNumber": 62
+        },
+        {
+          "caller": "fetchShopDetails",
+          "callee": "console.error",
+          "lineNumber": 64
+        },
+        {
+          "caller": "fetchShopDetails",
+          "callee": "setLoading",
+          "lineNumber": 66
+        },
+        {
+          "caller": "ShopDetail",
+          "callee": "navigate",
+          "lineNumber": 86
+        },
+        {
+          "caller": "ShopDetail",
+          "callee": "navigate",
+          "lineNumber": 100
+        },
+        {
+          "caller": "ShopDetail",
+          "callee": "items.map",
+          "lineNumber": 165
+        },
+        {
+          "caller": "ShopDetail",
+          "callee": "formatCurrency",
+          "lineNumber": 212
+        },
+        {
+          "caller": "ShopDetail",
+          "callee": "navigate",
+          "lineNumber": 215
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/ShopDirectory.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 145,
+      "nonEmptyLines": 134,
+      "functions": [
+        {
+          "name": "ShopDirectory",
+          "startLine": 24,
+          "endLine": 145,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ShopDirectory",
+          "line": 24,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ShopDirectory",
+          "callee": "useNavigate",
+          "lineNumber": 25
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "useState",
+          "lineNumber": 26
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "useState",
+          "lineNumber": 27
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "useState",
+          "lineNumber": 29
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "useState",
+          "lineNumber": 30
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "useState",
+          "lineNumber": 31
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "useEffect",
+          "lineNumber": 33
+        },
+        {
+          "caller": "loadData",
+          "callee": "Promise.all",
+          "lineNumber": 36
+        },
+        {
+          "caller": "loadData",
+          "callee": "supabase\n            .from('shops')\n            .select('id, name, description, is_active, district_id, districts(name)')\n            .eq",
+          "lineNumber": 37
+        },
+        {
+          "caller": "loadData",
+          "callee": "supabase\n            .from('shops')\n            .select",
+          "lineNumber": 37
+        },
+        {
+          "caller": "loadData",
+          "callee": "supabase\n            .from",
+          "lineNumber": 37
+        },
+        {
+          "caller": "loadData",
+          "callee": "supabase.from('districts').select",
+          "lineNumber": 41
+        },
+        {
+          "caller": "loadData",
+          "callee": "supabase.from",
+          "lineNumber": 41
+        },
+        {
+          "caller": "loadData",
+          "callee": "shopsRes.data.map",
+          "lineNumber": 45
+        },
+        {
+          "caller": "loadData",
+          "callee": "setShops",
+          "lineNumber": 53
+        },
+        {
+          "caller": "loadData",
+          "callee": "setDistricts",
+          "lineNumber": 56
+        },
+        {
+          "caller": "loadData",
+          "callee": "console.error",
+          "lineNumber": 59
+        },
+        {
+          "caller": "loadData",
+          "callee": "setLoading",
+          "lineNumber": 61
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "loadData",
+          "lineNumber": 64
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "shops.filter",
+          "lineNumber": 67
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "shop.business_name.toLowerCase().includes",
+          "lineNumber": 68
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "shop.business_name.toLowerCase",
+          "lineNumber": 68
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "searchQuery.toLowerCase",
+          "lineNumber": 68
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "(shop.description || '').toLowerCase().includes",
+          "lineNumber": 69
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "(shop.description || '').toLowerCase",
+          "lineNumber": 69
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "searchQuery.toLowerCase",
+          "lineNumber": 69
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "setSearchQuery",
+          "lineNumber": 86
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "setSelectedDistrict",
+          "lineNumber": 93
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "districts.map",
+          "lineNumber": 97
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "filteredShops.map",
+          "lineNumber": 110
+        },
+        {
+          "caller": "ShopDirectory",
+          "callee": "navigate",
+          "lineNumber": 116
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/ShopProfile.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

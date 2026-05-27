@@ -1,0 +1,174 @@
+{
+  "nodes": [
+    {
+      "id": "config:.env.example",
+      "type": "config",
+      "name": ".env.example",
+      "filePath": ".env.example",
+      "summary": "Configuration settings for the project toolchain.",
+      "tags": [
+        "configuration",
+        "setup",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:ATTRIBUTIONS.md",
+      "type": "document",
+      "name": "ATTRIBUTIONS.md",
+      "filePath": "ATTRIBUTIONS.md",
+      "summary": "Project documentation and reference material.",
+      "tags": [
+        "documentation",
+        "guide",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:AUDIT.md",
+      "type": "document",
+      "name": "AUDIT.md",
+      "filePath": "AUDIT.md",
+      "summary": "Project documentation and reference material.",
+      "tags": [
+        "documentation",
+        "guide",
+        "general"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "Project documentation and reference material.",
+      "tags": [
+        "documentation",
+        "guide",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:SECURITY.md",
+      "type": "document",
+      "name": "SECURITY.md",
+      "filePath": "SECURITY.md",
+      "summary": "Project documentation and reference material.",
+      "tags": [
+        "documentation",
+        "guide",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:default_shadcn_theme.css",
+      "type": "file",
+      "name": "default_shadcn_theme.css",
+      "filePath": "default_shadcn_theme.css",
+      "summary": "Implementation of default_shadcn_theme.css.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:index.html",
+      "type": "file",
+      "name": "index.html",
+      "filePath": "index.html",
+      "summary": "Implementation of index.html.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:package.json",
+      "type": "config",
+      "name": "package.json",
+      "filePath": "package.json",
+      "summary": "Configuration settings for the project toolchain.",
+      "tags": [
+        "configuration",
+        "setup",
+        "general"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "config:pnpm-workspace.yaml",
+      "type": "config",
+      "name": "pnpm-workspace.yaml",
+      "filePath": "pnpm-workspace.yaml",
+      "summary": "Configuration settings for the project toolchain.",
+      "tags": [
+        "configuration",
+        "setup",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:setup.sh",
+      "type": "file",
+      "name": "setup.sh",
+      "filePath": "setup.sh",
+      "summary": "Implementation of setup.sh.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:tsconfig.json",
+      "type": "config",
+      "name": "tsconfig.json",
+      "filePath": "tsconfig.json",
+      "summary": "Configuration settings for the project toolchain.",
+      "tags": [
+        "configuration",
+        "setup",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:tsconfig.node.json",
+      "type": "config",
+      "name": "tsconfig.node.json",
+      "filePath": "tsconfig.node.json",
+      "summary": "Configuration settings for the project toolchain.",
+      "tags": [
+        "configuration",
+        "setup",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:vercel.json",
+      "type": "config",
+      "name": "vercel.json",
+      "filePath": "vercel.json",
+      "summary": "Configuration settings for the project toolchain.",
+      "tags": [
+        "configuration",
+        "setup",
+        "general"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": []
+}

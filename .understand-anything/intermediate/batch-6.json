@@ -1,0 +1,1219 @@
+{
+  "nodes": [
+    {
+      "id": "config:.codex/environments/environment.toml",
+      "type": "config",
+      "name": "environment.toml",
+      "filePath": ".codex/environments/environment.toml",
+      "summary": "Configuration settings for the project toolchain.",
+      "tags": [
+        "configuration",
+        "setup",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:.understand-anything/.understandignore",
+      "type": "file",
+      "name": ".understandignore",
+      "filePath": ".understand-anything/.understandignore",
+      "summary": "Implementation of .understandignore.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:guidelines/Guidelines.md",
+      "type": "document",
+      "name": "Guidelines.md",
+      "filePath": "guidelines/Guidelines.md",
+      "summary": "Project documentation and reference material.",
+      "tags": [
+        "documentation",
+        "guide",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:nginx.conf",
+      "type": "file",
+      "name": "nginx.conf",
+      "filePath": "nginx.conf",
+      "summary": "Implementation of nginx.conf.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:postcss.config.mjs",
+      "type": "file",
+      "name": "postcss.config.mjs",
+      "filePath": "postcss.config.mjs",
+      "summary": "Implementation of postcss.config.mjs.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/App.tsx",
+      "type": "file",
+      "name": "App.tsx",
+      "filePath": "src/app/App.tsx",
+      "summary": "Implementation of App.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/checkout/FxTemporalLock.tsx",
+      "type": "file",
+      "name": "FxTemporalLock.tsx",
+      "filePath": "src/app/components/checkout/FxTemporalLock.tsx",
+      "summary": "Implementation of FxTemporalLock.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/components/checkout/FxTemporalLock.tsx:computeRemainingMs",
+      "type": "function",
+      "name": "computeRemainingMs",
+      "filePath": "src/app/components/checkout/FxTemporalLock.tsx",
+      "lineRange": [
+        95,
+        109
+      ],
+      "summary": "Function computeRemainingMs executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/checkout/FxTemporalLock.tsx:ProgressRing",
+      "type": "function",
+      "name": "ProgressRing",
+      "filePath": "src/app/components/checkout/FxTemporalLock.tsx",
+      "lineRange": [
+        151,
+        199
+      ],
+      "summary": "Function ProgressRing executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/checkout/FxTemporalLock.tsx:CountdownDisplay",
+      "type": "function",
+      "name": "CountdownDisplay",
+      "filePath": "src/app/components/checkout/FxTemporalLock.tsx",
+      "lineRange": [
+        205,
+        233
+      ],
+      "summary": "Function CountdownDisplay executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/checkout/FxTemporalLock.tsx:FxTemporalLock",
+      "type": "function",
+      "name": "FxTemporalLock",
+      "filePath": "src/app/components/checkout/FxTemporalLock.tsx",
+      "lineRange": [
+        239,
+        468
+      ],
+      "summary": "Function FxTemporalLock executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/components/checkout/InternationalCheckoutModal.tsx",
+      "type": "file",
+      "name": "InternationalCheckoutModal.tsx",
+      "filePath": "src/app/components/checkout/InternationalCheckoutModal.tsx",
+      "summary": "Implementation of InternationalCheckoutModal.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/components/checkout/InternationalCheckoutModal.tsx:formatFx",
+      "type": "function",
+      "name": "formatFx",
+      "filePath": "src/app/components/checkout/InternationalCheckoutModal.tsx",
+      "lineRange": [
+        126,
+        138
+      ],
+      "summary": "Function formatFx executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/checkout/InternationalCheckoutModal.tsx:ReceiptRow",
+      "type": "function",
+      "name": "ReceiptRow",
+      "filePath": "src/app/components/checkout/InternationalCheckoutModal.tsx",
+      "lineRange": [
+        156,
+        194
+      ],
+      "summary": "Function ReceiptRow executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/checkout/InternationalCheckoutModal.tsx:SafeHarbourBadge",
+      "type": "function",
+      "name": "SafeHarbourBadge",
+      "filePath": "src/app/components/checkout/InternationalCheckoutModal.tsx",
+      "lineRange": [
+        206,
+        237
+      ],
+      "summary": "Function SafeHarbourBadge executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/checkout/InternationalCheckoutModal.tsx:InternationalCheckoutModal",
+      "type": "function",
+      "name": "InternationalCheckoutModal",
+      "filePath": "src/app/components/checkout/InternationalCheckoutModal.tsx",
+      "lineRange": [
+        243,
+        476
+      ],
+      "summary": "Function InternationalCheckoutModal executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/components/checkout/PaymentProcessingScreen.tsx",
+      "type": "file",
+      "name": "PaymentProcessingScreen.tsx",
+      "filePath": "src/app/components/checkout/PaymentProcessingScreen.tsx",
+      "summary": "Implementation of PaymentProcessingScreen.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/components/checkout/PaymentProcessingScreen.tsx:launchConfetti",
+      "type": "function",
+      "name": "launchConfetti",
+      "filePath": "src/app/components/checkout/PaymentProcessingScreen.tsx",
+      "lineRange": [
+        78,
+        100
+      ],
+      "summary": "Function launchConfetti executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/checkout/PaymentProcessingScreen.tsx:PollingView",
+      "type": "function",
+      "name": "PollingView",
+      "filePath": "src/app/components/checkout/PaymentProcessingScreen.tsx",
+      "lineRange": [
+        108,
+        174
+      ],
+      "summary": "Function PollingView executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/checkout/PaymentProcessingScreen.tsx:ClaimCodeDisplay",
+      "type": "function",
+      "name": "ClaimCodeDisplay",
+      "filePath": "src/app/components/checkout/PaymentProcessingScreen.tsx",
+      "lineRange": [
+        183,
+        214
+      ],
+      "summary": "Function ClaimCodeDisplay executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/checkout/PaymentProcessingScreen.tsx:SuccessView",
+      "type": "function",
+      "name": "SuccessView",
+      "filePath": "src/app/components/checkout/PaymentProcessingScreen.tsx",
+      "lineRange": [
+        216,
+        340
+      ],
+      "summary": "Function SuccessView executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/checkout/PaymentProcessingScreen.tsx:TimeoutView",
+      "type": "function",
+      "name": "TimeoutView",
+      "filePath": "src/app/components/checkout/PaymentProcessingScreen.tsx",
+      "lineRange": [
+        344,
+        462
+      ],
+      "summary": "Function TimeoutView executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/checkout/PaymentProcessingScreen.tsx:PaymentProcessingScreen",
+      "type": "function",
+      "name": "PaymentProcessingScreen",
+      "filePath": "src/app/components/checkout/PaymentProcessingScreen.tsx",
+      "lineRange": [
+        468,
+        588
+      ],
+      "summary": "Function PaymentProcessingScreen executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/components/figma/ImageWithFallback.tsx",
+      "type": "file",
+      "name": "ImageWithFallback.tsx",
+      "filePath": "src/app/components/figma/ImageWithFallback.tsx",
+      "summary": "Implementation of ImageWithFallback.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/figma/ImageWithFallback.tsx:ImageWithFallback",
+      "type": "function",
+      "name": "ImageWithFallback",
+      "filePath": "src/app/components/figma/ImageWithFallback.tsx",
+      "lineRange": [
+        6,
+        27
+      ],
+      "summary": "Function ImageWithFallback executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/layout/Footer.tsx",
+      "type": "file",
+      "name": "Footer.tsx",
+      "filePath": "src/app/components/layout/Footer.tsx",
+      "summary": "Implementation of Footer.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/layout/Footer.tsx:Footer",
+      "type": "function",
+      "name": "Footer",
+      "filePath": "src/app/components/layout/Footer.tsx",
+      "lineRange": [
+        6,
+        95
+      ],
+      "summary": "Function Footer executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/components/layout/Header.tsx",
+      "type": "file",
+      "name": "Header.tsx",
+      "filePath": "src/app/components/layout/Header.tsx",
+      "summary": "Implementation of Header.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/layout/Header.tsx:Header",
+      "type": "function",
+      "name": "Header",
+      "filePath": "src/app/components/layout/Header.tsx",
+      "lineRange": [
+        22,
+        205
+      ],
+      "summary": "Function Header executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/components/merchant/CashierVerificationTerminal.tsx",
+      "type": "file",
+      "name": "CashierVerificationTerminal.tsx",
+      "filePath": "src/app/components/merchant/CashierVerificationTerminal.tsx",
+      "summary": "Implementation of CashierVerificationTerminal.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/components/merchant/CashierVerificationTerminal.tsx:callFulfillVoucher",
+      "type": "function",
+      "name": "callFulfillVoucher",
+      "filePath": "src/app/components/merchant/CashierVerificationTerminal.tsx",
+      "lineRange": [
+        85,
+        130
+      ],
+      "summary": "Function callFulfillVoucher executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/merchant/CashierVerificationTerminal.tsx:ScanningView",
+      "type": "function",
+      "name": "ScanningView",
+      "filePath": "src/app/components/merchant/CashierVerificationTerminal.tsx",
+      "lineRange": [
+        148,
+        179
+      ],
+      "summary": "Function ScanningView executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/merchant/CashierVerificationTerminal.tsx:ApprovedView",
+      "type": "function",
+      "name": "ApprovedView",
+      "filePath": "src/app/components/merchant/CashierVerificationTerminal.tsx",
+      "lineRange": [
+        183,
+        314
+      ],
+      "summary": "Function ApprovedView executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/merchant/CashierVerificationTerminal.tsx:RejectedView",
+      "type": "function",
+      "name": "RejectedView",
+      "filePath": "src/app/components/merchant/CashierVerificationTerminal.tsx",
+      "lineRange": [
+        318,
+        445
+      ],
+      "summary": "Function RejectedView executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/merchant/CashierVerificationTerminal.tsx:IdleView",
+      "type": "function",
+      "name": "IdleView",
+      "filePath": "src/app/components/merchant/CashierVerificationTerminal.tsx",
+      "lineRange": [
+        449,
+        554
+      ],
+      "summary": "Function IdleView executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/merchant/CashierVerificationTerminal.tsx:CashierVerificationTerminal",
+      "type": "function",
+      "name": "CashierVerificationTerminal",
+      "filePath": "src/app/components/merchant/CashierVerificationTerminal.tsx",
+      "lineRange": [
+        560,
+        725
+      ],
+      "summary": "Function CashierVerificationTerminal executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/components/merchant/SettlementDashboard.tsx",
+      "type": "file",
+      "name": "SettlementDashboard.tsx",
+      "filePath": "src/app/components/merchant/SettlementDashboard.tsx",
+      "summary": "Implementation of SettlementDashboard.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/components/merchant/SettlementDashboard.tsx:LedgerRow",
+      "type": "function",
+      "name": "LedgerRow",
+      "filePath": "src/app/components/merchant/SettlementDashboard.tsx",
+      "lineRange": [
+        68,
+        117
+      ],
+      "summary": "Function LedgerRow executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/merchant/SettlementDashboard.tsx:SettlementDashboard",
+      "type": "function",
+      "name": "SettlementDashboard",
+      "filePath": "src/app/components/merchant/SettlementDashboard.tsx",
+      "lineRange": [
+        123,
+        240
+      ],
+      "summary": "Function SettlementDashboard executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/components/shared/BackToTop.tsx",
+      "type": "file",
+      "name": "BackToTop.tsx",
+      "filePath": "src/app/components/shared/BackToTop.tsx",
+      "summary": "Implementation of BackToTop.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/shared/BackToTop.tsx:BackToTop",
+      "type": "function",
+      "name": "BackToTop",
+      "filePath": "src/app/components/shared/BackToTop.tsx",
+      "lineRange": [
+        7,
+        43
+      ],
+      "summary": "Function BackToTop executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/shared/EmptyState.tsx",
+      "type": "file",
+      "name": "EmptyState.tsx",
+      "filePath": "src/app/components/shared/EmptyState.tsx",
+      "summary": "Implementation of EmptyState.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/shared/EmptyState.tsx:EmptyState",
+      "type": "function",
+      "name": "EmptyState",
+      "filePath": "src/app/components/shared/EmptyState.tsx",
+      "lineRange": [
+        16,
+        42
+      ],
+      "summary": "Function EmptyState executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/shared/HandshakeTerminal.tsx",
+      "type": "file",
+      "name": "HandshakeTerminal.tsx",
+      "filePath": "src/app/components/shared/HandshakeTerminal.tsx",
+      "summary": "Implementation of HandshakeTerminal.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/components/shared/HandshakeTerminal.tsx:HandshakeTerminal",
+      "type": "function",
+      "name": "HandshakeTerminal",
+      "filePath": "src/app/components/shared/HandshakeTerminal.tsx",
+      "lineRange": [
+        22,
+        266
+      ],
+      "summary": "Function HandshakeTerminal executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/components/shared/HeroSlider.tsx",
+      "type": "file",
+      "name": "HeroSlider.tsx",
+      "filePath": "src/app/components/shared/HeroSlider.tsx",
+      "summary": "Implementation of HeroSlider.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/shared/HeroSlider.tsx:HeroSlider",
+      "type": "function",
+      "name": "HeroSlider",
+      "filePath": "src/app/components/shared/HeroSlider.tsx",
+      "lineRange": [
+        14,
+        126
+      ],
+      "summary": "Function HeroSlider executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/components/shared/HorizontalProductRibbon.tsx",
+      "type": "file",
+      "name": "HorizontalProductRibbon.tsx",
+      "filePath": "src/app/components/shared/HorizontalProductRibbon.tsx",
+      "summary": "Implementation of HorizontalProductRibbon.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/shared/HorizontalProductRibbon.tsx:HorizontalProductRibbon",
+      "type": "function",
+      "name": "HorizontalProductRibbon",
+      "filePath": "src/app/components/shared/HorizontalProductRibbon.tsx",
+      "lineRange": [
+        16,
+        63
+      ],
+      "summary": "Function HorizontalProductRibbon executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/shared/NotificationSlider.tsx",
+      "type": "file",
+      "name": "NotificationSlider.tsx",
+      "filePath": "src/app/components/shared/NotificationSlider.tsx",
+      "summary": "Implementation of NotificationSlider.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/shared/NotificationSlider.tsx:NotificationSlider",
+      "type": "function",
+      "name": "NotificationSlider",
+      "filePath": "src/app/components/shared/NotificationSlider.tsx",
+      "lineRange": [
+        23,
+        183
+      ],
+      "summary": "Function NotificationSlider executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/components/shared/PageTransition.tsx",
+      "type": "file",
+      "name": "PageTransition.tsx",
+      "filePath": "src/app/components/shared/PageTransition.tsx",
+      "summary": "Implementation of PageTransition.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/shared/PageTransition.tsx:PageTransition",
+      "type": "function",
+      "name": "PageTransition",
+      "filePath": "src/app/components/shared/PageTransition.tsx",
+      "lineRange": [
+        10,
+        21
+      ],
+      "summary": "Function PageTransition executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/shared/ProductCard.tsx",
+      "type": "file",
+      "name": "ProductCard.tsx",
+      "filePath": "src/app/components/shared/ProductCard.tsx",
+      "summary": "Implementation of ProductCard.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/components/shared/ProductCard.tsx:ProductDetailModal",
+      "type": "function",
+      "name": "ProductDetailModal",
+      "filePath": "src/app/components/shared/ProductCard.tsx",
+      "lineRange": [
+        35,
+        170
+      ],
+      "summary": "Function ProductDetailModal executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/shared/ProductCard.tsx:ProductCard",
+      "type": "function",
+      "name": "ProductCard",
+      "filePath": "src/app/components/shared/ProductCard.tsx",
+      "lineRange": [
+        176,
+        338
+      ],
+      "summary": "Function ProductCard executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/components/shared/ProfileVerificationBanner.tsx",
+      "type": "file",
+      "name": "ProfileVerificationBanner.tsx",
+      "filePath": "src/app/components/shared/ProfileVerificationBanner.tsx",
+      "summary": "Implementation of ProfileVerificationBanner.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/shared/ProfileVerificationBanner.tsx:ProfileVerificationBanner",
+      "type": "function",
+      "name": "ProfileVerificationBanner",
+      "filePath": "src/app/components/shared/ProfileVerificationBanner.tsx",
+      "lineRange": [
+        12,
+        62
+      ],
+      "summary": "Function ProfileVerificationBanner executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/shared/QRCodeDisplay.tsx",
+      "type": "file",
+      "name": "QRCodeDisplay.tsx",
+      "filePath": "src/app/components/shared/QRCodeDisplay.tsx",
+      "summary": "Implementation of QRCodeDisplay.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/shared/QRCodeDisplay.tsx:QRCodeDisplay",
+      "type": "function",
+      "name": "QRCodeDisplay",
+      "filePath": "src/app/components/shared/QRCodeDisplay.tsx",
+      "lineRange": [
+        11,
+        28
+      ],
+      "summary": "Function QRCodeDisplay executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/shared/SearchBar.tsx",
+      "type": "file",
+      "name": "SearchBar.tsx",
+      "filePath": "src/app/components/shared/SearchBar.tsx",
+      "summary": "Implementation of SearchBar.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/components/shared/SearchBar.tsx:SearchBar",
+      "type": "function",
+      "name": "SearchBar",
+      "filePath": "src/app/components/shared/SearchBar.tsx",
+      "lineRange": [
+        15,
+        114
+      ],
+      "summary": "Function SearchBar executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/app/components/checkout/FxTemporalLock.tsx",
+      "target": "function:src/app/components/checkout/FxTemporalLock.tsx:computeRemainingMs",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/checkout/FxTemporalLock.tsx",
+      "target": "function:src/app/components/checkout/FxTemporalLock.tsx:ProgressRing",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/checkout/FxTemporalLock.tsx",
+      "target": "function:src/app/components/checkout/FxTemporalLock.tsx:CountdownDisplay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/checkout/FxTemporalLock.tsx",
+      "target": "function:src/app/components/checkout/FxTemporalLock.tsx:FxTemporalLock",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/checkout/InternationalCheckoutModal.tsx",
+      "target": "function:src/app/components/checkout/InternationalCheckoutModal.tsx:formatFx",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/checkout/InternationalCheckoutModal.tsx",
+      "target": "function:src/app/components/checkout/InternationalCheckoutModal.tsx:ReceiptRow",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/checkout/InternationalCheckoutModal.tsx",
+      "target": "function:src/app/components/checkout/InternationalCheckoutModal.tsx:SafeHarbourBadge",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/checkout/InternationalCheckoutModal.tsx",
+      "target": "function:src/app/components/checkout/InternationalCheckoutModal.tsx:InternationalCheckoutModal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/checkout/PaymentProcessingScreen.tsx",
+      "target": "function:src/app/components/checkout/PaymentProcessingScreen.tsx:launchConfetti",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/checkout/PaymentProcessingScreen.tsx",
+      "target": "function:src/app/components/checkout/PaymentProcessingScreen.tsx:PollingView",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/checkout/PaymentProcessingScreen.tsx",
+      "target": "function:src/app/components/checkout/PaymentProcessingScreen.tsx:ClaimCodeDisplay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/checkout/PaymentProcessingScreen.tsx",
+      "target": "function:src/app/components/checkout/PaymentProcessingScreen.tsx:SuccessView",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/checkout/PaymentProcessingScreen.tsx",
+      "target": "function:src/app/components/checkout/PaymentProcessingScreen.tsx:TimeoutView",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/checkout/PaymentProcessingScreen.tsx",
+      "target": "function:src/app/components/checkout/PaymentProcessingScreen.tsx:PaymentProcessingScreen",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/figma/ImageWithFallback.tsx",
+      "target": "function:src/app/components/figma/ImageWithFallback.tsx:ImageWithFallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/layout/Footer.tsx",
+      "target": "function:src/app/components/layout/Footer.tsx:Footer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/layout/Header.tsx",
+      "target": "function:src/app/components/layout/Header.tsx:Header",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/merchant/CashierVerificationTerminal.tsx",
+      "target": "function:src/app/components/merchant/CashierVerificationTerminal.tsx:callFulfillVoucher",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/merchant/CashierVerificationTerminal.tsx",
+      "target": "function:src/app/components/merchant/CashierVerificationTerminal.tsx:ScanningView",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/merchant/CashierVerificationTerminal.tsx",
+      "target": "function:src/app/components/merchant/CashierVerificationTerminal.tsx:ApprovedView",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/merchant/CashierVerificationTerminal.tsx",
+      "target": "function:src/app/components/merchant/CashierVerificationTerminal.tsx:RejectedView",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/merchant/CashierVerificationTerminal.tsx",
+      "target": "function:src/app/components/merchant/CashierVerificationTerminal.tsx:IdleView",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/merchant/CashierVerificationTerminal.tsx",
+      "target": "function:src/app/components/merchant/CashierVerificationTerminal.tsx:CashierVerificationTerminal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/merchant/SettlementDashboard.tsx",
+      "target": "function:src/app/components/merchant/SettlementDashboard.tsx:LedgerRow",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/merchant/SettlementDashboard.tsx",
+      "target": "function:src/app/components/merchant/SettlementDashboard.tsx:SettlementDashboard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/shared/BackToTop.tsx",
+      "target": "function:src/app/components/shared/BackToTop.tsx:BackToTop",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/shared/EmptyState.tsx",
+      "target": "function:src/app/components/shared/EmptyState.tsx:EmptyState",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/shared/HandshakeTerminal.tsx",
+      "target": "function:src/app/components/shared/HandshakeTerminal.tsx:HandshakeTerminal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/shared/HeroSlider.tsx",
+      "target": "function:src/app/components/shared/HeroSlider.tsx:HeroSlider",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/shared/HorizontalProductRibbon.tsx",
+      "target": "function:src/app/components/shared/HorizontalProductRibbon.tsx:HorizontalProductRibbon",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/shared/NotificationSlider.tsx",
+      "target": "function:src/app/components/shared/NotificationSlider.tsx:NotificationSlider",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/shared/PageTransition.tsx",
+      "target": "function:src/app/components/shared/PageTransition.tsx:PageTransition",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/shared/ProductCard.tsx",
+      "target": "function:src/app/components/shared/ProductCard.tsx:ProductDetailModal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/shared/ProductCard.tsx",
+      "target": "function:src/app/components/shared/ProductCard.tsx:ProductCard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/shared/ProfileVerificationBanner.tsx",
+      "target": "function:src/app/components/shared/ProfileVerificationBanner.tsx:ProfileVerificationBanner",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/shared/QRCodeDisplay.tsx",
+      "target": "function:src/app/components/shared/QRCodeDisplay.tsx:QRCodeDisplay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/components/shared/SearchBar.tsx",
+      "target": "function:src/app/components/shared/SearchBar.tsx:SearchBar",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    }
+  ]
+}

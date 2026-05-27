@@ -1,0 +1,44 @@
+{
+  "nodes": [
+    {
+      "id": "table:supabase/migrations/20260525120000_v2_canonical_schema.sql",
+      "type": "table",
+      "name": "20260525120000_v2_canonical_schema.sql",
+      "filePath": "supabase/migrations/20260525120000_v2_canonical_schema.sql",
+      "summary": "Database schema definition or migration file.",
+      "tags": [
+        "database",
+        "migration",
+        "schema"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "table:supabase/migrations/20260525130000_v2_atomic_money_rpcs.sql",
+      "type": "table",
+      "name": "20260525130000_v2_atomic_money_rpcs.sql",
+      "filePath": "supabase/migrations/20260525130000_v2_atomic_money_rpcs.sql",
+      "summary": "Database schema definition or migration file.",
+      "tags": [
+        "database",
+        "migration",
+        "schema"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "table:supabase/migrations/20260525140000_v2_rls_policies.sql",
+      "type": "table",
+      "name": "20260525140000_v2_rls_policies.sql",
+      "filePath": "supabase/migrations/20260525140000_v2_rls_policies.sql",
+      "summary": "Database schema definition or migration file.",
+      "tags": [
+        "database",
+        "migration",
+        "schema"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": []
+}

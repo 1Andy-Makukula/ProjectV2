@@ -1,0 +1,1267 @@
+{
+  "nodes": [
+    {
+      "id": "file:src/app/pages/merchant/MerchantDashboard.tsx",
+      "type": "file",
+      "name": "MerchantDashboard.tsx",
+      "filePath": "src/app/pages/merchant/MerchantDashboard.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/merchant/MerchantDashboard.tsx:ShopProfileCard",
+      "type": "function",
+      "name": "ShopProfileCard",
+      "filePath": "src/app/pages/merchant/MerchantDashboard.tsx",
+      "lineRange": [
+        67,
+        198
+      ],
+      "summary": "Function ShopProfileCard executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/merchant/MerchantDashboard.tsx:MerchantDashboard",
+      "type": "function",
+      "name": "MerchantDashboard",
+      "filePath": "src/app/pages/merchant/MerchantDashboard.tsx",
+      "lineRange": [
+        205,
+        686
+      ],
+      "summary": "Function MerchantDashboard executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/merchant/MerchantDashboard.tsx:AnimatedMetric",
+      "type": "function",
+      "name": "AnimatedMetric",
+      "filePath": "src/app/pages/merchant/MerchantDashboard.tsx",
+      "lineRange": [
+        692,
+        723
+      ],
+      "summary": "Function AnimatedMetric executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/pages/merchant/MerchantFulfill.tsx",
+      "type": "file",
+      "name": "MerchantFulfill.tsx",
+      "filePath": "src/app/pages/merchant/MerchantFulfill.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/merchant/MerchantFulfill.tsx:MerchantFulfill",
+      "type": "function",
+      "name": "MerchantFulfill",
+      "filePath": "src/app/pages/merchant/MerchantFulfill.tsx",
+      "lineRange": [
+        68,
+        573
+      ],
+      "summary": "Function MerchantFulfill executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/MerchantAgreement.tsx",
+      "type": "file",
+      "name": "MerchantAgreement.tsx",
+      "filePath": "src/app/pages/MerchantAgreement.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/MerchantAgreement.tsx:MerchantAgreement",
+      "type": "function",
+      "name": "MerchantAgreement",
+      "filePath": "src/app/pages/MerchantAgreement.tsx",
+      "lineRange": [
+        5,
+        61
+      ],
+      "summary": "Function MerchantAgreement executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/MerchantOnboarding.tsx",
+      "type": "file",
+      "name": "MerchantOnboarding.tsx",
+      "filePath": "src/app/pages/MerchantOnboarding.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/MerchantOnboarding.tsx:MerchantOnboarding",
+      "type": "function",
+      "name": "MerchantOnboarding",
+      "filePath": "src/app/pages/MerchantOnboarding.tsx",
+      "lineRange": [
+        20,
+        264
+      ],
+      "summary": "Function MerchantOnboarding executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/MerchantRedemption.tsx",
+      "type": "file",
+      "name": "MerchantRedemption.tsx",
+      "filePath": "src/app/pages/MerchantRedemption.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/pages/NotFound.tsx",
+      "type": "file",
+      "name": "NotFound.tsx",
+      "filePath": "src/app/pages/NotFound.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/NotFound.tsx:NotFound",
+      "type": "function",
+      "name": "NotFound",
+      "filePath": "src/app/pages/NotFound.tsx",
+      "lineRange": [
+        7,
+        42
+      ],
+      "summary": "Function NotFound executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/pages/Notifications.tsx",
+      "type": "file",
+      "name": "Notifications.tsx",
+      "filePath": "src/app/pages/Notifications.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/pages/Privacy.tsx",
+      "type": "file",
+      "name": "Privacy.tsx",
+      "filePath": "src/app/pages/Privacy.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/Privacy.tsx:Section",
+      "type": "function",
+      "name": "Section",
+      "filePath": "src/app/pages/Privacy.tsx",
+      "lineRange": [
+        14,
+        28
+      ],
+      "summary": "Function Section executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/Privacy.tsx:Privacy",
+      "type": "function",
+      "name": "Privacy",
+      "filePath": "src/app/pages/Privacy.tsx",
+      "lineRange": [
+        30,
+        186
+      ],
+      "summary": "Function Privacy executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/ProductDetail.tsx",
+      "type": "file",
+      "name": "ProductDetail.tsx",
+      "filePath": "src/app/pages/ProductDetail.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/pages/public/GiftPage.tsx",
+      "type": "file",
+      "name": "GiftPage.tsx",
+      "filePath": "src/app/pages/public/GiftPage.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/public/GiftPage.tsx:GiftPage",
+      "type": "function",
+      "name": "GiftPage",
+      "filePath": "src/app/pages/public/GiftPage.tsx",
+      "lineRange": [
+        38,
+        334
+      ],
+      "summary": "Function GiftPage executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/public/Landing.tsx",
+      "type": "file",
+      "name": "Landing.tsx",
+      "filePath": "src/app/pages/public/Landing.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/public/Landing.tsx:Landing",
+      "type": "function",
+      "name": "Landing",
+      "filePath": "src/app/pages/public/Landing.tsx",
+      "lineRange": [
+        12,
+        397
+      ],
+      "summary": "Function Landing executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/public/Login.tsx",
+      "type": "file",
+      "name": "Login.tsx",
+      "filePath": "src/app/pages/public/Login.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/public/Login.tsx:Login",
+      "type": "function",
+      "name": "Login",
+      "filePath": "src/app/pages/public/Login.tsx",
+      "lineRange": [
+        15,
+        277
+      ],
+      "summary": "Function Login executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/public/SignUp.tsx",
+      "type": "file",
+      "name": "SignUp.tsx",
+      "filePath": "src/app/pages/public/SignUp.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/public/SignUp.tsx:SignUp",
+      "type": "function",
+      "name": "SignUp",
+      "filePath": "src/app/pages/public/SignUp.tsx",
+      "lineRange": [
+        15,
+        308
+      ],
+      "summary": "Function SignUp executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/sender/Confirmation.tsx",
+      "type": "file",
+      "name": "Confirmation.tsx",
+      "filePath": "src/app/pages/sender/Confirmation.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/sender/Confirmation.tsx:usePaymentConfirmation",
+      "type": "function",
+      "name": "usePaymentConfirmation",
+      "filePath": "src/app/pages/sender/Confirmation.tsx",
+      "lineRange": [
+        61,
+        176
+      ],
+      "summary": "Function usePaymentConfirmation executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/sender/Confirmation.tsx:PollingView",
+      "type": "function",
+      "name": "PollingView",
+      "filePath": "src/app/pages/sender/Confirmation.tsx",
+      "lineRange": [
+        182,
+        225
+      ],
+      "summary": "Function PollingView executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/sender/Confirmation.tsx:SuccessView",
+      "type": "function",
+      "name": "SuccessView",
+      "filePath": "src/app/pages/sender/Confirmation.tsx",
+      "lineRange": [
+        227,
+        354
+      ],
+      "summary": "Function SuccessView executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/sender/Confirmation.tsx:FailedView",
+      "type": "function",
+      "name": "FailedView",
+      "filePath": "src/app/pages/sender/Confirmation.tsx",
+      "lineRange": [
+        356,
+        389
+      ],
+      "summary": "Function FailedView executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/sender/Confirmation.tsx:Confirmation",
+      "type": "function",
+      "name": "Confirmation",
+      "filePath": "src/app/pages/sender/Confirmation.tsx",
+      "lineRange": [
+        395,
+        540
+      ],
+      "summary": "Function Confirmation executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/sender/CustomerDashboard.tsx",
+      "type": "file",
+      "name": "CustomerDashboard.tsx",
+      "filePath": "src/app/pages/sender/CustomerDashboard.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/sender/CustomerDashboard.tsx:MetricCardSkeleton",
+      "type": "function",
+      "name": "MetricCardSkeleton",
+      "filePath": "src/app/pages/sender/CustomerDashboard.tsx",
+      "lineRange": [
+        17,
+        28
+      ],
+      "summary": "Function MetricCardSkeleton executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/sender/CustomerDashboard.tsx:MetricCard",
+      "type": "function",
+      "name": "MetricCard",
+      "filePath": "src/app/pages/sender/CustomerDashboard.tsx",
+      "lineRange": [
+        39,
+        69
+      ],
+      "summary": "Function MetricCard executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/sender/CustomerDashboard.tsx:CustomerDashboard",
+      "type": "function",
+      "name": "CustomerDashboard",
+      "filePath": "src/app/pages/sender/CustomerDashboard.tsx",
+      "lineRange": [
+        71,
+        312
+      ],
+      "summary": "Function CustomerDashboard executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/sender/DashboardHub.tsx",
+      "type": "file",
+      "name": "DashboardHub.tsx",
+      "filePath": "src/app/pages/sender/DashboardHub.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/sender/DashboardHub.tsx:MetricTile",
+      "type": "function",
+      "name": "MetricTile",
+      "filePath": "src/app/pages/sender/DashboardHub.tsx",
+      "lineRange": [
+        94,
+        107
+      ],
+      "summary": "Function MetricTile executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/sender/DashboardHub.tsx:RowSkeleton",
+      "type": "function",
+      "name": "RowSkeleton",
+      "filePath": "src/app/pages/sender/DashboardHub.tsx",
+      "lineRange": [
+        109,
+        126
+      ],
+      "summary": "Function RowSkeleton executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/sender/DashboardHub.tsx:ClaimCode",
+      "type": "function",
+      "name": "ClaimCode",
+      "filePath": "src/app/pages/sender/DashboardHub.tsx",
+      "lineRange": [
+        128,
+        152
+      ],
+      "summary": "Function ClaimCode executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/sender/DashboardHub.tsx:DashboardHub",
+      "type": "function",
+      "name": "DashboardHub",
+      "filePath": "src/app/pages/sender/DashboardHub.tsx",
+      "lineRange": [
+        156,
+        568
+      ],
+      "summary": "Function DashboardHub executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/sender/Home.tsx",
+      "type": "file",
+      "name": "Home.tsx",
+      "filePath": "src/app/pages/sender/Home.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/sender/Home.tsx:ShopTileSkeleton",
+      "type": "function",
+      "name": "ShopTileSkeleton",
+      "filePath": "src/app/pages/sender/Home.tsx",
+      "lineRange": [
+        71,
+        81
+      ],
+      "summary": "Function ShopTileSkeleton executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/sender/Home.tsx:PromoBanner",
+      "type": "function",
+      "name": "PromoBanner",
+      "filePath": "src/app/pages/sender/Home.tsx",
+      "lineRange": [
+        102,
+        121
+      ],
+      "summary": "Function PromoBanner executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/sender/Home.tsx:Home",
+      "type": "function",
+      "name": "Home",
+      "filePath": "src/app/pages/sender/Home.tsx",
+      "lineRange": [
+        127,
+        555
+      ],
+      "summary": "Function Home executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/sender/OrderDashboard.tsx",
+      "type": "file",
+      "name": "OrderDashboard.tsx",
+      "filePath": "src/app/pages/sender/OrderDashboard.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/sender/OrderDashboard.tsx:formatDate",
+      "type": "function",
+      "name": "formatDate",
+      "filePath": "src/app/pages/sender/OrderDashboard.tsx",
+      "lineRange": [
+        122,
+        136
+      ],
+      "summary": "Function formatDate executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/sender/OrderDashboard.tsx:StatusBadge",
+      "type": "function",
+      "name": "StatusBadge",
+      "filePath": "src/app/pages/sender/OrderDashboard.tsx",
+      "lineRange": [
+        138,
+        149
+      ],
+      "summary": "Function StatusBadge executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/sender/OrderDashboard.tsx:StatCard",
+      "type": "function",
+      "name": "StatCard",
+      "filePath": "src/app/pages/sender/OrderDashboard.tsx",
+      "lineRange": [
+        151,
+        173
+      ],
+      "summary": "Function StatCard executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/sender/OrderDashboard.tsx:TableSkeleton",
+      "type": "function",
+      "name": "TableSkeleton",
+      "filePath": "src/app/pages/sender/OrderDashboard.tsx",
+      "lineRange": [
+        175,
+        199
+      ],
+      "summary": "Function TableSkeleton executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/sender/OrderDashboard.tsx:OrderDashboard",
+      "type": "function",
+      "name": "OrderDashboard",
+      "filePath": "src/app/pages/sender/OrderDashboard.tsx",
+      "lineRange": [
+        201,
+        529
+      ],
+      "summary": "Function OrderDashboard executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/sender/OrderDetail.tsx",
+      "type": "file",
+      "name": "OrderDetail.tsx",
+      "filePath": "src/app/pages/sender/OrderDetail.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/sender/OrderDetail.tsx:InfoRow",
+      "type": "function",
+      "name": "InfoRow",
+      "filePath": "src/app/pages/sender/OrderDetail.tsx",
+      "lineRange": [
+        99,
+        111
+      ],
+      "summary": "Function InfoRow executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/sender/OrderDetail.tsx:OrderDetail",
+      "type": "function",
+      "name": "OrderDetail",
+      "filePath": "src/app/pages/sender/OrderDetail.tsx",
+      "lineRange": [
+        135,
+        466
+      ],
+      "summary": "Function OrderDetail executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/sender/OrderHistory.tsx",
+      "type": "file",
+      "name": "OrderHistory.tsx",
+      "filePath": "src/app/pages/sender/OrderHistory.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/pages/sender/SendFlow.tsx",
+      "type": "file",
+      "name": "SendFlow.tsx",
+      "filePath": "src/app/pages/sender/SendFlow.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/sender/SendFlow.tsx:SendFlow",
+      "type": "function",
+      "name": "SendFlow",
+      "filePath": "src/app/pages/sender/SendFlow.tsx",
+      "lineRange": [
+        35,
+        336
+      ],
+      "summary": "Function SendFlow executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/sender/Settings.tsx",
+      "type": "file",
+      "name": "Settings.tsx",
+      "filePath": "src/app/pages/sender/Settings.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/sender/Settings.tsx:Settings",
+      "type": "function",
+      "name": "Settings",
+      "filePath": "src/app/pages/sender/Settings.tsx",
+      "lineRange": [
+        14,
+        333
+      ],
+      "summary": "Function Settings executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/sender/ShopDetail.tsx",
+      "type": "file",
+      "name": "ShopDetail.tsx",
+      "filePath": "src/app/pages/sender/ShopDetail.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/sender/ShopDetail.tsx:ShopDetail",
+      "type": "function",
+      "name": "ShopDetail",
+      "filePath": "src/app/pages/sender/ShopDetail.tsx",
+      "lineRange": [
+        28,
+        232
+      ],
+      "summary": "Function ShopDetail executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/ShopDirectory.tsx",
+      "type": "file",
+      "name": "ShopDirectory.tsx",
+      "filePath": "src/app/pages/ShopDirectory.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/ShopDirectory.tsx:ShopDirectory",
+      "type": "function",
+      "name": "ShopDirectory",
+      "filePath": "src/app/pages/ShopDirectory.tsx",
+      "lineRange": [
+        24,
+        145
+      ],
+      "summary": "Function ShopDirectory executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/ShopProfile.tsx",
+      "type": "file",
+      "name": "ShopProfile.tsx",
+      "filePath": "src/app/pages/ShopProfile.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/app/pages/merchant/MerchantDashboard.tsx",
+      "target": "function:src/app/pages/merchant/MerchantDashboard.tsx:ShopProfileCard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/merchant/MerchantDashboard.tsx",
+      "target": "function:src/app/pages/merchant/MerchantDashboard.tsx:MerchantDashboard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/merchant/MerchantDashboard.tsx",
+      "target": "function:src/app/pages/merchant/MerchantDashboard.tsx:AnimatedMetric",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/merchant/MerchantFulfill.tsx",
+      "target": "function:src/app/pages/merchant/MerchantFulfill.tsx:MerchantFulfill",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/MerchantAgreement.tsx",
+      "target": "function:src/app/pages/MerchantAgreement.tsx:MerchantAgreement",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/MerchantOnboarding.tsx",
+      "target": "function:src/app/pages/MerchantOnboarding.tsx:MerchantOnboarding",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/NotFound.tsx",
+      "target": "function:src/app/pages/NotFound.tsx:NotFound",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/Privacy.tsx",
+      "target": "function:src/app/pages/Privacy.tsx:Section",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/Privacy.tsx",
+      "target": "function:src/app/pages/Privacy.tsx:Privacy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/public/GiftPage.tsx",
+      "target": "function:src/app/pages/public/GiftPage.tsx:GiftPage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/public/Landing.tsx",
+      "target": "function:src/app/pages/public/Landing.tsx:Landing",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/public/Login.tsx",
+      "target": "function:src/app/pages/public/Login.tsx:Login",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/public/SignUp.tsx",
+      "target": "function:src/app/pages/public/SignUp.tsx:SignUp",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/Confirmation.tsx",
+      "target": "function:src/app/pages/sender/Confirmation.tsx:usePaymentConfirmation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/Confirmation.tsx",
+      "target": "function:src/app/pages/sender/Confirmation.tsx:PollingView",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/Confirmation.tsx",
+      "target": "function:src/app/pages/sender/Confirmation.tsx:SuccessView",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/Confirmation.tsx",
+      "target": "function:src/app/pages/sender/Confirmation.tsx:FailedView",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/Confirmation.tsx",
+      "target": "function:src/app/pages/sender/Confirmation.tsx:Confirmation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/CustomerDashboard.tsx",
+      "target": "function:src/app/pages/sender/CustomerDashboard.tsx:MetricCardSkeleton",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/CustomerDashboard.tsx",
+      "target": "function:src/app/pages/sender/CustomerDashboard.tsx:MetricCard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/CustomerDashboard.tsx",
+      "target": "function:src/app/pages/sender/CustomerDashboard.tsx:CustomerDashboard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/DashboardHub.tsx",
+      "target": "function:src/app/pages/sender/DashboardHub.tsx:MetricTile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/DashboardHub.tsx",
+      "target": "function:src/app/pages/sender/DashboardHub.tsx:RowSkeleton",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/DashboardHub.tsx",
+      "target": "function:src/app/pages/sender/DashboardHub.tsx:ClaimCode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/DashboardHub.tsx",
+      "target": "function:src/app/pages/sender/DashboardHub.tsx:DashboardHub",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/Home.tsx",
+      "target": "function:src/app/pages/sender/Home.tsx:ShopTileSkeleton",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/Home.tsx",
+      "target": "function:src/app/pages/sender/Home.tsx:PromoBanner",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/Home.tsx",
+      "target": "function:src/app/pages/sender/Home.tsx:Home",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/OrderDashboard.tsx",
+      "target": "function:src/app/pages/sender/OrderDashboard.tsx:formatDate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/OrderDashboard.tsx",
+      "target": "function:src/app/pages/sender/OrderDashboard.tsx:StatusBadge",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/OrderDashboard.tsx",
+      "target": "function:src/app/pages/sender/OrderDashboard.tsx:StatCard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/OrderDashboard.tsx",
+      "target": "function:src/app/pages/sender/OrderDashboard.tsx:TableSkeleton",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/OrderDashboard.tsx",
+      "target": "function:src/app/pages/sender/OrderDashboard.tsx:OrderDashboard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/OrderDetail.tsx",
+      "target": "function:src/app/pages/sender/OrderDetail.tsx:InfoRow",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/OrderDetail.tsx",
+      "target": "function:src/app/pages/sender/OrderDetail.tsx:OrderDetail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/SendFlow.tsx",
+      "target": "function:src/app/pages/sender/SendFlow.tsx:SendFlow",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/Settings.tsx",
+      "target": "function:src/app/pages/sender/Settings.tsx:Settings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/sender/ShopDetail.tsx",
+      "target": "function:src/app/pages/sender/ShopDetail.tsx:ShopDetail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/ShopDirectory.tsx",
+      "target": "function:src/app/pages/ShopDirectory.tsx:ShopDirectory",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    }
+  ]
+}

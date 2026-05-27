@@ -1,0 +1,1003 @@
+{
+  "nodes": [
+    {
+      "id": "file:src/app/components/ui/use-mobile.ts",
+      "type": "file",
+      "name": "use-mobile.ts",
+      "filePath": "src/app/components/ui/use-mobile.ts",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/components/ui/use-mobile.ts:useIsMobile",
+      "type": "function",
+      "name": "useIsMobile",
+      "filePath": "src/app/components/ui/use-mobile.ts",
+      "lineRange": [
+        5,
+        21
+      ],
+      "summary": "Function useIsMobile executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/components/ui/utils.ts",
+      "type": "file",
+      "name": "utils.ts",
+      "filePath": "src/app/components/ui/utils.ts",
+      "summary": "UI component for the presentation layer.",
+      "tags": [
+        "component",
+        "ui",
+        "presentation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/data/mock-data.ts",
+      "type": "file",
+      "name": "mock-data.ts",
+      "filePath": "src/app/data/mock-data.ts",
+      "summary": "Implementation of mock-data.ts.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:src/app/hooks/useAuth.ts",
+      "type": "file",
+      "name": "useAuth.ts",
+      "filePath": "src/app/hooks/useAuth.ts",
+      "summary": "React hook providing reusable state or logic.",
+      "tags": [
+        "hook",
+        "react",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/hooks/useCart.ts",
+      "type": "file",
+      "name": "useCart.ts",
+      "filePath": "src/app/hooks/useCart.ts",
+      "summary": "React hook providing reusable state or logic.",
+      "tags": [
+        "hook",
+        "react",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/hooks/usePaymentVerification.ts",
+      "type": "file",
+      "name": "usePaymentVerification.ts",
+      "filePath": "src/app/hooks/usePaymentVerification.ts",
+      "summary": "React hook providing reusable state or logic.",
+      "tags": [
+        "hook",
+        "react",
+        "utility"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/hooks/usePaymentVerification.ts:usePaymentVerification",
+      "type": "function",
+      "name": "usePaymentVerification",
+      "filePath": "src/app/hooks/usePaymentVerification.ts",
+      "lineRange": [
+        135,
+        341
+      ],
+      "summary": "Function usePaymentVerification executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/hooks/useSettlementCountdown.ts",
+      "type": "file",
+      "name": "useSettlementCountdown.ts",
+      "filePath": "src/app/hooks/useSettlementCountdown.ts",
+      "summary": "React hook providing reusable state or logic.",
+      "tags": [
+        "hook",
+        "react",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/hooks/useSettlementCountdown.ts:useSettlementCountdown",
+      "type": "function",
+      "name": "useSettlementCountdown",
+      "filePath": "src/app/hooks/useSettlementCountdown.ts",
+      "lineRange": [
+        7,
+        62
+      ],
+      "summary": "Function useSettlementCountdown executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/hooks/useWishlist.ts",
+      "type": "file",
+      "name": "useWishlist.ts",
+      "filePath": "src/app/hooks/useWishlist.ts",
+      "summary": "React hook providing reusable state or logic.",
+      "tags": [
+        "hook",
+        "react",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/layouts/Root.tsx",
+      "type": "file",
+      "name": "Root.tsx",
+      "filePath": "src/app/layouts/Root.tsx",
+      "summary": "Implementation of Root.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/layouts/Root.tsx:Root",
+      "type": "function",
+      "name": "Root",
+      "filePath": "src/app/layouts/Root.tsx",
+      "lineRange": [
+        7,
+        23
+      ],
+      "summary": "Function Root executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/pages/About.tsx",
+      "type": "file",
+      "name": "About.tsx",
+      "filePath": "src/app/pages/About.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/About.tsx:About",
+      "type": "function",
+      "name": "About",
+      "filePath": "src/app/pages/About.tsx",
+      "lineRange": [
+        6,
+        124
+      ],
+      "summary": "Function About executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/admin/AdminDashboard.tsx",
+      "type": "file",
+      "name": "AdminDashboard.tsx",
+      "filePath": "src/app/pages/admin/AdminDashboard.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminDashboard.tsx:AdminDashboard",
+      "type": "function",
+      "name": "AdminDashboard",
+      "filePath": "src/app/pages/admin/AdminDashboard.tsx",
+      "lineRange": [
+        53,
+        479
+      ],
+      "summary": "Function AdminDashboard executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminDashboard.tsx:StatCard",
+      "type": "function",
+      "name": "StatCard",
+      "filePath": "src/app/pages/admin/AdminDashboard.tsx",
+      "lineRange": [
+        482,
+        501
+      ],
+      "summary": "Function StatCard executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminDashboard.tsx:QuickLink",
+      "type": "function",
+      "name": "QuickLink",
+      "filePath": "src/app/pages/admin/AdminDashboard.tsx",
+      "lineRange": [
+        504,
+        519
+      ],
+      "summary": "Function QuickLink executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/pages/admin/AdminItemForm.tsx",
+      "type": "file",
+      "name": "AdminItemForm.tsx",
+      "filePath": "src/app/pages/admin/AdminItemForm.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminItemForm.tsx:AdminItemForm",
+      "type": "function",
+      "name": "AdminItemForm",
+      "filePath": "src/app/pages/admin/AdminItemForm.tsx",
+      "lineRange": [
+        36,
+        412
+      ],
+      "summary": "Function AdminItemForm executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/admin/AdminItems.tsx",
+      "type": "file",
+      "name": "AdminItems.tsx",
+      "filePath": "src/app/pages/admin/AdminItems.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminItems.tsx:AdminItems",
+      "type": "function",
+      "name": "AdminItems",
+      "filePath": "src/app/pages/admin/AdminItems.tsx",
+      "lineRange": [
+        32,
+        165
+      ],
+      "summary": "Function AdminItems executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminItems.tsx:ItemCard",
+      "type": "function",
+      "name": "ItemCard",
+      "filePath": "src/app/pages/admin/AdminItems.tsx",
+      "lineRange": [
+        168,
+        235
+      ],
+      "summary": "Function ItemCard executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/admin/AdminMerchandising.tsx",
+      "type": "file",
+      "name": "AdminMerchandising.tsx",
+      "filePath": "src/app/pages/admin/AdminMerchandising.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminMerchandising.tsx:SectionShell",
+      "type": "function",
+      "name": "SectionShell",
+      "filePath": "src/app/pages/admin/AdminMerchandising.tsx",
+      "lineRange": [
+        19,
+        29
+      ],
+      "summary": "Function SectionShell executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminMerchandising.tsx:BannerManager",
+      "type": "function",
+      "name": "BannerManager",
+      "filePath": "src/app/pages/admin/AdminMerchandising.tsx",
+      "lineRange": [
+        61,
+        196
+      ],
+      "summary": "Function BannerManager executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminMerchandising.tsx:WeeklyPicksPanel",
+      "type": "function",
+      "name": "WeeklyPicksPanel",
+      "filePath": "src/app/pages/admin/AdminMerchandising.tsx",
+      "lineRange": [
+        202,
+        304
+      ],
+      "summary": "Function WeeklyPicksPanel executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminMerchandising.tsx:ShopLogoPanel",
+      "type": "function",
+      "name": "ShopLogoPanel",
+      "filePath": "src/app/pages/admin/AdminMerchandising.tsx",
+      "lineRange": [
+        310,
+        395
+      ],
+      "summary": "Function ShopLogoPanel executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminMerchandising.tsx:CategoryFlagsPanel",
+      "type": "function",
+      "name": "CategoryFlagsPanel",
+      "filePath": "src/app/pages/admin/AdminMerchandising.tsx",
+      "lineRange": [
+        401,
+        482
+      ],
+      "summary": "Function CategoryFlagsPanel executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminMerchandising.tsx:AdminMerchandising",
+      "type": "function",
+      "name": "AdminMerchandising",
+      "filePath": "src/app/pages/admin/AdminMerchandising.tsx",
+      "lineRange": [
+        486,
+        535
+      ],
+      "summary": "Function AdminMerchandising executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/pages/admin/AdminMerchants.tsx",
+      "type": "file",
+      "name": "AdminMerchants.tsx",
+      "filePath": "src/app/pages/admin/AdminMerchants.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminMerchants.tsx:AdminMerchants",
+      "type": "function",
+      "name": "AdminMerchants",
+      "filePath": "src/app/pages/admin/AdminMerchants.tsx",
+      "lineRange": [
+        36,
+        349
+      ],
+      "summary": "Function AdminMerchants executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/admin/AdminOrderDetail.tsx",
+      "type": "file",
+      "name": "AdminOrderDetail.tsx",
+      "filePath": "src/app/pages/admin/AdminOrderDetail.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminOrderDetail.tsx:AdminOrderDetail",
+      "type": "function",
+      "name": "AdminOrderDetail",
+      "filePath": "src/app/pages/admin/AdminOrderDetail.tsx",
+      "lineRange": [
+        106,
+        606
+      ],
+      "summary": "Function AdminOrderDetail executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/admin/AdminOrders.tsx",
+      "type": "file",
+      "name": "AdminOrders.tsx",
+      "filePath": "src/app/pages/admin/AdminOrders.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminOrders.tsx:AdminOrders",
+      "type": "function",
+      "name": "AdminOrders",
+      "filePath": "src/app/pages/admin/AdminOrders.tsx",
+      "lineRange": [
+        83,
+        457
+      ],
+      "summary": "Function AdminOrders executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/admin/AdminShopForm.tsx",
+      "type": "file",
+      "name": "AdminShopForm.tsx",
+      "filePath": "src/app/pages/admin/AdminShopForm.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminShopForm.tsx:AdminShopForm",
+      "type": "function",
+      "name": "AdminShopForm",
+      "filePath": "src/app/pages/admin/AdminShopForm.tsx",
+      "lineRange": [
+        36,
+        397
+      ],
+      "summary": "Function AdminShopForm executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/admin/AdminShops.tsx",
+      "type": "file",
+      "name": "AdminShops.tsx",
+      "filePath": "src/app/pages/admin/AdminShops.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminShops.tsx:AdminShops",
+      "type": "function",
+      "name": "AdminShops",
+      "filePath": "src/app/pages/admin/AdminShops.tsx",
+      "lineRange": [
+        23,
+        176
+      ],
+      "summary": "Function AdminShops executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/admin/AdminShops.tsx:ShopCard",
+      "type": "function",
+      "name": "ShopCard",
+      "filePath": "src/app/pages/admin/AdminShops.tsx",
+      "lineRange": [
+        179,
+        257
+      ],
+      "summary": "Function ShopCard executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/AdminDashboard.tsx",
+      "type": "file",
+      "name": "AdminDashboard.tsx",
+      "filePath": "src/app/pages/AdminDashboard.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/pages/AuthPage.tsx",
+      "type": "file",
+      "name": "AuthPage.tsx",
+      "filePath": "src/app/pages/AuthPage.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/pages/Checkout.tsx",
+      "type": "file",
+      "name": "Checkout.tsx",
+      "filePath": "src/app/pages/Checkout.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/Checkout.tsx:SecuringEscrowView",
+      "type": "function",
+      "name": "SecuringEscrowView",
+      "filePath": "src/app/pages/Checkout.tsx",
+      "lineRange": [
+        65,
+        144
+      ],
+      "summary": "Function SecuringEscrowView executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:src/app/pages/Checkout.tsx:Checkout",
+      "type": "function",
+      "name": "Checkout",
+      "filePath": "src/app/pages/Checkout.tsx",
+      "lineRange": [
+        211,
+        421
+      ],
+      "summary": "Function Checkout executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/ConsumerStorefront.tsx",
+      "type": "file",
+      "name": "ConsumerStorefront.tsx",
+      "filePath": "src/app/pages/ConsumerStorefront.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:src/app/pages/ConsumerStorefront.tsx:ShopCardSkeleton",
+      "type": "function",
+      "name": "ShopCardSkeleton",
+      "filePath": "src/app/pages/ConsumerStorefront.tsx",
+      "lineRange": [
+        102,
+        112
+      ],
+      "summary": "Function ShopCardSkeleton executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/ConsumerStorefront.tsx:ItemCardSkeleton",
+      "type": "function",
+      "name": "ItemCardSkeleton",
+      "filePath": "src/app/pages/ConsumerStorefront.tsx",
+      "lineRange": [
+        114,
+        124
+      ],
+      "summary": "Function ItemCardSkeleton executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/app/pages/ConsumerStorefront.tsx:ConsumerStorefront",
+      "type": "function",
+      "name": "ConsumerStorefront",
+      "filePath": "src/app/pages/ConsumerStorefront.tsx",
+      "lineRange": [
+        138,
+        515
+      ],
+      "summary": "Function ConsumerStorefront executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:src/app/pages/CustomerDashboard.tsx",
+      "type": "file",
+      "name": "CustomerDashboard.tsx",
+      "filePath": "src/app/pages/CustomerDashboard.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/app/pages/LandingPage.tsx",
+      "type": "file",
+      "name": "LandingPage.tsx",
+      "filePath": "src/app/pages/LandingPage.tsx",
+      "summary": "Page level component representing a full route.",
+      "tags": [
+        "page",
+        "view",
+        "routing"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/app/components/ui/use-mobile.ts",
+      "target": "function:src/app/components/ui/use-mobile.ts:useIsMobile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/hooks/usePaymentVerification.ts",
+      "target": "function:src/app/hooks/usePaymentVerification.ts:usePaymentVerification",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/hooks/useSettlementCountdown.ts",
+      "target": "function:src/app/hooks/useSettlementCountdown.ts:useSettlementCountdown",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/layouts/Root.tsx",
+      "target": "function:src/app/layouts/Root.tsx:Root",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/About.tsx",
+      "target": "function:src/app/pages/About.tsx:About",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminDashboard.tsx",
+      "target": "function:src/app/pages/admin/AdminDashboard.tsx:AdminDashboard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminDashboard.tsx",
+      "target": "function:src/app/pages/admin/AdminDashboard.tsx:StatCard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminDashboard.tsx",
+      "target": "function:src/app/pages/admin/AdminDashboard.tsx:QuickLink",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminItemForm.tsx",
+      "target": "function:src/app/pages/admin/AdminItemForm.tsx:AdminItemForm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminItems.tsx",
+      "target": "function:src/app/pages/admin/AdminItems.tsx:AdminItems",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminItems.tsx",
+      "target": "function:src/app/pages/admin/AdminItems.tsx:ItemCard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminMerchandising.tsx",
+      "target": "function:src/app/pages/admin/AdminMerchandising.tsx:SectionShell",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminMerchandising.tsx",
+      "target": "function:src/app/pages/admin/AdminMerchandising.tsx:BannerManager",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminMerchandising.tsx",
+      "target": "function:src/app/pages/admin/AdminMerchandising.tsx:WeeklyPicksPanel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminMerchandising.tsx",
+      "target": "function:src/app/pages/admin/AdminMerchandising.tsx:ShopLogoPanel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminMerchandising.tsx",
+      "target": "function:src/app/pages/admin/AdminMerchandising.tsx:CategoryFlagsPanel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminMerchandising.tsx",
+      "target": "function:src/app/pages/admin/AdminMerchandising.tsx:AdminMerchandising",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminMerchants.tsx",
+      "target": "function:src/app/pages/admin/AdminMerchants.tsx:AdminMerchants",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminOrderDetail.tsx",
+      "target": "function:src/app/pages/admin/AdminOrderDetail.tsx:AdminOrderDetail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminOrders.tsx",
+      "target": "function:src/app/pages/admin/AdminOrders.tsx:AdminOrders",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminShopForm.tsx",
+      "target": "function:src/app/pages/admin/AdminShopForm.tsx:AdminShopForm",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminShops.tsx",
+      "target": "function:src/app/pages/admin/AdminShops.tsx:AdminShops",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/admin/AdminShops.tsx",
+      "target": "function:src/app/pages/admin/AdminShops.tsx:ShopCard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/Checkout.tsx",
+      "target": "function:src/app/pages/Checkout.tsx:SecuringEscrowView",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/Checkout.tsx",
+      "target": "function:src/app/pages/Checkout.tsx:Checkout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/ConsumerStorefront.tsx",
+      "target": "function:src/app/pages/ConsumerStorefront.tsx:ShopCardSkeleton",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/ConsumerStorefront.tsx",
+      "target": "function:src/app/pages/ConsumerStorefront.tsx:ItemCardSkeleton",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:src/app/pages/ConsumerStorefront.tsx",
+      "target": "function:src/app/pages/ConsumerStorefront.tsx:ConsumerStorefront",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    }
+  ]
+}

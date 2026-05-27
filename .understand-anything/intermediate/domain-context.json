@@ -1,0 +1,894 @@
+{
+  "projectRoot": "C:\\Users\\Owner\\Downloads\\ProjectV2",
+  "fileCount": 163,
+  "fileTree": [
+    "src\\app\\components\\checkout\\FxTemporalLock.tsx",
+    "src\\app\\components\\checkout\\InternationalCheckoutModal.tsx",
+    "src\\app\\components\\checkout\\PaymentProcessingScreen.tsx",
+    "src\\app\\components\\figma\\ImageWithFallback.tsx",
+    "src\\app\\components\\layout\\Footer.tsx",
+    "src\\app\\components\\layout\\Header.tsx",
+    "src\\app\\components\\merchant\\CashierVerificationTerminal.tsx",
+    "src\\app\\components\\merchant\\SettlementDashboard.tsx",
+    "src\\app\\components\\shared\\BackToTop.tsx",
+    "src\\app\\components\\shared\\EmptyState.tsx",
+    "src\\app\\components\\shared\\HandshakeTerminal.tsx",
+    "src\\app\\components\\shared\\HeroSlider.tsx",
+    "src\\app\\components\\shared\\HorizontalProductRibbon.tsx",
+    "src\\app\\components\\shared\\NotificationSlider.tsx",
+    "src\\app\\components\\shared\\PageTransition.tsx",
+    "src\\app\\components\\shared\\ProductCard.tsx",
+    "src\\app\\components\\shared\\ProfileVerificationBanner.tsx",
+    "src\\app\\components\\shared\\QRCodeDisplay.tsx",
+    "src\\app\\components\\shared\\SearchBar.tsx",
+    "src\\app\\components\\shared\\ShopCard.tsx",
+    "src\\app\\components\\shared\\StorefrontProductCard.tsx",
+    "src\\app\\components\\shared\\WhatsAppShareButton.tsx",
+    "src\\app\\components\\ui\\accordion.tsx",
+    "src\\app\\components\\ui\\alert-dialog.tsx",
+    "src\\app\\components\\ui\\alert.tsx",
+    "src\\app\\components\\ui\\aspect-ratio.tsx",
+    "src\\app\\components\\ui\\avatar.tsx",
+    "src\\app\\components\\ui\\badge.tsx",
+    "src\\app\\components\\ui\\breadcrumb.tsx",
+    "src\\app\\components\\ui\\button.tsx",
+    "src\\app\\components\\ui\\calendar.tsx",
+    "src\\app\\components\\ui\\card.tsx",
+    "src\\app\\components\\ui\\carousel.tsx",
+    "src\\app\\components\\ui\\chart.tsx",
+    "src\\app\\components\\ui\\checkbox.tsx",
+    "src\\app\\components\\ui\\collapsible.tsx",
+    "src\\app\\components\\ui\\command.tsx",
+    "src\\app\\components\\ui\\context-menu.tsx",
+    "src\\app\\components\\ui\\dialog.tsx",
+    "src\\app\\components\\ui\\drawer.tsx",
+    "src\\app\\components\\ui\\dropdown-menu.tsx",
+    "src\\app\\components\\ui\\ErrorBoundary.tsx",
+    "src\\app\\components\\ui\\form.tsx",
+    "src\\app\\components\\ui\\hover-card.tsx",
+    "src\\app\\components\\ui\\input-otp.tsx",
+    "src\\app\\components\\ui\\input.tsx",
+    "src\\app\\components\\ui\\label.tsx",
+    "src\\app\\components\\ui\\menubar.tsx",
+    "src\\app\\components\\ui\\navigation-menu.tsx",
+    "src\\app\\components\\ui\\pagination.tsx",
+    "src\\app\\components\\ui\\popover.tsx",
+    "src\\app\\components\\ui\\progress.tsx",
+    "src\\app\\components\\ui\\radio-group.tsx",
+    "src\\app\\components\\ui\\resizable.tsx",
+    "src\\app\\components\\ui\\scroll-area.tsx",
+    "src\\app\\components\\ui\\select.tsx",
+    "src\\app\\components\\ui\\separator.tsx",
+    "src\\app\\components\\ui\\sheet.tsx",
+    "src\\app\\components\\ui\\sidebar.tsx",
+    "src\\app\\components\\ui\\skeleton.tsx",
+    "src\\app\\components\\ui\\slider.tsx",
+    "src\\app\\components\\ui\\sonner.tsx",
+    "src\\app\\components\\ui\\switch.tsx",
+    "src\\app\\components\\ui\\table.tsx",
+    "src\\app\\components\\ui\\tabs.tsx",
+    "src\\app\\components\\ui\\textarea.tsx",
+    "src\\app\\components\\ui\\toggle-group.tsx",
+    "src\\app\\components\\ui\\toggle.tsx",
+    "src\\app\\components\\ui\\tooltip.tsx",
+    "src\\app\\components\\ui\\use-mobile.ts",
+    "src\\app\\components\\ui\\utils.ts",
+    "src\\app\\data\\mock-data.ts",
+    "src\\app\\hooks\\useAuth.ts",
+    "src\\app\\hooks\\useCart.ts",
+    "src\\app\\hooks\\usePaymentVerification.ts",
+    "src\\app\\hooks\\useSettlementCountdown.ts",
+    "src\\app\\hooks\\useWishlist.ts",
+    "src\\app\\layouts\\Root.tsx",
+    "src\\app\\pages\\admin\\AdminDashboard.tsx",
+    "src\\app\\pages\\admin\\AdminItemForm.tsx",
+    "src\\app\\pages\\admin\\AdminItems.tsx",
+    "src\\app\\pages\\admin\\AdminMerchandising.tsx",
+    "src\\app\\pages\\admin\\AdminMerchants.tsx",
+    "src\\app\\pages\\admin\\AdminOrderDetail.tsx",
+    "src\\app\\pages\\admin\\AdminOrders.tsx",
+    "src\\app\\pages\\admin\\AdminShopForm.tsx",
+    "src\\app\\pages\\admin\\AdminShops.tsx",
+    "src\\app\\pages\\merchant\\MerchantDashboard.tsx",
+    "src\\app\\pages\\merchant\\MerchantFulfill.tsx",
+    "src\\app\\pages\\public\\GiftPage.tsx",
+    "src\\app\\pages\\public\\Landing.tsx",
+    "src\\app\\pages\\public\\Login.tsx",
+    "src\\app\\pages\\public\\SignUp.tsx",
+    "src\\app\\pages\\sender\\Confirmation.tsx",
+    "src\\app\\pages\\sender\\CustomerDashboard.tsx",
+    "src\\app\\pages\\sender\\DashboardHub.tsx",
+    "src\\app\\pages\\sender\\Home.tsx",
+    "src\\app\\pages\\sender\\OrderDashboard.tsx",
+    "src\\app\\pages\\sender\\OrderDetail.tsx",
+    "src\\app\\pages\\sender\\OrderHistory.tsx",
+    "src\\app\\pages\\sender\\SendFlow.tsx",
+    "src\\app\\pages\\sender\\Settings.tsx",
+    "src\\app\\pages\\sender\\ShopDetail.tsx",
+    "src\\app\\pages\\About.tsx",
+    "src\\app\\pages\\AdminDashboard.tsx",
+    "src\\app\\pages\\AuthPage.tsx",
+    "src\\app\\pages\\Checkout.tsx",
+    "src\\app\\pages\\ConsumerStorefront.tsx",
+    "src\\app\\pages\\CustomerDashboard.tsx",
+    "src\\app\\pages\\LandingPage.tsx",
+    "src\\app\\pages\\MerchantAgreement.tsx",
+    "src\\app\\pages\\MerchantOnboarding.tsx",
+    "src\\app\\pages\\MerchantRedemption.tsx",
+    "src\\app\\pages\\NotFound.tsx",
+    "src\\app\\pages\\Notifications.tsx",
+    "src\\app\\pages\\Privacy.tsx",
+    "src\\app\\pages\\ProductDetail.tsx",
+    "src\\app\\pages\\ShopDirectory.tsx",
+    "src\\app\\pages\\ShopProfile.tsx",
+    "src\\app\\pages\\Support.tsx",
+    "src\\app\\pages\\Terms.tsx",
+    "src\\app\\pages\\Wishlist.tsx",
+    "src\\app\\types\\index.ts",
+    "src\\app\\utils\\formatters.ts",
+    "src\\app\\App.tsx",
+    "src\\app\\routes.tsx",
+    "src\\components\\ProtectedRoute.tsx",
+    "src\\lib\\money\\validation.ts",
+    "src\\lib\\html.ts",
+    "src\\lib\\supabaseClient.ts",
+    "src\\lib\\uploadValidation.ts",
+    "src\\utils\\auth\\AuthContext.tsx",
+    "src\\utils\\currency.ts",
+    "src\\utils\\diagnostics.ts",
+    "src\\utils\\phone.ts",
+    "src\\utils\\receiptGenerator.ts",
+    "src\\utils\\sendFlowStore.ts",
+    "src\\utils\\server.ts",
+    "src\\utils\\uploadImage.ts",
+    "src\\utils\\whatsapp.ts",
+    "src\\main.tsx",
+    "supabase\\functions\\_shared\\cors.ts",
+    "supabase\\functions\\_shared\\ussd-auth.ts",
+    "supabase\\functions\\batch-payout-sweeper\\index.ts",
+    "supabase\\functions\\checkout-init\\index.ts",
+    "supabase\\functions\\flutterwave-webhook\\index.ts",
+    "supabase\\functions\\fulfill-voucher\\index.ts",
+    "supabase\\functions\\fx-rate-lock\\index.ts",
+    "supabase\\functions\\get-merchant-ledger\\index.ts",
+    "supabase\\functions\\server\\index.ts",
+    "supabase\\functions\\server\\kv_store.tsx",
+    "supabase\\functions\\upload-item-image\\index.ts",
+    "supabase\\functions\\ussd-gateway\\index.ts",
+    "supabase\\functions\\deno.d.ts",
+    "tests\\integration\\payment-flow.integration.test.ts",
+    "tests\\integration\\rpc-contract.test.ts",
+    "tests\\html.test.ts",
+    "tests\\money-validation.test.ts",
+    "tests\\upload-validation.test.ts",
+    "utils\\supabase\\info.tsx",
+    "postcss.config.mjs",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ],
+  "entryPoints": [
+    {
+      "file": "src\\app\\components\\layout\\Header.tsx",
+      "line": 57,
+      "type": "event",
+      "description": "Event listener",
+      "match": ".on('postgres_changes'",
+      "snippet": "      .on('postgres_changes', {\n        event: 'UPDATE',\n        schema: 'public',\n        table: 'orders',\n        filter: `sender_id=eq.${user.id}`"
+    },
+    {
+      "file": "src\\app\\components\\ui\\carousel.tsx",
+      "line": 99,
+      "type": "event",
+      "description": "Event listener",
+      "match": ".on(\"reInit\"",
+      "snippet": "    api.on(\"reInit\", onSelect);\n    api.on(\"select\", onSelect);\n\n    return () => {\n      api?.off(\"select\", onSelect);"
+    },
+    {
+      "file": "src\\app\\components\\ui\\carousel.tsx",
+      "line": 100,
+      "type": "event",
+      "description": "Event listener",
+      "match": ".on(\"select\"",
+      "snippet": "    api.on(\"select\", onSelect);\n\n    return () => {\n      api?.off(\"select\", onSelect);\n    };"
+    },
+    {
+      "file": "src\\app\\pages\\merchant\\MerchantDashboard.tsx",
+      "line": 242,
+      "type": "event",
+      "description": "Event listener",
+      "match": ".on(\n          'postgres_changes'",
+      "snippet": "        .on(\n          'postgres_changes',\n          {\n            event: 'INSERT',\n            schema: 'public',"
+    },
+    {
+      "file": "src\\app\\pages\\merchant\\MerchantDashboard.tsx",
+      "line": 255,
+      "type": "event",
+      "description": "Event listener",
+      "match": ".on(\n          'postgres_changes'",
+      "snippet": "        .on(\n          'postgres_changes',\n          {\n            event: 'UPDATE',\n            schema: 'public',"
+    },
+    {
+      "file": "src\\app\\pages\\public\\GiftPage.tsx",
+      "line": 54,
+      "type": "event",
+      "description": "Event listener",
+      "match": ".on(\n        'postgres_changes'",
+      "snippet": "      .on(\n        'postgres_changes',\n        {\n          event: 'UPDATE',\n          schema: 'public',"
+    },
+    {
+      "file": "src\\app\\pages\\sender\\CustomerDashboard.tsx",
+      "line": 118,
+      "type": "event",
+      "description": "Event listener",
+      "match": ".on(\n        'postgres_changes'",
+      "snippet": "      .on(\n        'postgres_changes',\n        {\n          event: 'INSERT',\n          schema: 'public',"
+    },
+    {
+      "file": "src\\app\\pages\\sender\\DashboardHub.tsx",
+      "line": 205,
+      "type": "event",
+      "description": "Event listener",
+      "match": ".on('postgres_changes'",
+      "snippet": "      .on('postgres_changes', {\n        event: 'UPDATE',\n        schema: 'public',\n        table: 'orders',\n        filter: `sender_id=eq.${uid}`,"
+    },
+    {
+      "file": "src\\app\\pages\\sender\\Home.tsx",
+      "line": 167,
+      "type": "event",
+      "description": "Event listener",
+      "match": ".on('postgres_changes'",
+      "snippet": "      .on('postgres_changes', {\n        event: 'UPDATE',\n        schema: 'public',\n        table: 'orders',\n        filter: `sender_id=eq.${user?.id || profile.id}`"
+    },
+    {
+      "file": "src\\app\\pages\\sender\\OrderDetail.tsx",
+      "line": 201,
+      "type": "event",
+      "description": "Event listener",
+      "match": ".on(\n        'postgres_changes'",
+      "snippet": "      .on(\n        'postgres_changes',\n        {\n          event: 'UPDATE',\n          schema: 'public',"
+    }
+  ],
+  "fileSignatures": [
+    {
+      "file": "src\\app\\components\\checkout\\PaymentProcessingScreen.tsx",
+      "exports": [
+        "PaymentProcessingScreenProps"
+      ],
+      "imports": [
+        "react",
+        "motion/react",
+        "canvas-confetti",
+        "../ui/utils",
+        "../ui/button",
+        "../shared/WhatsAppShareButton"
+      ],
+      "lines": 590,
+      "preview": "/**\n * PaymentProcessingScreen\n *\n * Layer B UI \u00e2\u20ac\u201d KithLy Payment Defense Flow\n *\n * Consumes `usePaymentVerification` and renders one of three distinct states:\n *\n *   POLLING  \u00e2\u2020\u2019 Minimalist pulsing indicator with ledger-verification copy\n *   SUCCESS  \u00e2\u2020\u2019 Full-bleed confirmation with the claim code in display type + confetti\n *   TIMEOUT  \u00e2\u2020\u2019 Graceful degradation with recovery instructions\n *\n * Design language: Apple-derived \u00e2\u20ac\u201d thin strokes, generous whitespace,\n * high-contrast slate/whit"
+    },
+    {
+      "file": "src\\app\\components\\ui\\command.tsx",
+      "exports": [],
+      "imports": [
+        "react",
+        "cmdk",
+        "lucide-react",
+        "./utils"
+      ],
+      "lines": 177,
+      "preview": "\"use client\";\n\nimport * as React from \"react\";\nimport { Command as CommandPrimitive } from \"cmdk\";\nimport { SearchIcon } from \"lucide-react\";\n\nimport { cn } from \"./utils\";\nimport {\n  Dialog,\n  DialogContent,\n  DialogDescription,\n  DialogHeader,\n  DialogTitle,\n} from \"./dialog\";\n\nfunction Command({\n  className,\n  ...props\n}: React.ComponentProps<typeof CommandPrimitive>) {\n  return (\n    <CommandPrimitive\n      data-slot=\"command\"\n      className={cn(\n        \"bg-popover text-popover-foreground "
+    },
+    {
+      "file": "src\\app\\pages\\sender\\SendFlow.tsx",
+      "exports": [
+        "SendFlow"
+      ],
+      "imports": [
+        "react",
+        "react-router",
+        "../../../lib/supabaseClient",
+        "../../../utils/sendFlowStore",
+        "../../components/ui/button",
+        "../../components/ui/input",
+        "../../components/ui/textarea",
+        "../../components/ui/card",
+        "lucide-react",
+        "motion/react",
+        "../../../utils/currency"
+      ],
+      "lines": 336,
+      "preview": "import { useEffect, useState } from 'react';\nimport { useParams, useNavigate } from 'react-router';\nimport { supabase } from '../../../lib/supabaseClient';\nimport { useSendFlowStore } from '../../../utils/sendFlowStore';\nimport { Button } from '../../components/ui/button';\nimport { Input } from '../../components/ui/input';\nimport { Textarea } from '../../components/ui/textarea';\nimport { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';\nimport { ArrowLeft, Store } from "
+    },
+    {
+      "file": "src\\app\\routes.tsx",
+      "exports": [
+        "router"
+      ],
+      "imports": [
+        "react",
+        "react-router",
+        "./layouts/Root",
+        "../components/ProtectedRoute",
+        "react-router",
+        "./pages/ConsumerStorefront",
+        "./pages/public/SignUp",
+        "./pages/public/Login",
+        "./pages/public/GiftPage",
+        "./pages/sender/Confirmation",
+        "./pages/Checkout",
+        "./pages/sender/DashboardHub",
+        "./pages/NotFound",
+        "./pages/About",
+        "./pages/Privacy",
+        "./pages/Terms",
+        "./pages/Support",
+        "./pages/MerchantAgreement",
+        "./pages/ShopDirectory"
+      ],
+      "lines": 300,
+      "preview": "// KithLy Routes - React Router Configuration (route-level code splitting)\n\nimport { lazy, Suspense, type ComponentType, type ReactNode } from 'react';\nimport { createBrowserRouter } from 'react-router';\nimport { Root } from './layouts/Root';\nimport { ProtectedRoute } from '../components/ProtectedRoute';\nimport { Navigate } from 'react-router';\n\n// Eager: auth surfaces + payment return path (low latency)\nimport { ConsumerStorefront } from './pages/ConsumerStorefront';\nimport { SignUp } from './p"
+    },
+    {
+      "file": "src\\components\\ProtectedRoute.tsx",
+      "exports": [
+        "ProtectedRoute"
+      ],
+      "imports": [
+        "react-router",
+        "../utils/auth/AuthContext",
+        "react"
+      ],
+      "lines": 54,
+      "preview": "import { Navigate } from 'react-router';\nimport { useAuth } from '../utils/auth/AuthContext';\nimport { ReactNode } from 'react';\n\ninterface ProtectedRouteProps {\n  children: ReactNode;\n  allowedRoles?: Array<'sender' | 'merchant' | 'admin'>;\n  requireAuth?: boolean;\n}\n\nexport function ProtectedRoute({\n  children,\n  allowedRoles,\n  requireAuth = true,\n}: ProtectedRouteProps) {\n  const { user, profile, loading, profileError } = useAuth();\n\n  // 1. Auth context is still initialising \u00e2\u20ac\u201d show spinne"
+    },
+    {
+      "file": "src\\utils\\sendFlowStore.ts",
+      "exports": [
+        "RecipientDetails",
+        "VendorGroup",
+        "GroupedCartPayload",
+        "getGroupedCartPayload"
+      ],
+      "imports": [
+        "zustand",
+        "../app/types"
+      ],
+      "lines": 112,
+      "preview": "import { create } from 'zustand';\nimport type { CartItem } from '../app/types';\n\n// ---------------------------------------------------------------------------\n// Recipient Details \u00e2\u20ac\u201d passed through the checkout pipeline to shop_orders\n// ---------------------------------------------------------------------------\n\nexport interface RecipientDetails {\n  name: string;\n  phone: string;\n  message: string;\n}\n\n// ---------------------------------------------------------------------------\n// Grouped Ca"
+    },
+    {
+      "file": "tests\\integration\\payment-flow.integration.test.ts",
+      "exports": [],
+      "imports": [
+        "vitest",
+        "@supabase/supabase-js"
+      ],
+      "lines": 41,
+      "preview": "/**\n * Integration tests \u00e2\u20ac\u201d require a Supabase test project.\n *\n * Run locally:\n *   RUN_INTEGRATION_TESTS=true \\\n *   SUPABASE_URL=... \\\n *   SUPABASE_SERVICE_ROLE_KEY=... \\\n *   pnpm test:integration\n */\nimport { describe, expect, it } from 'vitest';\nimport { createClient } from '@supabase/supabase-js';\n\nconst shouldRun = process.env.RUN_INTEGRATION_TESTS === 'true';\nconst url = process.env.SUPABASE_URL;\nconst serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;\n\ndescribe.skipIf(!shouldRun || "
+    },
+    {
+      "file": "src\\app\\components\\checkout\\FxTemporalLock.tsx",
+      "exports": [
+        "FxTemporalLockProps"
+      ],
+      "imports": [
+        "react",
+        "motion/react",
+        "../ui/utils"
+      ],
+      "lines": 470,
+      "preview": "/**\n * FxTemporalLock\n *\n * Enforces a strict 10-minute expiration window on FX-locked checkout sessions.\n * Once the FX rate is fetched and locked, this component mounts and begins\n * counting down. When the timer reaches zero it fires `onExpire`, forcing the\n * buyer back to request a fresh rate quote.\n *\n * Design language: Apple-derived \u00e2\u20ac\u201d thin strokes, slate/white palette,\n * high-contrast tabular-nums display type, no emojis anywhere.\n */\n\nimport { useEffect, useRef, useState, useCallback"
+    },
+    {
+      "file": "src\\app\\components\\checkout\\InternationalCheckoutModal.tsx",
+      "exports": [
+        "InternationalCheckoutModalProps"
+      ],
+      "imports": [
+        "react",
+        "motion/react",
+        "../ui/button",
+        "../ui/utils",
+        "./FxTemporalLock"
+      ],
+      "lines": 478,
+      "preview": "/**\n * InternationalCheckoutModal\n *\n * The visual chassis for KithLy's international (diaspora) checkout flow.\n *\n * Presents a clean, receipt-style pricing breakdown that maps:\n *   Base Item (ZMW) \u00e2\u2020\u2019 Exchange Rate Applied \u00e2\u2020\u2019 Final Total (foreign currency)\n *\n * Mounts FxTemporalLock immediately on open so the countdown begins the\n * moment the buyer sees the locked rate \u00e2\u20ac\u201d not when they click \"Pay Now\".\n * Expiry invalidates the session and calls onExpire before the CTA fires.\n *\n * Design"
+    },
+    {
+      "file": "src\\app\\components\\figma\\ImageWithFallback.tsx",
+      "exports": [
+        "ImageWithFallback"
+      ],
+      "imports": [
+        "react"
+      ],
+      "lines": 27,
+      "preview": "import React, { useState } from 'react'\n\nconst ERROR_IMG_SRC =\n  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODgiIGhlaWdodD0iODgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBvcGFjaXR5PSIuMyIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIzLjciPjxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjU2IiBoZWlnaHQ9IjU2IiByeD0iNiIvPjxwYXRoIGQ9Im0xNiA1OCAxNi0xOCAzMiAzMiIvPjxjaXJjbGUgY3g9IjUzIiBjeT0iMzUiIHI9IjciLz48L3N2Zz4KCg=='\n\nexport function ImageWithFallback(props: React.Im"
+    },
+    {
+      "file": "src\\app\\components\\layout\\Footer.tsx",
+      "exports": [
+        "Footer"
+      ],
+      "imports": [
+        "react-router",
+        "lucide-react"
+      ],
+      "lines": 95,
+      "preview": "// KithLy Footer - Professional Sticky Global Footer\n\nimport { useNavigate } from 'react-router';\nimport { Gift, Facebook, Twitter, Instagram, Mail, Phone, MessageCircle } from 'lucide-react';\n\nexport function Footer() {\n  const navigate = useNavigate();\n  const currentYear = new Date().getFullYear();\n\n  return (\n    <footer className=\"bg-gray-50 border-t border-border mt-auto\">\n      <div className=\"container mx-auto px-4 md:px-6 py-12\">\n        <div className=\"grid grid-cols-1 md:grid-cols-4 g"
+    },
+    {
+      "file": "src\\app\\components\\layout\\Header.tsx",
+      "exports": [
+        "Header"
+      ],
+      "imports": [
+        "react",
+        "lucide-react",
+        "sonner",
+        "motion/react",
+        "react-router",
+        "../../../utils/auth/AuthContext",
+        "../../hooks/useCart",
+        "../../../lib/supabaseClient",
+        "../ui/badge",
+        "../shared/SearchBar",
+        "../shared/NotificationSlider"
+      ],
+      "lines": 205,
+      "preview": "// KithLy Header - Global Navigation\n\nimport { useState, useEffect } from 'react';\nimport { ShoppingCart, User, Menu, Gift, Bell, X, HelpCircle } from 'lucide-react';\nimport { toast } from 'sonner';\nimport { motion } from 'motion/react';\nimport { Link } from 'react-router';\nimport { useAuth } from '../../../utils/auth/AuthContext';\nimport { useCart } from '../../hooks/useCart';\nimport { supabase } from '../../../lib/supabaseClient';\nimport { Badge } from '../ui/badge';\nimport { SearchBar } from "
+    },
+    {
+      "file": "src\\app\\components\\merchant\\CashierVerificationTerminal.tsx",
+      "exports": [
+        "CashierVerificationTerminalProps"
+      ],
+      "imports": [
+        "react",
+        "motion/react",
+        "sonner",
+        "../ui/button",
+        "../ui/utils",
+        "../../../lib/supabaseClient"
+      ],
+      "lines": 727,
+      "preview": "/**\n * CashierVerificationTerminal\n *\n * The merchant-facing POS component for gift voucher redemption.\n *\n * Product-Bound Liability Shield:\n *   This screen intentionally and permanently conceals all financial data \u00e2\u20ac\u201d\n *   no prices, no ZMW amounts, no account balances. The cashier sees only\n *   the physical item to hand over and the recipient's name.\n *\n * States:\n *   IDLE      \u00e2\u2020\u2019 Code input + \"Verify\" CTA\n *   SCANNING  \u00e2\u2020\u2019 Loading indicator while Edge Function is in flight\n *   APPROVED"
+    },
+    {
+      "file": "src\\app\\components\\merchant\\SettlementDashboard.tsx",
+      "exports": [
+        "LedgerEntry",
+        "SettlementDashboardProps"
+      ],
+      "imports": [
+        "react",
+        "motion/react",
+        "../../hooks/useSettlementCountdown",
+        "../ui/utils"
+      ],
+      "lines": 242,
+      "preview": "/**\n * SettlementDashboard\n *\n * Module 5.2 \u00e2\u20ac\u201d Psychological Settlement Engine\n *\n * Renders an interactive ledger of pending payouts for a merchant.\n * Uses high-precision, active countdowns to provide psychological\n * certainty regarding escrow release.\n *\n * Design Language:\n *   - Apple-derived (sleek, thin strokes, generous whitespace)\n *   - High-contrast typography (slate/dark blue) for ticking text\n *   - Financial ledger grouping\n *   - Zero emojis\n */\n\nimport React from 'react';\nimpor"
+    },
+    {
+      "file": "src\\app\\components\\shared\\BackToTop.tsx",
+      "exports": [
+        "BackToTop"
+      ],
+      "imports": [
+        "react",
+        "motion/react",
+        "lucide-react"
+      ],
+      "lines": 43,
+      "preview": "// Back to Top Button\n\nimport { useState, useEffect } from 'react';\nimport { motion, AnimatePresence } from 'motion/react';\nimport { ArrowUp } from 'lucide-react';\n\nexport function BackToTop() {\n  const [isVisible, setIsVisible] = useState(false);\n\n  useEffect(() => {\n    const toggleVisibility = () => {\n      setIsVisible(window.scrollY > 300);\n    };\n\n    window.addEventListener('scroll', toggleVisibility);\n    return () => window.removeEventListener('scroll', toggleVisibility);\n  }, []);\n\n  c"
+    },
+    {
+      "file": "src\\app\\components\\shared\\EmptyState.tsx",
+      "exports": [
+        "EmptyState"
+      ],
+      "imports": [
+        "lucide-react",
+        "motion/react"
+      ],
+      "lines": 42,
+      "preview": "// Empty State Component\n\nimport { LucideIcon } from 'lucide-react';\nimport { motion } from 'motion/react';\n\ninterface EmptyStateProps {\n  icon: LucideIcon;\n  title: string;\n  description: string;\n  action?: {\n    label: string;\n    onClick: () => void;\n  };\n}\n\nexport function EmptyState({ icon: Icon, title, description, action }: EmptyStateProps) {\n  return (\n    <motion.div\n      initial={{ opacity: 0, y: 20 }}\n      animate={{ opacity: 1, y: 0 }}\n      className=\"flex flex-col items-center ju"
+    },
+    {
+      "file": "src\\app\\components\\shared\\HandshakeTerminal.tsx",
+      "exports": [
+        "HandshakeTerminal"
+      ],
+      "imports": [
+        "react",
+        "motion/react",
+        "lucide-react",
+        "../ui/input-otp",
+        "sonner"
+      ],
+      "lines": 266,
+      "preview": "import { useState } from 'react';\nimport { motion } from 'motion/react';\nimport { QrCode, Check, X, Smartphone, Package } from 'lucide-react';\nimport { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from '../ui/input-otp';\nimport { toast } from 'sonner';\n\ninterface VerificationResult {\n  success: boolean;\n  itemName?: string;\n  imageUrl?: string | null;\n  recipientName?: string;\n  message?: string;\n}\n\ninterface HandshakeTerminalProps {\n  onVerify: (code: string) => Promise<Verificati"
+    },
+    {
+      "file": "src\\app\\components\\shared\\HeroSlider.tsx",
+      "exports": [
+        "HeroSlider"
+      ],
+      "imports": [
+        "react",
+        "motion/react",
+        "lucide-react",
+        "../../types",
+        "../figma/ImageWithFallback"
+      ],
+      "lines": 126,
+      "preview": "// KithLy Hero Slider - Discovery Engine Component\n\nimport { useState, useEffect } from 'react';\nimport { motion, AnimatePresence } from 'motion/react';\nimport { ChevronLeft, ChevronRight } from 'lucide-react';\nimport type { HeroSlide } from '../../types';\nimport { ImageWithFallback } from '../figma/ImageWithFallback';\n\ninterface HeroSliderProps {\n  slides: HeroSlide[];\n  autoPlayInterval?: number;\n}\n\nexport function HeroSlider({ slides, autoPlayInterval = 5000 }: HeroSliderProps) {\n  const [cur"
+    },
+    {
+      "file": "src\\app\\components\\shared\\HorizontalProductRibbon.tsx",
+      "exports": [
+        "HorizontalProductRibbon"
+      ],
+      "imports": [
+        "lucide-react",
+        "../../types",
+        "./ProductCard",
+        "../ui/scroll-area"
+      ],
+      "lines": 63,
+      "preview": "// KithLy Horizontal Ribbon - Discovery Engine Component\n\nimport { ChevronRight } from 'lucide-react';\nimport type { Product } from '../../types';\nimport { ProductCard } from './ProductCard';\nimport { ScrollArea, ScrollBar } from '../ui/scroll-area';\n\ninterface HorizontalProductRibbonProps {\n  title: string;\n  subtitle?: string;\n  products: Product[];\n  onViewAll?: () => void;\n  onProductClick?: (product: Product) => void;\n}\n\nexport function HorizontalProductRibbon({\n  title,\n  subtitle,\n  produ"
+    },
+    {
+      "file": "src\\app\\components\\shared\\NotificationSlider.tsx",
+      "exports": [
+        "AppNotification",
+        "NotificationSlider"
+      ],
+      "imports": [
+        "react",
+        "motion/react",
+        "react-router",
+        "lucide-react",
+        "../../../lib/supabaseClient",
+        "../../../utils/auth/AuthContext",
+        "../ui/button"
+      ],
+      "lines": 183,
+      "preview": "import { useEffect, useState } from 'react';\nimport { motion, AnimatePresence } from 'motion/react';\nimport { useNavigate } from 'react-router';\nimport { Bell, CheckCircle, X, ExternalLink } from 'lucide-react';\nimport { supabase } from '../../../lib/supabaseClient';\nimport { useAuth } from '../../../utils/auth/AuthContext';\nimport { Button } from '../ui/button';\n\nexport interface AppNotification {\n  id: string;\n  message: string;\n  type: string;\n  is_read: boolean;\n  created_at: string;\n  refer"
+    },
+    {
+      "file": "src\\app\\components\\shared\\PageTransition.tsx",
+      "exports": [
+        "PageTransition"
+      ],
+      "imports": [
+        "motion/react",
+        "react"
+      ],
+      "lines": 21,
+      "preview": "// Page Transition Wrapper\n\nimport { motion } from 'motion/react';\nimport { ReactNode } from 'react';\n\ninterface PageTransitionProps {\n  children: ReactNode;\n}\n\nexport function PageTransition({ children }: PageTransitionProps) {\n  return (\n    <motion.div\n      initial={{ opacity: 0, y: 10 }}\n      animate={{ opacity: 1, y: 0 }}\n      exit={{ opacity: 0, y: -10 }}\n      transition={{ duration: 0.2, ease: 'easeOut' }}\n    >\n      {children}\n    </motion.div>\n  );\n}"
+    },
+    {
+      "file": "src\\app\\components\\shared\\ProductCard.tsx",
+      "exports": [],
+      "imports": [
+        "react",
+        "motion/react",
+        "react-router",
+        "../../types",
+        "../../utils/formatters",
+        "../../hooks/useCart",
+        "../../hooks/useWishlist",
+        "sonner",
+        "../figma/ImageWithFallback"
+      ],
+      "lines": 338,
+      "preview": "// KithLy Product Card \u00e2\u20ac\u201d Premium Responsive Framework\n// Desktop: hover overlay \u00e2\u2020\u2019 Quick View  |  Mobile: \"VIEW PRODUCT\" button \u00e2\u2020\u2019 Full Detail Modal\n\nimport { useState } from 'react';\nimport { motion, AnimatePresence } from 'motion/react';\nimport { useNavigate } from 'react-router';\nimport {\n  X,\n  ShieldCheck,\n  ShoppingBag,\n  Eye,\n  Heart,\n  MapPin,\n} from 'lucide-react';\nimport type { Product } from '../../types';\nimport { formatZMW } from '../../utils/formatters';\nimport { useCart } from"
+    },
+    {
+      "file": "src\\app\\components\\shared\\ProfileVerificationBanner.tsx",
+      "exports": [
+        "ProfileVerificationBanner"
+      ],
+      "imports": [
+        "lucide-react",
+        "motion/react",
+        "../ui/alert",
+        "../../../utils/auth/AuthContext"
+      ],
+      "lines": 62,
+      "preview": "// KithLy Profile Verification Banner - \"Restricted Mode\" State\n\nimport { AlertCircle, Shield } from 'lucide-react';\nimport { motion } from 'motion/react';\nimport { Alert, AlertDescription } from '../ui/alert';\nimport { useAuth } from '../../../utils/auth/AuthContext';\n\ninterface ProfileVerificationBannerProps {\n  onComplete?: () => void;\n}\n\nexport function ProfileVerificationBanner({ onComplete }: ProfileVerificationBannerProps) {\n  const { profile, checkProfileComplete } = useAuth();\n  \n  if ("
+    },
+    {
+      "file": "src\\app\\components\\shared\\QRCodeDisplay.tsx",
+      "exports": [
+        "QRCodeDisplay"
+      ],
+      "imports": [
+        "react",
+        "qrcode"
+      ],
+      "lines": 28,
+      "preview": "// QR Code Display Component\n\nimport { useEffect, useRef } from 'react';\nimport QRCode from 'qrcode';\n\ninterface QRCodeDisplayProps {\n  value: string;\n  size?: number;\n}\n\nexport function QRCodeDisplay({ value, size = 200 }: QRCodeDisplayProps) {\n  const canvasRef = useRef<HTMLCanvasElement>(null);\n\n  useEffect(() => {\n    if (canvasRef.current) {\n      QRCode.toCanvas(canvasRef.current, value, {\n        width: size,\n        margin: 2,\n        color: {\n          dark: '#000000',\n          light: "
+    },
+    {
+      "file": "src\\app\\components\\shared\\SearchBar.tsx",
+      "exports": [
+        "SearchBar"
+      ],
+      "imports": [
+        "react",
+        "lucide-react",
+        "motion/react",
+        "react-router",
+        "../../../lib/supabaseClient"
+      ],
+      "lines": 114,
+      "preview": "// KithLy Search Bar\n\nimport { useState, useEffect } from 'react';\nimport { Search, X, Loader2 } from 'lucide-react';\nimport { motion, AnimatePresence } from 'motion/react';\nimport { useNavigate } from 'react-router';\nimport { supabase } from '../../../lib/supabaseClient';\n\ninterface SearchResult {\n  id: string;\n  title: string;\n  shopName: string;\n}\n\nexport function SearchBar() {\n  const [query, setQuery] = useState('');\n  const [isFocused, setIsFocused] = useState(false);\n  const navigate = us"
+    },
+    {
+      "file": "src\\app\\components\\shared\\ShopCard.tsx",
+      "exports": [
+        "ShopCardProps",
+        "ShopCard"
+      ],
+      "imports": [
+        "lucide-react"
+      ],
+      "lines": 121,
+      "preview": "// ShopCard \u00e2\u20ac\u201d Merchant directory card with cover + overlapping circular logo\n// Usage: <ShopCard shop={shop} onClick={() => navigate(`/shops/${shop.id}`)} />\n\nimport { MapPin, Store } from 'lucide-react';\n\nexport interface ShopCardProps {\n  shop: {\n    id: string;\n    name: string;\n    location?: string | null;\n    cover_image_url?: string | null;\n    /** Alias: image_url is used where cover_image_url doesn't exist yet */\n    image_url?: string | null;\n    logo_url?: string | null;\n    descrip"
+    },
+    {
+      "file": "src\\app\\components\\shared\\StorefrontProductCard.tsx",
+      "exports": [
+        "StorefrontItem",
+        "StorefrontProductCard"
+      ],
+      "imports": [
+        "lucide-react",
+        "../../../utils/currency"
+      ],
+      "lines": 121,
+      "preview": "// StorefrontProductCard \u00e2\u20ac\u201d Weekly picks / storefront item card\n// Usage: <StorefrontProductCard item={item} onGift={() => navigate(`/send/${item.id}`)} />\n// Named StorefrontProductCard to avoid conflict with the existing ProductCard.tsx\n\nimport { Package, Shield } from 'lucide-react';\nimport { formatCurrency } from '../../../utils/currency';\n\nexport interface StorefrontItem {\n  id: string;\n  name: string;\n  description?: string | null;\n  /** Price in ngwee (smallest ZMW unit) */\n  price: numb"
+    },
+    {
+      "file": "src\\app\\components\\shared\\WhatsAppShareButton.tsx",
+      "exports": [
+        "WhatsAppShareButtonProps",
+        "WhatsAppShareButton"
+      ],
+      "imports": [
+        "lucide-react",
+        "../ui/button"
+      ],
+      "lines": 28,
+      "preview": "import { Share } from 'lucide-react';\nimport { Button } from '../ui/button';\n\nexport interface WhatsAppShareButtonProps {\n  claimCode: string;\n  shopName: string;\n  amount?: number;\n}\n\nexport function WhatsAppShareButton({ claimCode, shopName, amount }: WhatsAppShareButtonProps) {\n  const handleShare = () => {\n    // Professional escrow notification template\n    const text = `Hello. I have purchased a gift for you from ${shopName} via KithLy Escrow. Your secure claim code is: ${claimCode}. Prese"
+    },
+    {
+      "file": "src\\app\\components\\ui\\accordion.tsx",
+      "exports": [],
+      "imports": [
+        "react",
+        "@radix-ui/react-accordion",
+        "lucide-react",
+        "./utils"
+      ],
+      "lines": 66,
+      "preview": "\"use client\";\n\nimport * as React from \"react\";\nimport * as AccordionPrimitive from \"@radix-ui/react-accordion\";\nimport { ChevronDownIcon } from \"lucide-react\";\n\nimport { cn } from \"./utils\";\n\nfunction Accordion({\n  ...props\n}: React.ComponentProps<typeof AccordionPrimitive.Root>) {\n  return <AccordionPrimitive.Root data-slot=\"accordion\" {...props} />;\n}\n\nfunction AccordionItem({\n  className,\n  ...props\n}: React.ComponentProps<typeof AccordionPrimitive.Item>) {\n  return (\n    <AccordionPrimitive."
+    },
+    {
+      "file": "src\\app\\components\\ui\\alert-dialog.tsx",
+      "exports": [],
+      "imports": [
+        "react",
+        "@radix-ui/react-alert-dialog",
+        "./utils",
+        "./button"
+      ],
+      "lines": 157,
+      "preview": "\"use client\";\n\nimport * as React from \"react\";\nimport * as AlertDialogPrimitive from \"@radix-ui/react-alert-dialog\";\n\nimport { cn } from \"./utils\";\nimport { buttonVariants } from \"./button\";\n\nfunction AlertDialog({\n  ...props\n}: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {\n  return <AlertDialogPrimitive.Root data-slot=\"alert-dialog\" {...props} />;\n}\n\nfunction AlertDialogTrigger({\n  ...props\n}: React.ComponentProps<typeof AlertDialogPrimitive.Trigger>) {\n  return (\n    <AlertDialogPr"
+    },
+    {
+      "file": "src\\app\\components\\ui\\alert.tsx",
+      "exports": [],
+      "imports": [
+        "react",
+        "class-variance-authority",
+        "./utils"
+      ],
+      "lines": 66,
+      "preview": "import * as React from \"react\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\n\nimport { cn } from \"./utils\";\n\nconst alertVariants = cva(\n  \"relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current\",\n  {\n    variants: {\n      variant: {\n        default: \"bg-card text-card-foreground\",\n        destructive:\n    "
+    },
+    {
+      "file": "src\\app\\components\\ui\\aspect-ratio.tsx",
+      "exports": [],
+      "imports": [
+        "@radix-ui/react-aspect-ratio"
+      ],
+      "lines": 11,
+      "preview": "\"use client\";\n\nimport * as AspectRatioPrimitive from \"@radix-ui/react-aspect-ratio\";\n\nfunction AspectRatio({\n  ...props\n}: React.ComponentProps<typeof AspectRatioPrimitive.Root>) {\n  return <AspectRatioPrimitive.Root data-slot=\"aspect-ratio\" {...props} />;\n}\n\nexport { AspectRatio };"
+    },
+    {
+      "file": "src\\app\\components\\ui\\avatar.tsx",
+      "exports": [],
+      "imports": [
+        "react",
+        "@radix-ui/react-avatar",
+        "./utils"
+      ],
+      "lines": 53,
+      "preview": "\"use client\";\n\nimport * as React from \"react\";\nimport * as AvatarPrimitive from \"@radix-ui/react-avatar\";\n\nimport { cn } from \"./utils\";\n\nfunction Avatar({\n  className,\n  ...props\n}: React.ComponentProps<typeof AvatarPrimitive.Root>) {\n  return (\n    <AvatarPrimitive.Root\n      data-slot=\"avatar\"\n      className={cn(\n        \"relative flex size-10 shrink-0 overflow-hidden rounded-full\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction AvatarImage({\n  className,\n  ...props\n}: "
+    },
+    {
+      "file": "src\\app\\components\\ui\\badge.tsx",
+      "exports": [],
+      "imports": [
+        "react",
+        "@radix-ui/react-slot",
+        "class-variance-authority",
+        "./utils"
+      ],
+      "lines": 46,
+      "preview": "import * as React from \"react\";\nimport { Slot } from \"@radix-ui/react-slot\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\n\nimport { cn } from \"./utils\";\n\nconst badgeVariants = cva(\n  \"inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-i"
+    },
+    {
+      "file": "src\\app\\components\\ui\\breadcrumb.tsx",
+      "exports": [],
+      "imports": [
+        "react",
+        "@radix-ui/react-slot",
+        "lucide-react",
+        "./utils"
+      ],
+      "lines": 109,
+      "preview": "import * as React from \"react\";\nimport { Slot } from \"@radix-ui/react-slot\";\nimport { ChevronRight, MoreHorizontal } from \"lucide-react\";\n\nimport { cn } from \"./utils\";\n\nfunction Breadcrumb({ ...props }: React.ComponentProps<\"nav\">) {\n  return <nav aria-label=\"breadcrumb\" data-slot=\"breadcrumb\" {...props} />;\n}\n\nfunction BreadcrumbList({ className, ...props }: React.ComponentProps<\"ol\">) {\n  return (\n    <ol\n      data-slot=\"breadcrumb-list\"\n      className={cn(\n        \"text-muted-foreground fl"
+    },
+    {
+      "file": "src\\app\\components\\ui\\button.tsx",
+      "exports": [],
+      "imports": [
+        "react",
+        "@radix-ui/react-slot",
+        "class-variance-authority",
+        "motion/react",
+        "./utils"
+      ],
+      "lines": 60,
+      "preview": "import * as React from \"react\";\nimport { Slot } from \"@radix-ui/react-slot\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\nimport { motion } from \"motion/react\";\n\nimport { cn } from \"./utils\";\n\nconst buttonVariants = cva(\n  \"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outl"
+    },
+    {
+      "file": "src\\app\\components\\ui\\calendar.tsx",
+      "exports": [],
+      "imports": [
+        "react",
+        "lucide-react",
+        "react-day-picker",
+        "./utils",
+        "./button"
+      ],
+      "lines": 75,
+      "preview": "\"use client\";\n\nimport * as React from \"react\";\nimport { ChevronLeft, ChevronRight } from \"lucide-react\";\nimport { DayPicker } from \"react-day-picker\";\n\nimport { cn } from \"./utils\";\nimport { buttonVariants } from \"./button\";\n\nfunction Calendar({\n  className,\n  classNames,\n  showOutsideDays = true,\n  ...props\n}: React.ComponentProps<typeof DayPicker>) {\n  return (\n    <DayPicker\n      showOutsideDays={showOutsideDays}\n      className={cn(\"p-3\", className)}\n      classNames={{\n        months: \"fle"
+    },
+    {
+      "file": "src\\app\\components\\ui\\card.tsx",
+      "exports": [],
+      "imports": [
+        "react",
+        "./utils"
+      ],
+      "lines": 92,
+      "preview": "import * as React from \"react\";\n\nimport { cn } from \"./utils\";\n\nfunction Card({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"card\"\n      className={cn(\n        \"bg-card text-card-foreground flex flex-col gap-6 rounded-xl border\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction CardHeader({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"card-header\"\n      className={cn(\n        \"@contain"
+    },
+    {
+      "file": "src\\app\\components\\ui\\carousel.tsx",
+      "exports": [],
+      "imports": [
+        "react",
+        "lucide-react",
+        "./utils",
+        "./button"
+      ],
+      "lines": 241,
+      "preview": "\"use client\";\n\nimport * as React from \"react\";\nimport useEmblaCarousel, {\n  type UseEmblaCarouselType,\n} from \"embla-carousel-react\";\nimport { ArrowLeft, ArrowRight } from \"lucide-react\";\n\nimport { cn } from \"./utils\";\nimport { Button } from \"./button\";\n\ntype CarouselApi = UseEmblaCarouselType[1];\ntype UseCarouselParameters = Parameters<typeof useEmblaCarousel>;\ntype CarouselOptions = UseCarouselParameters[0];\ntype CarouselPlugin = UseCarouselParameters[1];\n\ntype CarouselProps = {\n  opts?: Carou"
+    },
+    {
+      "file": "src\\app\\components\\ui\\chart.tsx",
+      "exports": [
+        "ChartConfig"
+      ],
+      "imports": [
+        "react",
+        "recharts",
+        "./utils"
+      ],
+      "lines": 353,
+      "preview": "\"use client\";\n\nimport * as React from \"react\";\nimport * as RechartsPrimitive from \"recharts\";\n\nimport { cn } from \"./utils\";\n\n// Format: { THEME_NAME: CSS_SELECTOR }\nconst THEMES = { light: \"\", dark: \".dark\" } as const;\n\nexport type ChartConfig = {\n  [k in string]: {\n    label?: React.ReactNode;\n    icon?: React.ComponentType;\n  } & (\n    | { color?: string; theme?: never }\n    | { color?: never; theme: Record<keyof typeof THEMES, string> }\n  );\n};\n\ntype ChartContextProps = {\n  config: ChartConf"
+    }
+  ],
+  "metadata": {
+    "package.json": {
+      "name": "@figma/my-make-file",
+      "description": null,
+      "scripts": [
+        "build",
+        "dev",
+        "test",
+        "test:watch",
+        "test:integration"
+      ],
+      "dependencies": [
+        "@emotion/react",
+        "@emotion/styled",
+        "@mui/icons-material",
+        "@mui/material",
+        "@popperjs/core",
+        "@radix-ui/react-accordion",
+        "@radix-ui/react-alert-dialog",
+        "@radix-ui/react-aspect-ratio",
+        "@radix-ui/react-avatar",
+        "@radix-ui/react-checkbox",
+        "@radix-ui/react-collapsible",
+        "@radix-ui/react-context-menu",
+        "@radix-ui/react-dialog",
+        "@radix-ui/react-dropdown-menu",
+        "@radix-ui/react-hover-card",
+        "@radix-ui/react-label",
+        "@radix-ui/react-menubar",
+        "@radix-ui/react-navigation-menu",
+        "@radix-ui/react-popover",
+        "@radix-ui/react-progress",
+        "@radix-ui/react-radio-group",
+        "@radix-ui/react-scroll-area",
+        "@radix-ui/react-select",
+        "@radix-ui/react-separator",
+        "@radix-ui/react-slider",
+        "@radix-ui/react-slot",
+        "@radix-ui/react-switch",
+        "@radix-ui/react-tabs",
+        "@radix-ui/react-toggle",
+        "@radix-ui/react-toggle-group",
+        "@radix-ui/react-tooltip",
+        "canvas-confetti",
+        "class-variance-authority",
+        "clsx",
+        "cmdk",
+        "date-fns",
+        "embla-carousel-react",
+        "input-otp",
+        "lucide-react",
+        "motion",
+        "next-themes",
+        "qrcode",
+        "react-day-picker",
+        "react-dnd",
+        "react-dnd-html5-backend",
+        "react-hook-form",
+        "react-popper",
+        "react-resizable-panels",
+        "react-responsive-masonry",
+        "react-router",
+        "react-slick",
+        "recharts",
+        "sonner",
+        "tailwind-merge",
+        "tw-animate-css",
+        "vaul",
+        "zustand"
+      ],
+      "devDependencies": [
+        "@supabase/supabase-js",
+        "@tailwindcss/vite",
+        "@types/canvas-confetti",
+        "@types/react",
+        "@types/react-dom",
+        "@vitejs/plugin-react",
+        "hono",
+        "supabase",
+        "tailwindcss",
+        "vite",
+        "vitest"
+      ]
+    },
+    "docker-compose.yml": "version: '3.8'\n\nservices:\n  frontend:\n    build:\n      context: .\n      dockerfile: Dockerfile\n      args:\n        # Pass environment variables to the build process\n        - APP_API_URL=${VITE_SUPABASE_URL:-\"\"}\n        - APP_API_KEY=${VITE_SUPABASE_ANON_KEY:-\"\"}\n    container_name: kithly-frontend\n    ports:\n      - \"8080:80\"\n    environment:\n      - NODE_ENV=production\n    restart: unless-stopped\n",
+    "README.md": ""
+  }
+}

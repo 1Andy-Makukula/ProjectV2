@@ -1,0 +1,1891 @@
+{
+  "nodes": [
+    {
+      "id": "config:supabase/.temp/linked-project.json",
+      "type": "config",
+      "name": "linked-project.json",
+      "filePath": "supabase/.temp/linked-project.json",
+      "summary": "Configuration settings for the project toolchain.",
+      "tags": [
+        "configuration",
+        "setup",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:supabase/.temp/pooler-url",
+      "type": "file",
+      "name": "pooler-url",
+      "filePath": "supabase/.temp/pooler-url",
+      "summary": "Implementation of pooler-url.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:supabase/.temp/postgres-version",
+      "type": "file",
+      "name": "postgres-version",
+      "filePath": "supabase/.temp/postgres-version",
+      "summary": "Implementation of postgres-version.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:supabase/.temp/project-ref",
+      "type": "file",
+      "name": "project-ref",
+      "filePath": "supabase/.temp/project-ref",
+      "summary": "Implementation of project-ref.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:supabase/.temp/rest-version",
+      "type": "file",
+      "name": "rest-version",
+      "filePath": "supabase/.temp/rest-version",
+      "summary": "Implementation of rest-version.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:supabase/.temp/storage-migration",
+      "type": "file",
+      "name": "storage-migration",
+      "filePath": "supabase/.temp/storage-migration",
+      "summary": "Implementation of storage-migration.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:supabase/.temp/storage-version",
+      "type": "file",
+      "name": "storage-version",
+      "filePath": "supabase/.temp/storage-version",
+      "summary": "Implementation of storage-version.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:supabase/DATABASE_SETUP.md",
+      "type": "document",
+      "name": "DATABASE_SETUP.md",
+      "filePath": "supabase/DATABASE_SETUP.md",
+      "summary": "Project documentation and reference material.",
+      "tags": [
+        "documentation",
+        "guide",
+        "general"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:supabase/functions/_shared/cors.ts",
+      "type": "file",
+      "name": "cors.ts",
+      "filePath": "supabase/functions/_shared/cors.ts",
+      "summary": "Edge function implementing secure backend logic.",
+      "tags": [
+        "serverless",
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/_shared/cors.ts:getCorsHeaders",
+      "type": "function",
+      "name": "getCorsHeaders",
+      "filePath": "supabase/functions/_shared/cors.ts",
+      "lineRange": [
+        5,
+        22
+      ],
+      "summary": "Function getCorsHeaders executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:supabase/functions/_shared/ussd-auth.ts",
+      "type": "file",
+      "name": "ussd-auth.ts",
+      "filePath": "supabase/functions/_shared/ussd-auth.ts",
+      "summary": "Edge function implementing secure backend logic.",
+      "tags": [
+        "serverless",
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:supabase/functions/_shared/ussd-auth.ts:verifyUssdGateway",
+      "type": "function",
+      "name": "verifyUssdGateway",
+      "filePath": "supabase/functions/_shared/ussd-auth.ts",
+      "lineRange": [
+        10,
+        38
+      ],
+      "summary": "Function verifyUssdGateway executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/_shared/ussd-auth.ts:hmacSha256Hex",
+      "type": "function",
+      "name": "hmacSha256Hex",
+      "filePath": "supabase/functions/_shared/ussd-auth.ts",
+      "lineRange": [
+        49,
+        65
+      ],
+      "summary": "Function hmacSha256Hex executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:supabase/functions/batch-payout-sweeper/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "supabase/functions/batch-payout-sweeper/index.ts",
+      "summary": "Module entry point that re-exports public components.",
+      "tags": [
+        "barrel",
+        "entry-point",
+        "exports"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:supabase/functions/batch-payout-sweeper/index.ts:getAdminClient",
+      "type": "function",
+      "name": "getAdminClient",
+      "filePath": "supabase/functions/batch-payout-sweeper/index.ts",
+      "lineRange": [
+        96,
+        113
+      ],
+      "summary": "Function getAdminClient executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/batch-payout-sweeper/index.ts:parseConfiguredBps",
+      "type": "function",
+      "name": "parseConfiguredBps",
+      "filePath": "supabase/functions/batch-payout-sweeper/index.ts",
+      "lineRange": [
+        115,
+        149
+      ],
+      "summary": "Function parseConfiguredBps executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/batch-payout-sweeper/index.ts:assertValidVoucher",
+      "type": "function",
+      "name": "assertValidVoucher",
+      "filePath": "supabase/functions/batch-payout-sweeper/index.ts",
+      "lineRange": [
+        151,
+        166
+      ],
+      "summary": "Function assertValidVoucher executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/batch-payout-sweeper/index.ts:calculateVoucherSettlement",
+      "type": "function",
+      "name": "calculateVoucherSettlement",
+      "filePath": "supabase/functions/batch-payout-sweeper/index.ts",
+      "lineRange": [
+        168,
+        186
+      ],
+      "summary": "Function calculateVoucherSettlement executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/batch-payout-sweeper/index.ts:groupByMerchant",
+      "type": "function",
+      "name": "groupByMerchant",
+      "filePath": "supabase/functions/batch-payout-sweeper/index.ts",
+      "lineRange": [
+        188,
+        216
+      ],
+      "summary": "Function groupByMerchant executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/batch-payout-sweeper/index.ts:verifyOptionalSweeperSecret",
+      "type": "function",
+      "name": "verifyOptionalSweeperSecret",
+      "filePath": "supabase/functions/batch-payout-sweeper/index.ts",
+      "lineRange": [
+        226,
+        242
+      ],
+      "summary": "Function verifyOptionalSweeperSecret executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/batch-payout-sweeper/index.ts:fetchDueVouchers",
+      "type": "function",
+      "name": "fetchDueVouchers",
+      "filePath": "supabase/functions/batch-payout-sweeper/index.ts",
+      "lineRange": [
+        248,
+        283
+      ],
+      "summary": "Function fetchDueVouchers executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/batch-payout-sweeper/index.ts:fetchShopPayoutDetails",
+      "type": "function",
+      "name": "fetchShopPayoutDetails",
+      "filePath": "supabase/functions/batch-payout-sweeper/index.ts",
+      "lineRange": [
+        285,
+        314
+      ],
+      "summary": "Function fetchShopPayoutDetails executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/batch-payout-sweeper/index.ts:mockFlutterwaveBulkTransfer",
+      "type": "function",
+      "name": "mockFlutterwaveBulkTransfer",
+      "filePath": "supabase/functions/batch-payout-sweeper/index.ts",
+      "lineRange": [
+        320,
+        342
+      ],
+      "summary": "Function mockFlutterwaveBulkTransfer executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/batch-payout-sweeper/index.ts:markVouchersSettled",
+      "type": "function",
+      "name": "markVouchersSettled",
+      "filePath": "supabase/functions/batch-payout-sweeper/index.ts",
+      "lineRange": [
+        348,
+        375
+      ],
+      "summary": "Function markVouchersSettled executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/batch-payout-sweeper/index.ts:writePayoutBatchedEvents",
+      "type": "function",
+      "name": "writePayoutBatchedEvents",
+      "filePath": "supabase/functions/batch-payout-sweeper/index.ts",
+      "lineRange": [
+        377,
+        441
+      ],
+      "summary": "Function writePayoutBatchedEvents executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:supabase/functions/batch-payout-sweeper/index.ts:settleMerchantBatch",
+      "type": "function",
+      "name": "settleMerchantBatch",
+      "filePath": "supabase/functions/batch-payout-sweeper/index.ts",
+      "lineRange": [
+        443,
+        500
+      ],
+      "summary": "Function settleMerchantBatch executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:supabase/functions/batch-payout-sweeper/index.ts:handleBatchPayoutSweep",
+      "type": "function",
+      "name": "handleBatchPayoutSweep",
+      "filePath": "supabase/functions/batch-payout-sweeper/index.ts",
+      "lineRange": [
+        506,
+        626
+      ],
+      "summary": "Function handleBatchPayoutSweep executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:supabase/functions/checkout-init/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "supabase/functions/checkout-init/index.ts",
+      "summary": "Module entry point that re-exports public components.",
+      "tags": [
+        "barrel",
+        "entry-point",
+        "exports"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:supabase/functions/checkout-init/index.ts:generateClaimCode",
+      "type": "function",
+      "name": "generateClaimCode",
+      "filePath": "supabase/functions/checkout-init/index.ts",
+      "lineRange": [
+        100,
+        116
+      ],
+      "summary": "Function generateClaimCode executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/checkout-init/index.ts:getAdminClient",
+      "type": "function",
+      "name": "getAdminClient",
+      "filePath": "supabase/functions/checkout-init/index.ts",
+      "lineRange": [
+        122,
+        139
+      ],
+      "summary": "Function getAdminClient executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/checkout-init/index.ts:validatePayload",
+      "type": "function",
+      "name": "validatePayload",
+      "filePath": "supabase/functions/checkout-init/index.ts",
+      "lineRange": [
+        149,
+        201
+      ],
+      "summary": "Function validatePayload executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:supabase/functions/checkout-init/index.ts:authenticateCaller",
+      "type": "function",
+      "name": "authenticateCaller",
+      "filePath": "supabase/functions/checkout-init/index.ts",
+      "lineRange": [
+        211,
+        239
+      ],
+      "summary": "Function authenticateCaller executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/checkout-init/index.ts:insertTransaction",
+      "type": "function",
+      "name": "insertTransaction",
+      "filePath": "supabase/functions/checkout-init/index.ts",
+      "lineRange": [
+        249,
+        279
+      ],
+      "summary": "Function insertTransaction executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/checkout-init/index.ts:insertVendorOrders",
+      "type": "function",
+      "name": "insertVendorOrders",
+      "filePath": "supabase/functions/checkout-init/index.ts",
+      "lineRange": [
+        302,
+        389
+      ],
+      "summary": "Function insertVendorOrders executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:supabase/functions/checkout-init/index.ts:generateFlutterwaveLink",
+      "type": "function",
+      "name": "generateFlutterwaveLink",
+      "filePath": "supabase/functions/checkout-init/index.ts",
+      "lineRange": [
+        404,
+        464
+      ],
+      "summary": "Function generateFlutterwaveLink executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:supabase/functions/checkout-init/index.ts:handleCheckoutInit",
+      "type": "function",
+      "name": "handleCheckoutInit",
+      "filePath": "supabase/functions/checkout-init/index.ts",
+      "lineRange": [
+        470,
+        604
+      ],
+      "summary": "Function handleCheckoutInit executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:supabase/functions/deno.d.ts",
+      "type": "file",
+      "name": "deno.d.ts",
+      "filePath": "supabase/functions/deno.d.ts",
+      "summary": "Edge function implementing secure backend logic.",
+      "tags": [
+        "serverless",
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "config:supabase/functions/deno.json",
+      "type": "config",
+      "name": "deno.json",
+      "filePath": "supabase/functions/deno.json",
+      "summary": "Edge function implementing secure backend logic.",
+      "tags": [
+        "serverless",
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:supabase/functions/flutterwave-webhook/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "supabase/functions/flutterwave-webhook/index.ts",
+      "summary": "Module entry point that re-exports public components.",
+      "tags": [
+        "barrel",
+        "entry-point",
+        "exports"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:supabase/functions/flutterwave-webhook/index.ts:getAdminClient",
+      "type": "function",
+      "name": "getAdminClient",
+      "filePath": "supabase/functions/flutterwave-webhook/index.ts",
+      "lineRange": [
+        76,
+        95
+      ],
+      "summary": "Function getAdminClient executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/flutterwave-webhook/index.ts:verifySignature",
+      "type": "function",
+      "name": "verifySignature",
+      "filePath": "supabase/functions/flutterwave-webhook/index.ts",
+      "lineRange": [
+        113,
+        157
+      ],
+      "summary": "Function verifySignature executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/flutterwave-webhook/index.ts:parseAndValidateBody",
+      "type": "function",
+      "name": "parseAndValidateBody",
+      "filePath": "supabase/functions/flutterwave-webhook/index.ts",
+      "lineRange": [
+        174,
+        233
+      ],
+      "summary": "Function parseAndValidateBody executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:supabase/functions/flutterwave-webhook/index.ts:writeTransactionEvent",
+      "type": "function",
+      "name": "writeTransactionEvent",
+      "filePath": "supabase/functions/flutterwave-webhook/index.ts",
+      "lineRange": [
+        254,
+        284
+      ],
+      "summary": "Function writeTransactionEvent executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/flutterwave-webhook/index.ts:promoteVoucherPayoutStatus",
+      "type": "function",
+      "name": "promoteVoucherPayoutStatus",
+      "filePath": "supabase/functions/flutterwave-webhook/index.ts",
+      "lineRange": [
+        296,
+        373
+      ],
+      "summary": "Function promoteVoucherPayoutStatus executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:supabase/functions/flutterwave-webhook/index.ts:handleFlutterwaveWebhook",
+      "type": "function",
+      "name": "handleFlutterwaveWebhook",
+      "filePath": "supabase/functions/flutterwave-webhook/index.ts",
+      "lineRange": [
+        379,
+        473
+      ],
+      "summary": "Function handleFlutterwaveWebhook executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:supabase/functions/fulfill-voucher/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "supabase/functions/fulfill-voucher/index.ts",
+      "summary": "Module entry point that re-exports public components.",
+      "tags": [
+        "barrel",
+        "entry-point",
+        "exports"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:supabase/functions/fulfill-voucher/index.ts:validatePayload",
+      "type": "function",
+      "name": "validatePayload",
+      "filePath": "supabase/functions/fulfill-voucher/index.ts",
+      "lineRange": [
+        64,
+        104
+      ],
+      "summary": "Function validatePayload executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/fulfill-voucher/index.ts:verifyMerchant",
+      "type": "function",
+      "name": "verifyMerchant",
+      "filePath": "supabase/functions/fulfill-voucher/index.ts",
+      "lineRange": [
+        110,
+        143
+      ],
+      "summary": "Function verifyMerchant executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/fulfill-voucher/index.ts:fetchPendingOrder",
+      "type": "function",
+      "name": "fetchPendingOrder",
+      "filePath": "supabase/functions/fulfill-voucher/index.ts",
+      "lineRange": [
+        149,
+        174
+      ],
+      "summary": "Function fetchPendingOrder executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/fulfill-voucher/index.ts:updateItemStatuses",
+      "type": "function",
+      "name": "updateItemStatuses",
+      "filePath": "supabase/functions/fulfill-voucher/index.ts",
+      "lineRange": [
+        180,
+        205
+      ],
+      "summary": "Function updateItemStatuses executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/fulfill-voucher/index.ts:computePriceSplit",
+      "type": "function",
+      "name": "computePriceSplit",
+      "filePath": "supabase/functions/fulfill-voucher/index.ts",
+      "lineRange": [
+        211,
+        240
+      ],
+      "summary": "Function computePriceSplit executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/fulfill-voucher/index.ts:creditMerchantLedger",
+      "type": "function",
+      "name": "creditMerchantLedger",
+      "filePath": "supabase/functions/fulfill-voucher/index.ts",
+      "lineRange": [
+        246,
+        269
+      ],
+      "summary": "Function creditMerchantLedger executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/fulfill-voucher/index.ts:creditSenderWallet",
+      "type": "function",
+      "name": "creditSenderWallet",
+      "filePath": "supabase/functions/fulfill-voucher/index.ts",
+      "lineRange": [
+        275,
+        322
+      ],
+      "summary": "Function creditSenderWallet executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/fulfill-voucher/index.ts:finaliseShopOrder",
+      "type": "function",
+      "name": "finaliseShopOrder",
+      "filePath": "supabase/functions/fulfill-voucher/index.ts",
+      "lineRange": [
+        328,
+        357
+      ],
+      "summary": "Function finaliseShopOrder executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/fulfill-voucher/index.ts:writeLedgerEvent",
+      "type": "function",
+      "name": "writeLedgerEvent",
+      "filePath": "supabase/functions/fulfill-voucher/index.ts",
+      "lineRange": [
+        363,
+        387
+      ],
+      "summary": "Function writeLedgerEvent executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/fulfill-voucher/index.ts:handleFulfillVoucher",
+      "type": "function",
+      "name": "handleFulfillVoucher",
+      "filePath": "supabase/functions/fulfill-voucher/index.ts",
+      "lineRange": [
+        393,
+        462
+      ],
+      "summary": "Function handleFulfillVoucher executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:supabase/functions/fx-rate-lock/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "supabase/functions/fx-rate-lock/index.ts",
+      "summary": "Module entry point that re-exports public components.",
+      "tags": [
+        "barrel",
+        "entry-point",
+        "exports"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:supabase/functions/fx-rate-lock/index.ts:fetchWithTimeout",
+      "type": "function",
+      "name": "fetchWithTimeout",
+      "filePath": "supabase/functions/fx-rate-lock/index.ts",
+      "lineRange": [
+        194,
+        210
+      ],
+      "summary": "Function fetchWithTimeout executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/fx-rate-lock/index.ts:validatePayload",
+      "type": "function",
+      "name": "validatePayload",
+      "filePath": "supabase/functions/fx-rate-lock/index.ts",
+      "lineRange": [
+        225,
+        268
+      ],
+      "summary": "Function validatePayload executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/fx-rate-lock/index.ts:fetchFromExchangeRateApi",
+      "type": "function",
+      "name": "fetchFromExchangeRateApi",
+      "filePath": "supabase/functions/fx-rate-lock/index.ts",
+      "lineRange": [
+        280,
+        342
+      ],
+      "summary": "Function fetchFromExchangeRateApi executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:supabase/functions/fx-rate-lock/index.ts:fetchFromOpenErApi",
+      "type": "function",
+      "name": "fetchFromOpenErApi",
+      "filePath": "supabase/functions/fx-rate-lock/index.ts",
+      "lineRange": [
+        354,
+        407
+      ],
+      "summary": "Function fetchFromOpenErApi executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:supabase/functions/fx-rate-lock/index.ts:resolveExchangeRate",
+      "type": "function",
+      "name": "resolveExchangeRate",
+      "filePath": "supabase/functions/fx-rate-lock/index.ts",
+      "lineRange": [
+        441,
+        454
+      ],
+      "summary": "Function resolveExchangeRate executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/fx-rate-lock/index.ts:calculateInternationalCheckout",
+      "type": "function",
+      "name": "calculateInternationalCheckout",
+      "filePath": "supabase/functions/fx-rate-lock/index.ts",
+      "lineRange": [
+        485,
+        509
+      ],
+      "summary": "Function calculateInternationalCheckout executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/fx-rate-lock/index.ts:handleFxRateLock",
+      "type": "function",
+      "name": "handleFxRateLock",
+      "filePath": "supabase/functions/fx-rate-lock/index.ts",
+      "lineRange": [
+        515,
+        583
+      ],
+      "summary": "Function handleFxRateLock executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:supabase/functions/get-merchant-ledger/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "supabase/functions/get-merchant-ledger/index.ts",
+      "summary": "Module entry point that re-exports public components.",
+      "tags": [
+        "barrel",
+        "entry-point",
+        "exports"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:supabase/functions/get-merchant-ledger/index.ts:verifyMerchantIdentity",
+      "type": "function",
+      "name": "verifyMerchantIdentity",
+      "filePath": "supabase/functions/get-merchant-ledger/index.ts",
+      "lineRange": [
+        42,
+        74
+      ],
+      "summary": "Function verifyMerchantIdentity executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/get-merchant-ledger/index.ts:handleGetMerchantLedger",
+      "type": "function",
+      "name": "handleGetMerchantLedger",
+      "filePath": "supabase/functions/get-merchant-ledger/index.ts",
+      "lineRange": [
+        76,
+        135
+      ],
+      "summary": "Function handleGetMerchantLedger executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:supabase/functions/server/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "supabase/functions/server/index.ts",
+      "summary": "Module entry point that re-exports public components.",
+      "tags": [
+        "barrel",
+        "entry-point",
+        "exports"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:supabase/functions/server/index.ts:requireAdmin",
+      "type": "function",
+      "name": "requireAdmin",
+      "filePath": "supabase/functions/server/index.ts",
+      "lineRange": [
+        35,
+        57
+      ],
+      "summary": "Function requireAdmin executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/server/index.ts:requireMerchantForShop",
+      "type": "function",
+      "name": "requireMerchantForShop",
+      "filePath": "supabase/functions/server/index.ts",
+      "lineRange": [
+        63,
+        90
+      ],
+      "summary": "Function requireMerchantForShop executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/server/index.ts:findTransactionByTxRef",
+      "type": "function",
+      "name": "findTransactionByTxRef",
+      "filePath": "supabase/functions/server/index.ts",
+      "lineRange": [
+        93,
+        113
+      ],
+      "summary": "Function findTransactionByTxRef executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/server/index.ts:handleInitializePayment",
+      "type": "function",
+      "name": "handleInitializePayment",
+      "filePath": "supabase/functions/server/index.ts",
+      "lineRange": [
+        125,
+        204
+      ],
+      "summary": "Function handleInitializePayment executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:supabase/functions/server/index.ts:sendWhatsAppCode",
+      "type": "function",
+      "name": "sendWhatsAppCode",
+      "filePath": "supabase/functions/server/index.ts",
+      "lineRange": [
+        210,
+        258
+      ],
+      "summary": "Function sendWhatsAppCode executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/server/index.ts:handleFlutterwaveWebhook",
+      "type": "function",
+      "name": "handleFlutterwaveWebhook",
+      "filePath": "supabase/functions/server/index.ts",
+      "lineRange": [
+        267,
+        357
+      ],
+      "summary": "Function handleFlutterwaveWebhook executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:supabase/functions/server/index.ts:handleConfirmPayment",
+      "type": "function",
+      "name": "handleConfirmPayment",
+      "filePath": "supabase/functions/server/index.ts",
+      "lineRange": [
+        365,
+        397
+      ],
+      "summary": "Function handleConfirmPayment executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/server/index.ts:handleCreateMerchant",
+      "type": "function",
+      "name": "handleCreateMerchant",
+      "filePath": "supabase/functions/server/index.ts",
+      "lineRange": [
+        402,
+        459
+      ],
+      "summary": "Function handleCreateMerchant executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:supabase/functions/server/index.ts:handleVerifyPayment",
+      "type": "function",
+      "name": "handleVerifyPayment",
+      "filePath": "supabase/functions/server/index.ts",
+      "lineRange": [
+        468,
+        515
+      ],
+      "summary": "Function handleVerifyPayment executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/server/index.ts:handleSettlePayout",
+      "type": "function",
+      "name": "handleSettlePayout",
+      "filePath": "supabase/functions/server/index.ts",
+      "lineRange": [
+        523,
+        563
+      ],
+      "summary": "Function handleSettlePayout executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/server/index.ts:handleRequestWithdrawal",
+      "type": "function",
+      "name": "handleRequestWithdrawal",
+      "filePath": "supabase/functions/server/index.ts",
+      "lineRange": [
+        568,
+        602
+      ],
+      "summary": "Function handleRequestWithdrawal executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:supabase/functions/server/kv_store.tsx",
+      "type": "file",
+      "name": "kv_store.tsx",
+      "filePath": "supabase/functions/server/kv_store.tsx",
+      "summary": "Edge function implementing secure backend logic.",
+      "tags": [
+        "serverless",
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:supabase/functions/tsconfig.json",
+      "type": "config",
+      "name": "tsconfig.json",
+      "filePath": "supabase/functions/tsconfig.json",
+      "summary": "Edge function implementing secure backend logic.",
+      "tags": [
+        "serverless",
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:supabase/functions/upload-item-image/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "supabase/functions/upload-item-image/index.ts",
+      "summary": "Module entry point that re-exports public components.",
+      "tags": [
+        "barrel",
+        "entry-point",
+        "exports"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:supabase/functions/upload-item-image/index.ts:verifyUploader",
+      "type": "function",
+      "name": "verifyUploader",
+      "filePath": "supabase/functions/upload-item-image/index.ts",
+      "lineRange": [
+        34,
+        65
+      ],
+      "summary": "Function verifyUploader executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/upload-item-image/index.ts:handleUpload",
+      "type": "function",
+      "name": "handleUpload",
+      "filePath": "supabase/functions/upload-item-image/index.ts",
+      "lineRange": [
+        67,
+        105
+      ],
+      "summary": "Function handleUpload executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:supabase/functions/ussd-gateway/index.ts",
+      "type": "file",
+      "name": "index.ts",
+      "filePath": "supabase/functions/ussd-gateway/index.ts",
+      "summary": "Module entry point that re-exports public components.",
+      "tags": [
+        "barrel",
+        "entry-point",
+        "exports"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:supabase/functions/ussd-gateway/index.ts:getAdminClient",
+      "type": "function",
+      "name": "getAdminClient",
+      "filePath": "supabase/functions/ussd-gateway/index.ts",
+      "lineRange": [
+        69,
+        84
+      ],
+      "summary": "Function getAdminClient executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/ussd-gateway/index.ts:parseUssdPayload",
+      "type": "function",
+      "name": "parseUssdPayload",
+      "filePath": "supabase/functions/ussd-gateway/index.ts",
+      "lineRange": [
+        90,
+        110
+      ],
+      "summary": "Function parseUssdPayload executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:supabase/functions/ussd-gateway/index.ts:handleUssdRequest",
+      "type": "function",
+      "name": "handleUssdRequest",
+      "filePath": "supabase/functions/ussd-gateway/index.ts",
+      "lineRange": [
+        112,
+        252
+      ],
+      "summary": "Function handleUssdRequest executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "document:supabase/LEGACY.md",
+      "type": "document",
+      "name": "LEGACY.md",
+      "filePath": "supabase/LEGACY.md",
+      "summary": "Project documentation and reference material.",
+      "tags": [
+        "documentation",
+        "guide",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "table:supabase/snippets/layer_c_payment_sweep.sql",
+      "type": "table",
+      "name": "layer_c_payment_sweep.sql",
+      "filePath": "supabase/snippets/layer_c_payment_sweep.sql",
+      "summary": "Database schema definition or migration file.",
+      "tags": [
+        "database",
+        "migration",
+        "schema"
+      ],
+      "complexity": "complex"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:supabase/functions/_shared/cors.ts",
+      "target": "function:supabase/functions/_shared/cors.ts:getCorsHeaders",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/_shared/ussd-auth.ts",
+      "target": "function:supabase/functions/_shared/ussd-auth.ts:verifyUssdGateway",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/_shared/ussd-auth.ts",
+      "target": "function:supabase/functions/_shared/ussd-auth.ts:hmacSha256Hex",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/batch-payout-sweeper/index.ts",
+      "target": "function:supabase/functions/batch-payout-sweeper/index.ts:getAdminClient",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/batch-payout-sweeper/index.ts",
+      "target": "function:supabase/functions/batch-payout-sweeper/index.ts:parseConfiguredBps",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/batch-payout-sweeper/index.ts",
+      "target": "function:supabase/functions/batch-payout-sweeper/index.ts:assertValidVoucher",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/batch-payout-sweeper/index.ts",
+      "target": "function:supabase/functions/batch-payout-sweeper/index.ts:calculateVoucherSettlement",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/batch-payout-sweeper/index.ts",
+      "target": "function:supabase/functions/batch-payout-sweeper/index.ts:groupByMerchant",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/batch-payout-sweeper/index.ts",
+      "target": "function:supabase/functions/batch-payout-sweeper/index.ts:verifyOptionalSweeperSecret",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/batch-payout-sweeper/index.ts",
+      "target": "function:supabase/functions/batch-payout-sweeper/index.ts:fetchDueVouchers",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/batch-payout-sweeper/index.ts",
+      "target": "function:supabase/functions/batch-payout-sweeper/index.ts:fetchShopPayoutDetails",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/batch-payout-sweeper/index.ts",
+      "target": "function:supabase/functions/batch-payout-sweeper/index.ts:mockFlutterwaveBulkTransfer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/batch-payout-sweeper/index.ts",
+      "target": "function:supabase/functions/batch-payout-sweeper/index.ts:markVouchersSettled",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/batch-payout-sweeper/index.ts",
+      "target": "function:supabase/functions/batch-payout-sweeper/index.ts:writePayoutBatchedEvents",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/batch-payout-sweeper/index.ts",
+      "target": "function:supabase/functions/batch-payout-sweeper/index.ts:settleMerchantBatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/batch-payout-sweeper/index.ts",
+      "target": "function:supabase/functions/batch-payout-sweeper/index.ts:handleBatchPayoutSweep",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/checkout-init/index.ts",
+      "target": "function:supabase/functions/checkout-init/index.ts:generateClaimCode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/checkout-init/index.ts",
+      "target": "function:supabase/functions/checkout-init/index.ts:getAdminClient",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/checkout-init/index.ts",
+      "target": "function:supabase/functions/checkout-init/index.ts:validatePayload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/checkout-init/index.ts",
+      "target": "function:supabase/functions/checkout-init/index.ts:authenticateCaller",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/checkout-init/index.ts",
+      "target": "function:supabase/functions/checkout-init/index.ts:insertTransaction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/checkout-init/index.ts",
+      "target": "function:supabase/functions/checkout-init/index.ts:insertVendorOrders",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/checkout-init/index.ts",
+      "target": "function:supabase/functions/checkout-init/index.ts:generateFlutterwaveLink",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/checkout-init/index.ts",
+      "target": "function:supabase/functions/checkout-init/index.ts:handleCheckoutInit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/flutterwave-webhook/index.ts",
+      "target": "function:supabase/functions/flutterwave-webhook/index.ts:getAdminClient",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/flutterwave-webhook/index.ts",
+      "target": "function:supabase/functions/flutterwave-webhook/index.ts:verifySignature",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/flutterwave-webhook/index.ts",
+      "target": "function:supabase/functions/flutterwave-webhook/index.ts:parseAndValidateBody",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/flutterwave-webhook/index.ts",
+      "target": "function:supabase/functions/flutterwave-webhook/index.ts:writeTransactionEvent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/flutterwave-webhook/index.ts",
+      "target": "function:supabase/functions/flutterwave-webhook/index.ts:promoteVoucherPayoutStatus",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/flutterwave-webhook/index.ts",
+      "target": "function:supabase/functions/flutterwave-webhook/index.ts:handleFlutterwaveWebhook",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/fulfill-voucher/index.ts",
+      "target": "function:supabase/functions/fulfill-voucher/index.ts:validatePayload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/fulfill-voucher/index.ts",
+      "target": "function:supabase/functions/fulfill-voucher/index.ts:verifyMerchant",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/fulfill-voucher/index.ts",
+      "target": "function:supabase/functions/fulfill-voucher/index.ts:fetchPendingOrder",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/fulfill-voucher/index.ts",
+      "target": "function:supabase/functions/fulfill-voucher/index.ts:updateItemStatuses",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/fulfill-voucher/index.ts",
+      "target": "function:supabase/functions/fulfill-voucher/index.ts:computePriceSplit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/fulfill-voucher/index.ts",
+      "target": "function:supabase/functions/fulfill-voucher/index.ts:creditMerchantLedger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/fulfill-voucher/index.ts",
+      "target": "function:supabase/functions/fulfill-voucher/index.ts:creditSenderWallet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/fulfill-voucher/index.ts",
+      "target": "function:supabase/functions/fulfill-voucher/index.ts:finaliseShopOrder",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/fulfill-voucher/index.ts",
+      "target": "function:supabase/functions/fulfill-voucher/index.ts:writeLedgerEvent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/fulfill-voucher/index.ts",
+      "target": "function:supabase/functions/fulfill-voucher/index.ts:handleFulfillVoucher",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/fx-rate-lock/index.ts",
+      "target": "function:supabase/functions/fx-rate-lock/index.ts:fetchWithTimeout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/fx-rate-lock/index.ts",
+      "target": "function:supabase/functions/fx-rate-lock/index.ts:validatePayload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/fx-rate-lock/index.ts",
+      "target": "function:supabase/functions/fx-rate-lock/index.ts:fetchFromExchangeRateApi",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/fx-rate-lock/index.ts",
+      "target": "function:supabase/functions/fx-rate-lock/index.ts:fetchFromOpenErApi",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/fx-rate-lock/index.ts",
+      "target": "function:supabase/functions/fx-rate-lock/index.ts:resolveExchangeRate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/fx-rate-lock/index.ts",
+      "target": "function:supabase/functions/fx-rate-lock/index.ts:calculateInternationalCheckout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/fx-rate-lock/index.ts",
+      "target": "function:supabase/functions/fx-rate-lock/index.ts:handleFxRateLock",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/get-merchant-ledger/index.ts",
+      "target": "function:supabase/functions/get-merchant-ledger/index.ts:verifyMerchantIdentity",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/get-merchant-ledger/index.ts",
+      "target": "function:supabase/functions/get-merchant-ledger/index.ts:handleGetMerchantLedger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/server/index.ts",
+      "target": "function:supabase/functions/server/index.ts:requireAdmin",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/server/index.ts",
+      "target": "function:supabase/functions/server/index.ts:requireMerchantForShop",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/server/index.ts",
+      "target": "function:supabase/functions/server/index.ts:findTransactionByTxRef",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/server/index.ts",
+      "target": "function:supabase/functions/server/index.ts:handleInitializePayment",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/server/index.ts",
+      "target": "function:supabase/functions/server/index.ts:sendWhatsAppCode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/server/index.ts",
+      "target": "function:supabase/functions/server/index.ts:handleFlutterwaveWebhook",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/server/index.ts",
+      "target": "function:supabase/functions/server/index.ts:handleConfirmPayment",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/server/index.ts",
+      "target": "function:supabase/functions/server/index.ts:handleCreateMerchant",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/server/index.ts",
+      "target": "function:supabase/functions/server/index.ts:handleVerifyPayment",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/server/index.ts",
+      "target": "function:supabase/functions/server/index.ts:handleSettlePayout",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/server/index.ts",
+      "target": "function:supabase/functions/server/index.ts:handleRequestWithdrawal",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/upload-item-image/index.ts",
+      "target": "function:supabase/functions/upload-item-image/index.ts:verifyUploader",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/upload-item-image/index.ts",
+      "target": "function:supabase/functions/upload-item-image/index.ts:handleUpload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/ussd-gateway/index.ts",
+      "target": "function:supabase/functions/ussd-gateway/index.ts:getAdminClient",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/ussd-gateway/index.ts",
+      "target": "function:supabase/functions/ussd-gateway/index.ts:parseUssdPayload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:supabase/functions/ussd-gateway/index.ts",
+      "target": "function:supabase/functions/ussd-gateway/index.ts:handleUssdRequest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    }
+  ]
+}

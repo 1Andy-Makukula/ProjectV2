@@ -1,0 +1,5120 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 25,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "supabase/.temp/linked-project.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "sections": [
+        {
+          "heading": "ref",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "name",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "organization_id",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "organization_slug",
+          "level": 1,
+          "line": 1
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 4
+      }
+    },
+    {
+      "path": "supabase/.temp/pooler-url",
+      "language": "unknown",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {}
+    },
+    {
+      "path": "supabase/.temp/postgres-version",
+      "language": "unknown",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {}
+    },
+    {
+      "path": "supabase/.temp/project-ref",
+      "language": "unknown",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {}
+    },
+    {
+      "path": "supabase/.temp/rest-version",
+      "language": "unknown",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {}
+    },
+    {
+      "path": "supabase/.temp/storage-migration",
+      "language": "unknown",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {}
+    },
+    {
+      "path": "supabase/.temp/storage-version",
+      "language": "unknown",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {}
+    },
+    {
+      "path": "supabase/DATABASE_SETUP.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 141,
+      "nonEmptyLines": 110,
+      "sections": [
+        {
+          "heading": "KithLy V2 Database Schema (canonical)",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Core tables",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "`transactions`",
+          "level": 3,
+          "line": 10
+        },
+        {
+          "heading": "`shop_orders`",
+          "level": 3,
+          "line": 23
+        },
+        {
+          "heading": "`order_items`",
+          "level": 3,
+          "line": 34
+        },
+        {
+          "heading": "`items`",
+          "level": 3,
+          "line": 43
+        },
+        {
+          "heading": "`transaction_events` (append-only audit)",
+          "level": 3,
+          "line": 51
+        },
+        {
+          "heading": "`merchant_shops`",
+          "level": 3,
+          "line": 60
+        },
+        {
+          "heading": "Payment flow (intended)",
+          "level": 2,
+          "line": 66
+        },
+        {
+          "heading": "Environment variables (Edge Functions)",
+          "level": 2,
+          "line": 73
+        },
+        {
+          "heading": "Phase 2 — Atomic RPCs & RLS",
+          "level": 2,
+          "line": 82
+        },
+        {
+          "heading": "Applying migrations",
+          "level": 2,
+          "line": 91
+        },
+        {
+          "heading": "Phase 3 — Security, CI, ops",
+          "level": 2,
+          "line": 101
+        },
+        {
+          "heading": "Edge Function secrets (Phase 3)",
+          "level": 3,
+          "line": 114
+        },
+        {
+          "heading": "Tests",
+          "level": 2,
+          "line": 121
+        },
+        {
+          "heading": "Phase 4 — Hardening & ops hygiene",
+          "level": 2,
+          "line": 130
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 16
+      }
+    },
+    {
+      "path": "supabase/functions/_shared/cors.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 33,
+      "nonEmptyLines": 30,
+      "functions": [
+        {
+          "name": "getCorsHeaders",
+          "startLine": 5,
+          "endLine": 22,
+          "params": [
+            "req"
+          ]
+        },
+        {
+          "name": "jsonWithCors",
+          "startLine": 24,
+          "endLine": 33,
+          "params": [
+            "req",
+            "data",
+            "status"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "getCorsHeaders",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "jsonWithCors",
+          "line": 24,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getCorsHeaders",
+          "callee": "Deno.env.get",
+          "lineNumber": 6
+        },
+        {
+          "caller": "getCorsHeaders",
+          "callee": "configured.split(\",\").map((s) => s.trim()).filter",
+          "lineNumber": 8
+        },
+        {
+          "caller": "getCorsHeaders",
+          "callee": "configured.split(\",\").map",
+          "lineNumber": 8
+        },
+        {
+          "caller": "getCorsHeaders",
+          "callee": "configured.split",
+          "lineNumber": 8
+        },
+        {
+          "caller": "getCorsHeaders",
+          "callee": "s.trim",
+          "lineNumber": 8
+        },
+        {
+          "caller": "getCorsHeaders",
+          "callee": "Deno.env.get",
+          "lineNumber": 9
+        },
+        {
+          "caller": "getCorsHeaders",
+          "callee": "req.headers.get",
+          "lineNumber": 11
+        },
+        {
+          "caller": "getCorsHeaders",
+          "callee": "allowed.some",
+          "lineNumber": 13
+        },
+        {
+          "caller": "jsonWithCors",
+          "callee": "JSON.stringify",
+          "lineNumber": 29
+        },
+        {
+          "caller": "jsonWithCors",
+          "callee": "getCorsHeaders",
+          "lineNumber": 31
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "supabase/functions/_shared/ussd-auth.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 72,
+      "nonEmptyLines": 66,
+      "functions": [
+        {
+          "name": "verifyUssdGateway",
+          "startLine": 10,
+          "endLine": 38,
+          "params": [
+            "req",
+            "rawBody"
+          ]
+        },
+        {
+          "name": "timingSafeEqual",
+          "startLine": 40,
+          "endLine": 47,
+          "params": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "name": "hmacSha256Hex",
+          "startLine": 49,
+          "endLine": 65,
+          "params": [
+            "secret",
+            "message"
+          ]
+        },
+        {
+          "name": "redactPhone",
+          "startLine": 68,
+          "endLine": 72,
+          "params": [
+            "phone"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "verifyUssdGateway",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "redactPhone",
+          "line": 68,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "verifyUssdGateway",
+          "callee": "Deno.env.get",
+          "lineNumber": 14
+        },
+        {
+          "caller": "verifyUssdGateway",
+          "callee": "console.error",
+          "lineNumber": 16
+        },
+        {
+          "caller": "verifyUssdGateway",
+          "callee": "req.headers.get",
+          "lineNumber": 23
+        },
+        {
+          "caller": "verifyUssdGateway",
+          "callee": "req.headers.get",
+          "lineNumber": 24
+        },
+        {
+          "caller": "verifyUssdGateway",
+          "callee": "timingSafeEqual",
+          "lineNumber": 25
+        },
+        {
+          "caller": "verifyUssdGateway",
+          "callee": "req.headers.get",
+          "lineNumber": 29
+        },
+        {
+          "caller": "verifyUssdGateway",
+          "callee": "hmacSha256Hex",
+          "lineNumber": 31
+        },
+        {
+          "caller": "verifyUssdGateway",
+          "callee": "timingSafeEqual",
+          "lineNumber": 32
+        },
+        {
+          "caller": "verifyUssdGateway",
+          "callee": "hmacHeader.toLowerCase",
+          "lineNumber": 32
+        },
+        {
+          "caller": "timingSafeEqual",
+          "callee": "a.charCodeAt",
+          "lineNumber": 44
+        },
+        {
+          "caller": "timingSafeEqual",
+          "callee": "b.charCodeAt",
+          "lineNumber": 44
+        },
+        {
+          "caller": "hmacSha256Hex",
+          "callee": "crypto.subtle.importKey",
+          "lineNumber": 50
+        },
+        {
+          "caller": "hmacSha256Hex",
+          "callee": "new TextEncoder().encode",
+          "lineNumber": 52
+        },
+        {
+          "caller": "hmacSha256Hex",
+          "callee": "crypto.subtle.sign",
+          "lineNumber": 57
+        },
+        {
+          "caller": "hmacSha256Hex",
+          "callee": "new TextEncoder().encode",
+          "lineNumber": 60
+        },
+        {
+          "caller": "hmacSha256Hex",
+          "callee": "[...new Uint8Array(sig)]\n    .map((b) => b.toString(16).padStart(2, \"0\"))\n    .join",
+          "lineNumber": 62
+        },
+        {
+          "caller": "hmacSha256Hex",
+          "callee": "[...new Uint8Array(sig)]\n    .map",
+          "lineNumber": 62
+        },
+        {
+          "caller": "hmacSha256Hex",
+          "callee": "b.toString(16).padStart",
+          "lineNumber": 63
+        },
+        {
+          "caller": "hmacSha256Hex",
+          "callee": "b.toString",
+          "lineNumber": 63
+        },
+        {
+          "caller": "redactPhone",
+          "callee": "phone.replace",
+          "lineNumber": 69
+        },
+        {
+          "caller": "redactPhone",
+          "callee": "digits.slice",
+          "lineNumber": 71
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "supabase/functions/batch-payout-sweeper/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 654,
+      "nonEmptyLines": 557,
+      "functions": [
+        {
+          "name": "json",
+          "startLine": 89,
+          "endLine": 94,
+          "params": [
+            "data",
+            "status"
+          ]
+        },
+        {
+          "name": "getAdminClient",
+          "startLine": 96,
+          "endLine": 113,
+          "params": []
+        },
+        {
+          "name": "parseConfiguredBps",
+          "startLine": 115,
+          "endLine": 149,
+          "params": []
+        },
+        {
+          "name": "assertValidVoucher",
+          "startLine": 151,
+          "endLine": 166,
+          "params": [
+            "row"
+          ]
+        },
+        {
+          "name": "calculateVoucherSettlement",
+          "startLine": 168,
+          "endLine": 186,
+          "params": [
+            "voucher",
+            "platformYieldBps"
+          ]
+        },
+        {
+          "name": "groupByMerchant",
+          "startLine": 188,
+          "endLine": 216,
+          "params": [
+            "vouchers",
+            "platformYieldBps"
+          ]
+        },
+        {
+          "name": "chunks",
+          "startLine": 218,
+          "endLine": 224,
+          "params": [
+            "items",
+            "size"
+          ]
+        },
+        {
+          "name": "verifyOptionalSweeperSecret",
+          "startLine": 226,
+          "endLine": 242,
+          "params": [
+            "req"
+          ]
+        },
+        {
+          "name": "fetchDueVouchers",
+          "startLine": 248,
+          "endLine": 283,
+          "params": [
+            "supabase",
+            "nowIso"
+          ]
+        },
+        {
+          "name": "fetchShopPayoutDetails",
+          "startLine": 285,
+          "endLine": 314,
+          "params": [
+            "supabase",
+            "shopId"
+          ]
+        },
+        {
+          "name": "mockFlutterwaveBulkTransfer",
+          "startLine": 320,
+          "endLine": 342,
+          "params": [
+            "batch",
+            "shop"
+          ]
+        },
+        {
+          "name": "markVouchersSettled",
+          "startLine": 348,
+          "endLine": 375,
+          "params": [
+            "supabase",
+            "voucherIds"
+          ]
+        },
+        {
+          "name": "writePayoutBatchedEvents",
+          "startLine": 377,
+          "endLine": 441,
+          "params": [
+            "supabase",
+            "batch",
+            "shop",
+            "transfer",
+            "settledVoucherIds",
+            "settledAt"
+          ]
+        },
+        {
+          "name": "settleMerchantBatch",
+          "startLine": 443,
+          "endLine": 500,
+          "params": [
+            "supabase",
+            "batch"
+          ]
+        },
+        {
+          "name": "handleBatchPayoutSweep",
+          "startLine": 506,
+          "endLine": 626,
+          "params": [
+            "req"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "json",
+          "callee": "JSON.stringify",
+          "lineNumber": 90
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "Deno.env.get",
+          "lineNumber": 97
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "Deno.env.get",
+          "lineNumber": 98
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "createClient",
+          "lineNumber": 106
+        },
+        {
+          "caller": "parseConfiguredBps",
+          "callee": "Deno.env.get",
+          "lineNumber": 116
+        },
+        {
+          "caller": "parseConfiguredBps",
+          "callee": "Deno.env.get",
+          "lineNumber": 117
+        },
+        {
+          "caller": "parseConfiguredBps",
+          "callee": "rawBps.trim",
+          "lineNumber": 119
+        },
+        {
+          "caller": "parseConfiguredBps",
+          "callee": "Number",
+          "lineNumber": 120
+        },
+        {
+          "caller": "parseConfiguredBps",
+          "callee": "Number.isInteger",
+          "lineNumber": 121
+        },
+        {
+          "caller": "parseConfiguredBps",
+          "callee": "Deno.env.get",
+          "lineNumber": 130
+        },
+        {
+          "caller": "parseConfiguredBps",
+          "callee": "Deno.env.get",
+          "lineNumber": 131
+        },
+        {
+          "caller": "parseConfiguredBps",
+          "callee": "rawPercentage.trim",
+          "lineNumber": 133
+        },
+        {
+          "caller": "parseConfiguredBps",
+          "callee": "Number",
+          "lineNumber": 137
+        },
+        {
+          "caller": "parseConfiguredBps",
+          "callee": "Number.isFinite",
+          "lineNumber": 139
+        },
+        {
+          "caller": "parseConfiguredBps",
+          "callee": "Math.round",
+          "lineNumber": 148
+        },
+        {
+          "caller": "assertValidVoucher",
+          "callee": "Number.isFinite",
+          "lineNumber": 158
+        },
+        {
+          "caller": "assertValidVoucher",
+          "callee": "Number.isInteger",
+          "lineNumber": 159
+        },
+        {
+          "caller": "calculateVoucherSettlement",
+          "callee": "assertValidVoucher",
+          "lineNumber": 172
+        },
+        {
+          "caller": "calculateVoucherSettlement",
+          "callee": "Math.floor",
+          "lineNumber": 174
+        },
+        {
+          "caller": "groupByMerchant",
+          "callee": "calculateVoucherSettlement",
+          "lineNumber": 195
+        },
+        {
+          "caller": "groupByMerchant",
+          "callee": "groups.get",
+          "lineNumber": 197
+        },
+        {
+          "caller": "groupByMerchant",
+          "callee": "existing.vouchers.push",
+          "lineNumber": 206
+        },
+        {
+          "caller": "groupByMerchant",
+          "callee": "existing.settlements.push",
+          "lineNumber": 207
+        },
+        {
+          "caller": "groupByMerchant",
+          "callee": "groups.set",
+          "lineNumber": 212
+        },
+        {
+          "caller": "chunks",
+          "callee": "result.push",
+          "lineNumber": 221
+        },
+        {
+          "caller": "chunks",
+          "callee": "items.slice",
+          "lineNumber": 221
+        },
+        {
+          "caller": "verifyOptionalSweeperSecret",
+          "callee": "Deno.env.get",
+          "lineNumber": 227
+        },
+        {
+          "caller": "verifyOptionalSweeperSecret",
+          "callee": "req.headers.get",
+          "lineNumber": 230
+        },
+        {
+          "caller": "verifyOptionalSweeperSecret",
+          "callee": "req.headers.get",
+          "lineNumber": 231
+        },
+        {
+          "caller": "verifyOptionalSweeperSecret",
+          "callee": "authHeader?.startsWith",
+          "lineNumber": 232
+        },
+        {
+          "caller": "verifyOptionalSweeperSecret",
+          "callee": "authHeader.slice",
+          "lineNumber": 233
+        },
+        {
+          "caller": "verifyOptionalSweeperSecret",
+          "callee": "console.error",
+          "lineNumber": 240
+        },
+        {
+          "caller": "verifyOptionalSweeperSecret",
+          "callee": "json",
+          "lineNumber": 241
+        },
+        {
+          "caller": "fetchDueVouchers",
+          "callee": "await supabase\n      .from(\"claim_vouchers\")\n      .select(\n        \"voucher_id, shop_id, checkout_price, origin_type, settlement_target_time\",\n      )\n      .eq(\"payout_status\", \"PENDING_BATCH\" satisfies PayoutStatus)\n      .lte(\"settlement_target_time\", nowIso)\n      .order(\"settlement_target_time\", { ascending: true })\n      .order(\"created_at\", { ascending: true })\n      .order(\"voucher_id\", { ascending: true })\n      .range(offset, offset + DEFAULT_PAGE_SIZE - 1)\n      .returns",
+          "lineNumber": 256
+        },
+        {
+          "caller": "fetchDueVouchers",
+          "callee": "supabase\n      .from(\"claim_vouchers\")\n      .select(\n        \"voucher_id, shop_id, checkout_price, origin_type, settlement_target_time\",\n      )\n      .eq(\"payout_status\", \"PENDING_BATCH\" satisfies PayoutStatus)\n      .lte(\"settlement_target_time\", nowIso)\n      .order(\"settlement_target_time\", { ascending: true })\n      .order(\"created_at\", { ascending: true })\n      .order(\"voucher_id\", { ascending: true })\n      .range",
+          "lineNumber": 256
+        },
+        {
+          "caller": "fetchDueVouchers",
+          "callee": "supabase\n      .from(\"claim_vouchers\")\n      .select(\n        \"voucher_id, shop_id, checkout_price, origin_type, settlement_target_time\",\n      )\n      .eq(\"payout_status\", \"PENDING_BATCH\" satisfies PayoutStatus)\n      .lte(\"settlement_target_time\", nowIso)\n      .order(\"settlement_target_time\", { ascending: true })\n      .order(\"created_at\", { ascending: true })\n      .order",
+          "lineNumber": 256
+        },
+        {
+          "caller": "fetchDueVouchers",
+          "callee": "supabase\n      .from(\"claim_vouchers\")\n      .select(\n        \"voucher_id, shop_id, checkout_price, origin_type, settlement_target_time\",\n      )\n      .eq(\"payout_status\", \"PENDING_BATCH\" satisfies PayoutStatus)\n      .lte(\"settlement_target_time\", nowIso)\n      .order(\"settlement_target_time\", { ascending: true })\n      .order",
+          "lineNumber": 256
+        },
+        {
+          "caller": "fetchDueVouchers",
+          "callee": "supabase\n      .from(\"claim_vouchers\")\n      .select(\n        \"voucher_id, shop_id, checkout_price, origin_type, settlement_target_time\",\n      )\n      .eq(\"payout_status\", \"PENDING_BATCH\" satisfies PayoutStatus)\n      .lte(\"settlement_target_time\", nowIso)\n      .order",
+          "lineNumber": 256
+        },
+        {
+          "caller": "fetchDueVouchers",
+          "callee": "supabase\n      .from(\"claim_vouchers\")\n      .select(\n        \"voucher_id, shop_id, checkout_price, origin_type, settlement_target_time\",\n      )\n      .eq(\"payout_status\", \"PENDING_BATCH\" satisfies PayoutStatus)\n      .lte",
+          "lineNumber": 256
+        },
+        {
+          "caller": "fetchDueVouchers",
+          "callee": "supabase\n      .from(\"claim_vouchers\")\n      .select(\n        \"voucher_id, shop_id, checkout_price, origin_type, settlement_target_time\",\n      )\n      .eq",
+          "lineNumber": 256
+        },
+        {
+          "caller": "fetchDueVouchers",
+          "callee": "supabase\n      .from(\"claim_vouchers\")\n      .select",
+          "lineNumber": 256
+        },
+        {
+          "caller": "fetchDueVouchers",
+          "callee": "supabase\n      .from",
+          "lineNumber": 256
+        },
+        {
+          "caller": "fetchDueVouchers",
+          "callee": "allRows.push",
+          "lineNumber": 276
+        },
+        {
+          "caller": "fetchShopPayoutDetails",
+          "callee": "await supabase\n    .from(\"shops\")\n    .select(\"id, payout_method, payout_details\")\n    .eq(\"id\", shopId)\n    .single",
+          "lineNumber": 289
+        },
+        {
+          "caller": "fetchShopPayoutDetails",
+          "callee": "supabase\n    .from(\"shops\")\n    .select(\"id, payout_method, payout_details\")\n    .eq",
+          "lineNumber": 289
+        },
+        {
+          "caller": "fetchShopPayoutDetails",
+          "callee": "supabase\n    .from(\"shops\")\n    .select",
+          "lineNumber": 289
+        },
+        {
+          "caller": "fetchShopPayoutDetails",
+          "callee": "supabase\n    .from",
+          "lineNumber": 289
+        },
+        {
+          "caller": "fetchShopPayoutDetails",
+          "callee": "data.payout_details?.trim",
+          "lineNumber": 305
+        },
+        {
+          "caller": "fetchShopPayoutDetails",
+          "callee": "data.payout_details.trim",
+          "lineNumber": 312
+        },
+        {
+          "caller": "mockFlutterwaveBulkTransfer",
+          "callee": "Date.now",
+          "lineNumber": 330
+        },
+        {
+          "caller": "mockFlutterwaveBulkTransfer",
+          "callee": "crypto.randomUUID",
+          "lineNumber": 331
+        },
+        {
+          "caller": "mockFlutterwaveBulkTransfer",
+          "callee": "console.log",
+          "lineNumber": 333
+        },
+        {
+          "caller": "markVouchersSettled",
+          "callee": "chunks",
+          "lineNumber": 354
+        },
+        {
+          "caller": "markVouchersSettled",
+          "callee": "await supabase\n      .from(\"claim_vouchers\")\n      .update({\n        payout_status: \"SETTLED\" satisfies PayoutStatus,\n      })\n      .in(\"voucher_id\", chunk)\n      .eq(\"payout_status\", \"PENDING_BATCH\" satisfies PayoutStatus)\n      .select(\"voucher_id\")\n      .returns",
+          "lineNumber": 355
+        },
+        {
+          "caller": "markVouchersSettled",
+          "callee": "supabase\n      .from(\"claim_vouchers\")\n      .update({\n        payout_status: \"SETTLED\" satisfies PayoutStatus,\n      })\n      .in(\"voucher_id\", chunk)\n      .eq(\"payout_status\", \"PENDING_BATCH\" satisfies PayoutStatus)\n      .select",
+          "lineNumber": 355
+        },
+        {
+          "caller": "markVouchersSettled",
+          "callee": "supabase\n      .from(\"claim_vouchers\")\n      .update({\n        payout_status: \"SETTLED\" satisfies PayoutStatus,\n      })\n      .in(\"voucher_id\", chunk)\n      .eq",
+          "lineNumber": 355
+        },
+        {
+          "caller": "markVouchersSettled",
+          "callee": "supabase\n      .from(\"claim_vouchers\")\n      .update({\n        payout_status: \"SETTLED\" satisfies PayoutStatus,\n      })\n      .in",
+          "lineNumber": 355
+        },
+        {
+          "caller": "markVouchersSettled",
+          "callee": "supabase\n      .from(\"claim_vouchers\")\n      .update",
+          "lineNumber": 355
+        },
+        {
+          "caller": "markVouchersSettled",
+          "callee": "supabase\n      .from",
+          "lineNumber": 355
+        },
+        {
+          "caller": "markVouchersSettled",
+          "callee": "settledVoucherIds.push",
+          "lineNumber": 371
+        },
+        {
+          "caller": "markVouchersSettled",
+          "callee": "(data ?? []).map",
+          "lineNumber": 371
+        },
+        {
+          "caller": "writePayoutBatchedEvents",
+          "callee": "batch.settlements.map",
+          "lineNumber": 386
+        },
+        {
+          "caller": "writePayoutBatchedEvents",
+          "callee": "batch.vouchers.map",
+          "lineNumber": 391
+        },
+        {
+          "caller": "writePayoutBatchedEvents",
+          "callee": "settledVoucherIds.map",
+          "lineNumber": 394
+        },
+        {
+          "caller": "writePayoutBatchedEvents",
+          "callee": "settlementByVoucherId.get",
+          "lineNumber": 395
+        },
+        {
+          "caller": "writePayoutBatchedEvents",
+          "callee": "voucherByVoucherId.get",
+          "lineNumber": 396
+        },
+        {
+          "caller": "writePayoutBatchedEvents",
+          "callee": "JSON.stringify",
+          "lineNumber": 404
+        },
+        {
+          "caller": "writePayoutBatchedEvents",
+          "callee": "chunks",
+          "lineNumber": 428
+        },
+        {
+          "caller": "writePayoutBatchedEvents",
+          "callee": "await supabase\n      .from(\"transaction_events\")\n      .insert(chunk)\n      .select(\"id\")\n      .returns",
+          "lineNumber": 429
+        },
+        {
+          "caller": "writePayoutBatchedEvents",
+          "callee": "supabase\n      .from(\"transaction_events\")\n      .insert(chunk)\n      .select",
+          "lineNumber": 429
+        },
+        {
+          "caller": "writePayoutBatchedEvents",
+          "callee": "supabase\n      .from(\"transaction_events\")\n      .insert",
+          "lineNumber": 429
+        },
+        {
+          "caller": "writePayoutBatchedEvents",
+          "callee": "supabase\n      .from",
+          "lineNumber": 429
+        },
+        {
+          "caller": "settleMerchantBatch",
+          "callee": "fetchShopPayoutDetails",
+          "lineNumber": 447
+        },
+        {
+          "caller": "settleMerchantBatch",
+          "callee": "mockFlutterwaveBulkTransfer",
+          "lineNumber": 448
+        },
+        {
+          "caller": "settleMerchantBatch",
+          "callee": "new Date().toISOString",
+          "lineNumber": 449
+        },
+        {
+          "caller": "settleMerchantBatch",
+          "callee": "batch.vouchers.map",
+          "lineNumber": 450
+        },
+        {
+          "caller": "settleMerchantBatch",
+          "callee": "markVouchersSettled",
+          "lineNumber": 452
+        },
+        {
+          "caller": "settleMerchantBatch",
+          "callee": "writePayoutBatchedEvents",
+          "lineNumber": 472
+        },
+        {
+          "caller": "settleMerchantBatch",
+          "callee": "console.warn",
+          "lineNumber": 482
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "Deno.env.get",
+          "lineNumber": 507
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "json",
+          "lineNumber": 508
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "verifyOptionalSweeperSecret",
+          "lineNumber": 518
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "getAdminClient",
+          "lineNumber": 525
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "parseConfiguredBps",
+          "lineNumber": 526
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "console.error",
+          "lineNumber": 531
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "json",
+          "lineNumber": 532
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "new Date().toISOString",
+          "lineNumber": 535
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "console.log",
+          "lineNumber": 536
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "fetchDueVouchers",
+          "lineNumber": 542
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "console.error",
+          "lineNumber": 547
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "json",
+          "lineNumber": 548
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "console.log",
+          "lineNumber": 552
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "json",
+          "lineNumber": 553
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "groupByMerchant",
+          "lineNumber": 566
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "console.error",
+          "lineNumber": 571
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "json",
+          "lineNumber": 572
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "merchantBatches.values",
+          "lineNumber": 577
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "console.log",
+          "lineNumber": 579
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "settleMerchantBatch",
+          "lineNumber": 583
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "results.push",
+          "lineNumber": 584
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "console.error",
+          "lineNumber": 590
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "results.push",
+          "lineNumber": 594
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "results.filter",
+          "lineNumber": 606
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "results.filter",
+          "lineNumber": 609
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "console.log",
+          "lineNumber": 613
+        },
+        {
+          "caller": "handleBatchPayoutSweep",
+          "callee": "json",
+          "lineNumber": 617
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 15,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "supabase/functions/checkout-init/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 628,
+      "nonEmptyLines": 541,
+      "functions": [
+        {
+          "name": "json",
+          "startLine": 74,
+          "endLine": 79,
+          "params": [
+            "req",
+            "data",
+            "status"
+          ]
+        },
+        {
+          "name": "requireString",
+          "startLine": 85,
+          "endLine": 91,
+          "params": [
+            "value",
+            "field"
+          ]
+        },
+        {
+          "name": "generateClaimCode",
+          "startLine": 100,
+          "endLine": 116,
+          "params": [
+            "length"
+          ]
+        },
+        {
+          "name": "getAdminClient",
+          "startLine": 122,
+          "endLine": 139,
+          "params": []
+        },
+        {
+          "name": "validatePayload",
+          "startLine": 149,
+          "endLine": 201,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "authenticateCaller",
+          "startLine": 211,
+          "endLine": 239,
+          "params": [
+            "req",
+            "adminClient"
+          ]
+        },
+        {
+          "name": "insertTransaction",
+          "startLine": 249,
+          "endLine": 279,
+          "params": [
+            "adminClient",
+            "buyerId",
+            "totalAmount",
+            "originType",
+            "txRef"
+          ]
+        },
+        {
+          "name": "insertVendorOrders",
+          "startLine": 302,
+          "endLine": 389,
+          "params": [
+            "adminClient",
+            "transactionId",
+            "vendors",
+            "priceMap",
+            "recipientName",
+            "recipientPhone",
+            "message"
+          ]
+        },
+        {
+          "name": "generateFlutterwaveLink",
+          "startLine": 404,
+          "endLine": 464,
+          "params": [
+            "transactionId",
+            "totalAmount",
+            "buyerEmail",
+            "buyerPhone"
+          ]
+        },
+        {
+          "name": "handleCheckoutInit",
+          "startLine": 470,
+          "endLine": 604,
+          "params": [
+            "req"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "json",
+          "callee": "JSON.stringify",
+          "lineNumber": 75
+        },
+        {
+          "caller": "json",
+          "callee": "getCorsHeaders",
+          "lineNumber": 77
+        },
+        {
+          "caller": "requireString",
+          "callee": "value.trim",
+          "lineNumber": 86
+        },
+        {
+          "caller": "requireString",
+          "callee": "console.warn",
+          "lineNumber": 87
+        },
+        {
+          "caller": "requireString",
+          "callee": "value.trim",
+          "lineNumber": 90
+        },
+        {
+          "caller": "generateClaimCode",
+          "callee": "Math.floor",
+          "lineNumber": 103
+        },
+        {
+          "caller": "generateClaimCode",
+          "callee": "crypto.getRandomValues",
+          "lineNumber": 108
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "Deno.env.get",
+          "lineNumber": 123
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "Deno.env.get",
+          "lineNumber": 124
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "createClient",
+          "lineNumber": 132
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "Array.isArray",
+          "lineNumber": 151
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "(raw.vendors as unknown[]).map",
+          "lineNumber": 155
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "requireString",
+          "lineNumber": 161
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "Array.isArray",
+          "lineNumber": 164
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "id.trim",
+          "lineNumber": 169
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "(vObj.item_ids as string[]).map",
+          "lineNumber": 176
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "id.trim",
+          "lineNumber": 176
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "requireString",
+          "lineNumber": 181
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "VALID_ORIGIN_TYPES.has",
+          "lineNumber": 183
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "raw.recipient_name.trim",
+          "lineNumber": 190
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "raw.recipient_phone.trim",
+          "lineNumber": 191
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "raw.message.trim",
+          "lineNumber": 192
+        },
+        {
+          "caller": "authenticateCaller",
+          "callee": "req.headers.get",
+          "lineNumber": 215
+        },
+        {
+          "caller": "authenticateCaller",
+          "callee": "authHeader.startsWith",
+          "lineNumber": 216
+        },
+        {
+          "caller": "authenticateCaller",
+          "callee": "json",
+          "lineNumber": 217
+        },
+        {
+          "caller": "authenticateCaller",
+          "callee": "authHeader.split",
+          "lineNumber": 220
+        },
+        {
+          "caller": "authenticateCaller",
+          "callee": "adminClient.auth.getUser",
+          "lineNumber": 224
+        },
+        {
+          "caller": "authenticateCaller",
+          "callee": "console.error",
+          "lineNumber": 227
+        },
+        {
+          "caller": "authenticateCaller",
+          "callee": "json",
+          "lineNumber": 231
+        },
+        {
+          "caller": "insertTransaction",
+          "callee": "await adminClient\n    .from(\"transactions\")\n    .insert({\n      buyer_id: buyerId,\n      total_amount: totalAmount,\n      origin_type: originType,\n      status: \"GATEWAY_PROCESSING\",\n      gateway_tx_ref: txRef,\n      created_at: new Date().toISOString(),\n    })\n    .select(\"transaction_id\")\n    .single",
+          "lineNumber": 256
+        },
+        {
+          "caller": "insertTransaction",
+          "callee": "adminClient\n    .from(\"transactions\")\n    .insert({\n      buyer_id: buyerId,\n      total_amount: totalAmount,\n      origin_type: originType,\n      status: \"GATEWAY_PROCESSING\",\n      gateway_tx_ref: txRef,\n      created_at: new Date().toISOString(),\n    })\n    .select",
+          "lineNumber": 256
+        },
+        {
+          "caller": "insertTransaction",
+          "callee": "adminClient\n    .from(\"transactions\")\n    .insert",
+          "lineNumber": 256
+        },
+        {
+          "caller": "insertTransaction",
+          "callee": "adminClient\n    .from",
+          "lineNumber": 256
+        },
+        {
+          "caller": "insertTransaction",
+          "callee": "new Date().toISOString",
+          "lineNumber": 264
+        },
+        {
+          "caller": "insertTransaction",
+          "callee": "console.error",
+          "lineNumber": 270
+        },
+        {
+          "caller": "insertTransaction",
+          "callee": "console.log",
+          "lineNumber": 274
+        },
+        {
+          "caller": "insertVendorOrders",
+          "callee": "generateClaimCode",
+          "lineNumber": 315
+        },
+        {
+          "caller": "insertVendorOrders",
+          "callee": "new Date().toISOString",
+          "lineNumber": 324
+        },
+        {
+          "caller": "insertVendorOrders",
+          "callee": "await adminClient\n      .from(\"shop_orders\")\n      .insert(shopOrderRow)\n      .select(\"shop_order_id\")\n      .single",
+          "lineNumber": 332
+        },
+        {
+          "caller": "insertVendorOrders",
+          "callee": "adminClient\n      .from(\"shop_orders\")\n      .insert(shopOrderRow)\n      .select",
+          "lineNumber": 332
+        },
+        {
+          "caller": "insertVendorOrders",
+          "callee": "adminClient\n      .from(\"shop_orders\")\n      .insert",
+          "lineNumber": 332
+        },
+        {
+          "caller": "insertVendorOrders",
+          "callee": "adminClient\n      .from",
+          "lineNumber": 332
+        },
+        {
+          "caller": "insertVendorOrders",
+          "callee": "console.error",
+          "lineNumber": 339
+        },
+        {
+          "caller": "insertVendorOrders",
+          "callee": "shopOrders.push",
+          "lineNumber": 349
+        },
+        {
+          "caller": "insertVendorOrders",
+          "callee": "console.log",
+          "lineNumber": 356
+        },
+        {
+          "caller": "insertVendorOrders",
+          "callee": "vendor.item_ids.map",
+          "lineNumber": 362
+        },
+        {
+          "caller": "insertVendorOrders",
+          "callee": "priceMap.get",
+          "lineNumber": 365
+        },
+        {
+          "caller": "insertVendorOrders",
+          "callee": "new Date().toISOString",
+          "lineNumber": 366
+        },
+        {
+          "caller": "insertVendorOrders",
+          "callee": "adminClient\n      .from(\"order_items\")\n      .insert",
+          "lineNumber": 369
+        },
+        {
+          "caller": "insertVendorOrders",
+          "callee": "adminClient\n      .from",
+          "lineNumber": 369
+        },
+        {
+          "caller": "insertVendorOrders",
+          "callee": "console.error",
+          "lineNumber": 374
+        },
+        {
+          "caller": "insertVendorOrders",
+          "callee": "console.log",
+          "lineNumber": 383
+        },
+        {
+          "caller": "generateFlutterwaveLink",
+          "callee": "Deno.env.get",
+          "lineNumber": 410
+        },
+        {
+          "caller": "generateFlutterwaveLink",
+          "callee": "(Deno.env.get(\"APP_URL\") ?? \"http://localhost:5173\").replace",
+          "lineNumber": 417
+        },
+        {
+          "caller": "generateFlutterwaveLink",
+          "callee": "Deno.env.get",
+          "lineNumber": 417
+        },
+        {
+          "caller": "generateFlutterwaveLink",
+          "callee": "fetch",
+          "lineNumber": 438
+        },
+        {
+          "caller": "generateFlutterwaveLink",
+          "callee": "JSON.stringify",
+          "lineNumber": 444
+        },
+        {
+          "caller": "generateFlutterwaveLink",
+          "callee": "response.json",
+          "lineNumber": 447
+        },
+        {
+          "caller": "generateFlutterwaveLink",
+          "callee": "console.error",
+          "lineNumber": 450
+        },
+        {
+          "caller": "generateFlutterwaveLink",
+          "callee": "JSON.stringify",
+          "lineNumber": 452
+        },
+        {
+          "caller": "generateFlutterwaveLink",
+          "callee": "console.log",
+          "lineNumber": 459
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "req.json",
+          "lineNumber": 474
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "json",
+          "lineNumber": 476
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "validatePayload",
+          "lineNumber": 482
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "json",
+          "lineNumber": 487
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "getAdminClient",
+          "lineNumber": 495
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "console.error",
+          "lineNumber": 498
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "json",
+          "lineNumber": 499
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "authenticateCaller",
+          "lineNumber": 503
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "vendors.flatMap",
+          "lineNumber": 508
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "json",
+          "lineNumber": 510
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "adminClient\n    .from(\"items\")\n    .select(\"id, price_zmw\")\n    .in",
+          "lineNumber": 513
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "adminClient\n    .from(\"items\")\n    .select",
+          "lineNumber": 513
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "adminClient\n    .from",
+          "lineNumber": 513
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "console.error",
+          "lineNumber": 519
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "json",
+          "lineNumber": 520
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "priceMap.set",
+          "lineNumber": 525
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "priceMap.get",
+          "lineNumber": 534
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "json",
+          "lineNumber": 536
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "secureVendors.push",
+          "lineNumber": 541
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "console.log",
+          "lineNumber": 544
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "Date.now",
+          "lineNumber": 550
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "generateClaimCode",
+          "lineNumber": 550
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "secureVendors.map",
+          "lineNumber": 554
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "adminClient.rpc",
+          "lineNumber": 559
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "console.error",
+          "lineNumber": 573
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "console.log",
+          "lineNumber": 580
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "generateFlutterwaveLink",
+          "lineNumber": 585
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "json",
+          "lineNumber": 593
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "console.error",
+          "lineNumber": 601
+        },
+        {
+          "caller": "handleCheckoutInit",
+          "callee": "json",
+          "lineNumber": 602
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 10,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "supabase/functions/deno.d.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 71,
+      "nonEmptyLines": 59,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "supabase/functions/deno.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 9,
+      "nonEmptyLines": 9,
+      "sections": [
+        {
+          "heading": "compilerOptions",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "imports",
+          "level": 1,
+          "line": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 2
+      }
+    },
+    {
+      "path": "supabase/functions/flutterwave-webhook/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 498,
+      "nonEmptyLines": 431,
+      "functions": [
+        {
+          "name": "json",
+          "startLine": 66,
+          "endLine": 68,
+          "params": [
+            "data",
+            "status"
+          ]
+        },
+        {
+          "name": "getAdminClient",
+          "startLine": 76,
+          "endLine": 95,
+          "params": []
+        },
+        {
+          "name": "verifySignature",
+          "startLine": 113,
+          "endLine": 157,
+          "params": [
+            "req"
+          ]
+        },
+        {
+          "name": "parseAndValidateBody",
+          "startLine": 174,
+          "endLine": 233,
+          "params": [
+            "req"
+          ]
+        },
+        {
+          "name": "writeTransactionEvent",
+          "startLine": 254,
+          "endLine": 284,
+          "params": [
+            "supabase",
+            "voucherId",
+            "rawBody"
+          ]
+        },
+        {
+          "name": "promoteVoucherPayoutStatus",
+          "startLine": 296,
+          "endLine": 373,
+          "params": [
+            "supabase",
+            "transactionId",
+            "flutterwaveTransactionId",
+            "flwRef",
+            "paidAmount",
+            "paidCurrency"
+          ]
+        },
+        {
+          "name": "handleFlutterwaveWebhook",
+          "startLine": 379,
+          "endLine": 473,
+          "params": [
+            "req"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "json",
+          "callee": "JSON.stringify",
+          "lineNumber": 67
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "Deno.env.get",
+          "lineNumber": 77
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "Deno.env.get",
+          "lineNumber": 78
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "createClient",
+          "lineNumber": 86
+        },
+        {
+          "caller": "verifySignature",
+          "callee": "req.headers.get",
+          "lineNumber": 114
+        },
+        {
+          "caller": "verifySignature",
+          "callee": "console.error",
+          "lineNumber": 117
+        },
+        {
+          "caller": "verifySignature",
+          "callee": "Deno.env.get",
+          "lineNumber": 122
+        },
+        {
+          "caller": "verifySignature",
+          "callee": "console.error",
+          "lineNumber": 127
+        },
+        {
+          "caller": "verifySignature",
+          "callee": "encoder.encode",
+          "lineNumber": 137
+        },
+        {
+          "caller": "verifySignature",
+          "callee": "encoder.encode",
+          "lineNumber": 138
+        },
+        {
+          "caller": "verifySignature",
+          "callee": "console.error",
+          "lineNumber": 141
+        },
+        {
+          "caller": "verifySignature",
+          "callee": "console.error",
+          "lineNumber": 152
+        },
+        {
+          "caller": "parseAndValidateBody",
+          "callee": "req.text",
+          "lineNumber": 179
+        },
+        {
+          "caller": "parseAndValidateBody",
+          "callee": "rawBody.trim",
+          "lineNumber": 184
+        },
+        {
+          "caller": "parseAndValidateBody",
+          "callee": "JSON.parse",
+          "lineNumber": 190
+        },
+        {
+          "caller": "parseAndValidateBody",
+          "callee": "Array.isArray",
+          "lineNumber": 196
+        },
+        {
+          "caller": "parseAndValidateBody",
+          "callee": "obj.event.trim",
+          "lineNumber": 203
+        },
+        {
+          "caller": "parseAndValidateBody",
+          "callee": "Array.isArray",
+          "lineNumber": 208
+        },
+        {
+          "caller": "parseAndValidateBody",
+          "callee": "data.status.trim",
+          "lineNumber": 215
+        },
+        {
+          "caller": "parseAndValidateBody",
+          "callee": "data.tx_ref.trim",
+          "lineNumber": 220
+        },
+        {
+          "caller": "parseAndValidateBody",
+          "callee": "Number.isFinite",
+          "lineNumber": 225
+        },
+        {
+          "caller": "writeTransactionEvent",
+          "callee": "await supabase\n    .from(\"transaction_events\")\n    .insert({\n      transaction_id: voucherId,\n      event_type: \"WEBHOOK_RECEIVED\",\n      payload: rawBody,\n      created_at: new Date().toISOString(),\n    })\n    .select(\"id\")\n    .single",
+          "lineNumber": 259
+        },
+        {
+          "caller": "writeTransactionEvent",
+          "callee": "supabase\n    .from(\"transaction_events\")\n    .insert({\n      transaction_id: voucherId,\n      event_type: \"WEBHOOK_RECEIVED\",\n      payload: rawBody,\n      created_at: new Date().toISOString(),\n    })\n    .select",
+          "lineNumber": 259
+        },
+        {
+          "caller": "writeTransactionEvent",
+          "callee": "supabase\n    .from(\"transaction_events\")\n    .insert",
+          "lineNumber": 259
+        },
+        {
+          "caller": "writeTransactionEvent",
+          "callee": "supabase\n    .from",
+          "lineNumber": 259
+        },
+        {
+          "caller": "writeTransactionEvent",
+          "callee": "new Date().toISOString",
+          "lineNumber": 265
+        },
+        {
+          "caller": "writeTransactionEvent",
+          "callee": "console.error",
+          "lineNumber": 272
+        },
+        {
+          "caller": "writeTransactionEvent",
+          "callee": "console.log",
+          "lineNumber": 281
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "supabase\n    .from(\"transactions\")\n    .select(\"total_amount, status\")\n    .eq(\"transaction_id\", transactionId)\n    .single",
+          "lineNumber": 305
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "supabase\n    .from(\"transactions\")\n    .select(\"total_amount, status\")\n    .eq",
+          "lineNumber": 305
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "supabase\n    .from(\"transactions\")\n    .select",
+          "lineNumber": 305
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "supabase\n    .from",
+          "lineNumber": 305
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "console.error",
+          "lineNumber": 312
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "console.warn",
+          "lineNumber": 317
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "console.error",
+          "lineNumber": 322
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "supabase\n    .from(\"transactions\")\n    .update({\n      status: \"SUCCESSFUL\",\n    })\n    .eq(\"transaction_id\", transactionId)\n    .eq(\"status\", \"GATEWAY_PROCESSING\")\n    .select",
+          "lineNumber": 331
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "supabase\n    .from(\"transactions\")\n    .update({\n      status: \"SUCCESSFUL\",\n    })\n    .eq(\"transaction_id\", transactionId)\n    .eq",
+          "lineNumber": 331
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "supabase\n    .from(\"transactions\")\n    .update({\n      status: \"SUCCESSFUL\",\n    })\n    .eq",
+          "lineNumber": 331
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "supabase\n    .from(\"transactions\")\n    .update",
+          "lineNumber": 331
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "supabase\n    .from",
+          "lineNumber": 331
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "console.error",
+          "lineNumber": 341
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "supabase\n    .from(\"shop_orders\")\n    .update({\n      claim_status: \"PENDING\",\n    })\n    .eq(\"transaction_id\", transactionId)\n    .eq",
+          "lineNumber": 354
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "supabase\n    .from(\"shop_orders\")\n    .update({\n      claim_status: \"PENDING\",\n    })\n    .eq",
+          "lineNumber": 354
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "supabase\n    .from(\"shop_orders\")\n    .update",
+          "lineNumber": 354
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "supabase\n    .from",
+          "lineNumber": 354
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "console.error",
+          "lineNumber": 363
+        },
+        {
+          "caller": "promoteVoucherPayoutStatus",
+          "callee": "console.log",
+          "lineNumber": 369
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.log",
+          "lineNumber": 380
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "verifySignature",
+          "lineNumber": 383
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.log",
+          "lineNumber": 387
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "parseAndValidateBody",
+          "lineNumber": 393
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.error",
+          "lineNumber": 396
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "json",
+          "lineNumber": 400
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "data.tx_ref.trim",
+          "lineNumber": 404
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.log",
+          "lineNumber": 406
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "getAdminClient",
+          "lineNumber": 413
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.error",
+          "lineNumber": 416
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "writeTransactionEvent",
+          "lineNumber": 425
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.log",
+          "lineNumber": 429
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "supabase.rpc",
+          "lineNumber": 434
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.warn",
+          "lineNumber": 446
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.log",
+          "lineNumber": 451
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "JSON.stringify",
+          "lineNumber": 452
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.log",
+          "lineNumber": 458
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.log",
+          "lineNumber": 471
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "json",
+          "lineNumber": 472
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "supabase/functions/fulfill-voucher/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 482,
+      "nonEmptyLines": 408,
+      "functions": [
+        {
+          "name": "json",
+          "startLine": 44,
+          "endLine": 49,
+          "params": [
+            "req",
+            "data",
+            "status"
+          ]
+        },
+        {
+          "name": "getAdminClient",
+          "startLine": 51,
+          "endLine": 58,
+          "params": []
+        },
+        {
+          "name": "validatePayload",
+          "startLine": 64,
+          "endLine": 104,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "verifyMerchant",
+          "startLine": 110,
+          "endLine": 143,
+          "params": [
+            "httpReq",
+            "shopId",
+            "db"
+          ]
+        },
+        {
+          "name": "fetchPendingOrder",
+          "startLine": 149,
+          "endLine": 174,
+          "params": [
+            "httpReq",
+            "db",
+            "claimCode"
+          ]
+        },
+        {
+          "name": "updateItemStatuses",
+          "startLine": 180,
+          "endLine": 205,
+          "params": [
+            "db",
+            "shopOrderId",
+            "presentIds",
+            "missingIds"
+          ]
+        },
+        {
+          "name": "computePriceSplit",
+          "startLine": 211,
+          "endLine": 240,
+          "params": [
+            "db",
+            "shopOrderId",
+            "presentIds",
+            "missingIds"
+          ]
+        },
+        {
+          "name": "creditMerchantLedger",
+          "startLine": 246,
+          "endLine": 269,
+          "params": [
+            "db",
+            "shopOrderId",
+            "shopId",
+            "amount",
+            "claimCode"
+          ]
+        },
+        {
+          "name": "creditSenderWallet",
+          "startLine": 275,
+          "endLine": 322,
+          "params": [
+            "db",
+            "transactionId",
+            "shopOrderId",
+            "amount",
+            "claimCode"
+          ]
+        },
+        {
+          "name": "finaliseShopOrder",
+          "startLine": 328,
+          "endLine": 357,
+          "params": [
+            "db",
+            "shopOrderId",
+            "hasMissingItems"
+          ]
+        },
+        {
+          "name": "writeLedgerEvent",
+          "startLine": 363,
+          "endLine": 387,
+          "params": [
+            "db",
+            "shopOrderId",
+            "merchantUserId",
+            "payload"
+          ]
+        },
+        {
+          "name": "handleFulfillVoucher",
+          "startLine": 393,
+          "endLine": 462,
+          "params": [
+            "req"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "json",
+          "callee": "JSON.stringify",
+          "lineNumber": 45
+        },
+        {
+          "caller": "json",
+          "callee": "getCorsHeaders",
+          "lineNumber": 47
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "Deno.env.get",
+          "lineNumber": 52
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "Deno.env.get",
+          "lineNumber": 53
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "createClient",
+          "lineNumber": 55
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "claim_code.trim",
+          "lineNumber": 67
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "claim_code.trim().toUpperCase",
+          "lineNumber": 70
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "claim_code.trim",
+          "lineNumber": 70
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "/^[A-Z0-9]{8}$/.test",
+          "lineNumber": 71
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "Array.isArray",
+          "lineNumber": 75
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "Array.isArray",
+          "lineNumber": 78
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "presentSet.has",
+          "lineNumber": 88
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "id.trim",
+          "lineNumber": 94
+        },
+        {
+          "caller": "verifyMerchant",
+          "callee": "httpReq.headers.get",
+          "lineNumber": 115
+        },
+        {
+          "caller": "verifyMerchant",
+          "callee": "authHeader?.startsWith",
+          "lineNumber": 116
+        },
+        {
+          "caller": "verifyMerchant",
+          "callee": "json",
+          "lineNumber": 117
+        },
+        {
+          "caller": "verifyMerchant",
+          "callee": "db.auth.getUser",
+          "lineNumber": 120
+        },
+        {
+          "caller": "verifyMerchant",
+          "callee": "authHeader.split",
+          "lineNumber": 120
+        },
+        {
+          "caller": "verifyMerchant",
+          "callee": "console.error",
+          "lineNumber": 122
+        },
+        {
+          "caller": "verifyMerchant",
+          "callee": "json",
+          "lineNumber": 123
+        },
+        {
+          "caller": "verifyMerchant",
+          "callee": "await db\n    .from(\"merchant_shops\")\n    .select(\"shop_id\")\n    .eq(\"user_id\", user.id)\n    .eq(\"shop_id\", shopId)\n    .maybeSingle",
+          "lineNumber": 126
+        },
+        {
+          "caller": "verifyMerchant",
+          "callee": "db\n    .from(\"merchant_shops\")\n    .select(\"shop_id\")\n    .eq(\"user_id\", user.id)\n    .eq",
+          "lineNumber": 126
+        },
+        {
+          "caller": "verifyMerchant",
+          "callee": "db\n    .from(\"merchant_shops\")\n    .select(\"shop_id\")\n    .eq",
+          "lineNumber": 126
+        },
+        {
+          "caller": "verifyMerchant",
+          "callee": "db\n    .from(\"merchant_shops\")\n    .select",
+          "lineNumber": 126
+        },
+        {
+          "caller": "verifyMerchant",
+          "callee": "db\n    .from",
+          "lineNumber": 126
+        },
+        {
+          "caller": "verifyMerchant",
+          "callee": "console.error",
+          "lineNumber": 134
+        },
+        {
+          "caller": "verifyMerchant",
+          "callee": "json",
+          "lineNumber": 135
+        },
+        {
+          "caller": "verifyMerchant",
+          "callee": "console.error",
+          "lineNumber": 138
+        },
+        {
+          "caller": "verifyMerchant",
+          "callee": "json",
+          "lineNumber": 139
+        },
+        {
+          "caller": "fetchPendingOrder",
+          "callee": "await db\n    .from(\"shop_orders\")\n    .select(\"shop_order_id, shop_id, transaction_id, claim_status, subtotal\")\n    .eq(\"claim_code\", claimCode)\n    .eq(\"claim_status\", \"PENDING\")\n    .maybeSingle",
+          "lineNumber": 154
+        },
+        {
+          "caller": "fetchPendingOrder",
+          "callee": "db\n    .from(\"shop_orders\")\n    .select(\"shop_order_id, shop_id, transaction_id, claim_status, subtotal\")\n    .eq(\"claim_code\", claimCode)\n    .eq",
+          "lineNumber": 154
+        },
+        {
+          "caller": "fetchPendingOrder",
+          "callee": "db\n    .from(\"shop_orders\")\n    .select(\"shop_order_id, shop_id, transaction_id, claim_status, subtotal\")\n    .eq",
+          "lineNumber": 154
+        },
+        {
+          "caller": "fetchPendingOrder",
+          "callee": "db\n    .from(\"shop_orders\")\n    .select",
+          "lineNumber": 154
+        },
+        {
+          "caller": "fetchPendingOrder",
+          "callee": "db\n    .from",
+          "lineNumber": 154
+        },
+        {
+          "caller": "fetchPendingOrder",
+          "callee": "console.error",
+          "lineNumber": 162
+        },
+        {
+          "caller": "fetchPendingOrder",
+          "callee": "json",
+          "lineNumber": 163
+        },
+        {
+          "caller": "fetchPendingOrder",
+          "callee": "json",
+          "lineNumber": 166
+        },
+        {
+          "caller": "updateItemStatuses",
+          "callee": "db\n      .from(\"order_items\")\n      .update({ fulfillment_status: \"COLLECTED\", fulfilled_at: new Date().toISOString() })\n      .eq(\"shop_order_id\", shopOrderId)\n      .in",
+          "lineNumber": 188
+        },
+        {
+          "caller": "updateItemStatuses",
+          "callee": "db\n      .from(\"order_items\")\n      .update({ fulfillment_status: \"COLLECTED\", fulfilled_at: new Date().toISOString() })\n      .eq",
+          "lineNumber": 188
+        },
+        {
+          "caller": "updateItemStatuses",
+          "callee": "db\n      .from(\"order_items\")\n      .update",
+          "lineNumber": 188
+        },
+        {
+          "caller": "updateItemStatuses",
+          "callee": "db\n      .from",
+          "lineNumber": 188
+        },
+        {
+          "caller": "updateItemStatuses",
+          "callee": "new Date().toISOString",
+          "lineNumber": 190
+        },
+        {
+          "caller": "updateItemStatuses",
+          "callee": "db\n      .from(\"order_items\")\n      .update({ fulfillment_status: \"MISSING\" })\n      .eq(\"shop_order_id\", shopOrderId)\n      .in",
+          "lineNumber": 198
+        },
+        {
+          "caller": "updateItemStatuses",
+          "callee": "db\n      .from(\"order_items\")\n      .update({ fulfillment_status: \"MISSING\" })\n      .eq",
+          "lineNumber": 198
+        },
+        {
+          "caller": "updateItemStatuses",
+          "callee": "db\n      .from(\"order_items\")\n      .update",
+          "lineNumber": 198
+        },
+        {
+          "caller": "updateItemStatuses",
+          "callee": "db\n      .from",
+          "lineNumber": 198
+        },
+        {
+          "caller": "computePriceSplit",
+          "callee": "db\n    .from(\"order_items\")\n    .select(\"order_item_id, allocated_price\")\n    .eq(\"shop_order_id\", shopOrderId)\n    .in",
+          "lineNumber": 219
+        },
+        {
+          "caller": "computePriceSplit",
+          "callee": "db\n    .from(\"order_items\")\n    .select(\"order_item_id, allocated_price\")\n    .eq",
+          "lineNumber": 219
+        },
+        {
+          "caller": "computePriceSplit",
+          "callee": "db\n    .from(\"order_items\")\n    .select",
+          "lineNumber": 219
+        },
+        {
+          "caller": "computePriceSplit",
+          "callee": "db\n    .from",
+          "lineNumber": 219
+        },
+        {
+          "caller": "computePriceSplit",
+          "callee": "presentSet.has",
+          "lineNumber": 232
+        },
+        {
+          "caller": "creditMerchantLedger",
+          "callee": "db\n    .from(\"payout_ledger\")\n    .insert",
+          "lineNumber": 255
+        },
+        {
+          "caller": "creditMerchantLedger",
+          "callee": "db\n    .from",
+          "lineNumber": 255
+        },
+        {
+          "caller": "creditMerchantLedger",
+          "callee": "new Date().toISOString",
+          "lineNumber": 263
+        },
+        {
+          "caller": "creditMerchantLedger",
+          "callee": "console.log",
+          "lineNumber": 268
+        },
+        {
+          "caller": "creditSenderWallet",
+          "callee": "await db\n    .from(\"transactions\")\n    .select(\"buyer_id\")\n    .eq(\"transaction_id\", transactionId)\n    .single",
+          "lineNumber": 285
+        },
+        {
+          "caller": "creditSenderWallet",
+          "callee": "db\n    .from(\"transactions\")\n    .select(\"buyer_id\")\n    .eq",
+          "lineNumber": 285
+        },
+        {
+          "caller": "creditSenderWallet",
+          "callee": "db\n    .from(\"transactions\")\n    .select",
+          "lineNumber": 285
+        },
+        {
+          "caller": "creditSenderWallet",
+          "callee": "db\n    .from",
+          "lineNumber": 285
+        },
+        {
+          "caller": "creditSenderWallet",
+          "callee": "db.rpc",
+          "lineNumber": 298
+        },
+        {
+          "caller": "creditSenderWallet",
+          "callee": "console.warn",
+          "lineNumber": 307
+        },
+        {
+          "caller": "creditSenderWallet",
+          "callee": "db\n      .from(\"kithly_wallets\")\n      .insert",
+          "lineNumber": 308
+        },
+        {
+          "caller": "creditSenderWallet",
+          "callee": "db\n      .from",
+          "lineNumber": 308
+        },
+        {
+          "caller": "creditSenderWallet",
+          "callee": "new Date().toISOString",
+          "lineNumber": 316
+        },
+        {
+          "caller": "creditSenderWallet",
+          "callee": "console.log",
+          "lineNumber": 321
+        },
+        {
+          "caller": "finaliseShopOrder",
+          "callee": "new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString",
+          "lineNumber": 334
+        },
+        {
+          "caller": "finaliseShopOrder",
+          "callee": "Date.now",
+          "lineNumber": 334
+        },
+        {
+          "caller": "finaliseShopOrder",
+          "callee": "db\n    .from(\"shop_orders\")\n    .update({\n      claim_status: claimStatus,\n      settlement_target_time: settlementTargetTime,\n      fulfilled_at: new Date().toISOString(),\n    })\n    .eq(\"claim_status\", \"PROCESSING_FULFILLMENT\")\n    .eq(\"shop_order_id\", shopOrderId)\n    .select",
+          "lineNumber": 336
+        },
+        {
+          "caller": "finaliseShopOrder",
+          "callee": "db\n    .from(\"shop_orders\")\n    .update({\n      claim_status: claimStatus,\n      settlement_target_time: settlementTargetTime,\n      fulfilled_at: new Date().toISOString(),\n    })\n    .eq(\"claim_status\", \"PROCESSING_FULFILLMENT\")\n    .eq",
+          "lineNumber": 336
+        },
+        {
+          "caller": "finaliseShopOrder",
+          "callee": "db\n    .from(\"shop_orders\")\n    .update({\n      claim_status: claimStatus,\n      settlement_target_time: settlementTargetTime,\n      fulfilled_at: new Date().toISOString(),\n    })\n    .eq",
+          "lineNumber": 336
+        },
+        {
+          "caller": "finaliseShopOrder",
+          "callee": "db\n    .from(\"shop_orders\")\n    .update",
+          "lineNumber": 336
+        },
+        {
+          "caller": "finaliseShopOrder",
+          "callee": "db\n    .from",
+          "lineNumber": 336
+        },
+        {
+          "caller": "finaliseShopOrder",
+          "callee": "new Date().toISOString",
+          "lineNumber": 341
+        },
+        {
+          "caller": "finaliseShopOrder",
+          "callee": "console.log",
+          "lineNumber": 355
+        },
+        {
+          "caller": "writeLedgerEvent",
+          "callee": "db\n    .from(\"transaction_events\")\n    .insert",
+          "lineNumber": 369
+        },
+        {
+          "caller": "writeLedgerEvent",
+          "callee": "db\n    .from",
+          "lineNumber": 369
+        },
+        {
+          "caller": "writeLedgerEvent",
+          "callee": "JSON.stringify",
+          "lineNumber": 374
+        },
+        {
+          "caller": "writeLedgerEvent",
+          "callee": "new Date().toISOString",
+          "lineNumber": 375
+        },
+        {
+          "caller": "writeLedgerEvent",
+          "callee": "console.error",
+          "lineNumber": 380
+        },
+        {
+          "caller": "writeLedgerEvent",
+          "callee": "console.log",
+          "lineNumber": 385
+        },
+        {
+          "caller": "handleFulfillVoucher",
+          "callee": "req.json",
+          "lineNumber": 397
+        },
+        {
+          "caller": "handleFulfillVoucher",
+          "callee": "json",
+          "lineNumber": 399
+        },
+        {
+          "caller": "handleFulfillVoucher",
+          "callee": "Array.isArray",
+          "lineNumber": 402
+        },
+        {
+          "caller": "handleFulfillVoucher",
+          "callee": "json",
+          "lineNumber": 403
+        },
+        {
+          "caller": "handleFulfillVoucher",
+          "callee": "validatePayload",
+          "lineNumber": 409
+        },
+        {
+          "caller": "handleFulfillVoucher",
+          "callee": "json",
+          "lineNumber": 411
+        },
+        {
+          "caller": "handleFulfillVoucher",
+          "callee": "console.log",
+          "lineNumber": 416
+        },
+        {
+          "caller": "handleFulfillVoucher",
+          "callee": "getAdminClient",
+          "lineNumber": 423
+        },
+        {
+          "caller": "handleFulfillVoucher",
+          "callee": "console.error",
+          "lineNumber": 425
+        },
+        {
+          "caller": "handleFulfillVoucher",
+          "callee": "json",
+          "lineNumber": 426
+        },
+        {
+          "caller": "handleFulfillVoucher",
+          "callee": "fetchPendingOrder",
+          "lineNumber": 430
+        },
+        {
+          "caller": "handleFulfillVoucher",
+          "callee": "verifyMerchant",
+          "lineNumber": 435
+        },
+        {
+          "caller": "handleFulfillVoucher",
+          "callee": "console.log",
+          "lineNumber": 439
+        },
+        {
+          "caller": "handleFulfillVoucher",
+          "callee": "db.rpc",
+          "lineNumber": 442
+        },
+        {
+          "caller": "handleFulfillVoucher",
+          "callee": "console.error",
+          "lineNumber": 451
+        },
+        {
+          "caller": "handleFulfillVoucher",
+          "callee": "json",
+          "lineNumber": 452
+        },
+        {
+          "caller": "handleFulfillVoucher",
+          "callee": "json",
+          "lineNumber": 455
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 12,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "supabase/functions/fx-rate-lock/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 610,
+      "nonEmptyLines": 532,
+      "functions": [
+        {
+          "name": "json",
+          "startLine": 169,
+          "endLine": 174,
+          "params": [
+            "data",
+            "status"
+          ]
+        },
+        {
+          "name": "ceilTo",
+          "startLine": 185,
+          "endLine": 188,
+          "params": [
+            "value",
+            "places"
+          ]
+        },
+        {
+          "name": "fetchWithTimeout",
+          "startLine": 194,
+          "endLine": 210,
+          "params": [
+            "url",
+            "options",
+            "timeoutMs"
+          ]
+        },
+        {
+          "name": "validatePayload",
+          "startLine": 225,
+          "endLine": 268,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "fetchFromExchangeRateApi",
+          "startLine": 280,
+          "endLine": 342,
+          "params": [
+            "targetCurrency"
+          ]
+        },
+        {
+          "name": "fetchFromOpenErApi",
+          "startLine": 354,
+          "endLine": 407,
+          "params": [
+            "targetCurrency"
+          ]
+        },
+        {
+          "name": "getSafeHarbourRate",
+          "startLine": 413,
+          "endLine": 422,
+          "params": [
+            "targetCurrency"
+          ]
+        },
+        {
+          "name": "resolveExchangeRate",
+          "startLine": 441,
+          "endLine": 454,
+          "params": [
+            "targetCurrency"
+          ]
+        },
+        {
+          "name": "calculateInternationalCheckout",
+          "startLine": 485,
+          "endLine": 509,
+          "params": [
+            "basePriceZmw",
+            "rawRate"
+          ]
+        },
+        {
+          "name": "handleFxRateLock",
+          "startLine": 515,
+          "endLine": 583,
+          "params": [
+            "req"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "json",
+          "callee": "JSON.stringify",
+          "lineNumber": 170
+        },
+        {
+          "caller": "ceilTo",
+          "callee": "Math.pow",
+          "lineNumber": 186
+        },
+        {
+          "caller": "ceilTo",
+          "callee": "Math.ceil",
+          "lineNumber": 187
+        },
+        {
+          "caller": "fetchWithTimeout",
+          "callee": "setTimeout",
+          "lineNumber": 200
+        },
+        {
+          "caller": "fetchWithTimeout",
+          "callee": "controller.abort",
+          "lineNumber": 200
+        },
+        {
+          "caller": "fetchWithTimeout",
+          "callee": "fetch",
+          "lineNumber": 202
+        },
+        {
+          "caller": "fetchWithTimeout",
+          "callee": "clearTimeout",
+          "lineNumber": 208
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "Number.isFinite",
+          "lineNumber": 235
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "Number.isInteger",
+          "lineNumber": 238
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "target_currency.trim",
+          "lineNumber": 250
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "target_currency.trim().toUpperCase",
+          "lineNumber": 253
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "target_currency.trim",
+          "lineNumber": 253
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "SUPPORTED_CURRENCIES.has",
+          "lineNumber": 254
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "[...SUPPORTED_CURRENCIES].join",
+          "lineNumber": 257
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "(target_currency as string).trim().toUpperCase",
+          "lineNumber": 265
+        },
+        {
+          "caller": "validatePayload",
+          "callee": "(target_currency as string).trim",
+          "lineNumber": 265
+        },
+        {
+          "caller": "fetchFromExchangeRateApi",
+          "callee": "Deno.env.get",
+          "lineNumber": 283
+        },
+        {
+          "caller": "fetchFromExchangeRateApi",
+          "callee": "console.warn",
+          "lineNumber": 286
+        },
+        {
+          "caller": "fetchFromExchangeRateApi",
+          "callee": "console.log",
+          "lineNumber": 293
+        },
+        {
+          "caller": "fetchFromExchangeRateApi",
+          "callee": "fetchWithTimeout",
+          "lineNumber": 297
+        },
+        {
+          "caller": "fetchFromExchangeRateApi",
+          "callee": "String",
+          "lineNumber": 302
+        },
+        {
+          "caller": "fetchFromExchangeRateApi",
+          "callee": "console.error",
+          "lineNumber": 303
+        },
+        {
+          "caller": "fetchFromExchangeRateApi",
+          "callee": "console.error",
+          "lineNumber": 308
+        },
+        {
+          "caller": "fetchFromExchangeRateApi",
+          "callee": "response.json",
+          "lineNumber": 316
+        },
+        {
+          "caller": "fetchFromExchangeRateApi",
+          "callee": "console.error",
+          "lineNumber": 318
+        },
+        {
+          "caller": "fetchFromExchangeRateApi",
+          "callee": "console.error",
+          "lineNumber": 323
+        },
+        {
+          "caller": "fetchFromExchangeRateApi",
+          "callee": "Number.isFinite",
+          "lineNumber": 331
+        },
+        {
+          "caller": "fetchFromExchangeRateApi",
+          "callee": "console.error",
+          "lineNumber": 332
+        },
+        {
+          "caller": "fetchFromExchangeRateApi",
+          "callee": "console.log",
+          "lineNumber": 338
+        },
+        {
+          "caller": "fetchFromOpenErApi",
+          "callee": "console.log",
+          "lineNumber": 358
+        },
+        {
+          "caller": "fetchFromOpenErApi",
+          "callee": "fetchWithTimeout",
+          "lineNumber": 362
+        },
+        {
+          "caller": "fetchFromOpenErApi",
+          "callee": "String",
+          "lineNumber": 367
+        },
+        {
+          "caller": "fetchFromOpenErApi",
+          "callee": "console.error",
+          "lineNumber": 368
+        },
+        {
+          "caller": "fetchFromOpenErApi",
+          "callee": "console.error",
+          "lineNumber": 373
+        },
+        {
+          "caller": "fetchFromOpenErApi",
+          "callee": "response.json",
+          "lineNumber": 381
+        },
+        {
+          "caller": "fetchFromOpenErApi",
+          "callee": "console.error",
+          "lineNumber": 383
+        },
+        {
+          "caller": "fetchFromOpenErApi",
+          "callee": "console.error",
+          "lineNumber": 388
+        },
+        {
+          "caller": "fetchFromOpenErApi",
+          "callee": "Number.isFinite",
+          "lineNumber": 396
+        },
+        {
+          "caller": "fetchFromOpenErApi",
+          "callee": "console.error",
+          "lineNumber": 397
+        },
+        {
+          "caller": "fetchFromOpenErApi",
+          "callee": "console.log",
+          "lineNumber": 403
+        },
+        {
+          "caller": "getSafeHarbourRate",
+          "callee": "console.warn",
+          "lineNumber": 417
+        },
+        {
+          "caller": "resolveExchangeRate",
+          "callee": "fetchFromExchangeRateApi",
+          "lineNumber": 445
+        },
+        {
+          "caller": "resolveExchangeRate",
+          "callee": "fetchFromOpenErApi",
+          "lineNumber": 449
+        },
+        {
+          "caller": "resolveExchangeRate",
+          "callee": "getSafeHarbourRate",
+          "lineNumber": 453
+        },
+        {
+          "caller": "calculateInternationalCheckout",
+          "callee": "Math.round",
+          "lineNumber": 495
+        },
+        {
+          "caller": "calculateInternationalCheckout",
+          "callee": "ceilTo",
+          "lineNumber": 506
+        },
+        {
+          "caller": "handleFxRateLock",
+          "callee": "req.json",
+          "lineNumber": 519
+        },
+        {
+          "caller": "handleFxRateLock",
+          "callee": "json",
+          "lineNumber": 521
+        },
+        {
+          "caller": "handleFxRateLock",
+          "callee": "Array.isArray",
+          "lineNumber": 524
+        },
+        {
+          "caller": "handleFxRateLock",
+          "callee": "json",
+          "lineNumber": 525
+        },
+        {
+          "caller": "handleFxRateLock",
+          "callee": "validatePayload",
+          "lineNumber": 531
+        },
+        {
+          "caller": "handleFxRateLock",
+          "callee": "json",
+          "lineNumber": 536
+        },
+        {
+          "caller": "handleFxRateLock",
+          "callee": "console.log",
+          "lineNumber": 545
+        },
+        {
+          "caller": "handleFxRateLock",
+          "callee": "resolveExchangeRate",
+          "lineNumber": 550
+        },
+        {
+          "caller": "handleFxRateLock",
+          "callee": "calculateInternationalCheckout",
+          "lineNumber": 558
+        },
+        {
+          "caller": "handleFxRateLock",
+          "callee": "console.log",
+          "lineNumber": 560
+        },
+        {
+          "caller": "handleFxRateLock",
+          "callee": "hedgedRate.toFixed",
+          "lineNumber": 565
+        },
+        {
+          "caller": "handleFxRateLock",
+          "callee": "checkoutPriceFx.toFixed",
+          "lineNumber": 566
+        },
+        {
+          "caller": "handleFxRateLock",
+          "callee": "parseFloat",
+          "lineNumber": 576
+        },
+        {
+          "caller": "handleFxRateLock",
+          "callee": "hedgedRate.toFixed",
+          "lineNumber": 576
+        },
+        {
+          "caller": "handleFxRateLock",
+          "callee": "parseFloat",
+          "lineNumber": 577
+        },
+        {
+          "caller": "handleFxRateLock",
+          "callee": "rawRate.toFixed",
+          "lineNumber": 577
+        },
+        {
+          "caller": "handleFxRateLock",
+          "callee": "json",
+          "lineNumber": 582
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 10,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "supabase/functions/get-merchant-ledger/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 150,
+      "nonEmptyLines": 131,
+      "functions": [
+        {
+          "name": "json",
+          "startLine": 24,
+          "endLine": 29,
+          "params": [
+            "req",
+            "data",
+            "status"
+          ]
+        },
+        {
+          "name": "getAdminClient",
+          "startLine": 31,
+          "endLine": 40,
+          "params": []
+        },
+        {
+          "name": "verifyMerchantIdentity",
+          "startLine": 42,
+          "endLine": 74,
+          "params": [
+            "req",
+            "shopId",
+            "adminClient"
+          ]
+        },
+        {
+          "name": "handleGetMerchantLedger",
+          "startLine": 76,
+          "endLine": 135,
+          "params": [
+            "req"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "json",
+          "callee": "JSON.stringify",
+          "lineNumber": 25
+        },
+        {
+          "caller": "json",
+          "callee": "getCorsHeaders",
+          "lineNumber": 27
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "Deno.env.get",
+          "lineNumber": 32
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "Deno.env.get",
+          "lineNumber": 33
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "createClient",
+          "lineNumber": 37
+        },
+        {
+          "caller": "verifyMerchantIdentity",
+          "callee": "req.headers.get",
+          "lineNumber": 47
+        },
+        {
+          "caller": "verifyMerchantIdentity",
+          "callee": "authHeader?.startsWith",
+          "lineNumber": 48
+        },
+        {
+          "caller": "verifyMerchantIdentity",
+          "callee": "json",
+          "lineNumber": 49
+        },
+        {
+          "caller": "verifyMerchantIdentity",
+          "callee": "adminClient.auth.getUser",
+          "lineNumber": 52
+        },
+        {
+          "caller": "verifyMerchantIdentity",
+          "callee": "authHeader.split",
+          "lineNumber": 53
+        },
+        {
+          "caller": "verifyMerchantIdentity",
+          "callee": "json",
+          "lineNumber": 56
+        },
+        {
+          "caller": "verifyMerchantIdentity",
+          "callee": "adminClient\n    .from(\"merchant_shops\")\n    .select(\"shop_id\")\n    .eq(\"user_id\", user.id)\n    .eq(\"shop_id\", shopId)\n    .maybeSingle",
+          "lineNumber": 59
+        },
+        {
+          "caller": "verifyMerchantIdentity",
+          "callee": "adminClient\n    .from(\"merchant_shops\")\n    .select(\"shop_id\")\n    .eq(\"user_id\", user.id)\n    .eq",
+          "lineNumber": 59
+        },
+        {
+          "caller": "verifyMerchantIdentity",
+          "callee": "adminClient\n    .from(\"merchant_shops\")\n    .select(\"shop_id\")\n    .eq",
+          "lineNumber": 59
+        },
+        {
+          "caller": "verifyMerchantIdentity",
+          "callee": "adminClient\n    .from(\"merchant_shops\")\n    .select",
+          "lineNumber": 59
+        },
+        {
+          "caller": "verifyMerchantIdentity",
+          "callee": "adminClient\n    .from",
+          "lineNumber": 59
+        },
+        {
+          "caller": "verifyMerchantIdentity",
+          "callee": "json",
+          "lineNumber": 67
+        },
+        {
+          "caller": "verifyMerchantIdentity",
+          "callee": "json",
+          "lineNumber": 70
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "req.json",
+          "lineNumber": 79
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "json",
+          "lineNumber": 81
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "shop_id.trim",
+          "lineNumber": 85
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "json",
+          "lineNumber": 86
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "shop_id.trim",
+          "lineNumber": 89
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "getAdminClient",
+          "lineNumber": 90
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "verifyMerchantIdentity",
+          "lineNumber": 92
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "adminClient\n    .from(\"shop_orders\")\n    .select(`\n      shop_order_id,\n      subtotal,\n      settlement_target_time,\n      claim_code,\n      order_items (\n        item:item_id (name, price_zmw)\n      )\n    `)\n    .eq(\"shop_id\", shopId)\n    .in(\"claim_status\", [\"FULFILLED\", \"PARTIAL_FULFILLMENT\"])\n    .eq(\"settled\", false)\n    .not(\"settlement_target_time\", \"is\", null)\n    .order",
+          "lineNumber": 96
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "adminClient\n    .from(\"shop_orders\")\n    .select(`\n      shop_order_id,\n      subtotal,\n      settlement_target_time,\n      claim_code,\n      order_items (\n        item:item_id (name, price_zmw)\n      )\n    `)\n    .eq(\"shop_id\", shopId)\n    .in(\"claim_status\", [\"FULFILLED\", \"PARTIAL_FULFILLMENT\"])\n    .eq(\"settled\", false)\n    .not",
+          "lineNumber": 96
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "adminClient\n    .from(\"shop_orders\")\n    .select(`\n      shop_order_id,\n      subtotal,\n      settlement_target_time,\n      claim_code,\n      order_items (\n        item:item_id (name, price_zmw)\n      )\n    `)\n    .eq(\"shop_id\", shopId)\n    .in(\"claim_status\", [\"FULFILLED\", \"PARTIAL_FULFILLMENT\"])\n    .eq",
+          "lineNumber": 96
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "adminClient\n    .from(\"shop_orders\")\n    .select(`\n      shop_order_id,\n      subtotal,\n      settlement_target_time,\n      claim_code,\n      order_items (\n        item:item_id (name, price_zmw)\n      )\n    `)\n    .eq(\"shop_id\", shopId)\n    .in",
+          "lineNumber": 96
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "adminClient\n    .from(\"shop_orders\")\n    .select(`\n      shop_order_id,\n      subtotal,\n      settlement_target_time,\n      claim_code,\n      order_items (\n        item:item_id (name, price_zmw)\n      )\n    `)\n    .eq",
+          "lineNumber": 96
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "adminClient\n    .from(\"shop_orders\")\n    .select",
+          "lineNumber": 96
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "adminClient\n    .from",
+          "lineNumber": 96
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "console.error",
+          "lineNumber": 114
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "json",
+          "lineNumber": 115
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "((rows ?? []) as RawShopOrderRow[]).map",
+          "lineNumber": 118
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "new Date().toISOString",
+          "lineNumber": 125
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "console.log",
+          "lineNumber": 130
+        },
+        {
+          "caller": "handleGetMerchantLedger",
+          "callee": "json",
+          "lineNumber": 134
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "supabase/functions/server/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 660,
+      "nonEmptyLines": 538,
+      "functions": [
+        {
+          "name": "json",
+          "startLine": 8,
+          "endLine": 13,
+          "params": [
+            "data",
+            "status"
+          ]
+        },
+        {
+          "name": "getSupabaseAdmin",
+          "startLine": 18,
+          "endLine": 22,
+          "params": []
+        },
+        {
+          "name": "requireAdmin",
+          "startLine": 35,
+          "endLine": 57,
+          "params": [
+            "authorizationHeader"
+          ]
+        },
+        {
+          "name": "requireMerchantForShop",
+          "startLine": 63,
+          "endLine": 90,
+          "params": [
+            "authorizationHeader",
+            "shopId"
+          ]
+        },
+        {
+          "name": "findTransactionByTxRef",
+          "startLine": 93,
+          "endLine": 113,
+          "params": [
+            "supabase",
+            "txRef"
+          ]
+        },
+        {
+          "name": "handleInitializePayment",
+          "startLine": 125,
+          "endLine": 204,
+          "params": [
+            "payload"
+          ]
+        },
+        {
+          "name": "sendWhatsAppCode",
+          "startLine": 210,
+          "endLine": 258,
+          "params": [
+            "to",
+            "recipientName",
+            "itemName",
+            "claimCode",
+            "shopName",
+            "shopLocation"
+          ]
+        },
+        {
+          "name": "handleFlutterwaveWebhook",
+          "startLine": 267,
+          "endLine": 357,
+          "params": [
+            "req",
+            "payload"
+          ]
+        },
+        {
+          "name": "handleConfirmPayment",
+          "startLine": 365,
+          "endLine": 397,
+          "params": [
+            "payload",
+            "authHeader"
+          ]
+        },
+        {
+          "name": "handleCreateMerchant",
+          "startLine": 402,
+          "endLine": 459,
+          "params": [
+            "payload",
+            "authHeader"
+          ]
+        },
+        {
+          "name": "handleVerifyPayment",
+          "startLine": 468,
+          "endLine": 515,
+          "params": [
+            "payload"
+          ]
+        },
+        {
+          "name": "handleSettlePayout",
+          "startLine": 523,
+          "endLine": 563,
+          "params": [
+            "payload",
+            "authHeader"
+          ]
+        },
+        {
+          "name": "handleRequestWithdrawal",
+          "startLine": 568,
+          "endLine": 602,
+          "params": [
+            "payload",
+            "authHeader"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "json",
+          "callee": "JSON.stringify",
+          "lineNumber": 9
+        },
+        {
+          "caller": "json",
+          "callee": "getCorsHeaders",
+          "lineNumber": 11
+        },
+        {
+          "caller": "getSupabaseAdmin",
+          "callee": "createClient",
+          "lineNumber": 19
+        },
+        {
+          "caller": "getSupabaseAdmin",
+          "callee": "Deno.env.get",
+          "lineNumber": 20
+        },
+        {
+          "caller": "getSupabaseAdmin",
+          "callee": "Deno.env.get",
+          "lineNumber": 21
+        },
+        {
+          "caller": "requireAdmin",
+          "callee": "authorizationHeader?.split",
+          "lineNumber": 36
+        },
+        {
+          "caller": "requireAdmin",
+          "callee": "getSupabaseAdmin",
+          "lineNumber": 39
+        },
+        {
+          "caller": "requireAdmin",
+          "callee": "supabase.auth.getUser",
+          "lineNumber": 43
+        },
+        {
+          "caller": "requireAdmin",
+          "callee": "supabase\n    .from(\"users\")\n    .select(\"id, role\")\n    .eq(\"id\", user.id)\n    .single",
+          "lineNumber": 47
+        },
+        {
+          "caller": "requireAdmin",
+          "callee": "supabase\n    .from(\"users\")\n    .select(\"id, role\")\n    .eq",
+          "lineNumber": 47
+        },
+        {
+          "caller": "requireAdmin",
+          "callee": "supabase\n    .from(\"users\")\n    .select",
+          "lineNumber": 47
+        },
+        {
+          "caller": "requireAdmin",
+          "callee": "supabase\n    .from",
+          "lineNumber": 47
+        },
+        {
+          "caller": "requireMerchantForShop",
+          "callee": "authorizationHeader?.split",
+          "lineNumber": 67
+        },
+        {
+          "caller": "requireMerchantForShop",
+          "callee": "getSupabaseAdmin",
+          "lineNumber": 70
+        },
+        {
+          "caller": "requireMerchantForShop",
+          "callee": "supabase.auth.getUser",
+          "lineNumber": 74
+        },
+        {
+          "caller": "requireMerchantForShop",
+          "callee": "supabase\n    .from(\"merchant_shops\")\n    .select(\"shop_id\")\n    .eq(\"user_id\", user.id)\n    .eq(\"shop_id\", shopId)\n    .maybeSingle",
+          "lineNumber": 78
+        },
+        {
+          "caller": "requireMerchantForShop",
+          "callee": "supabase\n    .from(\"merchant_shops\")\n    .select(\"shop_id\")\n    .eq(\"user_id\", user.id)\n    .eq",
+          "lineNumber": 78
+        },
+        {
+          "caller": "requireMerchantForShop",
+          "callee": "supabase\n    .from(\"merchant_shops\")\n    .select(\"shop_id\")\n    .eq",
+          "lineNumber": 78
+        },
+        {
+          "caller": "requireMerchantForShop",
+          "callee": "supabase\n    .from(\"merchant_shops\")\n    .select",
+          "lineNumber": 78
+        },
+        {
+          "caller": "requireMerchantForShop",
+          "callee": "supabase\n    .from",
+          "lineNumber": 78
+        },
+        {
+          "caller": "findTransactionByTxRef",
+          "callee": "/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test",
+          "lineNumber": 98
+        },
+        {
+          "caller": "findTransactionByTxRef",
+          "callee": "supabase\n      .from(\"transactions\")\n      .select(\"transaction_id, total_amount, status, gateway_tx_ref\")\n      .eq(\"transaction_id\", txRef)\n      .single",
+          "lineNumber": 101
+        },
+        {
+          "caller": "findTransactionByTxRef",
+          "callee": "supabase\n      .from(\"transactions\")\n      .select(\"transaction_id, total_amount, status, gateway_tx_ref\")\n      .eq",
+          "lineNumber": 101
+        },
+        {
+          "caller": "findTransactionByTxRef",
+          "callee": "supabase\n      .from(\"transactions\")\n      .select",
+          "lineNumber": 101
+        },
+        {
+          "caller": "findTransactionByTxRef",
+          "callee": "supabase\n      .from",
+          "lineNumber": 101
+        },
+        {
+          "caller": "findTransactionByTxRef",
+          "callee": "supabase\n    .from(\"transactions\")\n    .select(\"transaction_id, total_amount, status, gateway_tx_ref\")\n    .eq(\"gateway_tx_ref\", txRef)\n    .single",
+          "lineNumber": 108
+        },
+        {
+          "caller": "findTransactionByTxRef",
+          "callee": "supabase\n    .from(\"transactions\")\n    .select(\"transaction_id, total_amount, status, gateway_tx_ref\")\n    .eq",
+          "lineNumber": 108
+        },
+        {
+          "caller": "findTransactionByTxRef",
+          "callee": "supabase\n    .from(\"transactions\")\n    .select",
+          "lineNumber": 108
+        },
+        {
+          "caller": "findTransactionByTxRef",
+          "callee": "supabase\n    .from",
+          "lineNumber": 108
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "Deno.env.get",
+          "lineNumber": 128
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "json",
+          "lineNumber": 131
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "getSupabaseAdmin",
+          "lineNumber": 134
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "supabase\n      .from(\"transactions\")\n      .select(\"status\")\n      .eq(\"gateway_tx_ref\", txRef)\n      .single",
+          "lineNumber": 138
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "supabase\n      .from(\"transactions\")\n      .select(\"status\")\n      .eq",
+          "lineNumber": 138
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "supabase\n      .from(\"transactions\")\n      .select",
+          "lineNumber": 138
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "supabase\n      .from",
+          "lineNumber": 138
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "console.log",
+          "lineNumber": 146
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "json",
+          "lineNumber": 147
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "String(phone ?? \"\").replace",
+          "lineNumber": 153
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "String",
+          "lineNumber": 153
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "digitsOnly.slice",
+          "lineNumber": 154
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "console.log",
+          "lineNumber": 157
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "json",
+          "lineNumber": 160
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "Deno.env.get",
+          "lineNumber": 164
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "console.log",
+          "lineNumber": 165
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "fetch",
+          "lineNumber": 167
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "JSON.stringify",
+          "lineNumber": 175
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "chargeResponse.json",
+          "lineNumber": 194
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "console.log",
+          "lineNumber": 195
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "JSON.stringify",
+          "lineNumber": 195
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "json",
+          "lineNumber": 199
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "console.error",
+          "lineNumber": 202
+        },
+        {
+          "caller": "handleInitializePayment",
+          "callee": "json",
+          "lineNumber": 203
+        },
+        {
+          "caller": "sendWhatsAppCode",
+          "callee": "Deno.env.get",
+          "lineNumber": 218
+        },
+        {
+          "caller": "sendWhatsAppCode",
+          "callee": "Deno.env.get",
+          "lineNumber": 219
+        },
+        {
+          "caller": "sendWhatsAppCode",
+          "callee": "console.error",
+          "lineNumber": 222
+        },
+        {
+          "caller": "sendWhatsAppCode",
+          "callee": "String(to ?? \"\").replace",
+          "lineNumber": 226
+        },
+        {
+          "caller": "sendWhatsAppCode",
+          "callee": "String",
+          "lineNumber": 226
+        },
+        {
+          "caller": "sendWhatsAppCode",
+          "callee": "digitsOnly.slice",
+          "lineNumber": 227
+        },
+        {
+          "caller": "sendWhatsAppCode",
+          "callee": "btoa",
+          "lineNumber": 237
+        },
+        {
+          "caller": "sendWhatsAppCode",
+          "callee": "fetch",
+          "lineNumber": 239
+        },
+        {
+          "caller": "sendWhatsAppCode",
+          "callee": "formBody.toString",
+          "lineNumber": 247
+        },
+        {
+          "caller": "sendWhatsAppCode",
+          "callee": "response.json",
+          "lineNumber": 251
+        },
+        {
+          "caller": "sendWhatsAppCode",
+          "callee": "console.error",
+          "lineNumber": 254
+        },
+        {
+          "caller": "sendWhatsAppCode",
+          "callee": "console.log",
+          "lineNumber": 256
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.log",
+          "lineNumber": 271
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "req.headers.get",
+          "lineNumber": 273
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "Deno.env.get",
+          "lineNumber": 274
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.error",
+          "lineNumber": 277
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.log",
+          "lineNumber": 281
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "getSupabaseAdmin",
+          "lineNumber": 286
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "findTransactionByTxRef",
+          "lineNumber": 288
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.error",
+          "lineNumber": 291
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "json",
+          "lineNumber": 292
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.warn",
+          "lineNumber": 296
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "json",
+          "lineNumber": 297
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "supabase.rpc",
+          "lineNumber": 301
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "JSON.stringify",
+          "lineNumber": 305
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.error",
+          "lineNumber": 310
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "json",
+          "lineNumber": 311
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.log",
+          "lineNumber": 314
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "supabase\n      .from(\"shop_orders\")\n      .select(`\n        shop_order_id,\n        claim_code,\n        recipient_name,\n        recipient_phone,\n        shop:shop_id (name, location),\n        order_items (\n          item:item_id (name)\n        )\n      `)\n      .eq",
+          "lineNumber": 318
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "supabase\n      .from(\"shop_orders\")\n      .select",
+          "lineNumber": 318
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "supabase\n      .from",
+          "lineNumber": 318
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "console.error",
+          "lineNumber": 333
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "sendWhatsAppCode",
+          "lineNumber": 344
+        },
+        {
+          "caller": "handleFlutterwaveWebhook",
+          "callee": "json",
+          "lineNumber": 356
+        },
+        {
+          "caller": "handleConfirmPayment",
+          "callee": "requireAdmin",
+          "lineNumber": 369
+        },
+        {
+          "caller": "handleConfirmPayment",
+          "callee": "json",
+          "lineNumber": 370
+        },
+        {
+          "caller": "handleConfirmPayment",
+          "callee": "json",
+          "lineNumber": 373
+        },
+        {
+          "caller": "handleConfirmPayment",
+          "callee": "supabase\n    .from(\"transactions\")\n    .update({ status: \"SUCCESSFUL\" })\n    .eq(\"transaction_id\", orderId)\n    .eq",
+          "lineNumber": 378
+        },
+        {
+          "caller": "handleConfirmPayment",
+          "callee": "supabase\n    .from(\"transactions\")\n    .update({ status: \"SUCCESSFUL\" })\n    .eq",
+          "lineNumber": 378
+        },
+        {
+          "caller": "handleConfirmPayment",
+          "callee": "supabase\n    .from(\"transactions\")\n    .update",
+          "lineNumber": 378
+        },
+        {
+          "caller": "handleConfirmPayment",
+          "callee": "supabase\n    .from",
+          "lineNumber": 378
+        },
+        {
+          "caller": "handleConfirmPayment",
+          "callee": "console.error",
+          "lineNumber": 385
+        },
+        {
+          "caller": "handleConfirmPayment",
+          "callee": "json",
+          "lineNumber": 386
+        },
+        {
+          "caller": "handleConfirmPayment",
+          "callee": "supabase\n    .from(\"shop_orders\")\n    .update({ claim_status: \"PENDING\" })\n    .eq(\"transaction_id\", orderId)\n    .eq",
+          "lineNumber": 390
+        },
+        {
+          "caller": "handleConfirmPayment",
+          "callee": "supabase\n    .from(\"shop_orders\")\n    .update({ claim_status: \"PENDING\" })\n    .eq",
+          "lineNumber": 390
+        },
+        {
+          "caller": "handleConfirmPayment",
+          "callee": "supabase\n    .from(\"shop_orders\")\n    .update",
+          "lineNumber": 390
+        },
+        {
+          "caller": "handleConfirmPayment",
+          "callee": "supabase\n    .from",
+          "lineNumber": 390
+        },
+        {
+          "caller": "handleConfirmPayment",
+          "callee": "json",
+          "lineNumber": 396
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "requireAdmin",
+          "lineNumber": 406
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "json",
+          "lineNumber": 407
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "json",
+          "lineNumber": 412
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "supabase.auth.admin.createUser",
+          "lineNumber": 417
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "console.error",
+          "lineNumber": 425
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "json",
+          "lineNumber": 426
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "supabase\n    .from(\"users\")\n    .update({ name, email, role: \"merchant\" })\n    .eq",
+          "lineNumber": 434
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "supabase\n    .from(\"users\")\n    .update",
+          "lineNumber": 434
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "supabase\n    .from",
+          "lineNumber": 434
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "console.error",
+          "lineNumber": 440
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "supabase.auth.admin.deleteUser",
+          "lineNumber": 441
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "json",
+          "lineNumber": 442
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "supabase\n    .from(\"merchant_shops\")\n    .insert",
+          "lineNumber": 445
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "supabase\n    .from",
+          "lineNumber": 445
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "console.error",
+          "lineNumber": 450
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "supabase.auth.admin.deleteUser",
+          "lineNumber": 451
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "json",
+          "lineNumber": 452
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "json",
+          "lineNumber": 455
+        },
+        {
+          "caller": "handleVerifyPayment",
+          "callee": "json",
+          "lineNumber": 470
+        },
+        {
+          "caller": "handleVerifyPayment",
+          "callee": "Deno.env.get",
+          "lineNumber": 472
+        },
+        {
+          "caller": "handleVerifyPayment",
+          "callee": "json",
+          "lineNumber": 473
+        },
+        {
+          "caller": "handleVerifyPayment",
+          "callee": "fetch",
+          "lineNumber": 475
+        },
+        {
+          "caller": "handleVerifyPayment",
+          "callee": "response.json",
+          "lineNumber": 483
+        },
+        {
+          "caller": "handleVerifyPayment",
+          "callee": "getSupabaseAdmin",
+          "lineNumber": 486
+        },
+        {
+          "caller": "handleVerifyPayment",
+          "callee": "findTransactionByTxRef",
+          "lineNumber": 488
+        },
+        {
+          "caller": "handleVerifyPayment",
+          "callee": "json",
+          "lineNumber": 491
+        },
+        {
+          "caller": "handleVerifyPayment",
+          "callee": "json",
+          "lineNumber": 495
+        },
+        {
+          "caller": "handleVerifyPayment",
+          "callee": "supabase.rpc",
+          "lineNumber": 498
+        },
+        {
+          "caller": "handleVerifyPayment",
+          "callee": "JSON.stringify",
+          "lineNumber": 502
+        },
+        {
+          "caller": "handleVerifyPayment",
+          "callee": "console.error",
+          "lineNumber": 507
+        },
+        {
+          "caller": "handleVerifyPayment",
+          "callee": "json",
+          "lineNumber": 508
+        },
+        {
+          "caller": "handleVerifyPayment",
+          "callee": "json",
+          "lineNumber": 511
+        },
+        {
+          "caller": "handleVerifyPayment",
+          "callee": "json",
+          "lineNumber": 514
+        },
+        {
+          "caller": "handleSettlePayout",
+          "callee": "json",
+          "lineNumber": 528
+        },
+        {
+          "caller": "handleSettlePayout",
+          "callee": "getSupabaseAdmin",
+          "lineNumber": 530
+        },
+        {
+          "caller": "handleSettlePayout",
+          "callee": "supabase\n    .from(\"shop_orders\")\n    .select(\"subtotal, shop_id, claim_status, settled\")\n    .eq(\"shop_order_id\", orderId)\n    .single",
+          "lineNumber": 533
+        },
+        {
+          "caller": "handleSettlePayout",
+          "callee": "supabase\n    .from(\"shop_orders\")\n    .select(\"subtotal, shop_id, claim_status, settled\")\n    .eq",
+          "lineNumber": 533
+        },
+        {
+          "caller": "handleSettlePayout",
+          "callee": "supabase\n    .from(\"shop_orders\")\n    .select",
+          "lineNumber": 533
+        },
+        {
+          "caller": "handleSettlePayout",
+          "callee": "supabase\n    .from",
+          "lineNumber": 533
+        },
+        {
+          "caller": "handleSettlePayout",
+          "callee": "json",
+          "lineNumber": 540
+        },
+        {
+          "caller": "handleSettlePayout",
+          "callee": "requireMerchantForShop",
+          "lineNumber": 543
+        },
+        {
+          "caller": "handleSettlePayout",
+          "callee": "json",
+          "lineNumber": 545
+        },
+        {
+          "caller": "handleSettlePayout",
+          "callee": "supabase.rpc",
+          "lineNumber": 548
+        },
+        {
+          "caller": "handleSettlePayout",
+          "callee": "console.error",
+          "lineNumber": 554
+        },
+        {
+          "caller": "handleSettlePayout",
+          "callee": "json",
+          "lineNumber": 555
+        },
+        {
+          "caller": "handleSettlePayout",
+          "callee": "json",
+          "lineNumber": 558
+        },
+        {
+          "caller": "handleRequestWithdrawal",
+          "callee": "json",
+          "lineNumber": 575
+        },
+        {
+          "caller": "handleRequestWithdrawal",
+          "callee": "requireMerchantForShop",
+          "lineNumber": 578
+        },
+        {
+          "caller": "handleRequestWithdrawal",
+          "callee": "json",
+          "lineNumber": 580
+        },
+        {
+          "caller": "handleRequestWithdrawal",
+          "callee": "getSupabaseAdmin",
+          "lineNumber": 583
+        },
+        {
+          "caller": "handleRequestWithdrawal",
+          "callee": "supabase.rpc",
+          "lineNumber": 585
+        },
+        {
+          "caller": "handleRequestWithdrawal",
+          "callee": "console.error",
+          "lineNumber": 591
+        },
+        {
+          "caller": "handleRequestWithdrawal",
+          "callee": "json",
+          "lineNumber": 592
+        },
+        {
+          "caller": "handleRequestWithdrawal",
+          "callee": "console.log",
+          "lineNumber": 595
+        },
+        {
+          "caller": "handleRequestWithdrawal",
+          "callee": "json",
+          "lineNumber": 597
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 13,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "supabase/functions/server/kv_store.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "supabase/functions/tsconfig.json",
+      "language": "json",
+      "fileCategory": "config",
+      "totalLines": 11,
+      "nonEmptyLines": 11,
+      "sections": [
+        {
+          "heading": "compilerOptions",
+          "level": 1,
+          "line": 2
+        },
+        {
+          "heading": "include",
+          "level": 1,
+          "line": 10
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 2
+      }
+    },
+    {
+      "path": "supabase/functions/upload-item-image/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 120,
+      "nonEmptyLines": 103,
+      "functions": [
+        {
+          "name": "json",
+          "startLine": 8,
+          "endLine": 13,
+          "params": [
+            "req",
+            "data",
+            "status"
+          ]
+        },
+        {
+          "name": "getAdminClient",
+          "startLine": 15,
+          "endLine": 22,
+          "params": []
+        },
+        {
+          "name": "extensionForMime",
+          "startLine": 24,
+          "endLine": 32,
+          "params": [
+            "mime"
+          ]
+        },
+        {
+          "name": "verifyUploader",
+          "startLine": 34,
+          "endLine": 65,
+          "params": [
+            "req",
+            "shopId",
+            "db"
+          ]
+        },
+        {
+          "name": "handleUpload",
+          "startLine": 67,
+          "endLine": 105,
+          "params": [
+            "req"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "json",
+          "callee": "JSON.stringify",
+          "lineNumber": 9
+        },
+        {
+          "caller": "json",
+          "callee": "getCorsHeaders",
+          "lineNumber": 11
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "Deno.env.get",
+          "lineNumber": 16
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "Deno.env.get",
+          "lineNumber": 17
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "createClient",
+          "lineNumber": 19
+        },
+        {
+          "caller": "verifyUploader",
+          "callee": "req.headers.get",
+          "lineNumber": 39
+        },
+        {
+          "caller": "verifyUploader",
+          "callee": "authHeader?.startsWith",
+          "lineNumber": 40
+        },
+        {
+          "caller": "verifyUploader",
+          "callee": "json",
+          "lineNumber": 41
+        },
+        {
+          "caller": "verifyUploader",
+          "callee": "db.auth.getUser",
+          "lineNumber": 44
+        },
+        {
+          "caller": "verifyUploader",
+          "callee": "authHeader.split",
+          "lineNumber": 44
+        },
+        {
+          "caller": "verifyUploader",
+          "callee": "json",
+          "lineNumber": 46
+        },
+        {
+          "caller": "verifyUploader",
+          "callee": "db.from(\"users\").select(\"role\").eq(\"id\", user.id).single",
+          "lineNumber": 49
+        },
+        {
+          "caller": "verifyUploader",
+          "callee": "db.from(\"users\").select(\"role\").eq",
+          "lineNumber": 49
+        },
+        {
+          "caller": "verifyUploader",
+          "callee": "db.from(\"users\").select",
+          "lineNumber": 49
+        },
+        {
+          "caller": "verifyUploader",
+          "callee": "db.from",
+          "lineNumber": 49
+        },
+        {
+          "caller": "verifyUploader",
+          "callee": "db\n      .from(\"merchant_shops\")\n      .select(\"shop_id\")\n      .eq(\"user_id\", user.id)\n      .eq(\"shop_id\", shopId)\n      .maybeSingle",
+          "lineNumber": 55
+        },
+        {
+          "caller": "verifyUploader",
+          "callee": "db\n      .from(\"merchant_shops\")\n      .select(\"shop_id\")\n      .eq(\"user_id\", user.id)\n      .eq",
+          "lineNumber": 55
+        },
+        {
+          "caller": "verifyUploader",
+          "callee": "db\n      .from(\"merchant_shops\")\n      .select(\"shop_id\")\n      .eq",
+          "lineNumber": 55
+        },
+        {
+          "caller": "verifyUploader",
+          "callee": "db\n      .from(\"merchant_shops\")\n      .select",
+          "lineNumber": 55
+        },
+        {
+          "caller": "verifyUploader",
+          "callee": "db\n      .from",
+          "lineNumber": 55
+        },
+        {
+          "caller": "verifyUploader",
+          "callee": "json",
+          "lineNumber": 64
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "req.formData",
+          "lineNumber": 68
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "form.get",
+          "lineNumber": 69
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "String(form.get(\"shop_id\") ?? \"\").trim",
+          "lineNumber": 70
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "String",
+          "lineNumber": 70
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "form.get",
+          "lineNumber": 70
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "json",
+          "lineNumber": 73
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "json",
+          "lineNumber": 76
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "json",
+          "lineNumber": 79
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "ALLOWED_MIME.has",
+          "lineNumber": 81
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "json",
+          "lineNumber": 82
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "getAdminClient",
+          "lineNumber": 85
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "verifyUploader",
+          "lineNumber": 86
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "file.arrayBuffer",
+          "lineNumber": 89
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "extensionForMime",
+          "lineNumber": 90
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "crypto.randomUUID",
+          "lineNumber": 91
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "db.storage.from(BUCKET).upload",
+          "lineNumber": 93
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "db.storage.from",
+          "lineNumber": 93
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "console.error",
+          "lineNumber": 99
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "json",
+          "lineNumber": 100
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "db.storage.from(BUCKET).getPublicUrl",
+          "lineNumber": 103
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "db.storage.from",
+          "lineNumber": 103
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "json",
+          "lineNumber": 104
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "supabase/functions/ussd-gateway/index.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 280,
+      "nonEmptyLines": 234,
+      "functions": [
+        {
+          "name": "ussdResponse",
+          "startLine": 39,
+          "endLine": 44,
+          "params": [
+            "message",
+            "status"
+          ]
+        },
+        {
+          "name": "extractClaimCode",
+          "startLine": 59,
+          "endLine": 63,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "getAdminClient",
+          "startLine": 69,
+          "endLine": 84,
+          "params": []
+        },
+        {
+          "name": "parseUssdPayload",
+          "startLine": 90,
+          "endLine": 110,
+          "params": [
+            "rawBody",
+            "contentType"
+          ]
+        },
+        {
+          "name": "handleUssdRequest",
+          "startLine": 112,
+          "endLine": 252,
+          "params": [
+            "req"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "extractClaimCode",
+          "callee": "text.trim().toUpperCase",
+          "lineNumber": 60
+        },
+        {
+          "caller": "extractClaimCode",
+          "callee": "text.trim",
+          "lineNumber": 60
+        },
+        {
+          "caller": "extractClaimCode",
+          "callee": "normalisedText.match",
+          "lineNumber": 61
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "Deno.env.get",
+          "lineNumber": 70
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "Deno.env.get",
+          "lineNumber": 71
+        },
+        {
+          "caller": "getAdminClient",
+          "callee": "createClient",
+          "lineNumber": 77
+        },
+        {
+          "caller": "parseUssdPayload",
+          "callee": "contentType.includes",
+          "lineNumber": 95
+        },
+        {
+          "caller": "parseUssdPayload",
+          "callee": "JSON.parse",
+          "lineNumber": 96
+        },
+        {
+          "caller": "parseUssdPayload",
+          "callee": "String",
+          "lineNumber": 98
+        },
+        {
+          "caller": "parseUssdPayload",
+          "callee": "String",
+          "lineNumber": 99
+        },
+        {
+          "caller": "parseUssdPayload",
+          "callee": "params.get",
+          "lineNumber": 104
+        },
+        {
+          "caller": "parseUssdPayload",
+          "callee": "params.get",
+          "lineNumber": 104
+        },
+        {
+          "caller": "parseUssdPayload",
+          "callee": "params.get",
+          "lineNumber": 105
+        },
+        {
+          "caller": "parseUssdPayload",
+          "callee": "params.get",
+          "lineNumber": 105
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "req.text",
+          "lineNumber": 113
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "verifyUssdGateway",
+          "lineNumber": 115
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "console.error",
+          "lineNumber": 116
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "ussdResponse",
+          "lineNumber": 117
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "req.headers.get",
+          "lineNumber": 120
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "parseUssdPayload",
+          "lineNumber": 121
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "console.error",
+          "lineNumber": 124
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "ussdResponse",
+          "lineNumber": 125
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "phoneNumber.trim",
+          "lineNumber": 128
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "console.log",
+          "lineNumber": 130
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "redactPhone",
+          "lineNumber": 131
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "extractClaimCode",
+          "lineNumber": 135
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "console.error",
+          "lineNumber": 137
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "ussdResponse",
+          "lineNumber": 138
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "getAdminClient",
+          "lineNumber": 144
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "console.error",
+          "lineNumber": 146
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "ussdResponse",
+          "lineNumber": 147
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "await adminClient\n    .from(\"users\")\n    .select(\"id\")\n    .eq(\"phone\", normalisedPhone)\n    .maybeSingle",
+          "lineNumber": 157
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "adminClient\n    .from(\"users\")\n    .select(\"id\")\n    .eq",
+          "lineNumber": 157
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "adminClient\n    .from(\"users\")\n    .select",
+          "lineNumber": 157
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "adminClient\n    .from",
+          "lineNumber": 157
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "console.error",
+          "lineNumber": 164
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "ussdResponse",
+          "lineNumber": 165
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "await adminClient\n    .from(\"merchant_shops\")\n    .select(\"shop_id\")\n    .eq(\"user_id\", userRow.id)\n    .limit(1)\n    .maybeSingle",
+          "lineNumber": 169
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "adminClient\n    .from(\"merchant_shops\")\n    .select(\"shop_id\")\n    .eq(\"user_id\", userRow.id)\n    .limit",
+          "lineNumber": 169
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "adminClient\n    .from(\"merchant_shops\")\n    .select(\"shop_id\")\n    .eq",
+          "lineNumber": 169
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "adminClient\n    .from(\"merchant_shops\")\n    .select",
+          "lineNumber": 169
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "adminClient\n    .from",
+          "lineNumber": 169
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "console.error",
+          "lineNumber": 177
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "ussdResponse",
+          "lineNumber": 178
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "console.log",
+          "lineNumber": 184
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "adminClient.rpc",
+          "lineNumber": 187
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "errorMessage.startsWith",
+          "lineNumber": 200
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "errorMessage.slice(FRAUD_REJECTION_PREFIX.length).trim",
+          "lineNumber": 201
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "errorMessage.slice",
+          "lineNumber": 201
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "console.error",
+          "lineNumber": 202
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "adminClient.from(\"transaction_events\").insert",
+          "lineNumber": 205
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "adminClient.from",
+          "lineNumber": 205
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "JSON.stringify",
+          "lineNumber": 208
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "ussdResponse",
+          "lineNumber": 218
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "console.error",
+          "lineNumber": 221
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "ussdResponse",
+          "lineNumber": 222
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "Array.isArray",
+          "lineNumber": 226
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "console.error",
+          "lineNumber": 229
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "ussdResponse",
+          "lineNumber": 230
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "console.log",
+          "lineNumber": 235
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "adminClient.from(\"transaction_events\").insert",
+          "lineNumber": 238
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "adminClient.from",
+          "lineNumber": 238
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "JSON.stringify",
+          "lineNumber": 241
+        },
+        {
+          "caller": "handleUssdRequest",
+          "callee": "ussdResponse",
+          "lineNumber": 251
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "supabase/LEGACY.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 16,
+      "nonEmptyLines": 12,
+      "sections": [
+        {
+          "heading": "Legacy code paths (V1 / Layer C)",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Removal checklist",
+          "level": 2,
+          "line": 11
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 2
+      }
+    },
+    {
+      "path": "supabase/snippets/layer_c_payment_sweep.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 517,
+      "nonEmptyLines": 455,
+      "definitions": [
+        {
+          "name": "public",
+          "kind": "table",
+          "fields": [
+            "voucher_id",
+            "buyer_uuid",
+            "shop_id",
+            "item_id",
+            "recipient_name",
+            "recipient_phone",
+            "origin_type",
+            "claim_code",
+            "flw_ref",
+            "funded_at",
+            "created_at"
+          ],
+          "startLine": 94,
+          "endLine": 120
+        },
+        {
+          "name": "public",
+          "kind": "table",
+          "fields": [
+            "id",
+            "voucher_id",
+            "event_type",
+            "payload"
+          ],
+          "startLine": 124,
+          "endLine": 130
+        },
+        {
+          "name": "idx_claim_vouchers_payout_status_created_at",
+          "kind": "index",
+          "fields": [],
+          "startLine": 133,
+          "endLine": 133
+        },
+        {
+          "name": "idx_transaction_events_voucher_event_type",
+          "kind": "index",
+          "fields": [],
+          "startLine": 137,
+          "endLine": 137
+        },
+        {
+          "name": "idx_transaction_events_event_type_created_at",
+          "kind": "index",
+          "fields": [],
+          "startLine": 140,
+          "endLine": 140
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 5
+      }
+    }
+  ]
+}

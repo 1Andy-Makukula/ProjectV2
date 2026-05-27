@@ -1,0 +1,147 @@
+{
+  "nodes": [
+    {
+      "id": "table:supabase/snippets/v2_schema_migration.sql",
+      "type": "table",
+      "name": "v2_schema_migration.sql",
+      "filePath": "supabase/snippets/v2_schema_migration.sql",
+      "summary": "Database schema definition or migration file.",
+      "tags": [
+        "database",
+        "migration",
+        "schema"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:tests/html.test.ts",
+      "type": "file",
+      "name": "html.test.ts",
+      "filePath": "tests/html.test.ts",
+      "summary": "Test suite for verifying functionality.",
+      "tags": [
+        "test",
+        "verification",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/integration/payment-flow.integration.test.ts",
+      "type": "file",
+      "name": "payment-flow.integration.test.ts",
+      "filePath": "tests/integration/payment-flow.integration.test.ts",
+      "summary": "Test suite for verifying functionality.",
+      "tags": [
+        "test",
+        "verification",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/integration/rpc-contract.test.ts",
+      "type": "file",
+      "name": "rpc-contract.test.ts",
+      "filePath": "tests/integration/rpc-contract.test.ts",
+      "summary": "Test suite for verifying functionality.",
+      "tags": [
+        "test",
+        "verification",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/money-validation.test.ts",
+      "type": "file",
+      "name": "money-validation.test.ts",
+      "filePath": "tests/money-validation.test.ts",
+      "summary": "Test suite for verifying functionality.",
+      "tags": [
+        "test",
+        "verification",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/upload-validation.test.ts",
+      "type": "file",
+      "name": "upload-validation.test.ts",
+      "filePath": "tests/upload-validation.test.ts",
+      "summary": "Test suite for verifying functionality.",
+      "tags": [
+        "test",
+        "verification",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:utils/supabase/info.tsx",
+      "type": "file",
+      "name": "info.tsx",
+      "filePath": "utils/supabase/info.tsx",
+      "summary": "Implementation of info.tsx.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:vite.config.ts",
+      "type": "file",
+      "name": "vite.config.ts",
+      "filePath": "vite.config.ts",
+      "summary": "Implementation of vite.config.ts.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:vite.config.ts:figmaAssetResolver",
+      "type": "function",
+      "name": "figmaAssetResolver",
+      "filePath": "vite.config.ts",
+      "lineRange": [
+        8,
+        19
+      ],
+      "summary": "Function figmaAssetResolver executing specific logic.",
+      "tags": [
+        "utility",
+        "logic",
+        "function"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:vitest.config.ts",
+      "type": "file",
+      "name": "vitest.config.ts",
+      "filePath": "vitest.config.ts",
+      "summary": "Test suite for verifying functionality.",
+      "tags": [
+        "test",
+        "verification",
+        "general"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:vite.config.ts",
+      "target": "function:vite.config.ts:figmaAssetResolver",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 3,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "supabase/migrations/20260525120000_v2_canonical_schema.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 154,
+      "nonEmptyLines": 135,
+      "definitions": [
+        {
+          "name": "public",
+          "kind": "table",
+          "fields": [
+            "user_id",
+            "shop_id",
+            "created_at"
+          ],
+          "startLine": 144,
+          "endLine": 149
+        },
+        {
+          "name": "idx_transactions_gateway_tx_ref",
+          "kind": "index",
+          "fields": [],
+          "startLine": 57,
+          "endLine": 57
+        },
+        {
+          "name": "idx_transactions_buyer_id",
+          "kind": "index",
+          "fields": [],
+          "startLine": 60,
+          "endLine": 60
+        },
+        {
+          "name": "idx_transaction_events_txn_event_type",
+          "kind": "index",
+          "fields": [],
+          "startLine": 138,
+          "endLine": 138
+        },
+        {
+          "name": "idx_shop_orders_claim_code",
+          "kind": "index",
+          "fields": [],
+          "startLine": 151,
+          "endLine": 151
+        },
+        {
+          "name": "idx_shop_orders_transaction_id",
+          "kind": "index",
+          "fields": [],
+          "startLine": 152,
+          "endLine": 152
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 6
+      }
+    },
+    {
+      "path": "supabase/migrations/20260525130000_v2_atomic_money_rpcs.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 623,
+      "nonEmptyLines": 550,
+      "definitions": [
+        {
+          "name": "public",
+          "kind": "table",
+          "fields": [
+            "id",
+            "shop_order_id",
+            "shop_id",
+            "credit_amount",
+            "ledger_type",
+            "reference",
+            "amount",
+            "commission",
+            "status",
+            "created_at"
+          ],
+          "startLine": 8,
+          "endLine": 19
+        },
+        {
+          "name": "public",
+          "kind": "table",
+          "fields": [
+            "idempotency_key",
+            "transaction_id",
+            "created_at"
+          ],
+          "startLine": 21,
+          "endLine": 25
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 2
+      }
+    },
+    {
+      "path": "supabase/migrations/20260525140000_v2_rls_policies.sql",
+      "language": "sql",
+      "fileCategory": "data",
+      "totalLines": 183,
+      "nonEmptyLines": 155,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "definitionCount": 0
+      }
+    }
+  ]
+}

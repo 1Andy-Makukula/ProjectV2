@@ -1,0 +1,182 @@
+{
+  "projectRoot": "c:\\Users\\Owner\\Downloads\\ProjectV2",
+  "batchFiles": [
+    {
+      "path": "src/app/pages/merchant/MerchantDashboard.tsx",
+      "language": "typescript",
+      "sizeLines": 723,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/merchant/MerchantFulfill.tsx",
+      "language": "typescript",
+      "sizeLines": 575,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/MerchantAgreement.tsx",
+      "language": "typescript",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/MerchantOnboarding.tsx",
+      "language": "typescript",
+      "sizeLines": 264,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/MerchantRedemption.tsx",
+      "language": "typescript",
+      "sizeLines": 1,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/NotFound.tsx",
+      "language": "typescript",
+      "sizeLines": 42,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/Notifications.tsx",
+      "language": "typescript",
+      "sizeLines": 1,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/Privacy.tsx",
+      "language": "typescript",
+      "sizeLines": 186,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/ProductDetail.tsx",
+      "language": "typescript",
+      "sizeLines": 1,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/public/GiftPage.tsx",
+      "language": "typescript",
+      "sizeLines": 334,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/public/Landing.tsx",
+      "language": "typescript",
+      "sizeLines": 397,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/public/Login.tsx",
+      "language": "typescript",
+      "sizeLines": 277,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/public/SignUp.tsx",
+      "language": "typescript",
+      "sizeLines": 308,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/sender/Confirmation.tsx",
+      "language": "typescript",
+      "sizeLines": 540,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/sender/CustomerDashboard.tsx",
+      "language": "typescript",
+      "sizeLines": 312,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/sender/DashboardHub.tsx",
+      "language": "typescript",
+      "sizeLines": 568,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/sender/Home.tsx",
+      "language": "typescript",
+      "sizeLines": 555,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/sender/OrderDashboard.tsx",
+      "language": "typescript",
+      "sizeLines": 529,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/sender/OrderDetail.tsx",
+      "language": "typescript",
+      "sizeLines": 466,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/sender/OrderHistory.tsx",
+      "language": "typescript",
+      "sizeLines": 1,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/sender/SendFlow.tsx",
+      "language": "typescript",
+      "sizeLines": 336,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/sender/Settings.tsx",
+      "language": "typescript",
+      "sizeLines": 333,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/sender/ShopDetail.tsx",
+      "language": "typescript",
+      "sizeLines": 232,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/ShopDirectory.tsx",
+      "language": "typescript",
+      "sizeLines": 145,
+      "fileCategory": "code"
+    },
+    {
+      "path": "src/app/pages/ShopProfile.tsx",
+      "language": "typescript",
+      "sizeLines": 1,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "src/app/pages/merchant/MerchantDashboard.tsx": [],
+    "src/app/pages/merchant/MerchantFulfill.tsx": [],
+    "src/app/pages/MerchantAgreement.tsx": [],
+    "src/app/pages/MerchantOnboarding.tsx": [],
+    "src/app/pages/MerchantRedemption.tsx": [],
+    "src/app/pages/NotFound.tsx": [],
+    "src/app/pages/Notifications.tsx": [],
+    "src/app/pages/Privacy.tsx": [],
+    "src/app/pages/ProductDetail.tsx": [],
+    "src/app/pages/public/GiftPage.tsx": [],
+    "src/app/pages/public/Landing.tsx": [],
+    "src/app/pages/public/Login.tsx": [],
+    "src/app/pages/public/SignUp.tsx": [],
+    "src/app/pages/sender/Confirmation.tsx": [],
+    "src/app/pages/sender/CustomerDashboard.tsx": [],
+    "src/app/pages/sender/DashboardHub.tsx": [],
+    "src/app/pages/sender/Home.tsx": [],
+    "src/app/pages/sender/OrderDashboard.tsx": [],
+    "src/app/pages/sender/OrderDetail.tsx": [],
+    "src/app/pages/sender/OrderHistory.tsx": [],
+    "src/app/pages/sender/SendFlow.tsx": [],
+    "src/app/pages/sender/Settings.tsx": [],
+    "src/app/pages/sender/ShopDetail.tsx": [],
+    "src/app/pages/ShopDirectory.tsx": [],
+    "src/app/pages/ShopProfile.tsx": []
+  }
+}

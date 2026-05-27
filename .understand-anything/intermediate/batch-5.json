@@ -1,0 +1,70 @@
+{
+  "nodes": [
+    {
+      "id": "file:src/styles/fonts.css",
+      "type": "file",
+      "name": "fonts.css",
+      "filePath": "src/styles/fonts.css",
+      "summary": "Implementation of fonts.css.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/styles/globals.css",
+      "type": "file",
+      "name": "globals.css",
+      "filePath": "src/styles/globals.css",
+      "summary": "Implementation of globals.css.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/styles/index.css",
+      "type": "file",
+      "name": "index.css",
+      "filePath": "src/styles/index.css",
+      "summary": "Implementation of index.css.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/styles/tailwind.css",
+      "type": "file",
+      "name": "tailwind.css",
+      "filePath": "src/styles/tailwind.css",
+      "summary": "Implementation of tailwind.css.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/styles/theme.css",
+      "type": "file",
+      "name": "theme.css",
+      "filePath": "src/styles/theme.css",
+      "summary": "Implementation of theme.css.",
+      "tags": [
+        "module",
+        "logic",
+        "implementation"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": []
+}

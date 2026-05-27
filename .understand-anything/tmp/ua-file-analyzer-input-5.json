@@ -1,0 +1,42 @@
+{
+  "projectRoot": "c:\\Users\\Owner\\Downloads\\ProjectV2",
+  "batchFiles": [
+    {
+      "path": "src/styles/fonts.css",
+      "language": "css",
+      "sizeLines": 0,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "src/styles/globals.css",
+      "language": "css",
+      "sizeLines": 0,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "src/styles/index.css",
+      "language": "css",
+      "sizeLines": 3,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "src/styles/tailwind.css",
+      "language": "css",
+      "sizeLines": 4,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "src/styles/theme.css",
+      "language": "css",
+      "sizeLines": 202,
+      "fileCategory": "markup"
+    }
+  ],
+  "batchImportData": {
+    "src/styles/fonts.css": [],
+    "src/styles/globals.css": [],
+    "src/styles/index.css": [],
+    "src/styles/tailwind.css": [],
+    "src/styles/theme.css": []
+  }
+}

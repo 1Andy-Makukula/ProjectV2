@@ -1,0 +1,72 @@
+{
+  "nodes": [
+    {
+      "id": "service:docker-compose.yml",
+      "type": "service",
+      "name": "docker-compose.yml",
+      "filePath": "docker-compose.yml",
+      "summary": "Infrastructure definition for deployment.",
+      "tags": [
+        "infrastructure",
+        "containerization",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "service:Dockerfile",
+      "type": "service",
+      "name": "Dockerfile",
+      "filePath": "Dockerfile",
+      "summary": "Infrastructure definition for deployment.",
+      "tags": [
+        "infrastructure",
+        "containerization",
+        "general"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "service:Dockerfile:builder",
+      "type": "service",
+      "name": "builder",
+      "filePath": "Dockerfile",
+      "summary": "Service definition for builder.",
+      "tags": [
+        "service",
+        "infrastructure",
+        "containerization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "service:Dockerfile:nginx",
+      "type": "service",
+      "name": "nginx",
+      "filePath": "Dockerfile",
+      "summary": "Service definition for nginx.",
+      "tags": [
+        "service",
+        "infrastructure",
+        "containerization"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "service:Dockerfile",
+      "target": "service:Dockerfile:builder",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "service:Dockerfile",
+      "target": "service:Dockerfile:nginx",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    }
+  ]
+}

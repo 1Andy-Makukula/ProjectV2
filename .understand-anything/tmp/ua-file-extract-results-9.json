@@ -1,0 +1,5160 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 25,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "src/app/components/ui/use-mobile.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 21,
+      "nonEmptyLines": 17,
+      "functions": [
+        {
+          "name": "useIsMobile",
+          "startLine": 5,
+          "endLine": 21,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "useIsMobile",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "useIsMobile",
+          "callee": "React.useState",
+          "lineNumber": 6
+        },
+        {
+          "caller": "useIsMobile",
+          "callee": "React.useEffect",
+          "lineNumber": 10
+        },
+        {
+          "caller": "useIsMobile",
+          "callee": "window.matchMedia",
+          "lineNumber": 11
+        },
+        {
+          "caller": "onChange",
+          "callee": "setIsMobile",
+          "lineNumber": 13
+        },
+        {
+          "caller": "useIsMobile",
+          "callee": "mql.addEventListener",
+          "lineNumber": 15
+        },
+        {
+          "caller": "useIsMobile",
+          "callee": "setIsMobile",
+          "lineNumber": 16
+        },
+        {
+          "caller": "useIsMobile",
+          "callee": "mql.removeEventListener",
+          "lineNumber": 17
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/components/ui/utils.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 6,
+      "nonEmptyLines": 5,
+      "functions": [
+        {
+          "name": "cn",
+          "startLine": 4,
+          "endLine": 6,
+          "params": [
+            "...inputs"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "cn",
+          "line": 4,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "cn",
+          "callee": "twMerge",
+          "lineNumber": 5
+        },
+        {
+          "caller": "cn",
+          "callee": "clsx",
+          "lineNumber": 5
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/data/mock-data.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 286,
+      "nonEmptyLines": 278,
+      "exports": [
+        {
+          "name": "districts",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "mockUsers",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "mockProfiles",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "mockShops",
+          "line": 61,
+          "isDefault": false
+        },
+        {
+          "name": "mockProducts",
+          "line": 121,
+          "isDefault": false
+        },
+        {
+          "name": "mockTransactions",
+          "line": 229,
+          "isDefault": false
+        },
+        {
+          "name": "heroSlides",
+          "line": 260,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 7,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/hooks/useAuth.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 2,
+      "nonEmptyLines": 2,
+      "exports": [
+        {
+          "name": "useAuth",
+          "line": 2,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/hooks/useCart.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 95,
+      "nonEmptyLines": 80,
+      "exports": [
+        {
+          "name": "useCart",
+          "line": 20,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/hooks/usePaymentVerification.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 341,
+      "nonEmptyLines": 298,
+      "functions": [
+        {
+          "name": "usePaymentVerification",
+          "startLine": 135,
+          "endLine": 341,
+          "params": [
+            "{\n  voucherId,\n  onSuccess,\n  intervalMs = POLL_INTERVAL_MS,\n  maxAttempts = MAX_ATTEMPTS,\n}"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "usePaymentVerification",
+          "line": 135,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "usePaymentVerification",
+          "callee": "useState",
+          "lineNumber": 142
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "useState",
+          "lineNumber": 143
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "useRef",
+          "lineNumber": 151
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "useRef",
+          "lineNumber": 157
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "useRef",
+          "lineNumber": 164
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "useEffect",
+          "lineNumber": 165
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "useRef",
+          "lineNumber": 174
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "useCallback",
+          "lineNumber": 177
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "clearInterval",
+          "lineNumber": 179
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "useCallback",
+          "lineNumber": 196
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "setAttemptCount",
+          "lineNumber": 206
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "clearActiveInterval",
+          "lineNumber": 212
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "setStatus",
+          "lineNumber": 214
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "console.warn",
+          "lineNumber": 216
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "console.log",
+          "lineNumber": 222
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "await supabase\n      .from('transactions')\n      .select('transaction_id, status')\n      .eq('transaction_id', currentVoucherId)\n      .eq('status', PAID_STATUS)\n      .maybeSingle",
+          "lineNumber": 227
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "supabase\n      .from('transactions')\n      .select('transaction_id, status')\n      .eq('transaction_id', currentVoucherId)\n      .eq",
+          "lineNumber": 227
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "supabase\n      .from('transactions')\n      .select('transaction_id, status')\n      .eq",
+          "lineNumber": 227
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "supabase\n      .from('transactions')\n      .select",
+          "lineNumber": 227
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "supabase\n      .from",
+          "lineNumber": 227
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "clearActiveInterval",
+          "lineNumber": 241
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "setStatus",
+          "lineNumber": 242
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "console.error",
+          "lineNumber": 243
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "clearActiveInterval",
+          "lineNumber": 253
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "console.log",
+          "lineNumber": 254
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "onSuccessRef.current",
+          "lineNumber": 259
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "setStatus",
+          "lineNumber": 260
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "clearActiveInterval",
+          "lineNumber": 266
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "setStatus",
+          "lineNumber": 267
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "console.warn",
+          "lineNumber": 268
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "useCallback",
+          "lineNumber": 279
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "clearActiveInterval",
+          "lineNumber": 280
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "setAttemptCount",
+          "lineNumber": 282
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "setStatus",
+          "lineNumber": 283
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "useEffect",
+          "lineNumber": 293
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "setStatus",
+          "lineNumber": 299
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "setAttemptCount",
+          "lineNumber": 312
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "setStatus",
+          "lineNumber": 313
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "poll",
+          "lineNumber": 317
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "setInterval",
+          "lineNumber": 320
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "poll",
+          "lineNumber": 321
+        },
+        {
+          "caller": "usePaymentVerification",
+          "callee": "clearActiveInterval",
+          "lineNumber": 328
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/hooks/useSettlementCountdown.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 62,
+      "nonEmptyLines": 49,
+      "functions": [
+        {
+          "name": "useSettlementCountdown",
+          "startLine": 7,
+          "endLine": 62,
+          "params": [
+            "targetTime"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "useSettlementCountdown",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "useSettlementCountdown",
+          "callee": "useState",
+          "lineNumber": 8
+        },
+        {
+          "caller": "useSettlementCountdown",
+          "callee": "useEffect",
+          "lineNumber": 10
+        },
+        {
+          "caller": "useSettlementCountdown",
+          "callee": "new Date(targetTime).getTime",
+          "lineNumber": 12
+        },
+        {
+          "caller": "useSettlementCountdown",
+          "callee": "isNaN",
+          "lineNumber": 15
+        },
+        {
+          "caller": "useSettlementCountdown",
+          "callee": "setTimeLeftStr",
+          "lineNumber": 16
+        },
+        {
+          "caller": "calculateRemaining",
+          "callee": "Date.now",
+          "lineNumber": 21
+        },
+        {
+          "caller": "calculateRemaining",
+          "callee": "Math.floor",
+          "lineNumber": 30
+        },
+        {
+          "caller": "calculateRemaining",
+          "callee": "Math.floor",
+          "lineNumber": 31
+        },
+        {
+          "caller": "calculateRemaining",
+          "callee": "Math.floor",
+          "lineNumber": 32
+        },
+        {
+          "caller": "calculateRemaining",
+          "callee": "Math.floor",
+          "lineNumber": 33
+        },
+        {
+          "caller": "calculateRemaining",
+          "callee": "hours.toString().padStart",
+          "lineNumber": 36
+        },
+        {
+          "caller": "calculateRemaining",
+          "callee": "hours.toString",
+          "lineNumber": 36
+        },
+        {
+          "caller": "calculateRemaining",
+          "callee": "minutes.toString().padStart",
+          "lineNumber": 37
+        },
+        {
+          "caller": "calculateRemaining",
+          "callee": "minutes.toString",
+          "lineNumber": 37
+        },
+        {
+          "caller": "calculateRemaining",
+          "callee": "seconds.toString().padStart",
+          "lineNumber": 38
+        },
+        {
+          "caller": "calculateRemaining",
+          "callee": "seconds.toString",
+          "lineNumber": 38
+        },
+        {
+          "caller": "useSettlementCountdown",
+          "callee": "setTimeLeftStr",
+          "lineNumber": 44
+        },
+        {
+          "caller": "useSettlementCountdown",
+          "callee": "calculateRemaining",
+          "lineNumber": 44
+        },
+        {
+          "caller": "useSettlementCountdown",
+          "callee": "setInterval",
+          "lineNumber": 47
+        },
+        {
+          "caller": "useSettlementCountdown",
+          "callee": "calculateRemaining",
+          "lineNumber": 48
+        },
+        {
+          "caller": "useSettlementCountdown",
+          "callee": "setTimeLeftStr",
+          "lineNumber": 49
+        },
+        {
+          "caller": "useSettlementCountdown",
+          "callee": "clearInterval",
+          "lineNumber": 53
+        },
+        {
+          "caller": "useSettlementCountdown",
+          "callee": "clearInterval",
+          "lineNumber": 58
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/hooks/useWishlist.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 53,
+      "nonEmptyLines": 44,
+      "exports": [
+        {
+          "name": "useWishlist",
+          "line": 18,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/layouts/Root.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 23,
+      "nonEmptyLines": 20,
+      "functions": [
+        {
+          "name": "Root",
+          "startLine": 7,
+          "endLine": 23,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Root",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/About.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 124,
+      "nonEmptyLines": 117,
+      "functions": [
+        {
+          "name": "About",
+          "startLine": 6,
+          "endLine": 124,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "About",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "About",
+          "callee": "[\n              { icon: Heart, title: 'Trust', desc: 'Every transaction protected by escrow until gift is received' },\n              { icon: Users, title: 'Community', desc: 'Supporting local Zambian merchants and businesses' },\n              { icon: Lightbulb, title: 'Innovation', desc: 'Using technology to solve real Zambian challenges' },\n            ].map",
+          "lineNumber": 84
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/admin/AdminDashboard.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 519,
+      "nonEmptyLines": 481,
+      "functions": [
+        {
+          "name": "AdminDashboard",
+          "startLine": 53,
+          "endLine": 479,
+          "params": []
+        },
+        {
+          "name": "StatCard",
+          "startLine": 482,
+          "endLine": 501,
+          "params": [
+            "{ title, value, icon: Icon, gradient }"
+          ]
+        },
+        {
+          "name": "QuickLink",
+          "startLine": 504,
+          "endLine": 519,
+          "params": [
+            "{ title, description, onClick }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "AdminDashboard",
+          "line": 53,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "AdminDashboard",
+          "callee": "useNavigate",
+          "lineNumber": 54
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "useAuth",
+          "lineNumber": 55
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "useState",
+          "lineNumber": 56
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "useState",
+          "lineNumber": 69
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "useState",
+          "lineNumber": 70
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "useState",
+          "lineNumber": 71
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "useEffect",
+          "lineNumber": 73
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "loadDashboardData",
+          "lineNumber": 74
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "setLoading",
+          "lineNumber": 79
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "supabase\n        .from('orders')\n        .select('*')\n        .order",
+          "lineNumber": 82
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "supabase\n        .from('orders')\n        .select",
+          "lineNumber": 82
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "supabase\n        .from",
+          "lineNumber": 82
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "supabase\n        .from('shops')\n        .select",
+          "lineNumber": 90
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "supabase\n        .from",
+          "lineNumber": 90
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "supabase\n        .from('users')\n        .select",
+          "lineNumber": 97
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "supabase\n        .from",
+          "lineNumber": 97
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "weekAgo.setDate",
+          "lineNumber": 105
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "weekAgo.getDate",
+          "lineNumber": 105
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "orders?.filter",
+          "lineNumber": 107
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "setStats",
+          "lineNumber": 109
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "orders?.reduce",
+          "lineNumber": 111
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "ordersThisWeek.reduce",
+          "lineNumber": 113
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "orders?.reduce",
+          "lineNumber": 114
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "ordersThisWeek.reduce",
+          "lineNumber": 115
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "orders?.filter",
+          "lineNumber": 118
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "orders?.filter",
+          "lineNumber": 119
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "orders?.filter",
+          "lineNumber": 120
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "supabase\n        .from('orders')\n        .select(`\n          id,\n          code,\n          amount,\n          status,\n          created_at,\n          recipient_name,\n          sender:users!sender_id(name),\n          item:items(name),\n          shop:shops(name)\n        `)\n        .order('created_at', { ascending: false })\n        .limit",
+          "lineNumber": 124
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "supabase\n        .from('orders')\n        .select(`\n          id,\n          code,\n          amount,\n          status,\n          created_at,\n          recipient_name,\n          sender:users!sender_id(name),\n          item:items(name),\n          shop:shops(name)\n        `)\n        .order",
+          "lineNumber": 124
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "supabase\n        .from('orders')\n        .select",
+          "lineNumber": 124
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "supabase\n        .from",
+          "lineNumber": 124
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "recentOrdersData?.map",
+          "lineNumber": 142
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "setRecentOrders",
+          "lineNumber": 154
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "console.error",
+          "lineNumber": 156
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "toast.error",
+          "lineNumber": 157
+        },
+        {
+          "caller": "loadDashboardData",
+          "callee": "setLoading",
+          "lineNumber": 159
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "e.preventDefault",
+          "lineNumber": 164
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "supabase.auth.signOut",
+          "lineNumber": 168
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "localStorage.clear",
+          "lineNumber": 171
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "sessionStorage.clear",
+          "lineNumber": 172
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "navigate",
+          "lineNumber": 175
+        },
+        {
+          "caller": "handleLogout",
+          "callee": "console.error",
+          "lineNumber": 177
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "setExporting",
+          "lineNumber": 183
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "supabase\n        .from('orders')\n        .select(`\n          code,\n          recipient_name,\n          amount,\n          currency,\n          status,\n          created_at,\n          paid_at,\n          fulfilled_at,\n          sender:users!sender_id(name, email, phone),\n          item:items(name),\n          shop:shops(name, location)\n        `)\n        .order",
+          "lineNumber": 185
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "supabase\n        .from('orders')\n        .select",
+          "lineNumber": 185
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "supabase\n        .from",
+          "lineNumber": 185
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "(data || []).map",
+          "lineNumber": 221
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "(order.amount / 100).toFixed",
+          "lineNumber": 230
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "[\n        headers.join(','),\n        ...rows.map((row: any[]) => row.map((cell: any) => `\"${String(cell).replace(/\"/g, '\"\"')}\"`).join(',')),\n      ].join",
+          "lineNumber": 238
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "headers.join",
+          "lineNumber": 239
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "rows.map",
+          "lineNumber": 240
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "row.map((cell: any) => `\"${String(cell).replace(/\"/g, '\"\"')}\"`).join",
+          "lineNumber": 240
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "row.map",
+          "lineNumber": 240
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "String(cell).replace",
+          "lineNumber": 240
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "String",
+          "lineNumber": 240
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "window.URL.createObjectURL",
+          "lineNumber": 244
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "document.createElement",
+          "lineNumber": 245
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "new Date().toISOString().slice",
+          "lineNumber": 247
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "new Date().toISOString",
+          "lineNumber": 247
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "link.click",
+          "lineNumber": 248
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "window.URL.revokeObjectURL",
+          "lineNumber": 249
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "toast.success",
+          "lineNumber": 251
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "console.error",
+          "lineNumber": 253
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "toast.error",
+          "lineNumber": 254
+        },
+        {
+          "caller": "handleExportAllData",
+          "callee": "setExporting",
+          "lineNumber": 256
+        },
+        {
+          "caller": "getStatusLabel",
+          "callee": "status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join",
+          "lineNumber": 277
+        },
+        {
+          "caller": "getStatusLabel",
+          "callee": "status.split('_').map",
+          "lineNumber": 277
+        },
+        {
+          "caller": "getStatusLabel",
+          "callee": "status.split",
+          "lineNumber": 277
+        },
+        {
+          "caller": "getStatusLabel",
+          "callee": "word.charAt(0).toUpperCase",
+          "lineNumber": 277
+        },
+        {
+          "caller": "getStatusLabel",
+          "callee": "word.charAt",
+          "lineNumber": 277
+        },
+        {
+          "caller": "getStatusLabel",
+          "callee": "word.slice",
+          "lineNumber": 277
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "toast.success",
+          "lineNumber": 291
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "formatCurrency",
+          "lineNumber": 329
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "formatCurrency",
+          "lineNumber": 341
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "formatCurrency",
+          "lineNumber": 347
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "formatCurrency",
+          "lineNumber": 353
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "navigate",
+          "lineNumber": 400
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "navigate",
+          "lineNumber": 405
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "navigate",
+          "lineNumber": 410
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "navigate",
+          "lineNumber": 415
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "recentOrders.map",
+          "lineNumber": 448
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "navigate",
+          "lineNumber": 452
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "formatCurrency",
+          "lineNumber": 459
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "getStatusColor",
+          "lineNumber": 461
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "getStatusLabel",
+          "lineNumber": 462
+        },
+        {
+          "caller": "AdminDashboard",
+          "callee": "new Date(order.created_at).toLocaleDateString",
+          "lineNumber": 466
+        }
+      ],
+      "metrics": {
+        "importCount": 7,
+        "exportCount": 1,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/admin/AdminItemForm.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 412,
+      "nonEmptyLines": 380,
+      "functions": [
+        {
+          "name": "AdminItemForm",
+          "startLine": 36,
+          "endLine": 412,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "AdminItemForm",
+          "line": 36,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "AdminItemForm",
+          "callee": "useNavigate",
+          "lineNumber": 37
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "useParams",
+          "lineNumber": 38
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "Boolean",
+          "lineNumber": 39
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "useAuth",
+          "lineNumber": 40
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "useState",
+          "lineNumber": 43
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "useState",
+          "lineNumber": 50
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "useState",
+          "lineNumber": 51
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "useState",
+          "lineNumber": 52
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "useState",
+          "lineNumber": 53
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "useState",
+          "lineNumber": 54
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "useEffect",
+          "lineNumber": 56
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "loadItem",
+          "lineNumber": 58
+        },
+        {
+          "caller": "fetchMerchantShop",
+          "callee": "supabase\n          .from('merchant_shops')\n          .select('shop_id')\n          .eq('user_id', profile.id)\n          .single",
+          "lineNumber": 62
+        },
+        {
+          "caller": "fetchMerchantShop",
+          "callee": "supabase\n          .from('merchant_shops')\n          .select('shop_id')\n          .eq",
+          "lineNumber": 62
+        },
+        {
+          "caller": "fetchMerchantShop",
+          "callee": "supabase\n          .from('merchant_shops')\n          .select",
+          "lineNumber": 62
+        },
+        {
+          "caller": "fetchMerchantShop",
+          "callee": "supabase\n          .from",
+          "lineNumber": 62
+        },
+        {
+          "caller": "fetchMerchantShop",
+          "callee": "setActualShopId",
+          "lineNumber": 68
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "fetchMerchantShop",
+          "lineNumber": 71
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "setActualShopId",
+          "lineNumber": 73
+        },
+        {
+          "caller": "loadItem",
+          "callee": "supabase\n        .from('items')\n        .select('*')\n        .eq('id', itemId)\n        .single",
+          "lineNumber": 79
+        },
+        {
+          "caller": "loadItem",
+          "callee": "supabase\n        .from('items')\n        .select('*')\n        .eq",
+          "lineNumber": 79
+        },
+        {
+          "caller": "loadItem",
+          "callee": "supabase\n        .from('items')\n        .select",
+          "lineNumber": 79
+        },
+        {
+          "caller": "loadItem",
+          "callee": "supabase\n        .from",
+          "lineNumber": 79
+        },
+        {
+          "caller": "loadItem",
+          "callee": "setActualShopId",
+          "lineNumber": 87
+        },
+        {
+          "caller": "loadItem",
+          "callee": "setFormData",
+          "lineNumber": 88
+        },
+        {
+          "caller": "loadItem",
+          "callee": "(data.price / 100).toFixed",
+          "lineNumber": 91
+        },
+        {
+          "caller": "loadItem",
+          "callee": "setImagePreview",
+          "lineNumber": 95
+        },
+        {
+          "caller": "loadItem",
+          "callee": "console.error",
+          "lineNumber": 97
+        },
+        {
+          "caller": "loadItem",
+          "callee": "toast.error",
+          "lineNumber": 98
+        },
+        {
+          "caller": "loadItem",
+          "callee": "navigate",
+          "lineNumber": 100
+        },
+        {
+          "caller": "loadItem",
+          "callee": "navigate",
+          "lineNumber": 102
+        },
+        {
+          "caller": "handleImageChange",
+          "callee": "validateImageFile",
+          "lineNumber": 110
+        },
+        {
+          "caller": "handleImageChange",
+          "callee": "toast.error",
+          "lineNumber": 112
+        },
+        {
+          "caller": "handleImageChange",
+          "callee": "setImageFile",
+          "lineNumber": 116
+        },
+        {
+          "caller": "handleImageChange",
+          "callee": "setImagePreview",
+          "lineNumber": 119
+        },
+        {
+          "caller": "handleImageChange",
+          "callee": "reader.readAsDataURL",
+          "lineNumber": 121
+        },
+        {
+          "caller": "uploadImage",
+          "callee": "setUploading",
+          "lineNumber": 131
+        },
+        {
+          "caller": "uploadImage",
+          "callee": "uploadItemImage",
+          "lineNumber": 133
+        },
+        {
+          "caller": "uploadImage",
+          "callee": "console.error",
+          "lineNumber": 137
+        },
+        {
+          "caller": "uploadImage",
+          "callee": "toast.error",
+          "lineNumber": 138
+        },
+        {
+          "caller": "uploadImage",
+          "callee": "setUploading",
+          "lineNumber": 141
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "e.preventDefault",
+          "lineNumber": 146
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.error",
+          "lineNumber": 149
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "parseFloat",
+          "lineNumber": 153
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "isNaN",
+          "lineNumber": 154
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.error",
+          "lineNumber": 155
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setLoading",
+          "lineNumber": 159
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "uploadImage",
+          "lineNumber": 164
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toCents",
+          "lineNumber": 171
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "supabase\n          .from('items')\n          .update(itemData)\n          .eq",
+          "lineNumber": 177
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "supabase\n          .from('items')\n          .update",
+          "lineNumber": 177
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "supabase\n          .from",
+          "lineNumber": 177
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.success",
+          "lineNumber": 183
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "supabase\n          .from('items')\n          .insert",
+          "lineNumber": 185
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "supabase\n          .from",
+          "lineNumber": 185
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.success",
+          "lineNumber": 190
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "navigate",
+          "lineNumber": 194
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "navigate",
+          "lineNumber": 196
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "console.error",
+          "lineNumber": 199
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.error",
+          "lineNumber": 200
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setLoading",
+          "lineNumber": 202
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "setLoading",
+          "lineNumber": 209
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "supabase\n        .from('items')\n        .delete()\n        .eq",
+          "lineNumber": 211
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "supabase\n        .from('items')\n        .delete",
+          "lineNumber": 211
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "supabase\n        .from",
+          "lineNumber": 211
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "toast.success",
+          "lineNumber": 218
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "navigate",
+          "lineNumber": 220
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "navigate",
+          "lineNumber": 222
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "console.error",
+          "lineNumber": 225
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "toast.error",
+          "lineNumber": 226
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "setLoading",
+          "lineNumber": 227
+        },
+        {
+          "caller": "handleCancel",
+          "callee": "navigate",
+          "lineNumber": 233
+        },
+        {
+          "caller": "handleCancel",
+          "callee": "navigate",
+          "lineNumber": 235
+        },
+        {
+          "caller": "handleCancel",
+          "callee": "navigate",
+          "lineNumber": 237
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "setFormData",
+          "lineNumber": 280
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "setFormData",
+          "lineNumber": 292
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "setFormData",
+          "lineNumber": 311
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "formatCurrency",
+          "lineNumber": 319
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "toCents",
+          "lineNumber": 319
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "parseFloat",
+          "lineNumber": 319
+        },
+        {
+          "caller": "AdminItemForm",
+          "callee": "setFormData",
+          "lineNumber": 361
+        }
+      ],
+      "metrics": {
+        "importCount": 12,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/admin/AdminItems.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 235,
+      "nonEmptyLines": 212,
+      "functions": [
+        {
+          "name": "AdminItems",
+          "startLine": 32,
+          "endLine": 165,
+          "params": [
+            "{ merchantShopId, baseRoute = '/admin' }"
+          ]
+        },
+        {
+          "name": "ItemCard",
+          "startLine": 168,
+          "endLine": 235,
+          "params": [
+            "{ item, onEdit, onToggleAvailability }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "AdminItems",
+          "line": 32,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "AdminItems",
+          "callee": "useNavigate",
+          "lineNumber": 33
+        },
+        {
+          "caller": "AdminItems",
+          "callee": "useParams",
+          "lineNumber": 34
+        },
+        {
+          "caller": "AdminItems",
+          "callee": "useState",
+          "lineNumber": 38
+        },
+        {
+          "caller": "AdminItems",
+          "callee": "useState",
+          "lineNumber": 39
+        },
+        {
+          "caller": "AdminItems",
+          "callee": "useState",
+          "lineNumber": 40
+        },
+        {
+          "caller": "AdminItems",
+          "callee": "useEffect",
+          "lineNumber": 42
+        },
+        {
+          "caller": "AdminItems",
+          "callee": "loadShopAndItems",
+          "lineNumber": 44
+        },
+        {
+          "caller": "loadShopAndItems",
+          "callee": "setLoading",
+          "lineNumber": 50
+        },
+        {
+          "caller": "loadShopAndItems",
+          "callee": "supabase\n        .from('shops')\n        .select('id, name')\n        .eq('id', activeShopId)\n        .single",
+          "lineNumber": 53
+        },
+        {
+          "caller": "loadShopAndItems",
+          "callee": "supabase\n        .from('shops')\n        .select('id, name')\n        .eq",
+          "lineNumber": 53
+        },
+        {
+          "caller": "loadShopAndItems",
+          "callee": "supabase\n        .from('shops')\n        .select",
+          "lineNumber": 53
+        },
+        {
+          "caller": "loadShopAndItems",
+          "callee": "supabase\n        .from",
+          "lineNumber": 53
+        },
+        {
+          "caller": "loadShopAndItems",
+          "callee": "setShop",
+          "lineNumber": 60
+        },
+        {
+          "caller": "loadShopAndItems",
+          "callee": "supabase\n        .from('items')\n        .select('*')\n        .eq('shop_id', activeShopId)\n        .order",
+          "lineNumber": 63
+        },
+        {
+          "caller": "loadShopAndItems",
+          "callee": "supabase\n        .from('items')\n        .select('*')\n        .eq",
+          "lineNumber": 63
+        },
+        {
+          "caller": "loadShopAndItems",
+          "callee": "supabase\n        .from('items')\n        .select",
+          "lineNumber": 63
+        },
+        {
+          "caller": "loadShopAndItems",
+          "callee": "supabase\n        .from",
+          "lineNumber": 63
+        },
+        {
+          "caller": "loadShopAndItems",
+          "callee": "setItems",
+          "lineNumber": 70
+        },
+        {
+          "caller": "loadShopAndItems",
+          "callee": "console.error",
+          "lineNumber": 72
+        },
+        {
+          "caller": "loadShopAndItems",
+          "callee": "toast.error",
+          "lineNumber": 73
+        },
+        {
+          "caller": "loadShopAndItems",
+          "callee": "navigate",
+          "lineNumber": 74
+        },
+        {
+          "caller": "loadShopAndItems",
+          "callee": "setLoading",
+          "lineNumber": 76
+        },
+        {
+          "caller": "toggleItemAvailability",
+          "callee": "supabase\n        .from('items')\n        .update({ is_available: !currentStatus })\n        .eq",
+          "lineNumber": 82
+        },
+        {
+          "caller": "toggleItemAvailability",
+          "callee": "supabase\n        .from('items')\n        .update",
+          "lineNumber": 82
+        },
+        {
+          "caller": "toggleItemAvailability",
+          "callee": "supabase\n        .from",
+          "lineNumber": 82
+        },
+        {
+          "caller": "toggleItemAvailability",
+          "callee": "query.eq",
+          "lineNumber": 88
+        },
+        {
+          "caller": "toggleItemAvailability",
+          "callee": "toast.success",
+          "lineNumber": 95
+        },
+        {
+          "caller": "toggleItemAvailability",
+          "callee": "loadShopAndItems",
+          "lineNumber": 96
+        },
+        {
+          "caller": "toggleItemAvailability",
+          "callee": "console.error",
+          "lineNumber": 98
+        },
+        {
+          "caller": "toggleItemAvailability",
+          "callee": "toast.error",
+          "lineNumber": 99
+        },
+        {
+          "caller": "AdminItems",
+          "callee": "navigate",
+          "lineNumber": 112
+        },
+        {
+          "caller": "AdminItems",
+          "callee": "navigate",
+          "lineNumber": 124
+        },
+        {
+          "caller": "AdminItems",
+          "callee": "navigate",
+          "lineNumber": 144
+        },
+        {
+          "caller": "AdminItems",
+          "callee": "items.map",
+          "lineNumber": 152
+        },
+        {
+          "caller": "AdminItems",
+          "callee": "navigate",
+          "lineNumber": 156
+        },
+        {
+          "caller": "AdminItems",
+          "callee": "toggleItemAvailability",
+          "lineNumber": 157
+        },
+        {
+          "caller": "ItemCard",
+          "callee": "item.name.charAt",
+          "lineNumber": 187
+        },
+        {
+          "caller": "ItemCard",
+          "callee": "formatCurrency",
+          "lineNumber": 206
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/admin/AdminMerchandising.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 535,
+      "nonEmptyLines": 481,
+      "functions": [
+        {
+          "name": "cls",
+          "startLine": 15,
+          "endLine": 17,
+          "params": [
+            "...args"
+          ]
+        },
+        {
+          "name": "SectionShell",
+          "startLine": 19,
+          "endLine": 29,
+          "params": [
+            "{ title, sub, children }"
+          ]
+        },
+        {
+          "name": "Spinner",
+          "startLine": 31,
+          "endLine": 33,
+          "params": []
+        },
+        {
+          "name": "StatusTag",
+          "startLine": 35,
+          "endLine": 44,
+          "params": [
+            "{ ok }"
+          ]
+        },
+        {
+          "name": "uploadFile",
+          "startLine": 48,
+          "endLine": 55,
+          "params": [
+            "file",
+            "folder"
+          ]
+        },
+        {
+          "name": "BannerManager",
+          "startLine": 61,
+          "endLine": 196,
+          "params": []
+        },
+        {
+          "name": "WeeklyPicksPanel",
+          "startLine": 202,
+          "endLine": 304,
+          "params": []
+        },
+        {
+          "name": "ShopLogoPanel",
+          "startLine": 310,
+          "endLine": 395,
+          "params": []
+        },
+        {
+          "name": "CategoryFlagsPanel",
+          "startLine": 401,
+          "endLine": 482,
+          "params": []
+        },
+        {
+          "name": "AdminMerchandising",
+          "startLine": 486,
+          "endLine": 535,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "AdminMerchandising",
+          "line": 486,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "cls",
+          "callee": "args.filter(Boolean).join",
+          "lineNumber": 16
+        },
+        {
+          "caller": "cls",
+          "callee": "args.filter",
+          "lineNumber": 16
+        },
+        {
+          "caller": "StatusTag",
+          "callee": "cls",
+          "lineNumber": 37
+        },
+        {
+          "caller": "StatusTag",
+          "callee": "cls",
+          "lineNumber": 40
+        },
+        {
+          "caller": "uploadFile",
+          "callee": "file.name.split('.').pop",
+          "lineNumber": 49
+        },
+        {
+          "caller": "uploadFile",
+          "callee": "file.name.split",
+          "lineNumber": 49
+        },
+        {
+          "caller": "uploadFile",
+          "callee": "Date.now",
+          "lineNumber": 50
+        },
+        {
+          "caller": "uploadFile",
+          "callee": "Math.random().toString(36).slice",
+          "lineNumber": 50
+        },
+        {
+          "caller": "uploadFile",
+          "callee": "Math.random().toString",
+          "lineNumber": 50
+        },
+        {
+          "caller": "uploadFile",
+          "callee": "Math.random",
+          "lineNumber": 50
+        },
+        {
+          "caller": "uploadFile",
+          "callee": "supabase.storage.from('kithly-images').upload",
+          "lineNumber": 51
+        },
+        {
+          "caller": "uploadFile",
+          "callee": "supabase.storage.from",
+          "lineNumber": 51
+        },
+        {
+          "caller": "uploadFile",
+          "callee": "supabase.storage.from('kithly-images').getPublicUrl",
+          "lineNumber": 53
+        },
+        {
+          "caller": "uploadFile",
+          "callee": "supabase.storage.from",
+          "lineNumber": 53
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "useState",
+          "lineNumber": 62
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "useState",
+          "lineNumber": 63
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "useState",
+          "lineNumber": 64
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "useState",
+          "lineNumber": 65
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "useState",
+          "lineNumber": 66
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "useState",
+          "lineNumber": 67
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "useState",
+          "lineNumber": 68
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "useRef",
+          "lineNumber": 69
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "useCallback",
+          "lineNumber": 71
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "setLoading",
+          "lineNumber": 72
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "supabase.from('banners').select('*').order",
+          "lineNumber": 73
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "supabase.from('banners').select",
+          "lineNumber": 73
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "supabase.from",
+          "lineNumber": 73
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "setBanners",
+          "lineNumber": 74
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "setLoading",
+          "lineNumber": 75
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "useEffect",
+          "lineNumber": 78
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "load",
+          "lineNumber": 78
+        },
+        {
+          "caller": "handleFile",
+          "callee": "setFile",
+          "lineNumber": 83
+        },
+        {
+          "caller": "handleFile",
+          "callee": "setPreview",
+          "lineNumber": 84
+        },
+        {
+          "caller": "handleFile",
+          "callee": "URL.createObjectURL",
+          "lineNumber": 84
+        },
+        {
+          "caller": "handleAdd",
+          "callee": "e.preventDefault",
+          "lineNumber": 88
+        },
+        {
+          "caller": "handleAdd",
+          "callee": "title.trim",
+          "lineNumber": 89
+        },
+        {
+          "caller": "handleAdd",
+          "callee": "toast.error",
+          "lineNumber": 89
+        },
+        {
+          "caller": "handleAdd",
+          "callee": "setSaving",
+          "lineNumber": 90
+        },
+        {
+          "caller": "handleAdd",
+          "callee": "uploadFile",
+          "lineNumber": 92
+        },
+        {
+          "caller": "handleAdd",
+          "callee": "supabase.from('banners').insert",
+          "lineNumber": 93
+        },
+        {
+          "caller": "handleAdd",
+          "callee": "supabase.from",
+          "lineNumber": 93
+        },
+        {
+          "caller": "handleAdd",
+          "callee": "title.trim",
+          "lineNumber": 94
+        },
+        {
+          "caller": "handleAdd",
+          "callee": "parseInt",
+          "lineNumber": 95
+        },
+        {
+          "caller": "handleAdd",
+          "callee": "toast.success",
+          "lineNumber": 98
+        },
+        {
+          "caller": "handleAdd",
+          "callee": "setTitle",
+          "lineNumber": 99
+        },
+        {
+          "caller": "handleAdd",
+          "callee": "setSortOrder",
+          "lineNumber": 99
+        },
+        {
+          "caller": "handleAdd",
+          "callee": "setFile",
+          "lineNumber": 99
+        },
+        {
+          "caller": "handleAdd",
+          "callee": "setPreview",
+          "lineNumber": 99
+        },
+        {
+          "caller": "handleAdd",
+          "callee": "load",
+          "lineNumber": 101
+        },
+        {
+          "caller": "handleAdd",
+          "callee": "toast.error",
+          "lineNumber": 103
+        },
+        {
+          "caller": "handleAdd",
+          "callee": "setSaving",
+          "lineNumber": 105
+        },
+        {
+          "caller": "toggleActive",
+          "callee": "supabase.from('banners').update({ is_active: !b.is_active }).eq",
+          "lineNumber": 110
+        },
+        {
+          "caller": "toggleActive",
+          "callee": "supabase.from('banners').update",
+          "lineNumber": 110
+        },
+        {
+          "caller": "toggleActive",
+          "callee": "supabase.from",
+          "lineNumber": 110
+        },
+        {
+          "caller": "toggleActive",
+          "callee": "setBanners",
+          "lineNumber": 111
+        },
+        {
+          "caller": "toggleActive",
+          "callee": "prev.map",
+          "lineNumber": 111
+        },
+        {
+          "caller": "deleteBanner",
+          "callee": "confirm",
+          "lineNumber": 115
+        },
+        {
+          "caller": "deleteBanner",
+          "callee": "supabase.from('banners').delete().eq",
+          "lineNumber": 116
+        },
+        {
+          "caller": "deleteBanner",
+          "callee": "supabase.from('banners').delete",
+          "lineNumber": 116
+        },
+        {
+          "caller": "deleteBanner",
+          "callee": "supabase.from",
+          "lineNumber": 116
+        },
+        {
+          "caller": "deleteBanner",
+          "callee": "setBanners",
+          "lineNumber": 117
+        },
+        {
+          "caller": "deleteBanner",
+          "callee": "prev.filter",
+          "lineNumber": 117
+        },
+        {
+          "caller": "deleteBanner",
+          "callee": "toast.success",
+          "lineNumber": 118
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "setTitle",
+          "lineNumber": 128
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "setSortOrder",
+          "lineNumber": 136
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "file.name.slice",
+          "lineNumber": 144
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "banners.map",
+          "lineNumber": 174
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "toggleActive",
+          "lineNumber": 184
+        },
+        {
+          "caller": "BannerManager",
+          "callee": "deleteBanner",
+          "lineNumber": 187
+        },
+        {
+          "caller": "WeeklyPicksPanel",
+          "callee": "useState",
+          "lineNumber": 203
+        },
+        {
+          "caller": "WeeklyPicksPanel",
+          "callee": "useState",
+          "lineNumber": 204
+        },
+        {
+          "caller": "WeeklyPicksPanel",
+          "callee": "useState",
+          "lineNumber": 205
+        },
+        {
+          "caller": "WeeklyPicksPanel",
+          "callee": "useState",
+          "lineNumber": 206
+        },
+        {
+          "caller": "WeeklyPicksPanel",
+          "callee": "useState",
+          "lineNumber": 207
+        },
+        {
+          "caller": "WeeklyPicksPanel",
+          "callee": "useEffect",
+          "lineNumber": 209
+        },
+        {
+          "caller": "load",
+          "callee": "setLoading",
+          "lineNumber": 211
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n        .from('items')\n        .select('id, name, image_url, is_weekly_pick, shop:shops(name)')\n        .eq('is_available', true)\n        .order",
+          "lineNumber": 212
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n        .from('items')\n        .select('id, name, image_url, is_weekly_pick, shop:shops(name)')\n        .eq",
+          "lineNumber": 212
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n        .from('items')\n        .select",
+          "lineNumber": 212
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n        .from",
+          "lineNumber": 212
+        },
+        {
+          "caller": "load",
+          "callee": "error.message.includes",
+          "lineNumber": 219
+        },
+        {
+          "caller": "load",
+          "callee": "setSchemaError",
+          "lineNumber": 219
+        },
+        {
+          "caller": "load",
+          "callee": "toast.error",
+          "lineNumber": 220
+        },
+        {
+          "caller": "load",
+          "callee": "setItems",
+          "lineNumber": 222
+        },
+        {
+          "caller": "load",
+          "callee": "setLoading",
+          "lineNumber": 224
+        },
+        {
+          "caller": "WeeklyPicksPanel",
+          "callee": "load",
+          "lineNumber": 226
+        },
+        {
+          "caller": "toggle",
+          "callee": "setToggling",
+          "lineNumber": 230
+        },
+        {
+          "caller": "toggle",
+          "callee": "supabase\n      .from('items')\n      .update({ is_weekly_pick: !item.is_weekly_pick })\n      .eq",
+          "lineNumber": 231
+        },
+        {
+          "caller": "toggle",
+          "callee": "supabase\n      .from('items')\n      .update",
+          "lineNumber": 231
+        },
+        {
+          "caller": "toggle",
+          "callee": "supabase\n      .from",
+          "lineNumber": 231
+        },
+        {
+          "caller": "toggle",
+          "callee": "error.message.includes",
+          "lineNumber": 237
+        },
+        {
+          "caller": "toggle",
+          "callee": "setSchemaError",
+          "lineNumber": 237
+        },
+        {
+          "caller": "toggle",
+          "callee": "toast.error",
+          "lineNumber": 238
+        },
+        {
+          "caller": "toggle",
+          "callee": "setItems",
+          "lineNumber": 240
+        },
+        {
+          "caller": "toggle",
+          "callee": "prev.map",
+          "lineNumber": 240
+        },
+        {
+          "caller": "toggle",
+          "callee": "setToggling",
+          "lineNumber": 242
+        },
+        {
+          "caller": "WeeklyPicksPanel",
+          "callee": "items.filter",
+          "lineNumber": 245
+        },
+        {
+          "caller": "WeeklyPicksPanel",
+          "callee": "i.name.toLowerCase().includes",
+          "lineNumber": 245
+        },
+        {
+          "caller": "WeeklyPicksPanel",
+          "callee": "i.name.toLowerCase",
+          "lineNumber": 245
+        },
+        {
+          "caller": "WeeklyPicksPanel",
+          "callee": "query.toLowerCase",
+          "lineNumber": 245
+        },
+        {
+          "caller": "WeeklyPicksPanel",
+          "callee": "items.filter",
+          "lineNumber": 246
+        },
+        {
+          "caller": "WeeklyPicksPanel",
+          "callee": "setQuery",
+          "lineNumber": 263
+        },
+        {
+          "caller": "WeeklyPicksPanel",
+          "callee": "filtered.map",
+          "lineNumber": 275
+        },
+        {
+          "caller": "WeeklyPicksPanel",
+          "callee": "toggle",
+          "lineNumber": 290
+        },
+        {
+          "caller": "ShopLogoPanel",
+          "callee": "useState",
+          "lineNumber": 311
+        },
+        {
+          "caller": "ShopLogoPanel",
+          "callee": "useState",
+          "lineNumber": 312
+        },
+        {
+          "caller": "ShopLogoPanel",
+          "callee": "useState",
+          "lineNumber": 313
+        },
+        {
+          "caller": "ShopLogoPanel",
+          "callee": "useRef",
+          "lineNumber": 314
+        },
+        {
+          "caller": "ShopLogoPanel",
+          "callee": "useEffect",
+          "lineNumber": 316
+        },
+        {
+          "caller": "load",
+          "callee": "setLoading",
+          "lineNumber": 318
+        },
+        {
+          "caller": "load",
+          "callee": "supabase.from('shops').select('id, name, logo_url').order",
+          "lineNumber": 319
+        },
+        {
+          "caller": "load",
+          "callee": "supabase.from('shops').select",
+          "lineNumber": 319
+        },
+        {
+          "caller": "load",
+          "callee": "supabase.from",
+          "lineNumber": 319
+        },
+        {
+          "caller": "load",
+          "callee": "setShops",
+          "lineNumber": 320
+        },
+        {
+          "caller": "load",
+          "callee": "setLoading",
+          "lineNumber": 321
+        },
+        {
+          "caller": "ShopLogoPanel",
+          "callee": "load",
+          "lineNumber": 323
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "setUploading",
+          "lineNumber": 327
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "uploadFile",
+          "lineNumber": 329
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "supabase.from('shops').update({ logo_url: url }).eq",
+          "lineNumber": 330
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "supabase.from('shops').update",
+          "lineNumber": 330
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "supabase.from",
+          "lineNumber": 330
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "setShops",
+          "lineNumber": 332
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "prev.map",
+          "lineNumber": 332
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "toast.success",
+          "lineNumber": 333
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "toast.error",
+          "lineNumber": 335
+        },
+        {
+          "caller": "handleUpload",
+          "callee": "setUploading",
+          "lineNumber": 337
+        },
+        {
+          "caller": "clearLogo",
+          "callee": "confirm",
+          "lineNumber": 342
+        },
+        {
+          "caller": "clearLogo",
+          "callee": "supabase.from('shops').update({ logo_url: null }).eq",
+          "lineNumber": 343
+        },
+        {
+          "caller": "clearLogo",
+          "callee": "supabase.from('shops').update",
+          "lineNumber": 343
+        },
+        {
+          "caller": "clearLogo",
+          "callee": "supabase.from",
+          "lineNumber": 343
+        },
+        {
+          "caller": "clearLogo",
+          "callee": "setShops",
+          "lineNumber": 344
+        },
+        {
+          "caller": "clearLogo",
+          "callee": "prev.map",
+          "lineNumber": 344
+        },
+        {
+          "caller": "clearLogo",
+          "callee": "toast.success",
+          "lineNumber": 345
+        },
+        {
+          "caller": "ShopLogoPanel",
+          "callee": "shops.map",
+          "lineNumber": 356
+        },
+        {
+          "caller": "ShopLogoPanel",
+          "callee": "handleUpload",
+          "lineNumber": 379
+        },
+        {
+          "caller": "ShopLogoPanel",
+          "callee": "clearLogo",
+          "lineNumber": 385
+        },
+        {
+          "caller": "CategoryFlagsPanel",
+          "callee": "useState",
+          "lineNumber": 402
+        },
+        {
+          "caller": "CategoryFlagsPanel",
+          "callee": "useState",
+          "lineNumber": 403
+        },
+        {
+          "caller": "CategoryFlagsPanel",
+          "callee": "useState",
+          "lineNumber": 404
+        },
+        {
+          "caller": "CategoryFlagsPanel",
+          "callee": "useState",
+          "lineNumber": 405
+        },
+        {
+          "caller": "CategoryFlagsPanel",
+          "callee": "useEffect",
+          "lineNumber": 407
+        },
+        {
+          "caller": "load",
+          "callee": "setLoading",
+          "lineNumber": 409
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n        .from('categories')\n        .select('id, name, is_featured')\n        .order",
+          "lineNumber": 410
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n        .from('categories')\n        .select",
+          "lineNumber": 410
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n        .from",
+          "lineNumber": 410
+        },
+        {
+          "caller": "load",
+          "callee": "error.message.toLowerCase().includes",
+          "lineNumber": 416
+        },
+        {
+          "caller": "load",
+          "callee": "error.message.toLowerCase",
+          "lineNumber": 416
+        },
+        {
+          "caller": "load",
+          "callee": "setSchemaError",
+          "lineNumber": 417
+        },
+        {
+          "caller": "load",
+          "callee": "toast.error",
+          "lineNumber": 419
+        },
+        {
+          "caller": "load",
+          "callee": "setCats",
+          "lineNumber": 422
+        },
+        {
+          "caller": "load",
+          "callee": "setLoading",
+          "lineNumber": 424
+        },
+        {
+          "caller": "CategoryFlagsPanel",
+          "callee": "load",
+          "lineNumber": 426
+        },
+        {
+          "caller": "toggle",
+          "callee": "setToggling",
+          "lineNumber": 430
+        },
+        {
+          "caller": "toggle",
+          "callee": "supabase\n      .from('categories')\n      .update({ is_featured: !cat.is_featured })\n      .eq",
+          "lineNumber": 431
+        },
+        {
+          "caller": "toggle",
+          "callee": "supabase\n      .from('categories')\n      .update",
+          "lineNumber": 431
+        },
+        {
+          "caller": "toggle",
+          "callee": "supabase\n      .from",
+          "lineNumber": 431
+        },
+        {
+          "caller": "toggle",
+          "callee": "toast.error",
+          "lineNumber": 436
+        },
+        {
+          "caller": "toggle",
+          "callee": "setCats",
+          "lineNumber": 437
+        },
+        {
+          "caller": "toggle",
+          "callee": "prev.map",
+          "lineNumber": 437
+        },
+        {
+          "caller": "toggle",
+          "callee": "setToggling",
+          "lineNumber": 438
+        },
+        {
+          "caller": "CategoryFlagsPanel",
+          "callee": "cats.map",
+          "lineNumber": 460
+        },
+        {
+          "caller": "CategoryFlagsPanel",
+          "callee": "toggle",
+          "lineNumber": 468
+        },
+        {
+          "caller": "AdminMerchandising",
+          "callee": "useNavigate",
+          "lineNumber": 487
+        },
+        {
+          "caller": "AdminMerchandising",
+          "callee": "navigate",
+          "lineNumber": 497
+        },
+        {
+          "caller": "AdminMerchandising",
+          "callee": "navigate",
+          "lineNumber": 509
+        },
+        {
+          "caller": "AdminMerchandising",
+          "callee": "navigate",
+          "lineNumber": 516
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 10,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/admin/AdminMerchants.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 349,
+      "nonEmptyLines": 320,
+      "functions": [
+        {
+          "name": "AdminMerchants",
+          "startLine": 36,
+          "endLine": 349,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "AdminMerchants",
+          "line": 36,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "AdminMerchants",
+          "callee": "useNavigate",
+          "lineNumber": 37
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "useState",
+          "lineNumber": 38
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "useState",
+          "lineNumber": 39
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "useState",
+          "lineNumber": 40
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "useState",
+          "lineNumber": 41
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "useState",
+          "lineNumber": 42
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "useState",
+          "lineNumber": 48
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "useEffect",
+          "lineNumber": 50
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "loadData",
+          "lineNumber": 51
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "useEffect",
+          "lineNumber": 54
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "setFormData",
+          "lineNumber": 57
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "generatePassword",
+          "lineNumber": 60
+        },
+        {
+          "caller": "generatePassword",
+          "callee": "charset.charAt",
+          "lineNumber": 71
+        },
+        {
+          "caller": "generatePassword",
+          "callee": "Math.floor",
+          "lineNumber": 71
+        },
+        {
+          "caller": "generatePassword",
+          "callee": "Math.random",
+          "lineNumber": 71
+        },
+        {
+          "caller": "loadData",
+          "callee": "setLoading",
+          "lineNumber": 78
+        },
+        {
+          "caller": "loadData",
+          "callee": "supabase\n        .from('users')\n        .select('*')\n        .eq('role', 'merchant')\n        .order",
+          "lineNumber": 81
+        },
+        {
+          "caller": "loadData",
+          "callee": "supabase\n        .from('users')\n        .select('*')\n        .eq",
+          "lineNumber": 81
+        },
+        {
+          "caller": "loadData",
+          "callee": "supabase\n        .from('users')\n        .select",
+          "lineNumber": 81
+        },
+        {
+          "caller": "loadData",
+          "callee": "supabase\n        .from",
+          "lineNumber": 81
+        },
+        {
+          "caller": "loadData",
+          "callee": "supabase\n        .from('shops')\n        .select('id, name')\n        .order",
+          "lineNumber": 90
+        },
+        {
+          "caller": "loadData",
+          "callee": "supabase\n        .from('shops')\n        .select",
+          "lineNumber": 90
+        },
+        {
+          "caller": "loadData",
+          "callee": "supabase\n        .from",
+          "lineNumber": 90
+        },
+        {
+          "caller": "loadData",
+          "callee": "setShops",
+          "lineNumber": 96
+        },
+        {
+          "caller": "loadData",
+          "callee": "Promise.all",
+          "lineNumber": 99
+        },
+        {
+          "caller": "loadData",
+          "callee": "(merchantsData || []).map",
+          "lineNumber": 100
+        },
+        {
+          "caller": "loadData",
+          "callee": "supabase\n            .from('merchant_shops')\n            .select('shop:shops(name)')\n            .eq('user_id', merchant.id)\n            .single",
+          "lineNumber": 101
+        },
+        {
+          "caller": "loadData",
+          "callee": "supabase\n            .from('merchant_shops')\n            .select('shop:shops(name)')\n            .eq",
+          "lineNumber": 101
+        },
+        {
+          "caller": "loadData",
+          "callee": "supabase\n            .from('merchant_shops')\n            .select",
+          "lineNumber": 101
+        },
+        {
+          "caller": "loadData",
+          "callee": "supabase\n            .from",
+          "lineNumber": 101
+        },
+        {
+          "caller": "loadData",
+          "callee": "Array.isArray",
+          "lineNumber": 112
+        },
+        {
+          "caller": "loadData",
+          "callee": "setMerchants",
+          "lineNumber": 117
+        },
+        {
+          "caller": "loadData",
+          "callee": "console.error",
+          "lineNumber": 119
+        },
+        {
+          "caller": "loadData",
+          "callee": "toast.error",
+          "lineNumber": 120
+        },
+        {
+          "caller": "loadData",
+          "callee": "setLoading",
+          "lineNumber": 122
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "e.preventDefault",
+          "lineNumber": 127
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "toast.error",
+          "lineNumber": 130
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "setSubmitting",
+          "lineNumber": 134
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "callServer",
+          "lineNumber": 136
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "toast.success",
+          "lineNumber": 145
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "toast.info",
+          "lineNumber": 146
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "setDialogOpen",
+          "lineNumber": 147
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "loadData",
+          "lineNumber": 148
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "console.error",
+          "lineNumber": 150
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "toast.error",
+          "lineNumber": 151
+        },
+        {
+          "caller": "handleCreateMerchant",
+          "callee": "setSubmitting",
+          "lineNumber": 153
+        },
+        {
+          "caller": "handleResetPassword",
+          "callee": "supabase.auth.resetPasswordForEmail",
+          "lineNumber": 159
+        },
+        {
+          "caller": "handleResetPassword",
+          "callee": "toast.success",
+          "lineNumber": 163
+        },
+        {
+          "caller": "handleResetPassword",
+          "callee": "console.error",
+          "lineNumber": 165
+        },
+        {
+          "caller": "handleResetPassword",
+          "callee": "toast.error",
+          "lineNumber": 166
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "navigate",
+          "lineNumber": 178
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "setFormData",
+          "lineNumber": 211
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "setFormData",
+          "lineNumber": 223
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "setFormData",
+          "lineNumber": 236
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "setFormData",
+          "lineNumber": 243
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "generatePassword",
+          "lineNumber": 243
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "setFormData",
+          "lineNumber": 257
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "shops.map",
+          "lineNumber": 264
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "setDialogOpen",
+          "lineNumber": 278
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "merchants.map",
+          "lineNumber": 319
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "new Date(merchant.created_at).toLocaleDateString",
+          "lineNumber": 325
+        },
+        {
+          "caller": "AdminMerchants",
+          "callee": "handleResetPassword",
+          "lineNumber": 331
+        }
+      ],
+      "metrics": {
+        "importCount": 9,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/admin/AdminOrderDetail.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 606,
+      "nonEmptyLines": 555,
+      "functions": [
+        {
+          "name": "deriveStatus",
+          "startLine": 80,
+          "endLine": 86,
+          "params": [
+            "txStatus",
+            "claimStatus"
+          ]
+        },
+        {
+          "name": "AdminOrderDetail",
+          "startLine": 106,
+          "endLine": 606,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "AdminOrderDetail",
+          "line": 106,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "useNavigate",
+          "lineNumber": 107
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "useParams",
+          "lineNumber": 108
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "useState",
+          "lineNumber": 109
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "useState",
+          "lineNumber": 110
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "useState",
+          "lineNumber": 111
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "useEffect",
+          "lineNumber": 113
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "loadOrder",
+          "lineNumber": 115
+        },
+        {
+          "caller": "loadOrder",
+          "callee": "setLoading",
+          "lineNumber": 121
+        },
+        {
+          "caller": "loadOrder",
+          "callee": "supabase\n        .from('transactions')\n        .select(`\n          transaction_id,\n          status,\n          total_amount,\n          gateway_tx_ref,\n          origin_type,\n          created_at,\n          updated_at,\n          buyer_id,\n          buyer:buyer_id (name, email, phone),\n          shop_orders (\n            shop_order_id,\n            claim_code,\n            claim_status,\n            recipient_name,\n            recipient_phone,\n            message,\n            updated_at,\n            shop:shop_id (id, name, location, address),\n            order_items (\n              item:item_id (id, name, description, image_url, price_zmw)\n            )\n          )\n        `)\n        .eq('transaction_id', orderId)\n        .single",
+          "lineNumber": 124
+        },
+        {
+          "caller": "loadOrder",
+          "callee": "supabase\n        .from('transactions')\n        .select(`\n          transaction_id,\n          status,\n          total_amount,\n          gateway_tx_ref,\n          origin_type,\n          created_at,\n          updated_at,\n          buyer_id,\n          buyer:buyer_id (name, email, phone),\n          shop_orders (\n            shop_order_id,\n            claim_code,\n            claim_status,\n            recipient_name,\n            recipient_phone,\n            message,\n            updated_at,\n            shop:shop_id (id, name, location, address),\n            order_items (\n              item:item_id (id, name, description, image_url, price_zmw)\n            )\n          )\n        `)\n        .eq",
+          "lineNumber": 124
+        },
+        {
+          "caller": "loadOrder",
+          "callee": "supabase\n        .from('transactions')\n        .select",
+          "lineNumber": 124
+        },
+        {
+          "caller": "loadOrder",
+          "callee": "supabase\n        .from",
+          "lineNumber": 124
+        },
+        {
+          "caller": "loadOrder",
+          "callee": "deriveStatus",
+          "lineNumber": 194
+        },
+        {
+          "caller": "loadOrder",
+          "callee": "setOrder",
+          "lineNumber": 197
+        },
+        {
+          "caller": "loadOrder",
+          "callee": "console.error",
+          "lineNumber": 199
+        },
+        {
+          "caller": "loadOrder",
+          "callee": "toast.error",
+          "lineNumber": 200
+        },
+        {
+          "caller": "loadOrder",
+          "callee": "navigate",
+          "lineNumber": 201
+        },
+        {
+          "caller": "loadOrder",
+          "callee": "setLoading",
+          "lineNumber": 203
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "setUpdating",
+          "lineNumber": 216
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "callServer",
+          "lineNumber": 220
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "supabase\n          .from('shop_orders')\n          .update({ claim_status: 'REDEEMED' })\n          .eq",
+          "lineNumber": 225
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "supabase\n          .from('shop_orders')\n          .update",
+          "lineNumber": 225
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "supabase\n          .from",
+          "lineNumber": 225
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "supabase\n          .from('transactions')\n          .update({ status: 'CANCELLED' })\n          .eq",
+          "lineNumber": 233
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "supabase\n          .from('transactions')\n          .update",
+          "lineNumber": 233
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "supabase\n          .from",
+          "lineNumber": 233
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "supabase\n          .from('shop_orders')\n          .update({ claim_status: 'CANCELLED' })\n          .eq",
+          "lineNumber": 240
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "supabase\n          .from('shop_orders')\n          .update",
+          "lineNumber": 240
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "supabase\n          .from",
+          "lineNumber": 240
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "toast.success",
+          "lineNumber": 246
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "loadOrder",
+          "lineNumber": 247
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "console.error",
+          "lineNumber": 249
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "toast.error",
+          "lineNumber": 250
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "setUpdating",
+          "lineNumber": 252
+        },
+        {
+          "caller": "copyToClipboard",
+          "callee": "navigator.clipboard.writeText",
+          "lineNumber": 257
+        },
+        {
+          "caller": "copyToClipboard",
+          "callee": "toast.success",
+          "lineNumber": 258
+        },
+        {
+          "caller": "copyGiftLink",
+          "callee": "getGiftPageUrl",
+          "lineNumber": 262
+        },
+        {
+          "caller": "copyGiftLink",
+          "callee": "copyToClipboard",
+          "lineNumber": 263
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "getGiftPageUrl",
+          "lineNumber": 276
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "navigate",
+          "lineNumber": 288
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "order.transaction_id.slice",
+          "lineNumber": 296
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "updateOrderStatus",
+          "lineNumber": 338
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "updateOrderStatus",
+          "lineNumber": 363
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "updateOrderStatus",
+          "lineNumber": 388
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "window.open",
+          "lineNumber": 413
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "formatCurrency",
+          "lineNumber": 448
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "formatCurrency",
+          "lineNumber": 566
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "new Date(order.created_at).toLocaleString",
+          "lineNumber": 580
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "new Date(order.shop_order_updated_at).toLocaleString",
+          "lineNumber": 587
+        },
+        {
+          "caller": "AdminOrderDetail",
+          "callee": "new Date(order.shop_order_updated_at).toLocaleString",
+          "lineNumber": 595
+        }
+      ],
+      "metrics": {
+        "importCount": 9,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/admin/AdminOrders.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 457,
+      "nonEmptyLines": 417,
+      "functions": [
+        {
+          "name": "deriveStatus",
+          "startLine": 55,
+          "endLine": 61,
+          "params": [
+            "txStatus",
+            "claimStatus"
+          ]
+        },
+        {
+          "name": "AdminOrders",
+          "startLine": 83,
+          "endLine": 457,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "AdminOrders",
+          "line": 83,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "AdminOrders",
+          "callee": "useNavigate",
+          "lineNumber": 84
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "useState",
+          "lineNumber": 85
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "useState",
+          "lineNumber": 86
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "useState",
+          "lineNumber": 87
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "useState",
+          "lineNumber": 88
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "useState",
+          "lineNumber": 89
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "useState",
+          "lineNumber": 90
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "useEffect",
+          "lineNumber": 92
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "loadOrders",
+          "lineNumber": 93
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "useEffect",
+          "lineNumber": 96
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "filterOrders",
+          "lineNumber": 97
+        },
+        {
+          "caller": "loadOrders",
+          "callee": "setLoading",
+          "lineNumber": 102
+        },
+        {
+          "caller": "loadOrders",
+          "callee": "supabase\n        .from('transactions')\n        .select(`\n          transaction_id,\n          status,\n          total_amount,\n          gateway_tx_ref,\n          created_at,\n          buyer:buyer_id (name),\n          shop_orders (\n            shop_order_id,\n            claim_code,\n            claim_status,\n            recipient_name,\n            updated_at,\n            shop:shop_id (name),\n            order_items (\n              item:item_id (name, image_url)\n            )\n          )\n        `)\n        .order",
+          "lineNumber": 105
+        },
+        {
+          "caller": "loadOrders",
+          "callee": "supabase\n        .from('transactions')\n        .select",
+          "lineNumber": 105
+        },
+        {
+          "caller": "loadOrders",
+          "callee": "supabase\n        .from",
+          "lineNumber": 105
+        },
+        {
+          "caller": "loadOrders",
+          "callee": "(data ?? []).map",
+          "lineNumber": 130
+        },
+        {
+          "caller": "loadOrders",
+          "callee": "deriveStatus",
+          "lineNumber": 135
+        },
+        {
+          "caller": "loadOrders",
+          "callee": "setOrders",
+          "lineNumber": 162
+        },
+        {
+          "caller": "loadOrders",
+          "callee": "console.error",
+          "lineNumber": 164
+        },
+        {
+          "caller": "loadOrders",
+          "callee": "toast.error",
+          "lineNumber": 165
+        },
+        {
+          "caller": "loadOrders",
+          "callee": "setLoading",
+          "lineNumber": 167
+        },
+        {
+          "caller": "filterOrders",
+          "callee": "filtered.filter",
+          "lineNumber": 175
+        },
+        {
+          "caller": "filterOrders",
+          "callee": "searchQuery.toLowerCase",
+          "lineNumber": 179
+        },
+        {
+          "caller": "filterOrders",
+          "callee": "filtered.filter",
+          "lineNumber": 180
+        },
+        {
+          "caller": "filterOrders",
+          "callee": "(order.claim_code ?? '').toLowerCase().includes",
+          "lineNumber": 181
+        },
+        {
+          "caller": "filterOrders",
+          "callee": "(order.claim_code ?? '').toLowerCase",
+          "lineNumber": 181
+        },
+        {
+          "caller": "filterOrders",
+          "callee": "(order.sender_name ?? '').toLowerCase().includes",
+          "lineNumber": 182
+        },
+        {
+          "caller": "filterOrders",
+          "callee": "(order.sender_name ?? '').toLowerCase",
+          "lineNumber": 182
+        },
+        {
+          "caller": "filterOrders",
+          "callee": "(order.recipient_name ?? '').toLowerCase().includes",
+          "lineNumber": 183
+        },
+        {
+          "caller": "filterOrders",
+          "callee": "(order.recipient_name ?? '').toLowerCase",
+          "lineNumber": 183
+        },
+        {
+          "caller": "filterOrders",
+          "callee": "(order.item_name ?? '').toLowerCase().includes",
+          "lineNumber": 184
+        },
+        {
+          "caller": "filterOrders",
+          "callee": "(order.item_name ?? '').toLowerCase",
+          "lineNumber": 184
+        },
+        {
+          "caller": "filterOrders",
+          "callee": "(order.shop_name ?? '').toLowerCase().includes",
+          "lineNumber": 185
+        },
+        {
+          "caller": "filterOrders",
+          "callee": "(order.shop_name ?? '').toLowerCase",
+          "lineNumber": 185
+        },
+        {
+          "caller": "filterOrders",
+          "callee": "setFilteredOrders",
+          "lineNumber": 189
+        },
+        {
+          "caller": "exportToCSV",
+          "callee": "filteredOrders.map",
+          "lineNumber": 194
+        },
+        {
+          "caller": "exportToCSV",
+          "callee": "(order.total_amount).toFixed",
+          "lineNumber": 200
+        },
+        {
+          "caller": "exportToCSV",
+          "callee": "new Date(order.created_at).toLocaleDateString",
+          "lineNumber": 202
+        },
+        {
+          "caller": "exportToCSV",
+          "callee": "new Date(order.fulfilled_at).toLocaleDateString",
+          "lineNumber": 203
+        },
+        {
+          "caller": "exportToCSV",
+          "callee": "[\n      headers.join(','),\n      ...rows.map((row) => row.map((cell) => `\"${cell}\"`).join(',')),\n    ].join",
+          "lineNumber": 206
+        },
+        {
+          "caller": "exportToCSV",
+          "callee": "headers.join",
+          "lineNumber": 207
+        },
+        {
+          "caller": "exportToCSV",
+          "callee": "rows.map",
+          "lineNumber": 208
+        },
+        {
+          "caller": "exportToCSV",
+          "callee": "row.map((cell) => `\"${cell}\"`).join",
+          "lineNumber": 208
+        },
+        {
+          "caller": "exportToCSV",
+          "callee": "row.map",
+          "lineNumber": 208
+        },
+        {
+          "caller": "exportToCSV",
+          "callee": "window.URL.createObjectURL",
+          "lineNumber": 212
+        },
+        {
+          "caller": "exportToCSV",
+          "callee": "document.createElement",
+          "lineNumber": 213
+        },
+        {
+          "caller": "exportToCSV",
+          "callee": "new Date().toISOString().split",
+          "lineNumber": 215
+        },
+        {
+          "caller": "exportToCSV",
+          "callee": "new Date().toISOString",
+          "lineNumber": 215
+        },
+        {
+          "caller": "exportToCSV",
+          "callee": "a.click",
+          "lineNumber": 216
+        },
+        {
+          "caller": "exportToCSV",
+          "callee": "window.URL.revokeObjectURL",
+          "lineNumber": 217
+        },
+        {
+          "caller": "exportToCSV",
+          "callee": "toast.success",
+          "lineNumber": 218
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "setActionOrderId",
+          "lineNumber": 232
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "callServer",
+          "lineNumber": 237
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "supabase\n          .from('transactions')\n          .update({ status: 'CANCELLED' })\n          .eq",
+          "lineNumber": 240
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "supabase\n          .from('transactions')\n          .update",
+          "lineNumber": 240
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "supabase\n          .from",
+          "lineNumber": 240
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "supabase\n            .from('shop_orders')\n            .update({ claim_status: 'CANCELLED' })\n            .eq",
+          "lineNumber": 248
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "supabase\n            .from('shop_orders')\n            .update",
+          "lineNumber": 248
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "supabase\n            .from",
+          "lineNumber": 248
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "toast.success",
+          "lineNumber": 255
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "loadOrders",
+          "lineNumber": 256
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "console.error",
+          "lineNumber": 258
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "toast.error",
+          "lineNumber": 259
+        },
+        {
+          "caller": "updateOrderStatus",
+          "callee": "setActionOrderId",
+          "lineNumber": 261
+        },
+        {
+          "caller": "getStatusLabel",
+          "callee": "status.split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join",
+          "lineNumber": 269
+        },
+        {
+          "caller": "getStatusLabel",
+          "callee": "status.split('_').map",
+          "lineNumber": 269
+        },
+        {
+          "caller": "getStatusLabel",
+          "callee": "status.split",
+          "lineNumber": 269
+        },
+        {
+          "caller": "getStatusLabel",
+          "callee": "w.charAt(0).toUpperCase",
+          "lineNumber": 269
+        },
+        {
+          "caller": "getStatusLabel",
+          "callee": "w.charAt",
+          "lineNumber": 269
+        },
+        {
+          "caller": "getStatusLabel",
+          "callee": "w.slice",
+          "lineNumber": 269
+        },
+        {
+          "caller": "getStatusCount",
+          "callee": "orders.filter",
+          "lineNumber": 273
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "navigate",
+          "lineNumber": 284
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "setSearchQuery",
+          "lineNumber": 301
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "setStatusFilter",
+          "lineNumber": 319
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "getStatusCount",
+          "lineNumber": 322
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "getStatusCount",
+          "lineNumber": 325
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "getStatusCount",
+          "lineNumber": 328
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "getStatusCount",
+          "lineNumber": 331
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "getStatusCount",
+          "lineNumber": 334
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "getStatusCount",
+          "lineNumber": 337
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "filteredOrders.map",
+          "lineNumber": 372
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "navigate",
+          "lineNumber": 376
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "formatCurrency",
+          "lineNumber": 402
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "getStatusColor",
+          "lineNumber": 404
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "getStatusLabel",
+          "lineNumber": 405
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "new Date(order.created_at).toLocaleDateString",
+          "lineNumber": 409
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "new Date(order.fulfilled_at).toLocaleDateString",
+          "lineNumber": 413
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "event.stopPropagation",
+          "lineNumber": 422
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "updateOrderStatus",
+          "lineNumber": 423
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "['fulfilled', 'expired', 'cancelled'].includes",
+          "lineNumber": 430
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "event.stopPropagation",
+          "lineNumber": 435
+        },
+        {
+          "caller": "AdminOrders",
+          "callee": "updateOrderStatus",
+          "lineNumber": 436
+        }
+      ],
+      "metrics": {
+        "importCount": 9,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/admin/AdminShopForm.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 397,
+      "nonEmptyLines": 360,
+      "functions": [
+        {
+          "name": "AdminShopForm",
+          "startLine": 36,
+          "endLine": 397,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "AdminShopForm",
+          "line": 36,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "AdminShopForm",
+          "callee": "useNavigate",
+          "lineNumber": 37
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "useParams",
+          "lineNumber": 38
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "Boolean",
+          "lineNumber": 39
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "useState",
+          "lineNumber": 41
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "useState",
+          "lineNumber": 51
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "useState",
+          "lineNumber": 52
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "useState",
+          "lineNumber": 53
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "useState",
+          "lineNumber": 54
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "useEffect",
+          "lineNumber": 56
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "loadShop",
+          "lineNumber": 58
+        },
+        {
+          "caller": "loadShop",
+          "callee": "supabase\n        .from('shops')\n        .select('*')\n        .eq('id', shopId)\n        .single",
+          "lineNumber": 64
+        },
+        {
+          "caller": "loadShop",
+          "callee": "supabase\n        .from('shops')\n        .select('*')\n        .eq",
+          "lineNumber": 64
+        },
+        {
+          "caller": "loadShop",
+          "callee": "supabase\n        .from('shops')\n        .select",
+          "lineNumber": 64
+        },
+        {
+          "caller": "loadShop",
+          "callee": "supabase\n        .from",
+          "lineNumber": 64
+        },
+        {
+          "caller": "loadShop",
+          "callee": "setFormData",
+          "lineNumber": 72
+        },
+        {
+          "caller": "loadShop",
+          "callee": "setImagePreview",
+          "lineNumber": 82
+        },
+        {
+          "caller": "loadShop",
+          "callee": "console.error",
+          "lineNumber": 84
+        },
+        {
+          "caller": "loadShop",
+          "callee": "toast.error",
+          "lineNumber": 85
+        },
+        {
+          "caller": "loadShop",
+          "callee": "navigate",
+          "lineNumber": 86
+        },
+        {
+          "caller": "handleImageChange",
+          "callee": "setImageFile",
+          "lineNumber": 93
+        },
+        {
+          "caller": "handleImageChange",
+          "callee": "setImagePreview",
+          "lineNumber": 96
+        },
+        {
+          "caller": "handleImageChange",
+          "callee": "reader.readAsDataURL",
+          "lineNumber": 98
+        },
+        {
+          "caller": "uploadImage",
+          "callee": "setUploading",
+          "lineNumber": 105
+        },
+        {
+          "caller": "uploadImage",
+          "callee": "imageFile.name.split('.').pop",
+          "lineNumber": 107
+        },
+        {
+          "caller": "uploadImage",
+          "callee": "imageFile.name.split",
+          "lineNumber": 107
+        },
+        {
+          "caller": "uploadImage",
+          "callee": "Date.now",
+          "lineNumber": 108
+        },
+        {
+          "caller": "uploadImage",
+          "callee": "supabase.storage\n        .from('kithly-images')\n        .upload",
+          "lineNumber": 111
+        },
+        {
+          "caller": "uploadImage",
+          "callee": "supabase.storage\n        .from",
+          "lineNumber": 111
+        },
+        {
+          "caller": "uploadImage",
+          "callee": "supabase.storage\n        .from('kithly-images')\n        .getPublicUrl",
+          "lineNumber": 117
+        },
+        {
+          "caller": "uploadImage",
+          "callee": "supabase.storage\n        .from",
+          "lineNumber": 117
+        },
+        {
+          "caller": "uploadImage",
+          "callee": "console.error",
+          "lineNumber": 123
+        },
+        {
+          "caller": "uploadImage",
+          "callee": "toast.error",
+          "lineNumber": 124
+        },
+        {
+          "caller": "uploadImage",
+          "callee": "setUploading",
+          "lineNumber": 127
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "e.preventDefault",
+          "lineNumber": 132
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.error",
+          "lineNumber": 135
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setLoading",
+          "lineNumber": 139
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "uploadImage",
+          "lineNumber": 144
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "supabase\n          .from('shops')\n          .update(shopData)\n          .eq",
+          "lineNumber": 153
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "supabase\n          .from('shops')\n          .update",
+          "lineNumber": 153
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "supabase\n          .from",
+          "lineNumber": 153
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.success",
+          "lineNumber": 159
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "supabase\n          .from('shops')\n          .insert",
+          "lineNumber": 161
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "supabase\n          .from",
+          "lineNumber": 161
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.success",
+          "lineNumber": 166
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "navigate",
+          "lineNumber": 169
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "console.error",
+          "lineNumber": 171
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "toast.error",
+          "lineNumber": 172
+        },
+        {
+          "caller": "handleSubmit",
+          "callee": "setLoading",
+          "lineNumber": 174
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "setLoading",
+          "lineNumber": 181
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "supabase\n        .from('shops')\n        .delete()\n        .eq",
+          "lineNumber": 183
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "supabase\n        .from('shops')\n        .delete",
+          "lineNumber": 183
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "supabase\n        .from",
+          "lineNumber": 183
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "toast.success",
+          "lineNumber": 190
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "navigate",
+          "lineNumber": 191
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "console.error",
+          "lineNumber": 193
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "toast.error",
+          "lineNumber": 194
+        },
+        {
+          "caller": "handleDelete",
+          "callee": "setLoading",
+          "lineNumber": 195
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "navigate",
+          "lineNumber": 207
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "setFormData",
+          "lineNumber": 238
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "setFormData",
+          "lineNumber": 250
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "setFormData",
+          "lineNumber": 262
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "setFormData",
+          "lineNumber": 274
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "setFormData",
+          "lineNumber": 311
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "setFormData",
+          "lineNumber": 330
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "setFormData",
+          "lineNumber": 346
+        },
+        {
+          "caller": "AdminShopForm",
+          "callee": "navigate",
+          "lineNumber": 383
+        }
+      ],
+      "metrics": {
+        "importCount": 9,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/admin/AdminShops.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 257,
+      "nonEmptyLines": 235,
+      "functions": [
+        {
+          "name": "AdminShops",
+          "startLine": 23,
+          "endLine": 176,
+          "params": []
+        },
+        {
+          "name": "ShopCard",
+          "startLine": 179,
+          "endLine": 257,
+          "params": [
+            "{ shop, onEdit, onToggleActive, onClick }"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "AdminShops",
+          "line": 23,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "AdminShops",
+          "callee": "useNavigate",
+          "lineNumber": 24
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "useState",
+          "lineNumber": 25
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "useState",
+          "lineNumber": 26
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "useState",
+          "lineNumber": 27
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "useState",
+          "lineNumber": 28
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "useEffect",
+          "lineNumber": 30
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "loadShops",
+          "lineNumber": 31
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "useEffect",
+          "lineNumber": 34
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "shops.filter",
+          "lineNumber": 36
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "shop.name.toLowerCase().includes",
+          "lineNumber": 37
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "shop.name.toLowerCase",
+          "lineNumber": 37
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "searchQuery.toLowerCase",
+          "lineNumber": 37
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "shop.location?.toLowerCase().includes",
+          "lineNumber": 38
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "shop.location?.toLowerCase",
+          "lineNumber": 38
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "searchQuery.toLowerCase",
+          "lineNumber": 38
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "setFilteredShops",
+          "lineNumber": 40
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "setFilteredShops",
+          "lineNumber": 42
+        },
+        {
+          "caller": "loadShops",
+          "callee": "setLoading",
+          "lineNumber": 48
+        },
+        {
+          "caller": "loadShops",
+          "callee": "supabase\n        .from('shops')\n        .select('*')\n        .order",
+          "lineNumber": 50
+        },
+        {
+          "caller": "loadShops",
+          "callee": "supabase\n        .from('shops')\n        .select",
+          "lineNumber": 50
+        },
+        {
+          "caller": "loadShops",
+          "callee": "supabase\n        .from",
+          "lineNumber": 50
+        },
+        {
+          "caller": "loadShops",
+          "callee": "Promise.all",
+          "lineNumber": 58
+        },
+        {
+          "caller": "loadShops",
+          "callee": "(shopsData || []).map",
+          "lineNumber": 59
+        },
+        {
+          "caller": "loadShops",
+          "callee": "supabase\n            .from('items')\n            .select('*', { count: 'exact', head: true })\n            .eq('shop_id', shop.id)\n            .eq",
+          "lineNumber": 60
+        },
+        {
+          "caller": "loadShops",
+          "callee": "supabase\n            .from('items')\n            .select('*', { count: 'exact', head: true })\n            .eq",
+          "lineNumber": 60
+        },
+        {
+          "caller": "loadShops",
+          "callee": "supabase\n            .from('items')\n            .select",
+          "lineNumber": 60
+        },
+        {
+          "caller": "loadShops",
+          "callee": "supabase\n            .from",
+          "lineNumber": 60
+        },
+        {
+          "caller": "loadShops",
+          "callee": "setShops",
+          "lineNumber": 73
+        },
+        {
+          "caller": "loadShops",
+          "callee": "setFilteredShops",
+          "lineNumber": 74
+        },
+        {
+          "caller": "loadShops",
+          "callee": "console.error",
+          "lineNumber": 76
+        },
+        {
+          "caller": "loadShops",
+          "callee": "toast.error",
+          "lineNumber": 77
+        },
+        {
+          "caller": "loadShops",
+          "callee": "setLoading",
+          "lineNumber": 79
+        },
+        {
+          "caller": "toggleShopActive",
+          "callee": "supabase\n        .from('shops')\n        .update({ is_active: !currentStatus })\n        .eq",
+          "lineNumber": 85
+        },
+        {
+          "caller": "toggleShopActive",
+          "callee": "supabase\n        .from('shops')\n        .update",
+          "lineNumber": 85
+        },
+        {
+          "caller": "toggleShopActive",
+          "callee": "supabase\n        .from",
+          "lineNumber": 85
+        },
+        {
+          "caller": "toggleShopActive",
+          "callee": "toast.success",
+          "lineNumber": 92
+        },
+        {
+          "caller": "toggleShopActive",
+          "callee": "loadShops",
+          "lineNumber": 93
+        },
+        {
+          "caller": "toggleShopActive",
+          "callee": "console.error",
+          "lineNumber": 95
+        },
+        {
+          "caller": "toggleShopActive",
+          "callee": "toast.error",
+          "lineNumber": 96
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "navigate",
+          "lineNumber": 108
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "setSearchQuery",
+          "lineNumber": 125
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "navigate",
+          "lineNumber": 130
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "navigate",
+          "lineNumber": 153
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "filteredShops.map",
+          "lineNumber": 162
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "navigate",
+          "lineNumber": 166
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "toggleShopActive",
+          "lineNumber": 167
+        },
+        {
+          "caller": "AdminShops",
+          "callee": "navigate",
+          "lineNumber": 168
+        },
+        {
+          "caller": "ShopCard",
+          "callee": "shop.name.charAt",
+          "lineNumber": 199
+        },
+        {
+          "caller": "ShopCard",
+          "callee": "e.stopPropagation",
+          "lineNumber": 232
+        },
+        {
+          "caller": "ShopCard",
+          "callee": "onEdit",
+          "lineNumber": 233
+        },
+        {
+          "caller": "ShopCard",
+          "callee": "onToggleActive",
+          "lineNumber": 248
+        },
+        {
+          "caller": "ShopCard",
+          "callee": "e.stopPropagation",
+          "lineNumber": 250
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/AdminDashboard.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/AuthPage.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/Checkout.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 423,
+      "nonEmptyLines": 379,
+      "functions": [
+        {
+          "name": "SecuringEscrowView",
+          "startLine": 65,
+          "endLine": 144,
+          "params": []
+        },
+        {
+          "name": "Checkout",
+          "startLine": 211,
+          "endLine": 421,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Checkout",
+          "line": 211,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "SecuringEscrowView",
+          "callee": "[0, 1, 2].map",
+          "lineNumber": 121
+        },
+        {
+          "caller": "Checkout",
+          "callee": "useNavigate",
+          "lineNumber": 212
+        },
+        {
+          "caller": "Checkout",
+          "callee": "useCart",
+          "lineNumber": 213
+        },
+        {
+          "caller": "Checkout",
+          "callee": "useSendFlowStore",
+          "lineNumber": 214
+        },
+        {
+          "caller": "Checkout",
+          "callee": "useState",
+          "lineNumber": 216
+        },
+        {
+          "caller": "Checkout",
+          "callee": "useState",
+          "lineNumber": 217
+        },
+        {
+          "caller": "Checkout",
+          "callee": "useState",
+          "lineNumber": 218
+        },
+        {
+          "caller": "Checkout",
+          "callee": "useState",
+          "lineNumber": 219
+        },
+        {
+          "caller": "Checkout",
+          "callee": "getTotalAmount",
+          "lineNumber": 221
+        },
+        {
+          "caller": "handlePay",
+          "callee": "toast.error",
+          "lineNumber": 227
+        },
+        {
+          "caller": "handlePay",
+          "callee": "setErrorMsg",
+          "lineNumber": 232
+        },
+        {
+          "caller": "handlePay",
+          "callee": "setStage",
+          "lineNumber": 233
+        },
+        {
+          "caller": "handlePay",
+          "callee": "setStage",
+          "lineNumber": 238
+        },
+        {
+          "caller": "handlePay",
+          "callee": "setErrorMsg",
+          "lineNumber": 239
+        },
+        {
+          "caller": "handlePay",
+          "callee": "getGroupedCartPayload",
+          "lineNumber": 244
+        },
+        {
+          "caller": "handlePay",
+          "callee": "await supabase.functions.invoke",
+          "lineNumber": 246
+        },
+        {
+          "caller": "handlePay",
+          "callee": "setTransactionId",
+          "lineNumber": 255
+        },
+        {
+          "caller": "handlePay",
+          "callee": "setShopOrders",
+          "lineNumber": 256
+        },
+        {
+          "caller": "handlePay",
+          "callee": "window.open",
+          "lineNumber": 261
+        },
+        {
+          "caller": "handlePay",
+          "callee": "setStage",
+          "lineNumber": 264
+        },
+        {
+          "caller": "handlePay",
+          "callee": "console.error",
+          "lineNumber": 266
+        },
+        {
+          "caller": "handlePay",
+          "callee": "err.message?.toLowerCase().includes",
+          "lineNumber": 267
+        },
+        {
+          "caller": "handlePay",
+          "callee": "err.message?.toLowerCase",
+          "lineNumber": 267
+        },
+        {
+          "caller": "handlePay",
+          "callee": "setErrorMsg",
+          "lineNumber": 268
+        },
+        {
+          "caller": "handlePay",
+          "callee": "setStage",
+          "lineNumber": 269
+        },
+        {
+          "caller": "handleComplete",
+          "callee": "clearCart",
+          "lineNumber": 274
+        },
+        {
+          "caller": "handleComplete",
+          "callee": "navigate",
+          "lineNumber": 275
+        },
+        {
+          "caller": "Checkout",
+          "callee": "navigate",
+          "lineNumber": 312
+        },
+        {
+          "caller": "Checkout",
+          "callee": "navigate",
+          "lineNumber": 360
+        },
+        {
+          "caller": "Checkout",
+          "callee": "items.map",
+          "lineNumber": 372
+        },
+        {
+          "caller": "Checkout",
+          "callee": "formatCurrency",
+          "lineNumber": 387
+        },
+        {
+          "caller": "Checkout",
+          "callee": "formatCurrency",
+          "lineNumber": 410
+        }
+      ],
+      "metrics": {
+        "importCount": 7,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/ConsumerStorefront.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 515,
+      "nonEmptyLines": 465,
+      "functions": [
+        {
+          "name": "CampaignSkeleton",
+          "startLine": 98,
+          "endLine": 100,
+          "params": []
+        },
+        {
+          "name": "ShopCardSkeleton",
+          "startLine": 102,
+          "endLine": 112,
+          "params": []
+        },
+        {
+          "name": "ItemCardSkeleton",
+          "startLine": 114,
+          "endLine": 124,
+          "params": []
+        },
+        {
+          "name": "shopInitial",
+          "startLine": 130,
+          "endLine": 132,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "ConsumerStorefront",
+          "startLine": 138,
+          "endLine": 515,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ConsumerStorefront",
+          "line": 138,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "shopInitial",
+          "callee": "name.trim().charAt(0).toUpperCase",
+          "lineNumber": 131
+        },
+        {
+          "caller": "shopInitial",
+          "callee": "name.trim().charAt",
+          "lineNumber": 131
+        },
+        {
+          "caller": "shopInitial",
+          "callee": "name.trim",
+          "lineNumber": 131
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "useNavigate",
+          "lineNumber": 139
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "useAuth",
+          "lineNumber": 140
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "useState",
+          "lineNumber": 142
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "useState",
+          "lineNumber": 143
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "useState",
+          "lineNumber": 144
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "useRef",
+          "lineNumber": 145
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "useEffect",
+          "lineNumber": 148
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "navigate",
+          "lineNumber": 150
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "useEffect",
+          "lineNumber": 154
+        },
+        {
+          "caller": "load",
+          "callee": "setDataLoading",
+          "lineNumber": 158
+        },
+        {
+          "caller": "load",
+          "callee": "Promise.all",
+          "lineNumber": 160
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n            .from('banners')\n            .select('id, image_url, title, sort_order')\n            .eq('is_active', true)\n            .order('sort_order', { ascending: true })\n            .limit",
+          "lineNumber": 162
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n            .from('banners')\n            .select('id, image_url, title, sort_order')\n            .eq('is_active', true)\n            .order",
+          "lineNumber": 162
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n            .from('banners')\n            .select('id, image_url, title, sort_order')\n            .eq",
+          "lineNumber": 162
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n            .from('banners')\n            .select",
+          "lineNumber": 162
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n            .from",
+          "lineNumber": 162
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n            .from('shops')\n            .select('id, name, description, location, image_url, items:items(count)')\n            .eq('is_active', true)\n            .order('created_at', { ascending: false })\n            .limit",
+          "lineNumber": 170
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n            .from('shops')\n            .select('id, name, description, location, image_url, items:items(count)')\n            .eq('is_active', true)\n            .order",
+          "lineNumber": 170
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n            .from('shops')\n            .select('id, name, description, location, image_url, items:items(count)')\n            .eq",
+          "lineNumber": 170
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n            .from('shops')\n            .select",
+          "lineNumber": 170
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n            .from",
+          "lineNumber": 170
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n            .from('items')\n            .select('id, name, description, price, image_url, shop:shops(id, name)')\n            .eq('is_available', true)\n            .order('created_at', { ascending: false })\n            .limit",
+          "lineNumber": 178
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n            .from('items')\n            .select('id, name, description, price, image_url, shop:shops(id, name)')\n            .eq('is_available', true)\n            .order",
+          "lineNumber": 178
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n            .from('items')\n            .select('id, name, description, price, image_url, shop:shops(id, name)')\n            .eq",
+          "lineNumber": 178
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n            .from('items')\n            .select",
+          "lineNumber": 178
+        },
+        {
+          "caller": "load",
+          "callee": "supabase\n            .from",
+          "lineNumber": 178
+        },
+        {
+          "caller": "load",
+          "callee": "(shopsRes.data ?? []).map",
+          "lineNumber": 193
+        },
+        {
+          "caller": "load",
+          "callee": "(itemsRes.data ?? []).map",
+          "lineNumber": 204
+        },
+        {
+          "caller": "load",
+          "callee": "setData",
+          "lineNumber": 213
+        },
+        {
+          "caller": "load",
+          "callee": "console.error",
+          "lineNumber": 215
+        },
+        {
+          "caller": "load",
+          "callee": "setData",
+          "lineNumber": 216
+        },
+        {
+          "caller": "load",
+          "callee": "setDataLoading",
+          "lineNumber": 218
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "load",
+          "lineNumber": 222
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "useEffect",
+          "lineNumber": 229
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "setInterval",
+          "lineNumber": 231
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "setSlide",
+          "lineNumber": 232
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "clearInterval",
+          "lineNumber": 235
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "useCallback",
+          "lineNumber": 238
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "clearInterval",
+          "lineNumber": 239
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "setSlide",
+          "lineNumber": 240
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "setInterval",
+          "lineNumber": 241
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "setSlide",
+          "lineNumber": 242
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "useMemo",
+          "lineNumber": 248
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "useMemo",
+          "lineNumber": 253
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "useMemo",
+          "lineNumber": 258
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "navigate",
+          "lineNumber": 278
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "navigate",
+          "lineNumber": 284
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "navigate",
+          "lineNumber": 339
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "data?.campaigns.map",
+          "lineNumber": 352
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "goSlide",
+          "lineNumber": 355
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "goSlide",
+          "lineNumber": 368
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "goSlide",
+          "lineNumber": 374
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "[\n            { icon: Shield, label: '100% Escrow Protected' },\n            { icon: Package, label: 'In-Store Collection' },\n            { icon: Store, label: 'Verified Local Merchants' },\n          ].map",
+          "lineNumber": 388
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "navigate",
+          "lineNumber": 415
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "Array.from({ length: 8 }).map",
+          "lineNumber": 424
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "Array.from",
+          "lineNumber": 424
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "weeklyPicks.map",
+          "lineNumber": 433
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "navigate",
+          "lineNumber": 442
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "Array.from({ length: 6 }).map",
+          "lineNumber": 468
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "Array.from",
+          "lineNumber": 468
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "featuredShops.map",
+          "lineNumber": 477
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "navigate",
+          "lineNumber": 487
+        },
+        {
+          "caller": "ConsumerStorefront",
+          "callee": "navigate",
+          "lineNumber": 505
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 1,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/CustomerDashboard.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/app/pages/LandingPage.tsx",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 1,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

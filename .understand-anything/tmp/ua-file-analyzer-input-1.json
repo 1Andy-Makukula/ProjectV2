@@ -1,0 +1,21 @@
+{
+  "projectRoot": "c:\\Users\\Owner\\Downloads\\ProjectV2",
+  "batchFiles": [
+    {
+      "path": "docker-compose.yml",
+      "language": "yaml",
+      "sizeLines": 17,
+      "fileCategory": "infra"
+    },
+    {
+      "path": "Dockerfile",
+      "language": "dockerfile",
+      "sizeLines": 38,
+      "fileCategory": "infra"
+    }
+  ],
+  "batchImportData": {
+    "docker-compose.yml": [],
+    "Dockerfile": []
+  }
+}
