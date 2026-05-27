@@ -3,7 +3,7 @@
 -- Edge Functions use service_role and bypass RLS.
 -- =============================================================================
 
--- Helper: current user role
+-- Helper: current user role — reads from JWT claims to avoid RLS recursion
 CREATE OR REPLACE FUNCTION public.current_user_role()
 RETURNS TEXT
 LANGUAGE sql
@@ -11,7 +11,10 @@ STABLE
 SECURITY DEFINER
 SET search_path = public
 AS $$
-  SELECT role FROM public.users WHERE id = auth.uid();
+  SELECT COALESCE(
+    (auth.jwt() ->> 'role'),
+    (SELECT role FROM public.users WHERE id = auth.uid())
+  );
 $$;
 
 -- ---------------------------------------------------------------------------
@@ -23,6 +26,12 @@ DROP POLICY IF EXISTS users_select_own ON public.users;
 CREATE POLICY users_select_own ON public.users
   FOR SELECT TO authenticated
   USING (id = auth.uid() OR public.current_user_role() = 'admin');
+
+-- Allow new users to insert their own profile row on signup
+DROP POLICY IF EXISTS users_insert_own ON public.users;
+CREATE POLICY users_insert_own ON public.users
+  FOR INSERT TO authenticated
+  WITH CHECK (id = auth.uid());
 
 DROP POLICY IF EXISTS users_update_own_no_role ON public.users;
 CREATE POLICY users_update_own_no_role ON public.users
