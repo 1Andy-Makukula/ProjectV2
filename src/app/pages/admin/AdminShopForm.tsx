@@ -106,16 +106,16 @@ export function AdminShopForm() {
     try {
       const fileExt = imageFile.name.split('.').pop();
       const fileName = `shop-${Date.now()}.${fileExt}`;
-      const filePath = `shops/${fileName}`;
+      const filePath = `shop-logos/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('kithly-images')
+        .from('storefront-assets')
         .upload(filePath, imageFile);
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from('kithly-images')
+        .from('storefront-assets')
         .getPublicUrl(filePath);
 
       return publicUrl;

@@ -3,7 +3,7 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
-const BUCKET = "kithly-images";
+const BUCKET = "storefront-assets";
 
 function json(req: Request, data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
@@ -88,7 +88,7 @@ async function handleUpload(req: Request): Promise<Response> {
 
   const bytes = new Uint8Array(await file.arrayBuffer());
   const ext = extensionForMime(file.type);
-  const path = `items/${shopId}/${crypto.randomUUID()}.${ext}`;
+  const path = `products/${crypto.randomUUID()}.${ext}`;
 
   const { error: uploadError } = await db.storage.from(BUCKET).upload(path, bytes, {
     contentType: file.type,

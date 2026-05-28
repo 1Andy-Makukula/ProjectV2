@@ -48,9 +48,9 @@ function StatusTag({ ok }: { ok: boolean }) {
 async function uploadFile(file: File, folder: string): Promise<string> {
   const ext = file.name.split('.').pop();
   const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-  const { error } = await supabase.storage.from('kithly-images').upload(path, file, { upsert: true });
+  const { error } = await supabase.storage.from('storefront-assets').upload(path, file, { upsert: true });
   if (error) throw error;
-  const { data: { publicUrl } } = supabase.storage.from('kithly-images').getPublicUrl(path);
+  const { data: { publicUrl } } = supabase.storage.from('storefront-assets').getPublicUrl(path);
   return publicUrl;
 }
 
@@ -326,7 +326,7 @@ function ShopLogoPanel() {
   const handleUpload = async (shop: ShopRow, file: File) => {
     setUploading(shop.id);
     try {
-      const url = await uploadFile(file, 'shops/logos');
+      const url = await uploadFile(file, 'shop-logos');
       const { error } = await supabase.from('shops').update({ logo_url: url }).eq('id', shop.id);
       if (error) throw error;
       setShops(prev => prev.map(s => s.id === shop.id ? { ...s, logo_url: url } : s));
