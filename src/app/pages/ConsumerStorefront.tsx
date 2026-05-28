@@ -275,18 +275,29 @@ export function ConsumerStorefront() {
             KithLy
           </span>
           <nav className="flex items-center gap-2">
-            <button
-              onClick={() => navigate('/login')}
-              className="text-sm font-medium text-slate-600 hover:text-slate-900 px-4 py-2 rounded-full hover:bg-slate-50 transition-colors"
-            >
-              Sign in
-            </button>
-            <button
-              onClick={() => navigate('/signup')}
-              className="text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:opacity-90 px-5 py-2 rounded-full shadow-sm transition-all"
-            >
-              Get started
-            </button>
+            {user ? (
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:opacity-90 px-5 py-2 rounded-full shadow-sm transition-all"
+              >
+                Go to Dashboard
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={() => navigate('/login')}
+                  className="text-sm font-medium text-slate-600 hover:text-slate-900 px-4 py-2 rounded-full hover:bg-slate-50 transition-colors"
+                >
+                  Sign in
+                </button>
+                <button
+                  onClick={() => navigate('/signup')}
+                  className="text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:opacity-90 px-5 py-2 rounded-full shadow-sm transition-all"
+                >
+                  Get started
+                </button>
+              </>
+            )}
           </nav>
         </div>
       </header>
