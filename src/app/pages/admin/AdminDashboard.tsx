@@ -78,13 +78,29 @@ export function AdminDashboard() {
     try {
       setLoading(true);
 
-      // Get all orders
-      const { data: orders, error: ordersError } = await supabase
-        .from('orders')
-        .select('*')
+      // V2: Query transactions joined with shop_orders
+      const { data: transactions, error: txError } = await supabase
+        .from('transactions')
+        .select(`
+          transaction_id,
+          status,
+          total_amount,
+          created_at,
+          buyer:buyer_id (name),
+          shop_orders (
+            shop_order_id,
+            claim_code,
+            claim_status,
+            recipient_name,
+            shop:shop_id (name),
+            order_items (
+              item:item_id (name)
+            )
+          )
+        `)
         .order('created_at', { ascending: false });
 
-      if (ordersError) throw ordersError;
+      if (txError) throw txError;
 
       // Get shops count
       const { count: shopsCount, error: shopsError } = await supabase
@@ -104,52 +120,45 @@ export function AdminDashboard() {
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
 
-      const ordersThisWeek = orders?.filter((o: any) => new Date(o.created_at) >= weekAgo) || [];
+      const ordersThisWeek = transactions?.filter((t: any) => new Date(t.created_at) >= weekAgo) || [];
 
       setStats({
-        totalOrders: orders?.length || 0,
-        totalValue: orders?.reduce((sum: number, o: any) => sum + o.amount, 0) || 0,
+        totalOrders: transactions?.length || 0,
+        totalValue: transactions?.reduce((sum: number, t: any) => sum + (t.total_amount || 0), 0) || 0,
         ordersThisWeek: ordersThisWeek.length,
-        valueThisWeek: ordersThisWeek.reduce((sum: number, o: any) => sum + o.amount, 0),
-        totalCommission: (orders?.reduce((sum: number, o: any) => sum + o.amount, 0) || 0) * 0.05,
-        commissionThisWeek: (ordersThisWeek.reduce((sum: number, o: any) => sum + o.amount, 0)) * 0.05,
+        valueThisWeek: ordersThisWeek.reduce((sum: number, t: any) => sum + (t.total_amount || 0), 0),
+        totalCommission: (transactions?.reduce((sum: number, t: any) => sum + (t.total_amount || 0), 0) || 0) * 0.05,
+        commissionThisWeek: (ordersThisWeek.reduce((sum: number, t: any) => sum + (t.total_amount || 0), 0)) * 0.05,
         totalShops: shopsCount || 0,
         totalUsers: usersCount || 0,
-        fulfilledOrders: orders?.filter((o: any) => o.status === 'fulfilled').length || 0,
-        pendingOrders: orders?.filter((o: any) => o.status === 'pending_payment' || o.status === 'payment_submitted').length || 0,
-        expiredOrders: orders?.filter((o: any) => o.status === 'expired').length || 0,
+        fulfilledOrders: transactions?.filter((t: any) => t.shop_orders?.some((so: any) => so.claim_status === 'REDEEMED' || so.claim_status === 'FULFILLED')).length || 0,
+        pendingOrders: transactions?.filter((t: any) => t.status === 'GATEWAY_PROCESSING' || t.shop_orders?.some((so: any) => so.claim_status === 'PENDING')).length || 0,
+        expiredOrders: transactions?.filter((t: any) => t.status === 'FAILED' || t.status === 'CANCELLED').length || 0,
       });
 
       // Get recent orders with details
-      const { data: recentOrdersData, error: recentError } = await supabase
-        .from('orders')
-        .select(`
-          id,
-          code,
-          amount,
-          status,
-          created_at,
-          recipient_name,
-          sender:users!sender_id(name),
-          item:items(name),
-          shop:shops(name)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(20);
+      const formattedOrders = transactions?.slice(0, 20).map((txn: any) => {
+        const firstShopOrder = txn.shop_orders?.[0];
+        const firstItem = firstShopOrder?.order_items?.[0]?.item;
 
-      if (recentError) throw recentError;
+        let displayStatus = 'pending_payment';
+        if (txn.status === 'GATEWAY_PROCESSING') displayStatus = 'pending_payment';
+        else if (txn.status === 'FAILED' || txn.status === 'CANCELLED') displayStatus = 'cancelled';
+        else if (firstShopOrder?.claim_status === 'REDEEMED' || firstShopOrder?.claim_status === 'FULFILLED') displayStatus = 'fulfilled';
+        else if (firstShopOrder?.claim_status === 'PENDING') displayStatus = 'paid';
 
-      const formattedOrders = recentOrdersData?.map((order: any) => ({
-        id: order.id,
-        code: order.code,
-        item_name: order.item?.name || 'N/A',
-        shop_name: order.shop?.name || 'N/A',
-        sender_name: order.sender?.name || 'N/A',
-        recipient_name: order.recipient_name,
-        amount: order.amount,
-        status: order.status,
-        created_at: order.created_at,
-      })) || [];
+        return {
+          id: txn.transaction_id,
+          code: firstShopOrder?.claim_code || 'N/A',
+          item_name: firstItem?.name || 'N/A',
+          shop_name: firstShopOrder?.shop?.name || 'N/A',
+          sender_name: (txn.buyer as any)?.name || 'N/A',
+          recipient_name: firstShopOrder?.recipient_name || 'N/A',
+          amount: txn.total_amount || 0,
+          status: displayStatus,
+          created_at: txn.created_at,
+        };
+      }) || [];
 
       setRecentOrders(formattedOrders);
     } catch (error: any) {
