@@ -1,7 +1,7 @@
 // KithLy Routes - React Router Configuration (route-level code splitting)
 
 import { lazy, Suspense, type ComponentType, type ReactNode } from 'react';
-import { createBrowserRouter } from 'react-router';
+import { createBrowserRouter, useRouteError } from 'react-router';
 import { Root } from './layouts/Root';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { Navigate } from 'react-router';
@@ -62,10 +62,39 @@ function Lazy({ children }: { children: ReactNode }) {
   return <Suspense fallback={<PageFallback />}>{children}</Suspense>;
 }
 
+function GlobalErrorBoundary() {
+  const error = useRouteError() as Error;
+
+  // If Vite fails to fetch a JS chunk (usually because a new version was deployed to Vercel),
+  // automatically force a hard reload to fetch the new index.html and manifest.
+  if (error?.message?.includes('Failed to fetch dynamically imported module')) {
+    window.location.reload();
+    return <PageFallback />;
+  }
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+        <h1 className="mb-2 text-2xl font-bold text-slate-900">Something went wrong</h1>
+        <p className="mb-6 text-sm text-slate-500">
+          {error?.message || 'An unexpected error occurred while loading the page.'}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="rounded-full bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-slate-800"
+        >
+          Reload Page
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export const router = createBrowserRouter([
   {
     path: '/',
     Component: Root,
+    errorElement: <GlobalErrorBoundary />,
     children: [
       { index: true, Component: ConsumerStorefront },
 
