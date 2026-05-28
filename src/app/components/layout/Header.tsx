@@ -27,7 +27,7 @@ export function Header({
 }: HeaderProps) {
   const { user } = useAuth();
   const isAuthenticated = !!user;
-  const { getTotalItems } = useCart();
+  const { getTotalItems, setCartSliderOpen } = useCart();
   const cartItemCount = getTotalItems();
 
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -53,7 +53,7 @@ export function Header({
 
     fetchNotifications();
 
-    const channel = supabase.channel('realtime-sender-notifications')
+    const channel = supabase.channel('header-notifications')
       .on('postgres_changes', {
         event: 'UPDATE',
         schema: 'public',
@@ -71,7 +71,7 @@ export function Header({
   }, [isAuthenticated, user?.id]);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-sm border-b border-border">
+    <header className="sticky top-0 z-50 w-full bg-white/60 backdrop-blur-md border-b border-white/20">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Left: Menu + Logo */}
@@ -137,7 +137,7 @@ export function Header({
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={onCartClick}
+              onClick={onCartClick ?? (() => setCartSliderOpen(true))}
               className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
               aria-label="Shopping cart"
             >

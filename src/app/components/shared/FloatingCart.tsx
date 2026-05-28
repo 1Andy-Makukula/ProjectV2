@@ -3,12 +3,10 @@
 
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart } from 'lucide-react';
-import { useNavigate } from 'react-router';
 import { useCart } from '../../hooks/useCart';
 
 export function FloatingCart() {
-  const navigate = useNavigate();
-  const { getTotalItems } = useCart();
+  const { getTotalItems, setCartSliderOpen } = useCart();
   const count = getTotalItems();
 
   return (
@@ -22,7 +20,7 @@ export function FloatingCart() {
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.94 }}
           transition={{ type: 'spring', stiffness: 320, damping: 22 }}
-          onClick={() => navigate('/checkout')}
+          onClick={() => setCartSliderOpen(true)}
           aria-label={`View cart — ${count} item${count !== 1 ? 's' : ''}`}
           className="fixed bottom-24 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-orange-600 shadow-lg shadow-orange-500/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2"
         >

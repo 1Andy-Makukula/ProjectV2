@@ -4,6 +4,7 @@ import { AuthProvider } from '../../utils/auth/AuthContext';
 import { Toaster } from '../components/ui/sonner';
 import { Footer } from '../components/layout/Footer'; // 1. IMPORT THE FOOTER
 import { FloatingCart } from '../components/shared/FloatingCart';
+import { CartSlider } from '../components/shared/CartSlider';
 
 export function Root() {
   return (
@@ -13,6 +14,7 @@ export function Root() {
         <div className="flex-1">
           <Outlet />
           <FloatingCart />
+          <CartSlider />
         </div>
         
         {/* 2. INJECT THE FOOTER AT THE BOTTOM */}

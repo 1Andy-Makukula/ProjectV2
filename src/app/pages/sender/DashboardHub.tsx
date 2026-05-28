@@ -206,7 +206,7 @@ export function DashboardHub() {
     const uid = user?.id || profile?.id;
 
     const channel = supabase
-      .channel('realtime-sender-notifications')
+      .channel('dashboard-feed')
       .on('postgres_changes', {
         event: 'UPDATE',
         schema: 'public',

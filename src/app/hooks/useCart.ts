@@ -6,7 +6,8 @@ import type { CartItem, Product } from '../types';
 
 interface CartState {
   items: CartItem[];
-  
+  isCartSliderOpen: boolean;
+
   // Actions
   addToCart: (product: Product, quantity?: number) => void;
   removeFromCart: (productId: string) => void;
@@ -15,12 +16,15 @@ interface CartState {
   getTotalItems: () => number;
   getTotalAmount: () => number;
   getItemsByShop: () => Map<string, CartItem[]>;
+  setCartSliderOpen: (open: boolean) => void;
 }
 
 export const useCart = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      isCartSliderOpen: false,
+      setCartSliderOpen: (open: boolean) => set({ isCartSliderOpen: open }),
 
       addToCart: (product: Product, quantity = 1) => {
         const { items } = get();
