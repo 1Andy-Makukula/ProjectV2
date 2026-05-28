@@ -20,6 +20,7 @@ import { Skeleton } from '../components/ui/skeleton';
 import { formatCurrency } from '../../utils/currency';
 import { ShopCard } from '../components/shared/ShopCard';
 import { StorefrontProductCard } from '../components/shared/StorefrontProductCard';
+import { Header } from '../components/layout/Header';
 
 // ─────────────────────────────────────────────
 // Types — mirrors actual DB columns exactly
@@ -268,39 +269,12 @@ export function ConsumerStorefront() {
   return (
     <div className="min-h-screen bg-white font-sans">
 
-      {/* ── Sticky Nav ───────────────────────── */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-100">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 h-16 flex items-center justify-between">
-          <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-orange-500 to-blue-700 bg-clip-text text-transparent">
-            KithLy
-          </span>
-          <nav className="flex items-center gap-2">
-            {user ? (
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:opacity-90 px-5 py-2 rounded-full shadow-sm transition-all"
-              >
-                Go to Dashboard
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={() => navigate('/login')}
-                  className="text-sm font-medium text-slate-600 hover:text-slate-900 px-4 py-2 rounded-full hover:bg-slate-50 transition-colors"
-                >
-                  Sign in
-                </button>
-                <button
-                  onClick={() => navigate('/signup')}
-                  className="text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:opacity-90 px-5 py-2 rounded-full shadow-sm transition-all"
-                >
-                  Get started
-                </button>
-              </>
-            )}
-          </nav>
-        </div>
-      </header>
+      {/* ── Global Header ─────────────────────── */}
+      <Header
+        onCartClick={() => navigate('/checkout')}
+        onProfileClick={() => navigate('/settings')}
+        onLogoClick={() => navigate('/')}
+      />
 
       {/* ── Ad Carousel ─────────────────────── */}
       <section className="relative w-full h-[420px] sm:h-[520px] overflow-hidden bg-slate-900">

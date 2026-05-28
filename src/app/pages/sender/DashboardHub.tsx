@@ -12,11 +12,12 @@ import {
 } from '../../components/ui/table';
 import { Skeleton } from '../../components/ui/skeleton';
 import {
-  ArrowLeft, ArrowRight, Shield, Clock, CheckCircle2,
-  TrendingUp, Package, Store, Copy, Check, Activity,
+  ArrowRight, Shield, Clock, CheckCircle2,
+  TrendingUp, Package, Copy, Check, Activity,
   ClipboardCheck, Wallet,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Header } from '../../components/layout/Header';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -279,30 +280,12 @@ export function DashboardHub() {
   return (
     <div className="min-h-screen bg-slate-50">
 
-      {/* ── Page Header ─────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-20 border-b border-orange-100/60 bg-gradient-to-r from-orange-50/90 to-blue-50/90 backdrop-blur-xl">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/')}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-50 hover:text-slate-700 transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </button>
-            <div>
-              <h1 className="text-lg font-bold tracking-tight text-slate-900">Command Center</h1>
-              <p className="text-xs text-slate-400">Escrow ledger &amp; activity monitor</p>
-            </div>
-          </div>
-          <button
-            onClick={() => navigate('/')}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-100 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50 transition-colors"
-          >
-            <Store className="h-3.5 w-3.5" />
-            Browse Shops
-          </button>
-        </div>
-      </div>
+      {/* ── Global Header ─────────────────────────────────────────────── */}
+      <Header
+        onCartClick={() => navigate('/checkout')}
+        onProfileClick={() => navigate('/settings')}
+        onLogoClick={() => navigate('/')}
+      />
 
       <div className="mx-auto max-w-7xl px-5 sm:px-8 py-8 space-y-8">
 
