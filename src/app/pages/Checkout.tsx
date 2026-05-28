@@ -357,7 +357,7 @@ export function Checkout() {
                   <Button
                     variant="outline"
                     className="mt-2"
-                    onClick={() => navigate('/home')}
+                    onClick={() => navigate('/')}
                   >
                     Browse Gifts
                   </Button>

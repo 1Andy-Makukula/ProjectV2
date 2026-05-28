@@ -280,7 +280,7 @@ export function DashboardHub() {
         <div className="mx-auto max-w-7xl px-5 sm:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate('/home')}
+              onClick={() => navigate('/')}
               className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-50 hover:text-slate-700 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -291,7 +291,7 @@ export function DashboardHub() {
             </div>
           </div>
           <button
-            onClick={() => navigate('/home')}
+            onClick={() => navigate('/')}
             className="flex items-center gap-1.5 rounded-lg border border-slate-100 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm hover:bg-slate-50 transition-colors"
           >
             <Store className="h-3.5 w-3.5" />
@@ -549,7 +549,7 @@ export function DashboardHub() {
         <div className="flex flex-wrap gap-3 border-t border-slate-100 pt-6">
           {[
             { label: 'All Orders', href: '/orders' },
-            { label: 'Send a Gift', href: '/home' },
+            { label: 'Send a Gift', href: '/' },
             { label: 'Impact Report', href: '/impact' },
             { label: 'Settings', href: '/settings' },
           ].map(link => (

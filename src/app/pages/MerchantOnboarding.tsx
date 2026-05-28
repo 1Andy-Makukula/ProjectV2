@@ -251,7 +251,7 @@ export function MerchantOnboarding() {
             Changed your mind?{' '}
             <button
               type="button"
-              onClick={() => navigate('/home')}
+              onClick={() => navigate('/dashboard')}
               className="text-primary hover:underline font-medium transition-colors"
             >
               Return to Home

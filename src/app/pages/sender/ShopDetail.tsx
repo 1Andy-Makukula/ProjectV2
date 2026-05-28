@@ -83,7 +83,7 @@ export function ShopDetail() {
           <p className="text-muted-foreground mb-6">
             This shop doesn't exist or is no longer available.
           </p>
-          <Button onClick={() => navigate('/home')}>Go Back Home</Button>
+          <Button onClick={() => navigate('/')}>Go Back Home</Button>
         </div>
       </div>
     );
@@ -97,7 +97,7 @@ export function ShopDetail() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate('/home')}
+            onClick={() => navigate('/')}
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>

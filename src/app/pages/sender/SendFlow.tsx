@@ -132,7 +132,7 @@ export function SendFlow() {
           <p className="text-muted-foreground mb-6">
             This item doesn't exist or is no longer available.
           </p>
-          <Button onClick={() => navigate('/home')}>Go Back Home</Button>
+          <Button onClick={() => navigate('/')}>Go Back Home</Button>
         </div>
       </div>
     );

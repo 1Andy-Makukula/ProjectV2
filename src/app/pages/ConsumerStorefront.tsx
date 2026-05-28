@@ -88,7 +88,6 @@ const SLIDE_MS = 5000;
 const ROLE_MAP: Record<string, string> = {
   admin: '/admin',
   merchant: '/merchant',
-  sender: '/home',
 };
 
 // ─────────────────────────────────────────────
@@ -147,7 +146,9 @@ export function ConsumerStorefront() {
   // ── Auth redirect ──────────────────────────
   useEffect(() => {
     if (authLoading || !user || !profile) return;
-    navigate(ROLE_MAP[profile.role] ?? '/home', { replace: true });
+    if (ROLE_MAP[profile.role]) {
+      navigate(ROLE_MAP[profile.role], { replace: true });
+    }
   }, [authLoading, user, profile, navigate]);
 
   // ── Single round-trip fetch ────────────────

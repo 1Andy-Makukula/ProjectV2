@@ -173,7 +173,7 @@ export function CustomerDashboard() {
               id="dashboard-back"
               variant="ghost"
               size="icon"
-              onClick={() => navigate('/home')}
+              onClick={() => navigate('/dashboard')}
               className="shrink-0"
             >
               <ArrowLeft className="h-5 w-5" />

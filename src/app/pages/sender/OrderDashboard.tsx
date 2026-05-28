@@ -330,7 +330,7 @@ export function OrderDashboard() {
               id="order-dashboard-back"
               variant="ghost"
               size="icon"
-              onClick={() => navigate('/home')}
+              onClick={() => navigate('/dashboard')}
               className="shrink-0"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -410,7 +410,7 @@ export function OrderDashboard() {
                 </p>
                 <Button
                   id="order-dashboard-browse"
-                  onClick={() => navigate('/home')}
+                  onClick={() => navigate('/dashboard')}
                   className="bg-gradient-to-r from-primary to-primary-light shadow-md"
                 >
                   <Store className="mr-2 h-4 w-4" />

@@ -17,7 +17,7 @@ export function Landing() {
     if (!loading && user && profile) {
       if (profile.role === 'admin') navigate('/admin');
       else if (profile.role === 'merchant') navigate('/merchant');
-      else navigate('/home');
+      else navigate('/');
     }
   }, [loading, user, profile, navigate]);
 

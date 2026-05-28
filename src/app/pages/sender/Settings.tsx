@@ -99,7 +99,7 @@ export function Settings() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate('/home')}
+              onClick={() => navigate('/dashboard')}
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
