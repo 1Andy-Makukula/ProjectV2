@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { useAuth } from '../../../utils/auth/AuthContext';
 import { ArrowLeft, Upload, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -37,6 +38,7 @@ export function AdminShopForm() {
   const navigate = useNavigate();
   const { shopId } = useParams();
   const isEditing = Boolean(shopId);
+  const { user } = useAuth();
 
   const [formData, setFormData] = useState<ShopFormData>({
     name: '',
@@ -147,6 +149,7 @@ export function AdminShopForm() {
       const shopData = {
         ...formData,
         image_url: imageUrl,
+        owner_id: user?.id,
       };
 
       if (isEditing) {
