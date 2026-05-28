@@ -14,7 +14,8 @@ import { useState, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
-import { ArrowLeft, ShieldCheck, PackageCheck, Package } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, PackageCheck, Package, QrCode, Keyboard, Camera, CameraOff } from 'lucide-react';
+import { Scanner } from '@yudiel/react-qr-scanner';
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import {
@@ -32,6 +33,7 @@ import { cn } from '../../components/ui/utils';
 // ---------------------------------------------------------------------------
 
 type Stage = 'IDLE' | 'LOADING' | 'CHECKLIST' | 'SUBMITTING' | 'SUCCESS' | 'REJECTED';
+type InputMode = 'qr' | 'manual';
 
 interface OrderItem {
   order_item_id: string;
@@ -59,6 +61,93 @@ const panel = {
 };
 
 // ---------------------------------------------------------------------------
+// QR Scanner Sub-components
+// ---------------------------------------------------------------------------
+
+function ModeToggle({ mode, onChange }: { mode: InputMode; onChange: (m: InputMode) => void }) {
+  return (
+    <div className="flex w-full items-center rounded-xl border border-slate-100 bg-white/60 backdrop-blur-md p-1 gap-1 mb-6">
+      {(['qr', 'manual'] as InputMode[]).map((m) => {
+        const active = mode === m;
+        return (
+          <button
+            key={m}
+            onClick={() => onChange(m)}
+            className={cn(
+              'flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-all',
+              active
+                ? 'bg-gradient-to-r from-orange-500 to-blue-800 text-white shadow-sm'
+                : 'text-slate-500 hover:text-slate-700',
+            )}
+          >
+            {m === 'qr' ? <QrCode className="h-4 w-4" strokeWidth={1.5} /> : <Keyboard className="h-4 w-4" strokeWidth={1.5} />}
+            {m === 'qr' ? 'Scan QR' : 'Manual Entry'}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function QRScanView({ onDetected }: { onDetected: (code: string) => void }) {
+  const [camDenied, setCamDenied] = useState(false);
+
+  if (camDenied) {
+    return (
+      <div className="flex w-full flex-col items-center gap-4 rounded-2xl border border-orange-100 bg-orange-50/60 backdrop-blur-xl p-8 text-center mb-6">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-orange-100">
+          <CameraOff className="h-6 w-6 text-orange-500" strokeWidth={1.5} />
+        </div>
+        <p className="text-sm font-medium text-slate-700">Camera access denied</p>
+        <p className="text-xs text-slate-500 leading-relaxed max-w-[220px]">
+          Allow camera access in your browser settings, or switch to Manual Entry below.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full overflow-hidden rounded-2xl border border-orange-200 shadow-lg shadow-orange-100/60 mb-6">
+      <div className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-blue-800 px-4 py-2">
+        <Camera className="h-3.5 w-3.5 text-white" strokeWidth={1.5} />
+        <span className="text-[11px] font-semibold uppercase tracking-widest text-white">Camera Active</span>
+        <span className="ml-auto flex h-2 w-2 rounded-full bg-white animate-pulse" />
+      </div>
+
+      <div className="relative bg-slate-900">
+        <Scanner
+          onScan={(results) => {
+            const raw = results?.[0]?.rawValue;
+            if (raw && raw.length >= 8) {
+              const extracted = raw.replace(/[^A-Za-z0-9]/g, '').slice(0, 8).toUpperCase();
+              if (extracted.length === 8) onDetected(extracted);
+            }
+          }}
+          onError={(err) => {
+            const msg = String(err);
+            if (msg.toLowerCase().includes('permission') || msg.toLowerCase().includes('denied') || msg.toLowerCase().includes('notallowed')) {
+              setCamDenied(true);
+            }
+          }}
+          styles={{ container: { width: '100%', aspectRatio: '1 / 1' }, video: { objectFit: 'cover', width: '100%', height: '100%' } }}
+          components={{ finder: false }}
+        />
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className="relative h-44 w-44">
+            {[['top-0 left-0', 'border-t border-l'], ['top-0 right-0', 'border-t border-r'], ['bottom-0 left-0', 'border-b border-l'], ['bottom-0 right-0', 'border-b border-r']].map(([pos, border]) => (
+              <span key={pos} className={cn('absolute h-8 w-8 rounded-sm border-orange-400', pos, border)} />
+            ))}
+          </div>
+        </div>
+      </div>
+      <p className="bg-slate-900 py-2 text-center text-[11px] text-slate-400">
+        Point camera at the QR code on the customer's screen
+      </p>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -70,6 +159,7 @@ export function MerchantFulfill() {
   const { profile } = useAuth();
 
   const [stage, setStage]           = useState<Stage>('IDLE');
+  const [inputMode, setInputMode]   = useState<InputMode>('qr');
   const [code, setCode]             = useState('');
   const [shopOrder, setShopOrder]   = useState<ShopOrder | null>(null);
   const [items, setItems]           = useState<OrderItem[]>([]);
@@ -233,9 +323,9 @@ export function MerchantFulfill() {
   // ---- render --------------------------------------------------------
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50/60 via-white to-blue-50/40">
       {/* Header */}
-      <div className="sticky top-0 z-10 border-b border-slate-100 bg-white">
+      <div className="sticky top-0 z-10 border-b border-white/20 bg-white/60 backdrop-blur-md">
         <div className="mx-auto flex max-w-xl items-center gap-3 px-5 py-4">
           <button
             onClick={() => navigate('/merchant')}
@@ -247,7 +337,7 @@ export function MerchantFulfill() {
           <h1 className="text-base font-semibold tracking-tight text-slate-900">
             Handover Terminal
           </h1>
-          <span className="ml-auto text-xs font-medium uppercase tracking-widest text-slate-300">
+          <span className="ml-auto bg-gradient-to-r from-orange-500 to-blue-800 bg-clip-text text-xs font-semibold uppercase tracking-widest text-transparent">
             KithLy POS
           </span>
         </div>
@@ -259,48 +349,55 @@ export function MerchantFulfill() {
           {/* ---- IDLE: code entry ---- */}
           {stage === 'IDLE' && (
             <motion.div key="idle" variants={panel} initial="hidden" animate="visible" exit="exit"
-              className="flex flex-col items-center gap-8 rounded-2xl bg-white p-8 shadow-sm border border-slate-100"
+              className="flex flex-col items-center gap-6"
             >
-              <div className="flex flex-col items-center gap-2 text-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-100">
-                  <ShieldCheck className="h-7 w-7 text-slate-700" strokeWidth={1.5} />
-                </div>
-                <h2 className="text-xl font-semibold text-slate-900">Enter Claim Code</h2>
+              <div className="flex w-full flex-col gap-1.5 text-center mb-2">
+                <h2 className="text-2xl font-semibold text-slate-900">Verify gift code</h2>
                 <p className="text-sm text-slate-500">
-                  Type or scan the 8-character code from the customer's WhatsApp message.
+                  {inputMode === 'qr'
+                    ? 'Point the camera at the customer\'s QR code to auto-verify.'
+                    : 'Enter the 8-character code from the customer\'s WhatsApp message.'}
                 </p>
               </div>
 
-              <InputOTP
-                maxLength={8}
-                value={code}
-                onChange={setCode}
-                onComplete={handleCodeComplete}
-                aria-label="Gift claim code"
-              >
-                <InputOTPGroup>
-                  {[0,1,2,3].map(i => (
-                    <InputOTPSlot key={i} index={i} className="h-14 w-11 text-lg font-mono uppercase" />
-                  ))}
-                </InputOTPGroup>
-                <InputOTPSeparator />
-                <InputOTPGroup>
-                  {[4,5,6,7].map(i => (
-                    <InputOTPSlot key={i} index={i} className="h-14 w-11 text-lg font-mono uppercase" />
-                  ))}
-                </InputOTPGroup>
-              </InputOTP>
+              <ModeToggle mode={inputMode} onChange={setInputMode} />
 
-              <p className="text-xs text-slate-400">Auto-submits when all 8 characters are entered.</p>
+              <AnimatePresence mode="wait">
+                {inputMode === 'qr' ? (
+                  <motion.div key="qr-view" className="w-full"
+                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}
+                  >
+                    <QRScanView onDetected={(scanned) => {
+                      setCode(scanned);
+                      handleCodeComplete(scanned);
+                    }} />
+                  </motion.div>
+                ) : (
+                  <motion.div key="manual-view" className="flex w-full flex-col items-center gap-5 mb-6"
+                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.25 }}
+                  >
+                    <InputOTP maxLength={8} value={code} onChange={setCode} onComplete={handleCodeComplete} aria-label="Gift claim code">
+                      <InputOTPGroup>
+                        {[0,1,2,3].map(i => <InputOTPSlot key={i} index={i} className="h-14 w-11 text-lg font-mono uppercase bg-white/80" />)}
+                      </InputOTPGroup>
+                      <InputOTPSeparator />
+                      <InputOTPGroup>
+                        {[4,5,6,7].map(i => <InputOTPSlot key={i} index={i} className="h-14 w-11 text-lg font-mono uppercase bg-white/80" />)}
+                      </InputOTPGroup>
+                    </InputOTP>
+                    <p className="text-xs text-slate-400">Auto-submits when all 8 characters are entered.</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-              <div className="w-full rounded-xl border border-slate-100 bg-slate-50 p-4 flex gap-3 items-start">
+              <div className="w-full rounded-xl border border-orange-100 bg-orange-50/60 backdrop-blur-xl p-4 flex gap-3 items-start">
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.25"
-                  className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" aria-hidden>
+                  className="mt-0.5 h-4 w-4 shrink-0 text-orange-400" aria-hidden>
                   <path d="M10 2L3 5v5c0 4.4 3 8.5 7 9.5C14 18.5 17 14.4 17 10V5L10 2z" />
                 </svg>
                 <p className="text-xs text-slate-500 leading-relaxed">
                   This terminal displays <span className="font-medium text-slate-700">item information only</span>.
-                  No pricing or account data is shown to the cashier.
+                  No pricing or account data is shown. Fulfillment is governed by the KithLy Merchant Agreement.
                 </p>
               </div>
             </motion.div>
@@ -449,7 +546,7 @@ export function MerchantFulfill() {
                 id="confirm-handover-button"
                 onClick={handleConfirm}
                 disabled={checkedIds.length === 0}
-                className="w-full h-14 text-base font-semibold rounded-2xl bg-slate-900 hover:bg-slate-800 text-white"
+                className="w-full h-14 text-base font-semibold rounded-2xl bg-gradient-to-r from-orange-500 to-blue-800 text-white hover:opacity-90 transition-opacity"
               >
                 Confirm Handover
               </Button>
