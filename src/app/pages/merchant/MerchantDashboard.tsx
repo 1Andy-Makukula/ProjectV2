@@ -14,7 +14,7 @@ import {
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { formatCurrency } from '../../../utils/currency';
-import { QrCode, LogOut, Package, TrendingUp, Camera, Save, Edit, Trash2, HelpCircle } from 'lucide-react';
+import { QrCode, LogOut, Package, TrendingUp, Camera, Save, Edit, Trash2, HelpCircle, PackagePlus, Store, Settings } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AdminItems } from '../admin/AdminItems';
 
@@ -535,6 +535,57 @@ export function MerchantDashboard() {
               <p className="text-sm text-muted-foreground">{stat.label}</p>
             </motion.div>
           ))}
+        </div>
+
+        {/* Quick Actions Grid */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Shop Management</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              {
+                label: 'Fulfill Order',
+                description: 'Scan or enter a gift code',
+                icon: QrCode,
+                path: '/merchant/fulfill',
+              },
+              {
+                label: 'Add New Product',
+                description: 'List a new item in your shop',
+                icon: PackagePlus,
+                path: '/merchant/items/new',
+              },
+              {
+                label: 'Edit Shop Profile',
+                description: 'Update location and details',
+                icon: Store,
+                path: '/merchant/shop/edit',
+              },
+              {
+                label: 'Account Settings',
+                description: 'Manage password and security',
+                icon: Settings,
+                path: '/settings',
+              },
+            ].map((action, index) => (
+              <motion.button
+                key={action.label}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                onClick={() => navigate(action.path)}
+                className="group flex flex-col items-start rounded-2xl border border-slate-100 bg-white/80 backdrop-blur-xl p-5 text-left shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all"
+              >
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 transition-colors group-hover:bg-orange-100">
+                  <action.icon
+                    className="h-6 w-6 text-orange-500 group-hover:bg-gradient-to-r group-hover:from-orange-500 group-hover:to-blue-800 group-hover:bg-clip-text group-hover:text-transparent"
+                    strokeWidth={1.5}
+                  />
+                </div>
+                <h3 className="text-base font-semibold text-slate-900">{action.label}</h3>
+                <p className="mt-1 text-xs text-slate-500">{action.description}</p>
+              </motion.button>
+            ))}
+          </div>
         </div>
 
         {/* Tabs — 3 columns: Active Orders | Fulfilled | Shop Profile */}

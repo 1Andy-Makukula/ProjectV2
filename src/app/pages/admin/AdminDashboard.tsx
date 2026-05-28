@@ -405,9 +405,9 @@ export function AdminDashboard() {
                 onClick={() => navigate('/admin/orders')}
               />
               <QuickLink
-                title="Manage Merchants"
-                description="Create merchant accounts"
-                onClick={() => navigate('/admin/merchants')}
+                title="Merchandising"
+                description="Ads, Banners & Top Picks"
+                onClick={() => navigate('/admin-merch')}
               />
               <QuickLink
                 title="Add New Shop"
