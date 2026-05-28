@@ -25,10 +25,9 @@ import { toast } from 'sonner';
 
 interface ShopFormData {
   name: string;
-  description: string;
   location: string;
   address: string;
-  image_url: string;
+  logo_url: string;
   payout_method: string;
   payout_details: string;
   is_active: boolean;
@@ -42,10 +41,9 @@ export function AdminShopForm() {
 
   const [formData, setFormData] = useState<ShopFormData>({
     name: '',
-    description: '',
     location: '',
     address: '',
-    image_url: '',
+    logo_url: '',
     payout_method: 'airtel',
     payout_details: '',
     is_active: true,
@@ -73,15 +71,14 @@ export function AdminShopForm() {
 
       setFormData({
         name: data.name || '',
-        description: data.description || '',
         location: data.location || '',
         address: data.address || '',
-        image_url: data.image_url || '',
+        logo_url: data.logo_url || '',
         payout_method: data.payout_method || 'airtel',
         payout_details: data.payout_details || '',
         is_active: data.is_active ?? true,
       });
-      setImagePreview(data.image_url || '');
+      setImagePreview(data.logo_url || '');
     } catch (error: any) {
       console.error('Error loading shop:', error);
       toast.error('Failed to load shop data');
@@ -102,7 +99,7 @@ export function AdminShopForm() {
   };
 
   const uploadImage = async (): Promise<string> => {
-    if (!imageFile) return formData.image_url;
+    if (!imageFile) return formData.logo_url;
 
     setUploading(true);
     try {
@@ -141,19 +138,20 @@ export function AdminShopForm() {
     setLoading(true);
     try {
       // Upload image if selected
-      let imageUrl = formData.image_url;
+      let logoUrl = formData.logo_url;
       if (imageFile) {
-        imageUrl = await uploadImage();
+        logoUrl = await uploadImage();
       }
 
-      // V2 Schema Strict Payload: Strip legacy V1 fields (address, payout_method, payout_details)
-      // because they do not exist in the V2 shops table (V2 uses kithly_wallets for payouts).
+      // V2 Schema Strict Payload
       const shopData = {
         name: formData.name,
-        description: formData.description,
         location: formData.location,
+        address: formData.address,
+        logo_url: logoUrl,
+        payout_method: formData.payout_method,
+        payout_details: formData.payout_details,
         is_active: formData.is_active,
-        image_url: imageUrl,
         owner_id: user?.id,
       };
 
@@ -246,18 +244,6 @@ export function AdminShopForm() {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Enter shop name"
                   required
-                />
-              </div>
-
-              {/* Description */}
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Enter shop description"
-                  rows={3}
                 />
               </div>
 
