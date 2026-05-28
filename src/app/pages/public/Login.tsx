@@ -29,7 +29,7 @@ export function Login() {
     if (user && profile) {
       if (profile.role === 'merchant') navigate('/merchant');
       else if (profile.role === 'admin') navigate('/admin');
-      else navigate('/shops');
+      else navigate('/');
     }
   }, [user, profile, navigate]);
 

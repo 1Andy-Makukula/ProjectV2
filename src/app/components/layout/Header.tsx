@@ -104,6 +104,16 @@ export function Header({
 
           {/* Right: Actions */}
           <div className="flex items-center gap-2">
+            {/* Dashboard Link */}
+            {isAuthenticated && (
+              <Link
+                to="/dashboard"
+                className="hidden md:inline-flex items-center px-3 py-1.5 text-sm font-light text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors tracking-wide"
+              >
+                Dashboard
+              </Link>
+            )}
+
             {/* Notification Bell */}
             {isAuthenticated && (
               <button onClick={() => { setIsNotificationsOpen(true); setUnreadCount(0); }} className="relative p-2 text-gray-500 hover:text-gray-700 transition-colors">

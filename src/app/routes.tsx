@@ -32,13 +32,11 @@ const lazyPage = <T extends Record<string, ComponentType<unknown>>>(
     })),
   );
 
-const Home = lazyPage(() => import('./pages/sender/Home'), 'Home');
 const ShopDetail = lazyPage(() => import('./pages/sender/ShopDetail'), 'ShopDetail');
 const SendFlow = lazyPage(() => import('./pages/sender/SendFlow'), 'SendFlow');
 const OrderDashboard = lazyPage(() => import('./pages/sender/OrderDashboard'), 'OrderDashboard');
 const OrderDetail = lazyPage(() => import('./pages/sender/OrderDetail'), 'OrderDetail');
 const Settings = lazyPage(() => import('./pages/sender/Settings'), 'Settings');
-const CustomerDashboard = lazyPage(() => import('./pages/sender/CustomerDashboard'), 'CustomerDashboard');
 const MerchantOnboarding = lazyPage(() => import('./pages/MerchantOnboarding'), 'MerchantOnboarding');
 const MerchantDashboard = lazyPage(() => import('./pages/merchant/MerchantDashboard'), 'MerchantDashboard');
 const MerchantFulfill = lazyPage(() => import('./pages/merchant/MerchantFulfill'), 'MerchantFulfill');
@@ -91,14 +89,6 @@ export const router = createBrowserRouter([
       { path: 'shops', Component: ShopDirectory },
 
       {
-        path: 'home',
-        element: (
-          <ProtectedRoute allowedRoles={['sender']}>
-            <Lazy><Home /></Lazy>
-          </ProtectedRoute>
-        ),
-      },
-      {
         path: 'shop/:shopId',
         element: (
           <ProtectedRoute allowedRoles={['sender']}>
@@ -144,14 +134,6 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['sender']}>
             <Lazy><Settings /></Lazy>
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'impact',
-        element: (
-          <ProtectedRoute allowedRoles={['sender']}>
-            <Lazy><CustomerDashboard /></Lazy>
           </ProtectedRoute>
         ),
       },
