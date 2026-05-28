@@ -1,4 +1,5 @@
 import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
+// @ts-ignore - Deno requires .ts extension for local imports
 import { getCorsHeaders } from "../_shared/cors.ts";
 
 interface FormattedLedgerRow {
@@ -6,7 +7,7 @@ interface FormattedLedgerRow {
   voucher_id: string;
   shop_order_id: string;
   item_name: string;
-  base_price: number;
+  amount: number;
   settlement_target_time: string;
   claim_code: string;
 }
@@ -115,13 +116,13 @@ async function handleGetMerchantLedger(req: Request): Promise<Response> {
     return json(req, { error: "Failed to retrieve settlement ledger." }, 500);
   }
 
-  const formatted: FormattedLedgerRow[] = ((rows ?? []) as RawShopOrderRow[]).map((row) => {
+  const formatted: FormattedLedgerRow[] = ((rows ?? []) as unknown as RawShopOrderRow[]).map((row) => {
     const firstItem = row.order_items?.[0]?.item;
     return {
       voucher_id: row.shop_order_id,
       shop_order_id: row.shop_order_id,
       item_name: firstItem?.name ?? "Gift order",
-      base_price: row.subtotal,
+      amount: row.subtotal,
       settlement_target_time: row.settlement_target_time ?? new Date().toISOString(),
       claim_code: row.claim_code,
     };

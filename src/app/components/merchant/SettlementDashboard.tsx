@@ -14,7 +14,6 @@
  *   - Zero emojis
  */
 
-import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useSettlementCountdown } from '../../hooks/useSettlementCountdown';
 import { cn } from '../ui/utils';
@@ -24,10 +23,12 @@ import { cn } from '../ui/utils';
 // ---------------------------------------------------------------------------
 
 export interface LedgerEntry {
-  voucher_id: string;
+  voucher_id: string; // legacy support if needed
+  shop_order_id: string;
   item_name: string;
-  base_price: number;
+  amount: number;
   settlement_target_time: string;
+  claim_code: string;
 }
 
 export interface SettlementDashboardProps {
@@ -48,8 +49,9 @@ export interface SettlementDashboardProps {
 // ---------------------------------------------------------------------------
 
 /**
- * Formats the ZMW amount.
- * The `get-merchant-ledger` Edge Function returns `base_price` as whole integers.
+ * Formats the ZMW * V2 NOTE:
+ * The `get-merchant-ledger` Edge Function returns `amount` as whole integers.
+ * The `currency.ts` utilities expect Ngwee (ZMW * 100), so we multiply by 100 before formatting.
  */
 function formatZmw(amount: number): string {
   return `ZMW ${amount.toLocaleString('en-ZM', {
@@ -85,8 +87,8 @@ function LedgerRow({ entry, isLast }: { entry: LedgerEntry; isLast: boolean }) {
           <span className="text-xs font-medium uppercase tracking-wider text-slate-400">
             Amount Due
           </span>
-          <span className="text-xs font-mono font-medium tabular-nums text-slate-600">
-            {formatZmw(entry.base_price)}
+          <span className="font-semibold text-gray-900 block text-right">
+            {formatZmw(entry.amount)}
           </span>
         </div>
       </div>
@@ -122,7 +124,7 @@ function LedgerRow({ entry, isLast }: { entry: LedgerEntry; isLast: boolean }) {
 
 export function SettlementDashboard({ ledgerData, isLoading }: SettlementDashboardProps) {
   // Aggregate total pending ZMW
-  const totalPending = ledgerData.reduce((sum, entry) => sum + entry.base_price, 0);
+  const totalPending = ledgerData.reduce((sum, entry) => sum + entry.amount, 0);
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-8">

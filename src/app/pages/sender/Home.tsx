@@ -11,12 +11,10 @@ import {
   ChevronDown,
   LayoutDashboard,
   Loader2,
-  CheckCircle,
   Shield,
   Bell,
   X,
 } from 'lucide-react';
-import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 
 // ---------------------------------------------------------------------------
@@ -126,11 +124,10 @@ function PromoBanner({ data }: { data: typeof KITHLY_PROMOS[0] }) {
 
 export function Home() {
   const navigate = useNavigate();
-  const { user, profile, signOut } = useAuth();
+  const { user, profile } = useAuth();
 
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
 
   const [banners, setBanners] = useState<Banner[]>([]);
   const [bannersLoading, setBannersLoading] = useState(true);
@@ -148,33 +145,65 @@ export function Home() {
     fetchShops();
 
     const fetchNotifications = async () => {
+      // V2 Schema: Query transactions joined with shop_orders
       const { data } = await supabase
-        .from('orders')
-        .select('id, code, recipient_name, fulfilled_at, item:items(name), shop:shops(name)')
-        .eq('sender_id', user?.id || profile.id)
-        .eq('status', 'fulfilled')
-        .order('fulfilled_at', { ascending: false })
+        .from('transactions')
+        .select(`
+          transaction_id,
+          created_at,
+          shop_orders!inner (
+            shop_order_id,
+            claim_code,
+            recipient_name,
+            fulfilled_at,
+            shop:shop_id (name),
+            order_items (
+              item:item_id (name)
+            )
+          )
+        `)
+        .eq('buyer_id', user?.id || profile.id)
+        .in('shop_orders.claim_status', ['FULFILLED', 'PARTIAL_FULFILLMENT'])
+        .order('created_at', { ascending: false })
         .limit(20);
       
       if (data) {
-        setNotifications(data);
+        // Flatten to match legacy UI expectation
+        const formatted = data.flatMap((tx: any) => 
+          tx.shop_orders.map((so: any) => ({
+            id: so.shop_order_id,
+            code: so.claim_code,
+            recipient_name: so.recipient_name,
+            fulfilled_at: so.fulfilled_at || tx.created_at,
+            item: { name: so.order_items?.[0]?.item?.name || 'Gift' },
+            shop: { name: so.shop?.name || 'Shop' }
+          }))
+        );
+        
+        setNotifications(formatted);
       }
     };
 
     fetchNotifications();
 
+    // Notify and Re-fetch Pattern (User Approved)
     const channel = supabase.channel('realtime-sender-notifications')
       .on('postgres_changes', {
-        event: 'UPDATE',
+        event: '*',
         schema: 'public',
-        table: 'orders',
-        filter: `sender_id=eq.${user?.id || profile.id}`
-      }, (payload: any) => {
-        if (payload.new.status === 'fulfilled' && payload.old.status !== 'fulfilled') {
-          toast.success(`🎉 Gift collected! Your recipient just picked up their item.`);
-          setUnreadCount(prev => prev + 1);
-          fetchNotifications(); // Refresh the list to get joined item/shop data
-        }
+        table: 'transactions',
+        filter: `buyer_id=eq.${user?.id || profile.id}`
+      }, () => {
+        fetchNotifications();
+      })
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'transaction_events',
+        filter: `event_type=eq.CLAIM_VERIFIED`
+      }, () => {
+        // Catch fulfillments
+        fetchNotifications();
       }).subscribe();
 
     return () => { supabase.removeChannel(channel); }
@@ -294,11 +323,11 @@ export function Home() {
               KithLy
             </h1>
             <span className="text-sm text-muted-foreground">
-              Hi, {user?.full_name?.split(' ')[0] || profile?.name?.split(' ')[0] || 'there'}!
+              Hi, {(user?.user_metadata?.full_name || profile?.name)?.split(' ')[0] || 'there'}!
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => { setIsNotificationsOpen(true); setUnreadCount(0); }} className="relative p-2 text-gray-500 hover:text-gray-700 transition-colors">
+            <button onClick={() => { setIsNotificationsOpen(true); }} className="relative p-2 text-gray-500 hover:text-gray-700 transition-colors">
               <Bell className="w-6 h-6" />
               <span className="absolute top-0 right-0 h-2.5 w-2.5 rounded-full bg-gradient-to-tr from-orange-500 to-red-500 animate-pulse border border-white" />
             </button>

@@ -10,18 +10,15 @@ import { useCart } from '../../hooks/useCart';
 import { supabase } from '../../../lib/supabaseClient';
 import { Badge } from '../ui/badge';
 import { SearchBar } from '../shared/SearchBar';
-import { NotificationSlider } from '../shared/NotificationSlider';
 
 interface HeaderProps {
   onMenuClick?: () => void;
-  onCartClick?: () => void;
   onProfileClick?: () => void;
   onLogoClick?: () => void;
 }
 
 export function Header({
   onMenuClick,
-  onCartClick,
   onProfileClick,
   onLogoClick,
 }: HeaderProps) {
@@ -48,33 +45,71 @@ export function Header({
     if (!isAuthenticated || !user?.id) return;
 
     const fetchNotifications = async () => {
+      // V2 Schema: Query transactions joined with shop_orders
       const { data } = await supabase
-        .from('orders')
-        .select('id, code, recipient_name, fulfilled_at, item:items(name), shop:shops(name)')
-        .eq('sender_id', user.id)
-        .eq('status', 'fulfilled')
-        .order('fulfilled_at', { ascending: false })
+        .from('transactions')
+        .select(`
+          transaction_id,
+          created_at,
+          shop_orders!inner (
+            shop_order_id,
+            claim_code,
+            recipient_name,
+            fulfilled_at,
+            shop:shop_id (name),
+            order_items (
+              item:item_id (name)
+            )
+          )
+        `)
+        .eq('buyer_id', user.id)
+        .in('shop_orders.claim_status', ['FULFILLED', 'PARTIAL_FULFILLMENT'])
+        .order('created_at', { ascending: false })
         .limit(20);
 
       if (data) {
-        setNotifications(data);
+        // Flatten to match legacy UI expectation
+        const formatted = data.flatMap((tx: any) => 
+          tx.shop_orders.map((so: any) => ({
+            id: so.shop_order_id,
+            code: so.claim_code,
+            recipient_name: so.recipient_name,
+            fulfilled_at: so.fulfilled_at || tx.created_at,
+            item: { name: so.order_items?.[0]?.item?.name || 'Gift' },
+            shop: { name: so.shop?.name || 'Shop' }
+          }))
+        );
+        
+        // Check if we have new notifications by comparing lengths (simple heuristic)
+        if (notifications.length > 0 && formatted.length > notifications.length) {
+          toast.success(`🎉 Gift collected! Your recipient just picked up their item.`);
+          setUnreadCount(prev => prev + 1);
+        }
+        
+        setNotifications(formatted);
       }
     };
 
     fetchNotifications();
 
+    // Notify and Re-fetch Pattern (User Approved)
     const channel = supabase.channel('header-notifications')
       .on('postgres_changes', {
-        event: 'UPDATE',
+        event: '*',
         schema: 'public',
-        table: 'orders',
-        filter: `sender_id=eq.${user.id}`
-      }, (payload: any) => {
-        if (payload.new.status === 'fulfilled' && payload.old.status !== 'fulfilled') {
-          toast.success(`🎉 Gift collected! Your recipient just picked up their item.`);
-          setUnreadCount(prev => prev + 1);
-          fetchNotifications(); // Refresh the list to get joined item/shop data
-        }
+        table: 'transactions',
+        filter: `buyer_id=eq.${user.id}`
+      }, () => {
+        fetchNotifications();
+      })
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'transaction_events',
+        filter: `event_type=eq.CLAIM_VERIFIED`
+      }, () => {
+        // Catch fulfillments (no buyer_id filter available on this table, but fetch is safe)
+        fetchNotifications();
       }).subscribe();
 
     return () => { supabase.removeChannel(channel); }
@@ -169,11 +204,11 @@ export function Header({
               >
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center">
                   <span className="text-white text-sm font-light">
-                    {user?.full_name?.charAt(0) || 'U'}
+                    {(user?.user_metadata?.full_name || profile?.name)?.charAt(0) || 'U'}
                   </span>
                 </div>
                 <span className="hidden md:inline text-sm font-light">
-                  {user?.full_name?.split(' ')[0]}
+                  {(user?.user_metadata?.full_name || profile?.name)?.split(' ')[0]}
                 </span>
               </motion.button>
             ) : (

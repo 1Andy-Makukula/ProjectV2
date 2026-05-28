@@ -108,7 +108,7 @@ export interface InternationalCheckoutModalProps {
 
 /**
  * Formats a ZMW integer (stored as whole kwacha) to a display string.
- * Per the project's currency.ts convention: values in `items.base_price`
+ * Per the project's currency.ts convention: values in `items.price_zmw`
  * and `zmw_international_price` are raw integer kwacha, not ngwee.
  * We therefore do NOT divide by 100 here.
  */
@@ -287,7 +287,6 @@ export function InternationalCheckoutModal({
   // Derived display values
   const lockedRateLabel = `1 ZMW = ${formatRate(fxRateRaw)} ${currency}`;
   const zmwMarginAmount = zmwInternationalPrice - basePriceZmw;
-  const spreadAmount = checkoutPrice - (basePriceZmw * fxRateRaw);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>

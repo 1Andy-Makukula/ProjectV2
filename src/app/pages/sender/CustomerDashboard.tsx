@@ -77,35 +77,11 @@ export function CustomerDashboard() {
   const [giftsDelivered, setGiftsDelivered] = useState(0);
   const [shopsSupported, setShopsSupported] = useState(0);
 
-  const [dashboardNotifications, setDashboardNotifications] = useState<any[]>([]);
   const [latestNotification, setLatestNotification] = useState<any | null>(null);
 
   const fetchNotifications = async () => {
-    if (!profile?.id) return;
-    try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', profile.id)
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      if (error) throw error;
-      setDashboardNotifications(data || []);
-    } catch (err) {
-      console.error('Error fetching dashboard notifications:', err);
-    }
-  };
-
-  const markAsRead = async (notificationId: string) => {
-    try {
-      setDashboardNotifications((prev) =>
-        prev.map((n) => (n.id === notificationId ? { ...n, is_read: true } : n))
-      );
-      await supabase.from('notifications').update({ is_read: true }).eq('id', notificationId);
-    } catch (err) {
-      console.error('Error marking as read:', err);
-    }
+    // Left empty or fetch latest unread for banner if needed. 
+    // Usually handled by realtime below for ephemeral banners.
   };
 
   useEffect(() => {
@@ -125,7 +101,6 @@ export function CustomerDashboard() {
         },
         (payload) => {
           const newNotif = payload.new;
-          setDashboardNotifications((prev) => [newNotif, ...prev].slice(0, 5));
           setLatestNotification(newNotif);
           setTimeout(() => setLatestNotification(null), 5000); // Hide banner after 5s
         }
@@ -144,16 +119,29 @@ export function CustomerDashboard() {
 
     try {
       const { data, error } = await supabase
-        .from('orders')
-        .select('amount, shop_id')
-        .eq('sender_id', profile.id);
+        .from('transactions')
+        .select('total_amount, shop_orders(shop_id)')
+        .eq('buyer_id', profile.id);
 
       if (error) throw error;
 
       const rows = data ?? [];
-      setTotalGenerosity(rows.reduce((sum: number, order: any) => sum + (order.amount ?? 0), 0));
-      setGiftsDelivered(rows.length);
-      setShopsSupported(new Set(rows.map((order: any) => order.shop_id)).size);
+      setTotalGenerosity(rows.reduce((sum: number, tx: any) => sum + (tx.total_amount ?? 0), 0));
+      
+      let delivered = 0;
+      const uniqueShops = new Set<string>();
+      
+      rows.forEach((tx: any) => {
+        if (tx.shop_orders) {
+          tx.shop_orders.forEach((so: any) => {
+            delivered += 1;
+            if (so.shop_id) uniqueShops.add(so.shop_id);
+          });
+        }
+      });
+
+      setGiftsDelivered(delivered);
+      setShopsSupported(uniqueShops.size);
     } catch (err) {
       console.error('[CustomerDashboard] fetchMetrics error:', err);
       setTotalGenerosity(0);

@@ -1,182 +1,181 @@
-{
-  "projectRoot": "c:\\Users\\Owner\\Downloads\\ProjectV2",
-  "batchFiles": [
-    {
-      "path": "src/app/components/ui/use-mobile.ts",
-      "language": "typescript",
-      "sizeLines": 21,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/components/ui/utils.ts",
-      "language": "typescript",
-      "sizeLines": 6,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/data/mock-data.ts",
-      "language": "typescript",
-      "sizeLines": 286,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/hooks/useAuth.ts",
-      "language": "typescript",
-      "sizeLines": 2,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/hooks/useCart.ts",
-      "language": "typescript",
-      "sizeLines": 95,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/hooks/usePaymentVerification.ts",
-      "language": "typescript",
-      "sizeLines": 341,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/hooks/useSettlementCountdown.ts",
-      "language": "typescript",
-      "sizeLines": 62,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/hooks/useWishlist.ts",
-      "language": "typescript",
-      "sizeLines": 53,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/layouts/Root.tsx",
-      "language": "typescript",
-      "sizeLines": 22,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/pages/About.tsx",
-      "language": "typescript",
-      "sizeLines": 124,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/pages/admin/AdminDashboard.tsx",
-      "language": "typescript",
-      "sizeLines": 519,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/pages/admin/AdminItemForm.tsx",
-      "language": "typescript",
-      "sizeLines": 412,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/pages/admin/AdminItems.tsx",
-      "language": "typescript",
-      "sizeLines": 235,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/pages/admin/AdminMerchandising.tsx",
-      "language": "typescript",
-      "sizeLines": 535,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/pages/admin/AdminMerchants.tsx",
-      "language": "typescript",
-      "sizeLines": 349,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/pages/admin/AdminOrderDetail.tsx",
-      "language": "typescript",
-      "sizeLines": 606,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/pages/admin/AdminOrders.tsx",
-      "language": "typescript",
-      "sizeLines": 457,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/pages/admin/AdminShopForm.tsx",
-      "language": "typescript",
-      "sizeLines": 397,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/pages/admin/AdminShops.tsx",
-      "language": "typescript",
-      "sizeLines": 257,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/pages/AdminDashboard.tsx",
-      "language": "typescript",
-      "sizeLines": 1,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/pages/AuthPage.tsx",
-      "language": "typescript",
-      "sizeLines": 1,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/pages/Checkout.tsx",
-      "language": "typescript",
-      "sizeLines": 423,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/pages/ConsumerStorefront.tsx",
-      "language": "typescript",
-      "sizeLines": 515,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/pages/CustomerDashboard.tsx",
-      "language": "typescript",
-      "sizeLines": 0,
-      "fileCategory": "code"
-    },
-    {
-      "path": "src/app/pages/LandingPage.tsx",
-      "language": "typescript",
-      "sizeLines": 1,
-      "fileCategory": "code"
-    }
-  ],
-  "batchImportData": {
-    "src/app/components/ui/use-mobile.ts": [],
-    "src/app/components/ui/utils.ts": [],
-    "src/app/data/mock-data.ts": [],
-    "src/app/hooks/useAuth.ts": [],
-    "src/app/hooks/useCart.ts": [],
-    "src/app/hooks/usePaymentVerification.ts": [],
-    "src/app/hooks/useSettlementCountdown.ts": [],
-    "src/app/hooks/useWishlist.ts": [],
-    "src/app/layouts/Root.tsx": [],
-    "src/app/pages/About.tsx": [],
-    "src/app/pages/admin/AdminDashboard.tsx": [],
-    "src/app/pages/admin/AdminItemForm.tsx": [],
-    "src/app/pages/admin/AdminItems.tsx": [],
-    "src/app/pages/admin/AdminMerchandising.tsx": [],
-    "src/app/pages/admin/AdminMerchants.tsx": [],
-    "src/app/pages/admin/AdminOrderDetail.tsx": [],
-    "src/app/pages/admin/AdminOrders.tsx": [],
-    "src/app/pages/admin/AdminShopForm.tsx": [],
-    "src/app/pages/admin/AdminShops.tsx": [],
-    "src/app/pages/AdminDashboard.tsx": [],
-    "src/app/pages/AuthPage.tsx": [],
-    "src/app/pages/Checkout.tsx": [],
-    "src/app/pages/ConsumerStorefront.tsx": [],
-    "src/app/pages/CustomerDashboard.tsx": [],
-    "src/app/pages/LandingPage.tsx": []
+"projectRoot": "c:\\Users\\Owner\\Downloads\\ProjectV2",
+"batchFiles": [
+  {
+    "path": "src/app/components/ui/use-mobile.ts",
+    "language": "typescript",
+    "sizeLines": 21,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/components/ui/utils.ts",
+    "language": "typescript",
+    "sizeLines": 6,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/data/mock-data.ts",
+    "language": "typescript",
+    "sizeLines": 286,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/hooks/useAuth.ts",
+    "language": "typescript",
+    "sizeLines": 2,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/hooks/useCart.ts",
+    "language": "typescript",
+    "sizeLines": 95,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/hooks/usePaymentVerification.ts",
+    "language": "typescript",
+    "sizeLines": 341,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/hooks/useSettlementCountdown.ts",
+    "language": "typescript",
+    "sizeLines": 62,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/hooks/useWishlist.ts",
+    "language": "typescript",
+    "sizeLines": 53,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/layouts/Root.tsx",
+    "language": "typescript",
+    "sizeLines": 22,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/pages/About.tsx",
+    "language": "typescript",
+    "sizeLines": 124,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/pages/admin/AdminDashboard.tsx",
+    "language": "typescript",
+    "sizeLines": 519,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/pages/admin/AdminItemForm.tsx",
+    "language": "typescript",
+    "sizeLines": 412,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/pages/admin/AdminItems.tsx",
+    "language": "typescript",
+    "sizeLines": 235,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/pages/admin/AdminMerchandising.tsx",
+    "language": "typescript",
+    "sizeLines": 535,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/pages/admin/AdminMerchants.tsx",
+    "language": "typescript",
+    "sizeLines": 349,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/pages/admin/AdminOrderDetail.tsx",
+    "language": "typescript",
+    "sizeLines": 606,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/pages/admin/AdminOrders.tsx",
+    "language": "typescript",
+    "sizeLines": 457,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/pages/admin/AdminShopForm.tsx",
+    "language": "typescript",
+    "sizeLines": 397,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/pages/admin/AdminShops.tsx",
+    "language": "typescript",
+    "sizeLines": 257,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/pages/AdminDashboard.tsx",
+    "language": "typescript",
+    "sizeLines": 1,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/pages/AuthPage.tsx",
+    "language": "typescript",
+    "sizeLines": 1,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/pages/Checkout.tsx",
+    "language": "typescript",
+    "sizeLines": 423,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/pages/ConsumerStorefront.tsx",
+    "language": "typescript",
+    "sizeLines": 515,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/pages/CustomerDashboard.tsx",
+    "language": "typescript",
+    "sizeLines": 0,
+    "fileCategory": "code"
+  },
+  {
+    "path": "src/app/pages/LandingPage.tsx",
+    "language": "typescript",
+    "sizeLines": 1,
+    "fileCategory": "code"
   }
+],
+"batchImportData": {
+  "src/app/components/ui/use-mobile.ts": [],
+  "src/app/components/ui/utils.ts": [],
+  "src/app/data/mock-data.ts": [],
+  "src/app/hooks/useAuth.ts": [],
+  "src/app/hooks/useCart.ts": [],
+  "src/app/hooks/usePaymentVerification.ts": [],
+  "src/app/hooks/useSettlementCountdown.ts": [],
+  "src/app/hooks/useWishlist.ts": [],
+  "src/app/layouts/Root.tsx": [],
+  "src/app/pages/About.tsx": [],
+  "src/app/pages/admin/AdminDashboard.tsx": [],
+  "src/app/pages/admin/AdminItemForm.tsx": [],
+  "src/app/pages/admin/AdminItems.tsx": [],
+  "src/app/pages/admin/AdminMerchandising.tsx": [],
+  "src/app/pages/admin/AdminMerchants.tsx": [],
+  "src/app/pages/admin/AdminOrderDetail.tsx": [],
+  "src/app/pages/admin/AdminOrders.tsx": [],
+  "src/app/pages/admin/AdminShopForm.tsx": [],
+  "src/app/pages/admin/AdminShops.tsx": [],
+  "src/app/pages/AdminDashboard.tsx": [],
+  "src/app/pages/AuthPage.tsx": [],
+  "src/app/pages/Checkout.tsx": [],
+  "src/app/pages/ConsumerStorefront.tsx": [],
+  "src/app/pages/CustomerDashboard.tsx": [],
+  "src/app/pages/LandingPage.tsx": []
+}
 }

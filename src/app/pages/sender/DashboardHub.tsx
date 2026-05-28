@@ -1,7 +1,7 @@
 // DashboardHub — Private operational command center at '/dashboard'
 // Escrow Ledger + Live Activity Feed + Active Claims Cabinet
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { supabase } from '../../../lib/supabaseClient';
@@ -14,7 +14,7 @@ import { Skeleton } from '../../components/ui/skeleton';
 import {
   ArrowRight, Shield, Clock, CheckCircle2,
   TrendingUp, Package, Copy, Check, Activity,
-  ClipboardCheck, Wallet,
+  ClipboardCheck, Wallet, Store
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Header } from '../../components/layout/Header';
@@ -173,34 +173,98 @@ export function DashboardHub() {
   }, [authLoading, user, profile, navigate]);
 
   // ── Initial data fetch ────────────────────────────────────────────────────
-  useEffect(() => {
+  const loadOrders = useCallback(async () => {
     if (!profile?.id) return;
-    let cancelled = false;
+    setOrdersLoading(true);
+    
+    // V2 Schema: Query transactions joined with shop_orders
+    const { data, error } = await supabase
+      .from('transactions')
+      .select(`
+        transaction_id,
+        status,
+        total_amount,
+        created_at,
+        shop_orders!inner (
+          shop_order_id,
+          claim_code,
+          claim_status,
+          recipient_name,
+          fulfilled_at,
+          shop:shop_id (name, location),
+          order_items (
+            item:item_id (name, image_url)
+          )
+        )
+      `)
+      .eq('buyer_id', profile.id)
+      .order('created_at', { ascending: false })
+      .limit(50);
 
-    async function load() {
-      setOrdersLoading(true);
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`
-          id, code, recipient_name, amount, currency, status,
-          created_at, fulfilled_at, paid_at,
-          item:item_id (name, image_url),
-          shop:shop_id (name, location)
-        `)
-        .eq('sender_id', profile!.id)
-        .order('created_at', { ascending: false })
-        .limit(50);
+    if (!error && data) {
+      // Map back to legacy UI Order interface
+      const formatted: Order[] = data.flatMap((tx: any) => 
+        tx.shop_orders.map((so: any) => {
+          let derivedStatus: Order['status'] = 'pending_payment';
+          if (tx.status === 'GATEWAY_PROCESSING') derivedStatus = 'pending_payment';
+          else if (tx.status === 'FAILED' || tx.status === 'CANCELLED') derivedStatus = 'expired';
+          else if (['REDEEMED', 'FULFILLED', 'PARTIAL_FULFILLMENT'].includes(so.claim_status)) derivedStatus = 'fulfilled';
+          else if (so.claim_status === 'PENDING') derivedStatus = 'paid';
 
-      if (cancelled) return;
-      if (!error) setOrders((data as unknown as Order[]) ?? []);
-      setOrdersLoading(false);
+          return {
+            id: so.shop_order_id,
+            code: so.claim_code,
+            recipient_name: so.recipient_name,
+            amount: so.subtotal || tx.total_amount,
+            currency: 'ZMW',
+            status: derivedStatus,
+            created_at: tx.created_at,
+            fulfilled_at: so.fulfilled_at,
+            paid_at: tx.status === 'SUCCESSFUL' ? tx.created_at : undefined,
+            item: so.order_items?.[0]?.item,
+            shop: so.shop
+          };
+        })
+      );
+      
+      setOrders(prev => {
+        // Simple heuristic to add feed events on refetch if status changed
+        const newFeedEvents: ActivityEvent[] = [];
+        formatted.forEach(newOrd => {
+          const oldOrd = prev.find(o => o.id === newOrd.id);
+          if (oldOrd && oldOrd.status !== newOrd.status) {
+            if (newOrd.status === 'fulfilled') {
+              newFeedEvents.push({
+                id: `${newOrd.id}-${Date.now()}`, orderId: newOrd.id, code: newOrd.code,
+                message: `${newOrd.recipient_name} collected the gift at the shop.`,
+                timestamp: new Date().toISOString(), type: 'fulfilled'
+              });
+              toast.success('Gift collected — escrow disbursed.');
+            } else if (newOrd.status === 'paid') {
+              newFeedEvents.push({
+                id: `${newOrd.id}-${Date.now()}`, orderId: newOrd.id, code: newOrd.code,
+                message: `Payment confirmed. Funds locked in escrow for order #${newOrd.code}.`,
+                timestamp: new Date().toISOString(), type: 'paid'
+              });
+            }
+          }
+        });
+        
+        if (newFeedEvents.length > 0) {
+          setFeed(f => [...newFeedEvents, ...f].slice(0, 20));
+        }
+        
+        return formatted;
+      });
     }
-
-    load();
-    return () => { cancelled = true; };
+    setOrdersLoading(false);
   }, [profile?.id]);
 
-  // ── Realtime subscription ─────────────────────────────────────────────────
+  useEffect(() => {
+    loadOrders();
+  }, [loadOrders]);
+
+  // ── Realtime subscription (Notify and Re-fetch) ───────────────────────────
   useEffect(() => {
     if (!user?.id && !profile?.id) return;
     const uid = user?.id || profile?.id;
@@ -208,42 +272,25 @@ export function DashboardHub() {
     const channel = supabase
       .channel('dashboard-feed')
       .on('postgres_changes', {
-        event: 'UPDATE',
+        event: '*',
         schema: 'public',
-        table: 'orders',
-        filter: `sender_id=eq.${uid}`,
-      }, (payload: any) => {
-        const n = payload.new;
-        const o = payload.old;
-
-        // Update the order in the table
-        setOrders(prev => prev.map(ord => ord.id === n.id ? { ...ord, ...n } : ord));
-
-        // Build activity event
-        let message = `Order #${n.code} updated`;
-        let type: ActivityEvent['type'] = 'update';
-        if (o.status !== 'fulfilled' && n.status === 'fulfilled') {
-          message = `${n.recipient_name} collected the gift at the shop.`;
-          type = 'fulfilled';
-          toast.success('Gift collected — escrow disbursed.');
-        } else if (o.status !== 'paid' && n.status === 'paid') {
-          message = `Payment confirmed. Funds locked in escrow for order #${n.code}.`;
-          type = 'paid';
-        }
-
-        setFeed(prev => [{
-          id: `${n.id}-${Date.now()}`,
-          orderId: n.id,
-          code: n.code,
-          message,
-          timestamp: new Date().toISOString(),
-          type,
-        }, ...prev].slice(0, 20));
+        table: 'transactions',
+        filter: `buyer_id=eq.${uid}`,
+      }, () => {
+        loadOrders();
+      })
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'transaction_events',
+        filter: `event_type=eq.CLAIM_VERIFIED`
+      }, () => {
+        loadOrders();
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [user?.id, profile?.id]);
+  }, [user?.id, profile?.id, loadOrders]);
 
   // ── Derived memos ─────────────────────────────────────────────────────────
   const metrics = useMemo(() => {

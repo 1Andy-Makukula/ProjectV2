@@ -146,8 +146,13 @@ export function AdminShopForm() {
         imageUrl = await uploadImage();
       }
 
+      // V2 Schema Strict Payload: Strip legacy V1 fields (address, payout_method, payout_details)
+      // because they do not exist in the V2 shops table (V2 uses kithly_wallets for payouts).
       const shopData = {
-        ...formData,
+        name: formData.name,
+        description: formData.description,
+        location: formData.location,
+        is_active: formData.is_active,
         image_url: imageUrl,
         owner_id: user?.id,
       };
