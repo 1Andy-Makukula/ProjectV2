@@ -3,6 +3,7 @@ import { Outlet } from 'react-router';
 import { AuthProvider } from '../../utils/auth/AuthContext';
 import { Toaster } from '../components/ui/sonner';
 import { Footer } from '../components/layout/Footer'; // 1. IMPORT THE FOOTER
+import { FloatingCart } from '../components/shared/FloatingCart';
 
 export function Root() {
   return (
@@ -11,6 +12,7 @@ export function Root() {
         {/* The Outlet represents the main page content, which expands to fill space */}
         <div className="flex-1">
           <Outlet />
+          <FloatingCart />
         </div>
         
         {/* 2. INJECT THE FOOTER AT THE BOTTOM */}

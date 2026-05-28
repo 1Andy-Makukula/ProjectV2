@@ -91,16 +91,20 @@ function StatusPill({ status }: { status: string }) {
   );
 }
 
-function MetricTile({ icon: Icon, label, value, sub }: { icon: React.ElementType; label: string; value: string | number; sub?: string }) {
+function MetricTile({ icon: Icon, label, value, sub, gradient }: { icon: React.ElementType; label: string; value: string | number; sub?: string; gradient?: boolean }) {
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-slate-100 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">{label}</p>
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50">
-          <Icon className="h-4 w-4 text-slate-400" strokeWidth={1.5} />
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-50">
+          <Icon className="h-4 w-4 text-orange-500" strokeWidth={1.5} />
         </div>
       </div>
-      <p className="text-2xl font-bold tracking-tight text-slate-900">{value}</p>
+      {gradient ? (
+        <p className="text-2xl font-bold tracking-tight bg-gradient-to-r from-orange-600 to-blue-700 bg-clip-text text-transparent">{value}</p>
+      ) : (
+        <p className="text-2xl font-bold tracking-tight text-slate-900">{value}</p>
+      )}
       {sub && <p className="text-xs text-slate-400">{sub}</p>}
     </div>
   );
@@ -276,7 +280,7 @@ export function DashboardHub() {
     <div className="min-h-screen bg-slate-50">
 
       {/* ── Page Header ─────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-20 border-b border-slate-100 bg-white/80 backdrop-blur-xl">
+      <div className="sticky top-0 z-20 border-b border-orange-100/60 bg-gradient-to-r from-orange-50/90 to-blue-50/90 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -309,12 +313,14 @@ export function DashboardHub() {
             label="Total Spent"
             value={ordersLoading ? '—' : formatCurrency(metrics.totalSpend, orders[0]?.currency ?? 'ZMW')}
             sub="All-time gift spend"
+            gradient
           />
           <MetricTile
             icon={Shield}
             label="In Escrow"
             value={ordersLoading ? '—' : formatCurrency(metrics.inEscrow, orders[0]?.currency ?? 'ZMW')}
             sub="Funds awaiting collection"
+            gradient
           />
           <MetricTile
             icon={CheckCircle2}
