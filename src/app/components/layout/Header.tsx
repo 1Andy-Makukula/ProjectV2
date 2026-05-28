@@ -25,10 +25,20 @@ export function Header({
   onProfileClick,
   onLogoClick,
 }: HeaderProps) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const isAuthenticated = !!user;
   const { getTotalItems, setCartSliderOpen } = useCart();
   const cartItemCount = getTotalItems();
+
+  // ── Role-based hub link ──────────────────────────────────────
+  const hubHref =
+    profile?.role === 'admin' ? '/admin'
+    : profile?.role === 'merchant' ? '/merchant'
+    : '/dashboard';
+  const hubLabel =
+    profile?.role === 'admin' ? 'Admin Hub'
+    : profile?.role === 'merchant' ? 'Merchant Hub'
+    : 'Dashboard';
 
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -107,10 +117,10 @@ export function Header({
             {/* Dashboard Link */}
             {isAuthenticated && (
               <Link
-                to="/dashboard"
+                to={hubHref}
                 className="hidden md:inline-flex items-center px-3 py-1.5 text-sm font-light text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors tracking-wide"
               >
-                Dashboard
+                {hubLabel}
               </Link>
             )}
 
@@ -137,7 +147,7 @@ export function Header({
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={onCartClick ?? (() => setCartSliderOpen(true))}
+              onClick={() => setCartSliderOpen(true)}
               className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
               aria-label="Shopping cart"
             >

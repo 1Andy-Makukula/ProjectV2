@@ -132,7 +132,7 @@ export const router = createBrowserRouter([
       {
         path: 'settings',
         element: (
-          <ProtectedRoute allowedRoles={['sender']}>
+          <ProtectedRoute allowedRoles={['sender', 'merchant', 'admin']}>
             <Lazy><Settings /></Lazy>
           </ProtectedRoute>
         ),
@@ -173,7 +173,7 @@ export const router = createBrowserRouter([
       {
         path: 'merchant/items/new',
         element: (
-          <ProtectedRoute allowedRoles={['merchant']}>
+          <ProtectedRoute allowedRoles={['merchant', 'admin']}>
             <Lazy><AdminItemForm /></Lazy>
           </ProtectedRoute>
         ),
@@ -181,8 +181,16 @@ export const router = createBrowserRouter([
       {
         path: 'merchant/items/:itemId/edit',
         element: (
-          <ProtectedRoute allowedRoles={['merchant']}>
+          <ProtectedRoute allowedRoles={['merchant', 'admin']}>
             <Lazy><AdminItemForm /></Lazy>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'merchant/shop/edit',
+        element: (
+          <ProtectedRoute allowedRoles={['merchant', 'admin']}>
+            <Lazy><AdminShopForm /></Lazy>
           </ProtectedRoute>
         ),
       },
