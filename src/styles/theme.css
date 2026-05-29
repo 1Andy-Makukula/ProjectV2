@@ -1,96 +1,130 @@
 @custom-variant dark (&:is(.dark *));
 
+/* ============================================================================
+   KithLy Design Tokens — Apple-style, inter-weight, orange-red palette
+   ============================================================================ */
+
 :root {
-  --font-size: 16px;
+  /* Base */
+  --font-size: 15px;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Surface */
   --background: #ffffff;
-  --foreground: oklch(0.145 0 0);
+  --foreground: #0D0D0D;
   --card: #ffffff;
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  
-  /* KithLy Orange Gradient - 30% */
-  --primary: #F97316;
-  --primary-light: #FB923C;
-  --primary-foreground: oklch(1 0 0);
-  
-  --secondary: oklch(0.95 0.0058 264.53);
-  --secondary-foreground: #030213;
-  --muted: #ececf0;
-  --muted-foreground: #717182;
-  --accent: #e9ebef;
-  --accent-foreground: #030213;
-  --destructive: #d4183d;
+  --card-foreground: #0D0D0D;
+  --popover: #ffffff;
+  --popover-foreground: #0D0D0D;
+
+  /* Brand — deep orange-red */
+  --primary: #E8460A;
+  --primary-light: #F26334;
+  --primary-foreground: #ffffff;
+  --primary-tint: #FEF3EE;        /* page background tints, badge backgrounds */
+  --primary-tint-mid: #FCE4D8;    /* stronger tint */
+
+  /* Neutrals */
+  --secondary: #F4F4F5;
+  --secondary-foreground: #0D0D0D;
+  --muted: #F4F4F5;
+  --muted-foreground: #6B6B6B;
+  --accent: #F4F4F5;
+  --accent-foreground: #0D0D0D;
+
+  /* State */
+  --destructive: #CC1F1F;
   --destructive-foreground: #ffffff;
-  
-  /* Thin borders - Apple style */
-  --border: rgba(0, 0, 0, 0.08);
-  --border-dark: rgba(0, 0, 0, 0.1);
-  
+  --success: #1A7F4B;
+  --success-foreground: #ffffff;
+
+  /* Borders — hair-thin, Apple style */
+  --border: rgba(0, 0, 0, 0.07);
+  --border-dark: rgba(0, 0, 0, 0.12);
+
+  /* Form controls */
   --input: transparent;
-  --input-background: #f3f3f5;
-  --switch-background: #cbced4;
-  --font-weight-medium: 500;
+  --input-background: #F7F7F8;
+  --switch-background: #CBCED4;
+  --ring: rgba(232, 70, 10, 0.35);
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-panel: 0 8px 30px rgba(0,0,0,0.12);
+  --shadow-dropdown: 0 4px 20px rgba(0,0,0,0.10);
+
+  /* Radius */
+  --radius: 0.625rem;          /* 10px */
+  --radius-sm: 0.375rem;       /* 6px  */
+  --radius-md: 0.5rem;         /* 8px  */
+  --radius-lg: 0.75rem;        /* 12px */
+  --radius-xl: 1rem;           /* 16px */
+  --radius-pill: 9999px;
+
+  /* Font weights */
   --font-weight-light: 300;
   --font-weight-normal: 400;
-  --ring: oklch(0.708 0 0);
+  --font-weight-medium: 500;
+
+  /* Charts */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  
-  /* Apple-style rounded corners */
-  --radius: 0.75rem;
-  --radius-apple: 1rem;
-  
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: #030213;
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Sidebar (unchanged) */
+  --sidebar: #F7F7F8;
+  --sidebar-foreground: #0D0D0D;
+  --sidebar-primary: #E8460A;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #F0F0F0;
+  --sidebar-accent-foreground: #0D0D0D;
+  --sidebar-border: rgba(0,0,0,0.07);
+  --sidebar-ring: rgba(232,70,10,0.35);
 }
 
+/* Dark mode (kept minimal — same structure) */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  --background: #0D0D0D;
+  --foreground: #F5F5F5;
+  --card: #141414;
+  --card-foreground: #F5F5F5;
+  --popover: #1A1A1A;
+  --popover-foreground: #F5F5F5;
+  --primary: #F26334;
+  --primary-light: #F97316;
+  --primary-foreground: #ffffff;
+  --primary-tint: rgba(242, 99, 52, 0.08);
+  --primary-tint-mid: rgba(242, 99, 52, 0.15);
+  --secondary: #1E1E1E;
+  --secondary-foreground: #F5F5F5;
+  --muted: #1E1E1E;
+  --muted-foreground: #888888;
+  --accent: #1E1E1E;
+  --accent-foreground: #F5F5F5;
+  --destructive: #EF4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(255,255,255,0.08);
+  --border-dark: rgba(255,255,255,0.14);
+  --input: transparent;
+  --input-background: #1E1E1E;
+  --switch-background: #3A3A3A;
+  --ring: rgba(242, 99, 52, 0.4);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-panel: 0 8px 30px rgba(0,0,0,0.5);
+  --shadow-dropdown: 0 4px 20px rgba(0,0,0,0.4);
+  --sidebar: #141414;
+  --sidebar-foreground: #F5F5F5;
+  --sidebar-primary: #F26334;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1E1E1E;
+  --sidebar-accent-foreground: #F5F5F5;
+  --sidebar-border: rgba(255,255,255,0.08);
+  --sidebar-ring: rgba(242,99,52,0.4);
 }
 
+/* ── Tailwind v4 @theme inline ─────────────────────────────────────────────── */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -101,6 +135,8 @@
   --color-primary: var(--primary);
   --color-primary-light: var(--primary-light);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-tint: var(--primary-tint);
+  --color-primary-tint-mid: var(--primary-tint-mid);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -120,11 +156,11 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-apple: var(--radius-apple);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-pill: var(--radius-pill);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -135,69 +171,173 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* ── Base layer ────────────────────────────────────────────────────────────── */
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    box-sizing: border-box;
   }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  /**
-  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
-  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
-  */
 
   html {
     font-size: var(--font-size);
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
   }
 
-  h1 {
-    font-size: var(--text-2xl);
-    font-weight: var(--font-weight-medium);
+  body {
+    font-family: var(--font-family);
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-weight: var(--font-weight-normal);
+    letter-spacing: -0.01em;
     line-height: 1.5;
   }
 
-  h2 {
-    font-size: var(--text-xl);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
-  }
-
-  h3 {
-    font-size: var(--text-lg);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
-  }
-
-  h4 {
-    font-size: var(--text-base);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
-  }
+  h1 { font-size: 1.5rem;   font-weight: var(--font-weight-medium); letter-spacing: -0.025em; line-height: 1.2; }
+  h2 { font-size: 1.25rem;  font-weight: var(--font-weight-medium); letter-spacing: -0.02em;  line-height: 1.3; }
+  h3 { font-size: 1.0625rem;font-weight: var(--font-weight-medium); letter-spacing: -0.015em; line-height: 1.4; }
+  h4 { font-size: 0.9375rem;font-weight: var(--font-weight-medium); letter-spacing: -0.01em;  line-height: 1.4; }
 
   label {
-    font-size: var(--text-base);
+    font-size: 0.8125rem;
     font-weight: var(--font-weight-medium);
+    letter-spacing: 0;
     line-height: 1.5;
+    color: var(--foreground);
   }
 
   button {
-    font-size: var(--text-base);
+    font-family: var(--font-family);
     font-weight: var(--font-weight-medium);
-    line-height: 1.5;
+    letter-spacing: -0.01em;
   }
 
-  input {
-    font-size: var(--text-base);
+  input, textarea, select {
+    font-family: var(--font-family);
     font-weight: var(--font-weight-normal);
-    line-height: 1.5;
+    letter-spacing: -0.005em;
+  }
+}
+
+/* ── Keyframe animations ───────────────────────────────────────────────────── */
+@layer utilities {
+  @keyframes kl-fade-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes kl-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @keyframes kl-slide-in-right {
+    from { transform: translateX(100%); }
+    to   { transform: translateX(0); }
+  }
+
+  @keyframes kl-pulse-dot {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+  }
+
+  /* Utility classes for animations */
+  .kl-animate-fade-up {
+    animation: kl-fade-up 0.2s ease-out both;
+  }
+
+  .kl-animate-fade-in {
+    animation: kl-fade-in 0.15s ease-out both;
+  }
+
+  .kl-animate-slide-in {
+    animation: kl-slide-in-right 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Page wrapper */
+  .kl-page {
+    min-height: 100vh;
+    background-color: var(--background);
+  }
+
+  /* Consistent page header chrome */
+  .kl-page-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: var(--primary-foreground);
+    padding: 1.25rem 1.5rem;
+  }
+
+  /* Card with KithLy shadow */
+  .kl-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Table overrides */
+  .kl-table th {
+    font-size: 0.6875rem;
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted-foreground);
+    padding: 0 0.75rem;
+    height: 2.25rem;
+  }
+
+  .kl-table td {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .kl-table tr {
+    border-bottom: 1px solid var(--border);
+    transition: background-color 120ms ease;
+  }
+
+  .kl-table tr:hover td {
+    background-color: var(--primary-tint);
+  }
+
+  /* Status dot */
+  .kl-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: var(--radius-pill);
+    display: inline-block;
+  }
+
+  .kl-dot--live {
+    background: var(--primary);
+    animation: kl-pulse-dot 2s ease-in-out infinite;
+  }
+
+  .kl-dot--success {
+    background: var(--success);
+  }
+
+  /* Stat block used in dashboards */
+  .kl-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .kl-stat__label {
+    font-size: 0.6875rem;
+    font-weight: var(--font-weight-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted-foreground);
+  }
+
+  .kl-stat__value {
+    font-size: 1.5rem;
+    font-weight: var(--font-weight-light);
+    letter-spacing: -0.04em;
+    color: var(--foreground);
+    line-height: 1;
   }
 }

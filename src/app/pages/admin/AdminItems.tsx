@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { motion } from 'motion/react';
-import { Plus, Edit, ArrowLeft } from 'lucide-react';
+import { Plus, Edit } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Switch } from '../../components/ui/switch';
+import { PageShell, PageBody } from '../../components/layout/PageShell';
+import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
 import { supabase } from '../../../lib/supabaseClient';
 import { formatCurrency } from '../../../utils/currency';
 import { toast } from 'sonner';
@@ -101,54 +103,39 @@ export function AdminItems({ merchantShopId, baseRoute = '/admin' }: AdminItemsP
   };
 
   return (
-    <div className={isMerchantMode ? "" : "min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50"}>
-      {/* Header */}
+    <PageShell>
       {!isMerchantMode && (
-        <div className="bg-gradient-to-r from-primary to-primary/90 text-white">
-          <div className="container mx-auto px-4 py-6">
-            <div className="flex items-center gap-4 mb-4">
-              <Button
-                variant="ghost"
-                onClick={() => navigate('/admin/shops')}
-                className="text-white hover:bg-white/10"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <div>
-                <h1 className="text-3xl font-light">{shop?.name || 'Shop'} Items</h1>
-                <p className="text-sm opacity-90 font-light">Manage items for this shop</p>
-              </div>
-            </div>
-
+        <AdminPageHeader
+          title={`${shop?.name || 'Shop'} Items`}
+          subtitle="Manage items for this storefront"
+          onBack={() => navigate('/admin/shops')}
+          actions={
             <Button
               onClick={() => navigate(`${baseRoute}/shops/${activeShopId}/items/new`)}
-              className="bg-white text-primary hover:bg-white/90"
+              className="bg-white text-primary hover:bg-white/90 h-8"
             >
-              <Plus className="w-5 h-5" />
-              Add New Item
+              <Plus className="size-3.5" />
+              Add Item
             </Button>
-          </div>
-        </div>
+          }
+        />
       )}
 
-      {/* Content */}
-      <div className={isMerchantMode ? "" : "container mx-auto px-4 py-8"}>
+      <PageBody contained={!isMerchantMode}>
         {loading ? (
-          <div className="text-center py-12">
-            <div className="text-muted-foreground">Loading items...</div>
-          </div>
+          <div className="text-center py-12 text-sm text-muted-foreground">Loading items…</div>
         ) : items.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12">
-              <p className="text-muted-foreground mb-4">No items yet</p>
+              <p className="text-sm text-muted-foreground mb-4">No items yet</p>
               <Button onClick={() => navigate(baseRoute === '/merchant' ? `${baseRoute}/items/new` : `${baseRoute}/shops/${activeShopId}/items/new`)}>
-                <Plus className="w-5 h-5" />
+                <Plus className="size-3.5" />
                 Add Your First Item
               </Button>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {items.map((item) => (
               <ItemCard
                 key={item.id}
@@ -159,8 +146,8 @@ export function AdminItems({ merchantShopId, baseRoute = '/admin' }: AdminItemsP
             ))}
           </div>
         )}
-      </div>
-    </div>
+      </PageBody>
+    </PageShell>
   );
 }
 
@@ -168,64 +155,50 @@ export function AdminItems({ merchantShopId, baseRoute = '/admin' }: AdminItemsP
 function ItemCard({ item, onEdit, onToggleAvailability }: any) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.2 }}
-    >
-      <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.18 }}>
+      <Card className="overflow-hidden">
         {/* Image */}
-        <div className="aspect-square bg-gradient-to-br from-orange-100 to-orange-200 relative overflow-hidden">
+        <div className="aspect-square bg-gradient-to-br from-primary-tint to-primary-tint-mid relative overflow-hidden">
           {item.image_url ? (
-            <img
-              src={item.image_url}
-              alt={item.name}
-              className="w-full h-full object-cover"
-            />
+            <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-4xl font-light text-orange-400">{item.name.charAt(0)}</span>
+              <span className="text-3xl font-light text-primary/40">{item.name.charAt(0)}</span>
             </div>
           )}
           <div className="absolute top-2 right-2">
-            <Badge variant={item.is_available ? 'default' : 'secondary'} className="font-light">
+            <Badge variant={item.is_available ? 'tint' : 'secondary'}>
               {item.is_available ? 'Available' : 'Unavailable'}
             </Badge>
           </div>
         </div>
 
         {/* Content */}
-        <CardContent className="p-4">
-          <h3 className="font-medium text-lg mb-1">{item.name}</h3>
+        <CardContent className="pt-3">
+          <h3 className="font-medium text-sm tracking-tight mb-1">{item.name}</h3>
           {item.description && (
-            <p className="text-sm text-muted-foreground font-light mb-3 line-clamp-2">
-              {item.description}
-            </p>
+            <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{item.description}</p>
           )}
-          <div className="text-xl font-medium text-primary mb-4">
+          <div className="text-base font-medium text-primary mb-3">
             {formatCurrency(item.price)}
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-between pt-3 border-t">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onEdit}
-              className="text-primary hover:bg-orange-50"
-            >
-              <Edit className="w-4 h-4" />
+          <div className="flex items-center justify-between pt-3 border-t border-border">
+            <Button variant="ghost" size="sm" onClick={onEdit}
+              className="text-primary hover:bg-primary-tint h-7">
+              <Edit className="size-3.5" />
               Edit
             </Button>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground font-light">
-                {item.is_available ? 'Available' : 'Unavailable'}
+              <span className="text-[0.6875rem] text-muted-foreground">
+                {item.is_available ? 'Available' : 'Hidden'}
               </span>
-              <Switch
-                checked={item.is_available}
-                onCheckedChange={onToggleAvailability}
-              />
+              <Switch checked={item.is_available} onCheckedChange={onToggleAvailability} />
             </div>
           </div>
         </CardContent>

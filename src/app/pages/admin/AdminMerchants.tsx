@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import {
-  ArrowLeft, Plus, Key, Mail, Pencil, Trash2,
+  Plus, Key, Mail, Pencil, Trash2,
   User, Store, Shield, X, ChevronRight,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -27,6 +27,8 @@ import {
   AlertDialogTrigger,
 } from '../../components/ui/alert-dialog';
 import { Badge } from '../../components/ui/badge';
+import { PageShell, PageBody } from '../../components/layout/PageShell';
+import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
 import { supabase } from '../../../lib/supabaseClient';
 import { callServer } from '../../../utils/server';
 import { toast } from 'sonner';
@@ -283,27 +285,17 @@ export function AdminMerchants() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
-
-      {/* ── Page header ───────────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-primary to-primary/90 text-white">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-4 mb-5">
-            <Button variant="ghost" onClick={() => navigate('/admin')} className="text-white hover:bg-white/10">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-light">Manage Merchants</h1>
-              <p className="text-sm opacity-80 font-light">Create, edit and remove merchant accounts</p>
-            </div>
-          </div>
-
-          {/* Create dialog trigger */}
+    <PageShell>
+      <AdminPageHeader
+        title="Manage Merchants"
+        subtitle="Create, edit and remove merchant accounts"
+        onBack={() => navigate('/admin')}
+        actions={
           <Dialog open={createOpen} onOpenChange={setCreateOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-white text-primary hover:bg-white/90 font-medium">
-                <Plus className="w-4 h-4" />
-                Create Merchant Account
+              <Button className="bg-white text-primary hover:bg-white/90 h-8">
+                <Plus className="size-3.5" />
+                Create Merchant
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -371,11 +363,11 @@ export function AdminMerchants() {
               </form>
             </DialogContent>
           </Dialog>
-        </div>
-      </div>
+        }
+      />
 
       {/* ── Merchant table ────────────────────────────────────────────────────── */}
-      <div className="container mx-auto px-4 py-8">
+      <PageBody>
         <Card>
           <CardHeader>
             <CardTitle className="font-light">
@@ -397,11 +389,11 @@ export function AdminMerchants() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="font-light">Name</TableHead>
-                      <TableHead className="font-light">Email</TableHead>
-                      <TableHead className="font-light">Shop</TableHead>
-                      <TableHead className="font-light">Joined</TableHead>
-                      <TableHead className="font-light text-right">Actions</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Shop</TableHead>
+                      <TableHead>Joined</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -411,9 +403,7 @@ export function AdminMerchants() {
                         <TableCell className="font-light text-muted-foreground">{m.email}</TableCell>
                         <TableCell>
                           {m.shop_name ? (
-                            <Badge variant="secondary" className="bg-orange-50 text-orange-700 border-orange-200">
-                              {m.shop_name}
-                            </Badge>
+                            <Badge variant="tint">{m.shop_name}</Badge>
                           ) : (
                             <span className="text-xs text-muted-foreground italic">Unassigned</span>
                           )}
@@ -426,8 +416,8 @@ export function AdminMerchants() {
                             {/* Edit */}
                             <Button variant="ghost" size="sm"
                               onClick={() => openEdit(m)}
-                              className="text-primary hover:bg-orange-50">
-                              <Pencil className="w-3.5 h-3.5" />
+                              className="text-primary hover:bg-primary-tint h-7">
+                              <Pencil className="size-3.5" />
                               Edit
                             </Button>
 
@@ -474,7 +464,7 @@ export function AdminMerchants() {
             )}
           </CardContent>
         </Card>
-      </div>
+      </PageBody>
 
       {/* ── Edit side-panel ───────────────────────────────────────────────────── */}
       {editMerchant && (
@@ -685,6 +675,6 @@ export function AdminMerchants() {
           </div>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
-import { ArrowLeft, Upload, Trash2 } from 'lucide-react';
+import { Upload, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -9,6 +9,8 @@ import { Textarea } from '../../components/ui/textarea';
 import { Label } from '../../components/ui/label';
 import { Switch } from '../../components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { PageShell, PageBody } from '../../components/layout/PageShell';
+import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -203,32 +205,13 @@ export function AdminShopForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-primary/90 text-white">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/admin/shops')}
-              className="text-white hover:bg-white/10"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-light">
-                {isEditing ? 'Edit Shop' : 'Add New Shop'}
-              </h1>
-              <p className="text-sm opacity-90 font-light">
-                {isEditing ? 'Update shop details' : 'Create a new shop'}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Form */}
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
+    <PageShell>
+      <AdminPageHeader
+        title={isEditing ? 'Edit Shop' : 'Add New Shop'}
+        subtitle={isEditing ? 'Update storefront details' : 'Create a new merchant storefront'}
+        onBack={() => navigate('/admin/shops')}
+      />
+      <PageBody>
         <form onSubmit={handleSubmit}>
           <Card>
             <CardHeader>
@@ -385,7 +368,7 @@ export function AdminShopForm() {
             </div>
           </div>
         </form>
-      </div>
-    </div>
+      </PageBody>
+    </PageShell>
   );
 }
