@@ -259,8 +259,14 @@ export function Checkout() {
         { body: { ...payload, origin_type: 'LOCAL' } },
       );
 
-      if (error || !data?.transaction_id) {
-        throw new Error(error?.message ?? 'Checkout initialisation failed. Please try again.');
+      if (error) {
+        throw new Error(error?.message ?? 'Checkout initialisation failed.');
+      }
+      if (data?.success === false || data?.error) {
+        throw new Error((data as any).error ?? 'Checkout rejected by server.');
+      }
+      if (!data?.transaction_id) {
+        throw new Error('Checkout initialisation failed (missing transaction ID).');
       }
 
       setTransactionId(data.transaction_id);

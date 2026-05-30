@@ -599,7 +599,8 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "An unexpected error occurred.";
     console.error("[checkout-init] Checkout pipeline failed:", message);
-    return json(req, { error: message }, 500);
+    // Temporary: return 200 with error so frontend can read it instead of getting a generic non-2xx error
+    return json(req, { success: false, error: message }, 200);
   }
 }
 
