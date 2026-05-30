@@ -188,6 +188,21 @@ export function AdminShopForm() {
 
     setLoading(true);
     try {
+      // Option 1: App-level cleanup of orphaned images
+      // (For a robust Option 2 later: Use a PostgreSQL Trigger + pg_net Edge Function)
+      if (formData.logo_url) {
+        const filePath = formData.logo_url.split('/public/storefront-assets/')[1];
+        if (filePath) {
+          await supabase.storage.from('storefront-assets').remove([filePath]).catch(console.error);
+        }
+      }
+      if (formData.cover_image_url) {
+        const coverPath = formData.cover_image_url.split('/public/storefront-assets/')[1];
+        if (coverPath) {
+          await supabase.storage.from('storefront-assets').remove([coverPath]).catch(console.error);
+        }
+      }
+
       const { error } = await supabase
         .from('shops')
         .delete()

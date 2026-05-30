@@ -207,6 +207,16 @@ export function AdminItemForm() {
 
     setLoading(true);
     try {
+      // Option 1: App-level cleanup of orphaned images
+      // (For a robust Option 2 later: Use a PostgreSQL Trigger + pg_net Edge Function)
+      if (formData.image_url) {
+        const filePath = formData.image_url.split('/public/storefront-assets/')[1];
+        if (filePath) {
+          // Attempt to delete from bucket (fails silently if permissions lacking)
+          await supabase.storage.from('storefront-assets').remove([filePath]).catch(console.error);
+        }
+      }
+
       const { error } = await supabase
         .from('items')
         .delete()
