@@ -21,6 +21,8 @@ import { formatCurrency } from '../../utils/currency';
 import { ShopCard } from '../components/shared/ShopCard';
 import { StorefrontProductCard } from '../components/shared/StorefrontProductCard';
 import { Header } from '../components/layout/Header';
+import { useCart, toProduct } from '../hooks/useCart';
+import { toast } from 'sonner';
 
 // ─────────────────────────────────────────────
 // Types — mirrors actual DB columns exactly
@@ -439,7 +441,13 @@ export function ConsumerStorefront() {
                 >
                   <StorefrontProductCard
                     item={item}
-                    onGift={() => navigate('/signup')}
+                    onGift={() => navigate(profile ? `/send/${item.id}` : '/signup')}
+                    onAddToCart={profile ? () => {
+                      const { addToCart, setCartSliderOpen } = useCart.getState();
+                      addToCart(toProduct({ ...item, shop_id: item.shop?.id ?? '' }));
+                      toast.success(`${item.name} added to cart`);
+                      setCartSliderOpen(true);
+                    } : undefined}
                   />
                 </motion.div>
               ))}

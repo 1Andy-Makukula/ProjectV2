@@ -149,7 +149,7 @@ const CartLineItem = memo(function CartLineItem({
   quantity,
   onRemove,
 }: {
-  product: { id: string; title: string; price_zmw: number; images: string[]; shop?: { business_name?: string } };
+  product: { id: string; name?: string; title?: string; price_zmw: number; image_url?: string | null; images?: string[]; shop?: { business_name?: string; name?: string } };
   quantity: number;
   onRemove: (id: string) => void;
 }) {
@@ -167,8 +167,8 @@ const CartLineItem = memo(function CartLineItem({
     >
       {/* Thumbnail */}
       <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0">
-        {product.images?.[0] ? (
-          <img src={product.images[0]} alt={product.title} className="h-full w-full object-cover" />
+        {(product.image_url || product.images?.[0]) ? (
+          <img src={product.image_url || product.images![0]} alt={product.name || product.title} className="h-full w-full object-cover" />
         ) : (
           <div className="h-full w-full flex items-center justify-center">
             <ShoppingBag className="h-6 w-6 text-slate-300" />
@@ -178,9 +178,9 @@ const CartLineItem = memo(function CartLineItem({
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-slate-900 truncate">{product.title}</p>
-        {product.shop?.business_name && (
-          <p className="text-xs text-slate-500 mt-0.5">{product.shop.business_name}</p>
+        <p className="font-medium text-slate-900 truncate">{product.name || product.title}</p>
+        {(product.shop?.business_name || product.shop?.name) && (
+          <p className="text-xs text-slate-500 mt-0.5">{product.shop.business_name || product.shop.name}</p>
         )}
         <p className="text-sm font-semibold text-[#F97316] mt-1">
           {formatCurrency(product.price_zmw * quantity, 'ZMW')}
@@ -196,7 +196,7 @@ const CartLineItem = memo(function CartLineItem({
       <button
         onClick={handleRemove}
         className="p-2 text-slate-300 hover:text-red-400 transition-colors rounded-lg hover:bg-red-50"
-        aria-label={`Remove ${product.title} from cart`}
+        aria-label={`Remove ${product.name || product.title} from cart`}
       >
         <Trash2 className="h-4 w-4" />
       </button>

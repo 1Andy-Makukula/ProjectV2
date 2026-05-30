@@ -99,10 +99,10 @@ export function CartSlider() {
                 >
                   {/* Thumbnail */}
                   <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-slate-100">
-                    {item.product.images?.[0] ? (
+                    {(item.product.image_url || item.product.images?.[0]) ? (
                       <img
-                        src={item.product.images[0]}
-                        alt={item.product.title}
+                        src={item.product.image_url || item.product.images[0]}
+                        alt={item.product.name || item.product.title}
                         className="h-full w-full object-cover"
                       />
                     ) : (
@@ -114,7 +114,7 @@ export function CartSlider() {
 
                   {/* Info */}
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-slate-900">{item.product.title}</p>
+                    <p className="truncate text-sm font-medium text-slate-900">{item.product.name || item.product.title}</p>
                     <p className="text-xs text-slate-400">{formatCurrency(item.product.price_zmw, 'ZMW')}</p>
 
                     {/* Qty controls */}

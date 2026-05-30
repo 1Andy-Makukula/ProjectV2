@@ -4,6 +4,25 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { CartItem, Product } from '../types';
 
+/**
+ * toProduct — converts a raw DB `items` row into the Product shape
+ * expected by the cart store. Call this before addToCart().
+ */
+export function toProduct(item: any): Product {
+  return {
+    id: item.id,
+    shop_id: item.shop_id,
+    name: item.name ?? item.title ?? '',
+    title: item.name ?? item.title ?? '',
+    description: item.description ?? null,
+    price_zmw: item.price_zmw ?? 0,
+    image_url: item.image_url ?? null,
+    images: item.image_url ? [item.image_url] : [],
+    is_available: item.is_available ?? true,
+    currency: item.currency ?? 'ZMW',
+  };
+}
+
 interface CartState {
   items: CartItem[];
   isCartSliderOpen: boolean;

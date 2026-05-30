@@ -56,14 +56,19 @@ export interface Product {
   id: string;
   shop_id: string;
   shop?: Shop;
+  /** DB column — canonical name */
+  name: string;
+  /** Alias kept for backward compat with CartSlider / Checkout */
   title: string;
-  description: string;
+  description: string | null;
   price_zmw: number;
-  stock_count: number;
-  category: ProductCategory;
+  /** DB column — single image URL */
+  image_url: string | null;
+  /** Backward-compat array wrapper around image_url */
   images: string[];
-  featured: boolean;
-  created_at: string;
+  is_available: boolean;
+  currency?: string;
+  created_at?: string;
 }
 
 export interface Transaction {

@@ -2,7 +2,7 @@
 // Usage: <StorefrontProductCard item={item} onGift={() => navigate(`/send/${item.id}`)} />
 // Named StorefrontProductCard to avoid conflict with the existing ProductCard.tsx
 
-import { Package, Shield } from 'lucide-react';
+import { Package, Shield, ShoppingCart } from 'lucide-react';
 
 export interface StorefrontItem {
   id: string;
@@ -21,9 +21,10 @@ interface StorefrontProductCardProps {
   item: StorefrontItem;
   onGift?: () => void;
   onView?: () => void;
+  onAddToCart?: () => void;
 }
 
-export function StorefrontProductCard({ item, onGift, onView }: StorefrontProductCardProps) {
+export function StorefrontProductCard({ item, onGift, onView, onAddToCart }: StorefrontProductCardProps) {
   const handle = onGift ?? onView;
   const badge = item.is_weekly_pick ? 'Top Pick' : (item.promo_badge_text ?? null);
 
@@ -101,18 +102,33 @@ export function StorefrontProductCard({ item, onGift, onView }: StorefrontProduc
           ZMW {item.price_zmw?.toFixed(2) ?? '—'}
         </p>
 
-        {/* CTA */}
-        {handle && (
-          <button
-            onClick={e => { e.stopPropagation(); handle(); }}
-            className="mt-3 w-full rounded-xl border border-slate-200 py-2 text-xs font-semibold
-                       text-slate-700 tracking-wide uppercase
-                       hover:border-slate-900 hover:bg-slate-900 hover:text-white
-                       active:scale-[0.98] transition-all duration-200"
-          >
-            {onGift ? 'Gift This' : 'View'}
-          </button>
-        )}
+        {/* CTA Buttons */}
+        <div className="mt-3 flex gap-2">
+          {onAddToCart && (
+            <button
+              onClick={e => { e.stopPropagation(); onAddToCart(); }}
+              className="flex-1 flex items-center justify-center gap-1 rounded-xl border border-orange-200 py-2 text-xs font-semibold
+                         text-orange-600 tracking-wide
+                         hover:border-orange-400 hover:bg-orange-50
+                         active:scale-[0.98] transition-all duration-200"
+            >
+              <ShoppingCart className="h-3.5 w-3.5" />
+              Add
+            </button>
+          )}
+          {handle && (
+            <button
+              onClick={e => { e.stopPropagation(); handle(); }}
+              className={`flex-1 rounded-xl border border-slate-200 py-2 text-xs font-semibold
+                         text-slate-700 tracking-wide uppercase
+                         hover:border-slate-900 hover:bg-slate-900 hover:text-white
+                         active:scale-[0.98] transition-all duration-200
+                         ${onAddToCart ? '' : 'w-full'}`}
+            >
+              {onGift ? 'Gift This' : 'View'}
+            </button>
+          )}
+        </div>
       </div>
     </article>
   );

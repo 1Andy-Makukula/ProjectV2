@@ -3,8 +3,10 @@ import { useParams, useNavigate } from 'react-router';
 import { supabase } from '../../../lib/supabaseClient';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
-import { ArrowLeft, Store, MapPin } from 'lucide-react';
+import { ArrowLeft, Store, MapPin, ShoppingCart, Gift } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useCart, toProduct } from '../../hooks/useCart';
+import { toast } from 'sonner';
 
 interface Shop {
   id: string;
@@ -29,6 +31,7 @@ interface Item {
 export function ShopDetail() {
   const { shopId } = useParams<{ shopId: string }>();
   const navigate = useNavigate();
+  const { addToCart, setCartSliderOpen } = useCart();
   const [shop, setShop] = useState<Shop | null>(null);
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
@@ -218,13 +221,31 @@ export function ShopDetail() {
                         <span className="text-lg font-bold text-primary">
                           ZMW {item.price_zmw?.toFixed(2) ?? '—'}
                         </span>
-                        <Button
-                          onClick={() => navigate(`/send/${item.id}`)}
-                          disabled={!item.is_available}
-                          className="bg-gradient-to-r from-primary to-primary-light"
-                        >
-                          Send
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              addToCart(toProduct(item));
+                              toast.success(`${item.name} added to cart`);
+                              setCartSliderOpen(true);
+                            }}
+                            disabled={!item.is_available}
+                            className="border-orange-200 text-orange-600 hover:bg-orange-50"
+                          >
+                            <ShoppingCart className="w-4 h-4 mr-1" />
+                            Add
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => navigate(`/send/${item.id}`)}
+                            disabled={!item.is_available}
+                            className="bg-gradient-to-r from-primary to-primary-light"
+                          >
+                            <Gift className="w-4 h-4 mr-1" />
+                            Gift
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </Card>
