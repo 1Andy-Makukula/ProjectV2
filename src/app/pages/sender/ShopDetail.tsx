@@ -12,6 +12,8 @@ interface Shop {
   description: string | null;
   address: string | null;
   image_url: string | null;
+  logo_url: string | null;
+  cover_image_url: string | null;
 }
 
 interface Item {
@@ -113,10 +115,10 @@ export function ShopDetail() {
           className="bg-white rounded-2xl overflow-hidden shadow-sm"
         >
           {/* Banner Image */}
-          {shop.image_url && (
+          {(shop.cover_image_url || shop.image_url) && (
             <div className="w-full h-48 overflow-hidden bg-gray-100">
               <img
-                src={shop.image_url}
+                src={shop.cover_image_url || shop.image_url || ''}
                 alt={shop.name}
                 className="w-full h-full object-cover"
               />
@@ -126,7 +128,13 @@ export function ShopDetail() {
           {/* Shop Info */}
           <div className="p-6">
             <div className="flex items-start gap-4">
-              {!shop.image_url && (
+              {(shop.logo_url || shop.image_url) ? (
+                <img
+                  src={shop.logo_url || shop.image_url || ''}
+                  alt={shop.name}
+                  className="w-16 h-16 rounded-xl object-cover flex-shrink-0 bg-white border shadow-sm"
+                />
+              ) : (
                 <div className="w-16 h-16 rounded-xl bg-orange-100 flex items-center justify-center flex-shrink-0">
                   <Store className="w-8 h-8 text-primary" />
                 </div>

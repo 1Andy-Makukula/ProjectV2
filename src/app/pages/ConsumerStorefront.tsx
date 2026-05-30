@@ -168,10 +168,10 @@ export function ConsumerStorefront() {
             .order('sort_order', { ascending: true })
             .limit(6),
 
-          // Active shops with nested item count
+          // Active shops
           supabase
             .from('shops')
-            .select('id, name, description, location, image_url, items:items(count)')
+            .select('id, name, description, location, image_url, logo_url, cover_image_url')
             .eq('is_active', true)
             .order('created_at', { ascending: false })
             .limit(12),
@@ -193,16 +193,29 @@ export function ConsumerStorefront() {
             ? (bannersRes.data as Campaign[])
             : FALLBACK_CAMPAIGNS;
 
-        const shops: StorefrontShop[] = (shopsRes.data ?? []).map((s: any) => ({
-          id: s.id,
-          name: s.name,
-          description: s.description,
-          location: s.location,
-          image_url: s.image_url ?? null,
-          logo_url: s.logo_url ?? null,
-          cover_image_url: s.cover_image_url ?? null,
-          itemCount: s.items?.[0]?.count ?? 0,
-        }));
+        // Fetch item counts separately to avoid PostgREST 400 error
+        const shopsWithCounts = await Promise.all(
+          (shopsRes.data ?? []).map(async (s: any) => {
+            const { count } = await supabase
+              .from('items')
+              .select('*', { count: 'exact', head: true })
+              .eq('shop_id', s.id)
+              .eq('is_available', true);
+            
+            return {
+              id: s.id,
+              name: s.name,
+              description: s.description,
+              location: s.location,
+              image_url: s.image_url ?? null,
+              logo_url: s.logo_url ?? null,
+              cover_image_url: s.cover_image_url ?? null,
+              itemCount: count ?? 0,
+            };
+          })
+        );
+
+        const shops: StorefrontShop[] = shopsWithCounts;
 
         const weeklyPicks: WeeklyItem[] = (itemsRes.data ?? []).map((i: any) => ({
           id: i.id,
