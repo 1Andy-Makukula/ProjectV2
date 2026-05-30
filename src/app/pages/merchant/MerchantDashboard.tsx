@@ -43,161 +43,7 @@ interface Analytics {
   availableBalance: number;
 }
 
-// ---------------------------------------------------------------------------
-// ShopProfileCard sub-component
-// ---------------------------------------------------------------------------
-
-interface ShopProfileCardProps {
-  profileName: string;
-  profileLocation: string;
-  profileImageUrl: string | null;
-  profileSaving: boolean;
-  profileSaved: boolean;
-  payoutAccount: string;
-  businessHours: string;
-  fileInputRef: React.RefObject<HTMLInputElement | null>;
-  onNameChange: (v: string) => void;
-  onLocationChange: (v: string) => void;
-  onPayoutAccountChange: (v: string) => void;
-  onBusinessHoursChange: (v: string) => void;
-  onImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSave: () => void;
-}
-
-function ShopProfileCard({
-  profileName,
-  profileLocation,
-  profileImageUrl,
-  profileSaving,
-  profileSaved,
-  payoutAccount,
-  businessHours,
-  fileInputRef,
-  onNameChange,
-  onLocationChange,
-  onPayoutAccountChange,
-  onBusinessHoursChange,
-  onImageChange,
-  onSave,
-}: ShopProfileCardProps) {
-  const saveLabel = profileSaving ? 'Saving...' : profileSaved ? 'Saved' : 'Save Profile';
-
-  return (
-    <Card className="rounded-2xl border border-gray-100 shadow-sm">
-      <CardHeader>
-        <CardTitle className="text-base font-semibold">Shop Profile Settings</CardTitle>
-        <CardDescription>Update your storefront name, location, payout details, and hours.</CardDescription>
-      </CardHeader>
-
-      <CardContent>
-        <div className="flex flex-col sm:flex-row gap-6 items-start">
-
-          {/* Logo upload — 96px square with group-hover overlay */}
-          <div
-            className="group relative aspect-square w-24 shrink-0 rounded-2xl overflow-hidden bg-gray-100 cursor-pointer border border-gray-200"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            {profileImageUrl ? (
-              <img
-                src={profileImageUrl}
-                alt="Shop logo"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="flex w-full h-full items-center justify-center">
-                <Camera className="w-8 h-8 text-gray-400" />
-              </div>
-            )}
-
-            {/* Hover overlay */}
-            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center gap-1">
-              <Camera className="w-5 h-5 text-white" />
-              <span className="text-white text-xs font-medium">Change Logo</span>
-            </div>
-
-            {/* Hidden file input */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={onImageChange}
-            />
-          </div>
-
-          {/* Form fields */}
-          <div className="flex-1 space-y-4 w-full">
-            <div className="space-y-1.5">
-              <Label htmlFor="shop-name">Shop Name</Label>
-              <Input
-                id="shop-name"
-                value={profileName}
-                onChange={(e) => onNameChange(e.target.value)}
-                placeholder="Your shop name"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="shop-location">Physical Location</Label>
-              <Input
-                id="shop-location"
-                value={profileLocation}
-                onChange={(e) => onLocationChange(e.target.value)}
-                placeholder="e.g. Cairo Road, Lusaka"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Payout & Operations */}
-        <div className="mt-6 pt-6 border-t border-gray-100 space-y-4">
-          <p className="text-sm font-semibold text-gray-700">Payout &amp; Operations</p>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="payout-account">Payout Account</Label>
-            <Input
-              id="payout-account"
-              value={payoutAccount}
-              onChange={(e) => onPayoutAccountChange(e.target.value)}
-              placeholder="e.g. Airtel 0971234567 or FNB 123456789"
-            />
-            <p className="text-xs text-muted-foreground">
-              Mobile money (Airtel / MTN / Zamtel) or bank account number for withdrawals.
-            </p>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="business-hours">Business Hours</Label>
-            <Input
-              id="business-hours"
-              value={businessHours}
-              onChange={(e) => onBusinessHoursChange(e.target.value)}
-              placeholder="e.g. Mon–Fri 08:00–17:00, Sat 09:00–13:00"
-            />
-            <p className="text-xs text-muted-foreground">
-              Shown to recipients so they know when to collect their gift.
-            </p>
-          </div>
-        </div>
-
-        {/* Save action */}
-        <div className="flex justify-end mt-6 pt-4 border-t border-gray-100">
-          <Button
-            id="save-profile-btn"
-            onClick={onSave}
-            disabled={profileSaving}
-            className="bg-gradient-to-r from-primary to-primary-light text-white"
-          >
-            {saveLabel}
-            <Save className="ml-2 w-4 h-4" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-
+// Removed incomplete ShopProfileCard inline form. Merchants will use the full /merchant/shop/edit route.
 // ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
@@ -220,16 +66,6 @@ export function MerchantDashboard() {
   });
   const [loading, setLoading] = useState(true);
   const [withdrawing, setWithdrawing] = useState(false);
-
-  // Profile editor state
-  const [profileName, setProfileName] = useState('');
-  const [profileLocation, setProfileLocation] = useState('');
-  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
-  const [payoutAccount, setPayoutAccount] = useState('');
-  const [businessHours, setBusinessHours] = useState('');
-  const [profileSaving, setProfileSaving] = useState(false);
-  const [profileSaved, setProfileSaved] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchMerchantData();
@@ -290,13 +126,6 @@ export function MerchantDashboard() {
 
       setShopId(currentShopId);
       setShopName(shop?.name ?? 'Your Shop');
-
-      // Seed profile editor fields
-      setProfileName(shop?.name ?? '');
-      setProfileLocation(shop?.location ?? '');
-      setProfileImageUrl(shop?.image_url ?? null);
-      setPayoutAccount(shop?.payout_details ?? '');
-      setBusinessHours(''); // Deprecated in V2
 
       await fetchOrders(currentShopId);
       await fetchAnalytics(currentShopId);
@@ -421,46 +250,10 @@ export function MerchantDashboard() {
       localStorage.clear();
       sessionStorage.clear();
 
-      // 4. Safely redirect to the login page
       navigate('/login', { replace: true });
     } catch (error) {
       console.error('Logout failed:', error);
     }
-  };
-
-  // Profile save — persists name, location, and payout_details (V2 schema)
-  const handleSaveProfile = async () => {
-    if (!shopId) return;
-    setProfileSaving(true);
-
-    const { error } = await supabase
-      .from('shops')
-      .update({
-        name: profileName,
-        location: profileLocation,
-        payout_details: payoutAccount, // payoutAccount maps to payout_details in V2
-        // business_hours removed — column does not exist in V2 schema
-      })
-      .eq('id', shopId);
-
-    if (!error) {
-      setShopName(profileName); // keep header in sync
-      setProfileSaved(true);
-      setTimeout(() => setProfileSaved(false), 2500);
-    } else {
-      console.error('Error saving profile:', error);
-    }
-
-    setProfileSaving(false);
-  };
-
-  // Local image preview — TODO: upload to Supabase Storage when bucket is configured
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setProfileImageUrl(reader.result as string);
-    reader.readAsDataURL(file);
   };
 
   if (loading) {
@@ -606,13 +399,12 @@ export function MerchantDashboard() {
           </div>
         </div>
 
-        {/* Tabs — 3 columns: Active Orders | Fulfilled | Shop Profile */}
+        {/* Tabs — Active Orders | Fulfilled | Inventory */}
         <Tabs defaultValue="active" className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl grid-cols-4">
+          <TabsList className="grid w-full max-w-xl grid-cols-3">
             <TabsTrigger value="active">Active Orders</TabsTrigger>
             <TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
             <TabsTrigger value="inventory">Inventory</TabsTrigger>
-            <TabsTrigger value="profile">Shop Profile</TabsTrigger>
           </TabsList>
 
           {/* Active Orders */}
@@ -727,26 +519,6 @@ export function MerchantDashboard() {
                 <div className="p-12 text-center text-muted-foreground">Loading inventory...</div>
               )}
             </div>
-          </TabsContent>
-
-          {/* Shop Profile Editor */}
-          <TabsContent value="profile">
-            <ShopProfileCard
-              profileName={profileName}
-              profileLocation={profileLocation}
-              profileImageUrl={profileImageUrl}
-              profileSaving={profileSaving}
-              profileSaved={profileSaved}
-              payoutAccount={payoutAccount}
-              businessHours={businessHours}
-              fileInputRef={fileInputRef}
-              onNameChange={setProfileName}
-              onLocationChange={setProfileLocation}
-              onPayoutAccountChange={setPayoutAccount}
-              onBusinessHoursChange={setBusinessHours}
-              onImageChange={handleImageChange}
-              onSave={handleSaveProfile}
-            />
           </TabsContent>
         </Tabs>
       </div>

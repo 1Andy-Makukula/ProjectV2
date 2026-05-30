@@ -18,6 +18,8 @@ interface Shop {
   description: string;
   location: string;
   image_url: string;
+  logo_url?: string;
+  cover_image_url?: string;
   is_active: boolean;
   item_count?: number;
 }
@@ -174,9 +176,9 @@ function ShopCard({ shop, onEdit, onToggleActive, onClick }: any) {
           <div onClick={onClick}>
             {/* Image */}
             <div className="aspect-video bg-gradient-to-br from-primary-tint to-primary-tint-mid relative overflow-hidden">
-              {shop.logo_url || shop.image_url ? (
+              {shop.cover_image_url || shop.image_url ? (
                 <img
-                  src={shop.logo_url || shop.image_url}
+                  src={shop.cover_image_url || shop.image_url}
                   alt={shop.name}
                   className="w-full h-full object-cover"
                 />
