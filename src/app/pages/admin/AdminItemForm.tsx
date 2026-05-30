@@ -22,6 +22,7 @@ import {
 import { supabase } from '../../../lib/supabaseClient';
 import { uploadItemImage } from '../../../utils/uploadImage';
 import { validateImageFile } from '../../../lib/uploadValidation';
+import { toCents } from '../../../utils/currency';
 import { toast } from 'sonner';
 
 interface ItemFormData {
