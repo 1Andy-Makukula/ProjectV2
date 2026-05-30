@@ -58,7 +58,7 @@ interface TransactionConfirm {
 // Payment status polling hook
 // ---------------------------------------------------------------------------
 
-function usePaymentConfirmation(transactionId: string | null, txRef: string | null) {
+function usePaymentConfirmation(transactionId: string | null, txRef: string | null, statusParam: string | null) {
   const [transaction, setTransaction] = useState<TransactionConfirm | null>(null);
   const [pollingStatus, setPollingStatus] = useState<
     'idle' | 'polling' | 'confirmed' | 'failed'
@@ -138,14 +138,19 @@ function usePaymentConfirmation(transactionId: string | null, txRef: string | nu
       }
     };
 
-    // Kick off immediately, then poll every 3 seconds
-    poll();
-    pollingRef.current = setInterval(poll, 3000);
+    // If Flutterwave explicitly tells us it was successful, don't wait for the webhook, verify instantly!
+    if (statusParam === 'successful' && txRef) {
+      verifyManually();
+    } else {
+      // Kick off immediately, then poll every 3 seconds
+      poll();
+      pollingRef.current = setInterval(poll, 3000);
+    }
 
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current);
     };
-  }, [transactionId]);
+  }, [transactionId, statusParam, txRef]);
 
   const verifyManually = async () => {
     if (!txRef) return;
@@ -445,9 +450,12 @@ export function Confirmation() {
   const [attemptCount, setAttemptCount] = useState(0);
   const MAX_ATTEMPTS = 20;
 
+  const statusParam = searchParams.get('status');
+
   const { transaction, pollingStatus, verifyManually } = usePaymentConfirmation(
     transactionId,
     txRef,
+    statusParam
   );
 
   // Increment display counter while polling
