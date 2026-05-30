@@ -414,21 +414,24 @@ async function generateFlutterwaveLink(
     );
   }
 
-  const appUrl = (Deno.env.get("APP_URL") ?? "http://localhost:5173").replace(/\/$/, "");
+  const appUrl = (Deno.env.get("APP_URL") ?? "https://project-h48n1.vercel.app").replace(/\/$/, "");
+
+  // Use the recipient's phone as a fallback for the buyer's phone if the buyer doesn't have one on their account
+  const finalPhone = buyerPhone || raw.recipient_phone || "";
 
   const payload = {
     tx_ref: transactionId,
-    amount: totalAmount, // Database stores whole ZMW, no conversion needed
+    amount: totalAmount / 100, // Convert from ngwee to ZMW for Flutterwave
     currency: "ZMW",
     redirect_url: `${appUrl}/confirmation/${transactionId}?tx_ref=${transactionId}`,
     customer: {
       email: buyerEmail,
-      ...(buyerPhone ? { phonenumber: buyerPhone } : {}),
+      ...(finalPhone ? { phonenumber: finalPhone } : {}),
     },
     customizations: {
       title: "KithLy Secure Checkout",
       description: "Escrow-protected gift purchase",
-      logo: "https://kithly.com/logo.png",
+      // Removed broken logo so it doesn't show a broken image icon
     },
     meta: {
       transaction_id: transactionId,

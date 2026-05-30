@@ -271,7 +271,7 @@ async function handleFlutterwaveWebhook(
   console.log("[server] --- WEBHOOK SIGNAL DETECTED ---");
 
   const signature = req.headers.get("verif-hash");
-  const secretHash = Deno.env.get("FLUTTERWAVE_WEBHOOK_SECRET");
+  const secretHash = Deno.env.get("FLUTTERWAVE_VERIF_HASH");
 
   if (!signature || signature !== secretHash) {
     console.error("[ERROR] Webhook Authentication Mismatch");

@@ -28,7 +28,7 @@ const lazyPage = <T extends Record<string, ComponentType<unknown>>>(
 ) =>
   lazy(() =>
     loader().then((m) => ({
-      default: m[name] as ComponentType<unknown>,
+      default: m[name] as ComponentType<any>,
     })),
   );
 

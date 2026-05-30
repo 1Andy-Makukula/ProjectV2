@@ -87,7 +87,7 @@ export function AdminItemForm() {
       setFormData({
         name: data.name || '',
         description: data.description || '',
-        price: String(data.price_zmw ?? ''), // price_zmw is integer ZMW
+        price: data.price_zmw != null ? String(data.price_zmw / 100) : '',
         image_url: data.image_url || '',
         is_available: data.is_available ?? true,
       });
@@ -167,7 +167,7 @@ export function AdminItemForm() {
         shop_id: actualShopId,
         name: formData.name,
         description: formData.description,
-        price_zmw: Math.round(priceValue), // price_zmw is integer ZMW
+        price_zmw: toCents(priceValue), // Store as ngwee (cents)
         image_url: imageUrl,
         is_available: formData.is_available,
       };
