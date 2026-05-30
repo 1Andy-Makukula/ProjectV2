@@ -569,6 +569,7 @@ export function MerchantDashboard() {
                 description: 'See how customers view your shop',
                 icon: Store,
                 path: shopId ? `/shop/${shopId}` : '#',
+                external: true,
               },
               {
                 label: 'Account Settings',
@@ -582,7 +583,14 @@ export function MerchantDashboard() {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                onClick={() => navigate(action.path)}
+                onClick={() => {
+                  if (action.path === '#') return;
+                  if (action.external) {
+                    window.open(action.path, '_blank');
+                  } else {
+                    navigate(action.path);
+                  }
+                }}
                 className="group flex flex-col items-start rounded-2xl border border-slate-100 bg-white/80 backdrop-blur-xl p-5 text-left shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all"
               >
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 transition-colors group-hover:bg-orange-100">
