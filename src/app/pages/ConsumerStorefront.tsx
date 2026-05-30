@@ -48,7 +48,7 @@ interface WeeklyItem {
   id: string;
   name: string;
   description: string | null;
-  price: number;
+  price_zmw: number;
   image_url: string | null;
   shop: { id: string; name: string } | null;
 }
@@ -160,9 +160,9 @@ export function ConsumerStorefront() {
       setDataLoading(true);
       try {
         const [bannersRes, shopsRes, itemsRes] = await Promise.all([
-          // Campaign banners (maps to existing `banners` table)
+          // Campaign banners — V2 table is `marketing_campaigns`
           supabase
-            .from('banners')
+            .from('marketing_campaigns')
             .select('id, image_url, title, sort_order')
             .eq('is_active', true)
             .order('sort_order', { ascending: true })
@@ -179,7 +179,7 @@ export function ConsumerStorefront() {
           // "Weekly picks" — most recent available items across all shops
           supabase
             .from('items')
-            .select('id, name, description, price, image_url, shop:shops(id, name)')
+            .select('id, name, description, price_zmw, image_url, shop:shops(id, name)')
             .eq('is_available', true)
             .eq('is_weekly_pick', true)
             .order('created_at', { ascending: false })
@@ -208,7 +208,7 @@ export function ConsumerStorefront() {
           id: i.id,
           name: i.name,
           description: i.description,
-          price: i.price,
+          price_zmw: i.price_zmw,
           image_url: i.image_url ?? null,
           shop: i.shop ?? null,
           is_weekly_pick: true,

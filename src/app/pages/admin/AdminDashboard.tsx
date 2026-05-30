@@ -191,27 +191,36 @@ export function AdminDashboard() {
     try {
       setExporting(true);
 
+      // V2 join: transactions → shop_orders → order_items → items, buyer via buyer_id FK
       const { data, error } = await supabase
-        .from('orders')
+        .from('transactions')
         .select(`
-          code,
-          recipient_name,
-          amount,
+          transaction_id,
+          total_amount,
           currency,
           status,
           created_at,
-          paid_at,
-          fulfilled_at,
-          sender:users!sender_id(name, email, phone),
-          item:items(name),
-          shop:shops(name, location)
+          buyer:users!buyer_id(name, email, phone),
+          shop_orders (
+            claim_code,
+            claim_status,
+            recipient_name,
+            recipient_phone,
+            message,
+            fulfilled_at,
+            shop:shops(name, location),
+            order_items (
+              item:items(name)
+            )
+          )
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
       const headers = [
-        'Code',
+        'Transaction ID',
+        'Claim Code',
         'Item',
         'Shop',
         'Shop Location',
@@ -219,30 +228,63 @@ export function AdminDashboard() {
         'Sender Email',
         'Sender Phone',
         'Recipient Name',
-        'Amount',
+        'Recipient Phone',
+        'Amount (ZMW)',
         'Currency',
-        'Status',
+        'TX Status',
+        'Claim Status',
+        'Message',
         'Created At',
-        'Paid At',
         'Fulfilled At',
       ];
 
-      const rows = (data || []).map((order: any) => [
-        order.code,
-        order.item?.name || '',
-        order.shop?.name || '',
-        order.shop?.location || '',
-        order.sender?.name || '',
-        order.sender?.email || '',
-        order.sender?.phone || '',
-        order.recipient_name || '',
-        (order.amount / 100).toFixed(2),
-        order.currency || 'ZMW',
-        order.status || '',
-        order.created_at || '',
-        order.paid_at || '',
-        order.fulfilled_at || '',
-      ]);
+      const rows = (data || []).flatMap((txn: any) => {
+        const buyer = txn.buyer as any;
+        const shopOrders = txn.shop_orders || [];
+
+        if (shopOrders.length === 0) {
+          // Transaction with no shop orders yet
+          return [[
+            txn.transaction_id,
+            '',
+            '',
+            '',
+            '',
+            buyer?.name || '',
+            buyer?.email || '',
+            buyer?.phone || '',
+            '',
+            '',
+            (txn.total_amount || 0).toFixed(2), // total_amount is already integer ZMW
+            txn.currency || 'ZMW',
+            txn.status || '',
+            '',
+            '',
+            txn.created_at || '',
+            '',
+          ]];
+        }
+
+        return shopOrders.map((so: any) => [
+          txn.transaction_id,
+          so.claim_code || '',
+          so.order_items?.[0]?.item?.name || '',
+          so.shop?.name || '',
+          so.shop?.location || '',
+          buyer?.name || '',
+          buyer?.email || '',
+          buyer?.phone || '',
+          so.recipient_name || '',
+          so.recipient_phone || '',
+          (txn.total_amount || 0).toFixed(2), // total_amount is already integer ZMW
+          txn.currency || 'ZMW',
+          txn.status || '',
+          so.claim_status || '',
+          so.message || '',
+          txn.created_at || '',
+          so.fulfilled_at || '',
+        ]);
+      });
 
       const csvContent = [
         headers.join(','),

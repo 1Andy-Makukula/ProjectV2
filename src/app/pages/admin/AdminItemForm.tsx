@@ -20,7 +20,6 @@ import {
   AlertDialogTrigger,
 } from '../../components/ui/alert-dialog';
 import { supabase } from '../../../lib/supabaseClient';
-import { formatCurrency, toCents } from '../../../utils/currency';
 import { uploadItemImage } from '../../../utils/uploadImage';
 import { validateImageFile } from '../../../lib/uploadValidation';
 import { toast } from 'sonner';
@@ -88,7 +87,7 @@ export function AdminItemForm() {
       setFormData({
         name: data.name || '',
         description: data.description || '',
-        price: (data.price / 100).toFixed(2), // Convert from ngwee to ZMW
+        price: String(data.price_zmw ?? ''), // price_zmw is integer ZMW
         image_url: data.image_url || '',
         is_available: data.is_available ?? true,
       });
@@ -168,7 +167,7 @@ export function AdminItemForm() {
         shop_id: actualShopId,
         name: formData.name,
         description: formData.description,
-        price: toCents(priceValue), // Convert to ngwee
+        price_zmw: Math.round(priceValue), // price_zmw is integer ZMW
         image_url: imageUrl,
         is_available: formData.is_available,
       };
@@ -316,7 +315,7 @@ export function AdminItemForm() {
                 </div>
                 {formData.price && (
                   <p className="text-xs text-muted-foreground">
-                    Display: {formatCurrency(toCents(parseFloat(formData.price) || 0))}
+                    Display: ZMW {parseFloat(formData.price || '0').toFixed(2)}
                   </p>
                 )}
               </div>

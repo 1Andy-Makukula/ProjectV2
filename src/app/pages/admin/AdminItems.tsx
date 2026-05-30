@@ -9,14 +9,13 @@ import { Switch } from '../../components/ui/switch';
 import { PageShell, PageBody } from '../../components/layout/PageShell';
 import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
 import { supabase } from '../../../lib/supabaseClient';
-import { formatCurrency } from '../../../utils/currency';
 import { toast } from 'sonner';
 
 interface Item {
   id: string;
   name: string;
   description: string;
-  price: number;
+  price_zmw: number;
   image_url: string;
   is_available: boolean;
 }
@@ -183,7 +182,7 @@ function ItemCard({ item, onEdit, onToggleAvailability }: any) {
             <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{item.description}</p>
           )}
           <div className="text-base font-medium text-primary mb-3">
-            {formatCurrency(item.price)}
+            ZMW {item.price_zmw?.toFixed(2) ?? '—'}
           </div>
 
           {/* Actions */}

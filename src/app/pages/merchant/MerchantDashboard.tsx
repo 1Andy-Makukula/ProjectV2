@@ -244,7 +244,7 @@ export function MerchantDashboard() {
           {
             event: 'INSERT',
             schema: 'public',
-            table: 'orders',
+            table: 'shop_orders',
             filter: `shop_id=eq.${shopId}`,
           },
           () => {
@@ -257,7 +257,7 @@ export function MerchantDashboard() {
           {
             event: 'UPDATE',
             schema: 'public',
-            table: 'orders',
+            table: 'shop_orders',
             filter: `shop_id=eq.${shopId}`,
           },
           () => {
@@ -310,8 +310,8 @@ export function MerchantDashboard() {
   const fetchOrders = async (currentShopId: string) => {
     try {
       const { data, error } = await supabase
-        .from('orders')
-        .select('*, items(name, image_url)')
+        .from('shop_orders')
+        .select('*, order_items(item:items(name, image_url))')
         .eq('shop_id', currentShopId)
         .order('created_at', { ascending: false });
 
@@ -319,11 +319,13 @@ export function MerchantDashboard() {
 
       const normalizedOrders = ((data || []) as any[]).map((order) => ({
         ...order,
-        item: order.items ?? null,
+        // Map first order_item's item to top-level 'item' so UI cards don't break
+        item: order.order_items?.[0]?.item ?? null,
       }));
 
-      const active = normalizedOrders.filter((o) => o.status === 'paid');
-      const fulfilled = normalizedOrders.filter((o) => o.status === 'fulfilled');
+      // V2 enums: claim_status is PENDING, PARTIAL_FULFILLMENT, FULFILLED, EXPIRED
+      const active = normalizedOrders.filter((o) => o.claim_status === 'PENDING');
+      const fulfilled = normalizedOrders.filter((o) => o.claim_status === 'FULFILLED');
 
       setActiveOrders(active as unknown as Order[]);
       setFulfilledOrders(fulfilled as unknown as Order[]);
@@ -334,21 +336,14 @@ export function MerchantDashboard() {
 
   const fetchAnalytics = async (currentShopId: string) => {
     try {
-      // 1. Get the real 'Available Balance' from the merchant_balances table (95% share)
-      const { data: balanceData } = await supabase
-        .from('merchant_balances')
-        .select('available_balance')
-        .eq('shop_id', currentShopId)
-        .single();
-
-      // 2. Get the historical 'Total Value' from the orders table
+      // 1. Get fulfilled shop_orders for volume and value stats (V2)
       const { data: ordersData } = await supabase
-        .from('orders')
-        .select('amount, fulfilled_at')
+        .from('shop_orders')
+        .select('subtotal, fulfilled_at')
         .eq('shop_id', currentShopId)
-        .eq('status', 'fulfilled');
+        .eq('claim_status', 'FULFILLED');
 
-      const totalValue = ordersData?.reduce((sum: number, o: any) => sum + o.amount, 0) || 0;
+      const totalValue = ordersData?.reduce((sum: number, o: any) => sum + (o.subtotal || 0), 0) || 0;
 
       const oneWeekAgo = new Date();
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -356,7 +351,16 @@ export function MerchantDashboard() {
         (o: any) => o.fulfilled_at && new Date(o.fulfilled_at) >= oneWeekAgo
       );
       const weekFulfilled = weekOrders?.length || 0;
-      const weekValue = weekOrders?.reduce((sum: number, o: any) => sum + o.amount, 0) || 0;
+      const weekValue = weekOrders?.reduce((sum: number, o: any) => sum + (o.subtotal || 0), 0) || 0;
+
+      // 2. Calculate available balance from payout_ledger (unsettled credits)
+      const { data: ledgerData } = await supabase
+        .from('payout_ledger')
+        .select('credit_amount')
+        .eq('shop_id', currentShopId)
+        .neq('status', 'SETTLED');
+
+      const availableBalance = ledgerData?.reduce((sum: number, row: any) => sum + (row.credit_amount || 0), 0) || 0;
 
       setAnalytics(prev => ({
         ...prev,
@@ -364,7 +368,7 @@ export function MerchantDashboard() {
         totalValue,
         weekFulfilled,
         weekValue,
-        availableBalance: balanceData?.available_balance || 0,
+        availableBalance,
       }));
     } catch (error) {
       console.error('Error syncing dashboard:', error);
@@ -424,7 +428,7 @@ export function MerchantDashboard() {
     }
   };
 
-  // Profile save — persists name and location; image upload is scaffolded below
+  // Profile save — persists name, location, and payout_details (V2 schema)
   const handleSaveProfile = async () => {
     if (!shopId) return;
     setProfileSaving(true);
@@ -434,8 +438,8 @@ export function MerchantDashboard() {
       .update({
         name: profileName,
         location: profileLocation,
-        payout_account: payoutAccount,
-        business_hours: businessHours,
+        payout_details: payoutAccount, // payoutAccount maps to payout_details in V2
+        // business_hours removed — column does not exist in V2 schema
       })
       .eq('id', shopId);
 

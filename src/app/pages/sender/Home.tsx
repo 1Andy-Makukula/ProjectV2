@@ -231,7 +231,7 @@ export function Home() {
 
     try {
       const { data, error } = await supabase
-        .from('banners')
+        .from('marketing_campaigns')
         .select('id, image_url, title')
         .eq('is_active', true)
         .order('sort_order', { ascending: true });

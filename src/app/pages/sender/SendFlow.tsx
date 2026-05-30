@@ -14,7 +14,7 @@ interface Item {
   id: string;
   name: string;
   description: string | null;
-  price: number;
+  price_zmw: number;
   currency: string;
   image_url: string | null;
   shop_id: string;
@@ -204,7 +204,7 @@ export function SendFlow() {
                     from {shop.name}
                   </p>
                   <p className="text-lg font-bold text-primary">
-                    {formatCurrency(item.price, item.currency)}
+                    ZMW {item.price_zmw?.toFixed(2) ?? '—'}
                   </p>
                 </div>
               </div>

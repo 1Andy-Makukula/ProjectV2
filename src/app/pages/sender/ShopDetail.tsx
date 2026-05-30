@@ -4,8 +4,6 @@ import { supabase } from '../../../lib/supabaseClient';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { ArrowLeft, Store, MapPin } from 'lucide-react';
-import { motion } from 'motion/react';
-import { formatCurrency } from '../../../utils/currency';
 
 interface Shop {
   id: string;
@@ -19,7 +17,7 @@ interface Item {
   id: string;
   name: string;
   description: string | null;
-  price: number;
+  price_zmw: number;
   currency: string;
   image_url: string | null;
   is_available: boolean;
@@ -209,7 +207,7 @@ export function ShopDetail() {
 
                       <div className="flex items-center justify-between">
                         <span className="text-lg font-bold text-primary">
-                          {formatCurrency(item.price, item.currency)}
+                          ZMW {item.price_zmw?.toFixed(2) ?? '—'}
                         </span>
                         <Button
                           onClick={() => navigate(`/send/${item.id}`)}

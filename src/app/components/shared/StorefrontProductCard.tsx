@@ -3,15 +3,13 @@
 // Named StorefrontProductCard to avoid conflict with the existing ProductCard.tsx
 
 import { Package, Shield } from 'lucide-react';
-import { formatCurrency } from '../../../utils/currency';
 
 export interface StorefrontItem {
   id: string;
   name: string;
   description?: string | null;
-  /** Price in ngwee (smallest ZMW unit) */
-  price: number;
-  currency?: string;
+  /** Price in whole ZMW (price_zmw column) */
+  price_zmw: number;
   image_url?: string | null;
   is_weekly_pick?: boolean;
   /** Optional free-form badge text e.g. "Sale" or "New" */
@@ -100,7 +98,7 @@ export function StorefrontProductCard({ item, onGift, onView }: StorefrontProduc
 
         {/* Price */}
         <p className="mt-1 text-sm font-semibold text-slate-900">
-          {formatCurrency(item.price, item.currency ?? 'ZMW')}
+          ZMW {item.price_zmw?.toFixed(2) ?? '—'}
         </p>
 
         {/* CTA */}
