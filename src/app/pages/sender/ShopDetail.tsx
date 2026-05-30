@@ -4,6 +4,7 @@ import { supabase } from '../../../lib/supabaseClient';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { ArrowLeft, Store, MapPin } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface Shop {
   id: string;
