@@ -279,7 +279,7 @@ export function MerchantDashboard() {
     try {
       const { data: merchantShop, error: shopError } = await supabase
         .from('merchant_shops')
-        .select('shop_id, shop:shops(id, name, location, image_url, payout_account, business_hours)')
+        .select('shop_id, shop:shops(id, name, location, image_url, payout_details, payout_method)')
         .eq('user_id', profile.id)
         .single();
 
@@ -295,8 +295,8 @@ export function MerchantDashboard() {
       setProfileName(shop?.name ?? '');
       setProfileLocation(shop?.location ?? '');
       setProfileImageUrl(shop?.image_url ?? null);
-      setPayoutAccount(shop?.payout_account ?? '');
-      setBusinessHours(shop?.business_hours ?? '');
+      setPayoutAccount(shop?.payout_details ?? '');
+      setBusinessHours(''); // Deprecated in V2
 
       await fetchOrders(currentShopId);
       await fetchAnalytics(currentShopId);
@@ -412,17 +412,17 @@ export function MerchantDashboard() {
 
   const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault(); // 1. STOPS the annoying page refresh!
-    
+
     try {
       // 2. Tell the data center to destroy the token
-      await supabase.auth.signOut(); 
-      
+      await supabase.auth.signOut();
+
       // 3. Clear any leftover zombie data in the browser
-      localStorage.clear(); 
+      localStorage.clear();
       sessionStorage.clear();
-      
+
       // 4. Safely redirect to the login page
-      navigate('/login', { replace: true }); 
+      navigate('/login', { replace: true });
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -505,10 +505,10 @@ export function MerchantDashboard() {
         {/* Analytics Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
-            { label: 'Total Fulfilled',   value: analytics.totalFulfilled,   icon: Package,    isCurrency: false },
-            { label: 'Total Value',        value: analytics.totalValue,        icon: TrendingUp, isCurrency: true  },
-            { label: 'This Week',          value: analytics.weekFulfilled,     icon: Package,    isCurrency: false },
-            { label: 'Available for Withdrawal',  value: analytics.availableBalance,  icon: TrendingUp, isCurrency: true  },
+            { label: 'Total Fulfilled', value: analytics.totalFulfilled, icon: Package, isCurrency: false },
+            { label: 'Total Value', value: analytics.totalValue, icon: TrendingUp, isCurrency: true },
+            { label: 'This Week', value: analytics.weekFulfilled, icon: Package, isCurrency: false },
+            { label: 'Available for Withdrawal', value: analytics.availableBalance, icon: TrendingUp, isCurrency: true },
           ].map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -644,7 +644,7 @@ export function MerchantDashboard() {
                         )}
                       </div>
                       <div>
-                      <h3 className="font-semibold text-lg">{order.item?.name}</h3>
+                        <h3 className="font-semibold text-lg">{order.item?.name}</h3>
                         <p className="text-sm text-muted-foreground">
                           For: {order.recipient_name}
                         </p>
@@ -699,7 +699,7 @@ export function MerchantDashboard() {
                         )}
                       </div>
                       <div>
-                      <h3 className="font-medium">{order.item?.name}</h3>
+                        <h3 className="font-medium">{order.item?.name}</h3>
                         <p className="text-sm text-muted-foreground">
                           {order.recipient_name}
                         </p>
