@@ -33,9 +33,9 @@ const POLL_INTERVAL_MS = 3_000 as const;
 
 /**
  * Maximum number of poll attempts before the hook gives up and returns TIMEOUT.
- * 20 attempts × 3 000 ms = 60 000 ms (1 minute).
+ * 100 attempts × 3 000 ms = 300 000 ms (5 minutes).
  */
-const MAX_ATTEMPTS = 20 as const;
+const MAX_ATTEMPTS = 100 as const;
 
 /** Terminal status written by the Flutterwave webhook handler. */
 const PAID_STATUS = 'SUCCESSFUL' as const;

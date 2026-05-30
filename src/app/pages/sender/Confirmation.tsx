@@ -448,7 +448,7 @@ export function Confirmation() {
   }, [txRef]);
 
   const [attemptCount, setAttemptCount] = useState(0);
-  const MAX_ATTEMPTS = 20;
+  const MAX_ATTEMPTS = 100;
 
   const statusParam = searchParams.get('status');
 
