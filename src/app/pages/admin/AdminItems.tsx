@@ -182,7 +182,7 @@ function ItemCard({ item, onEdit, onToggleAvailability }: any) {
             <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{item.description}</p>
           )}
           <div className="text-base font-medium text-primary mb-3">
-            ZMW {item.price_zmw?.toFixed(2) ?? '—'}
+            ZMW {item.price_zmw != null ? (item.price_zmw / 100).toFixed(2) : '—'}
           </div>
 
           {/* Actions */}

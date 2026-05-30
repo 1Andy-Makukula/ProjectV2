@@ -219,7 +219,7 @@ export function ShopDetail() {
 
                       <div className="flex items-center justify-between">
                         <span className="text-lg font-bold text-primary">
-                          ZMW {item.price_zmw?.toFixed(2) ?? '—'}
+                          ZMW {item.price_zmw != null ? (item.price_zmw / 100).toFixed(2) : '—'}
                         </span>
                         <div className="flex gap-2">
                           <Button

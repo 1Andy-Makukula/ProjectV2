@@ -99,7 +99,7 @@ export function StorefrontProductCard({ item, onGift, onView, onAddToCart }: Sto
 
         {/* Price */}
         <p className="mt-1 text-sm font-semibold text-slate-900">
-          ZMW {item.price_zmw?.toFixed(2) ?? '—'}
+          ZMW {item.price_zmw != null ? (item.price_zmw / 100).toFixed(2) : '—'}
         </p>
 
         {/* CTA Buttons */}

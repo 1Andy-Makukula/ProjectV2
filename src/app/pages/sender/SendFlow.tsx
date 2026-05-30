@@ -204,7 +204,7 @@ export function SendFlow() {
                     from {shop.name}
                   </p>
                   <p className="text-lg font-bold text-primary">
-                    ZMW {item.price_zmw?.toFixed(2) ?? '—'}
+                    ZMW {item.price_zmw != null ? (item.price_zmw / 100).toFixed(2) : '—'}
                   </p>
                 </div>
               </div>
