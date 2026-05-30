@@ -21,6 +21,9 @@ import { getGroupedCartPayload } from '../../utils/sendFlowStore';
 import { useSendFlowStore } from '../../utils/sendFlowStore';
 import { PaymentProcessingScreen } from '../components/checkout/PaymentProcessingScreen';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Textarea } from '../components/ui/textarea';
+import { Label } from '../components/ui/label';
 import { formatCurrency } from '../../utils/currency';
 
 // ---------------------------------------------------------------------------
@@ -218,6 +221,10 @@ export function Checkout() {
   const [shopOrders, setShopOrders] = useState<ShopOrderResult[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const [recipientName, setRecipientName] = useState(recipient?.name ?? '');
+  const [recipientPhone, setRecipientPhone] = useState(recipient?.phone ?? '');
+  const [message, setMessage] = useState(recipient?.message ?? '');
+
   const totalAmount = getTotalAmount();
 
   // ---------- handlers --------------------------------------------------
@@ -241,7 +248,11 @@ export function Checkout() {
     try {
       // Include recipient details from the SendFlow store so checkout-init
       // can persist them to each shop_orders row it creates.
-      const payload = getGroupedCartPayload(items, recipient ?? undefined);
+      const payload = getGroupedCartPayload(items, {
+        name: recipientName.trim(),
+        phone: recipientPhone.trim(),
+        message: message.trim()
+      });
 
       const { data, error } = await supabase.functions.invoke<CheckoutInitResponse>(
         'checkout-init',
@@ -378,6 +389,44 @@ export function Checkout() {
                         />
                       ))}
                     </AnimatePresence>
+                  </div>
+
+                  {/* Recipient Details */}
+                  <div className="rounded-2xl bg-white border border-slate-100 px-5 py-5 space-y-4">
+                    <h3 className="font-semibold text-slate-900">Recipient Details</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <Label htmlFor="recipientName" className="text-xs text-slate-500 mb-1.5 block">Name</Label>
+                        <Input
+                          id="recipientName"
+                          placeholder="e.g. Jane Doe"
+                          value={recipientName}
+                          onChange={(e) => setRecipientName(e.target.value)}
+                          className="h-11 rounded-xl"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="recipientPhone" className="text-xs text-slate-500 mb-1.5 block">Phone Number</Label>
+                        <Input
+                          id="recipientPhone"
+                          placeholder="e.g. 0971234567"
+                          value={recipientPhone}
+                          onChange={(e) => setRecipientPhone(e.target.value)}
+                          className="h-11 rounded-xl"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="message" className="text-xs text-slate-500 mb-1.5 block">Gift Message (Optional)</Label>
+                        <Textarea
+                          id="message"
+                          placeholder="Write a nice message..."
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
+                          className="resize-none rounded-xl"
+                          rows={2}
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   {/* Order total */}

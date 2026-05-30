@@ -9,6 +9,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
   SheetFooter,
 } from '../ui/sheet';
 import { useCart } from '../../hooks/useCart';
@@ -54,6 +55,9 @@ export function CartSlider() {
                 </span>
               )}
             </SheetTitle>
+            <SheetDescription className="sr-only">
+              View and manage the items in your shopping cart.
+            </SheetDescription>
           </div>
         </SheetHeader>
 

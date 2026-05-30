@@ -418,12 +418,12 @@ async function generateFlutterwaveLink(
 
   const payload = {
     tx_ref: transactionId,
-    amount: totalAmount,
+    amount: totalAmount, // Database stores whole ZMW, no conversion needed
     currency: "ZMW",
     redirect_url: `${appUrl}/confirmation/${transactionId}?tx_ref=${transactionId}`,
     customer: {
       email: buyerEmail,
-      phonenumber: buyerPhone,
+      ...(buyerPhone ? { phonenumber: buyerPhone } : {}),
     },
     customizations: {
       title: "KithLy Secure Checkout",
