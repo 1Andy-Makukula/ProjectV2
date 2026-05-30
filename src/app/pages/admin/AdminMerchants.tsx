@@ -169,7 +169,7 @@ export function AdminMerchants() {
   const openEdit = (m: Merchant) => {
     setEditMerchant(m);
     setEditProfile({ name: m.name, phone: m.phone ?? '' });
-    setEditShopId(m.shop_id ?? '');
+    setEditShopId(m.shop_id ?? 'unassigned');
     setEditPassword('');
     setEditTab('profile');
   };
@@ -207,7 +207,7 @@ export function AdminMerchants() {
       // Remove old assignment
       await supabase.from('merchant_shops').delete().eq('user_id', editMerchant.id);
 
-      if (editShopId) {
+      if (editShopId && editShopId !== 'unassigned') {
         const { error } = await supabase
           .from('merchant_shops')
           .insert({ user_id: editMerchant.id, shop_id: editShopId });
@@ -561,7 +561,7 @@ export function AdminMerchants() {
                         <SelectValue placeholder="Select a shop" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">— Unassign —</SelectItem>
+                        <SelectItem value="unassigned">— Unassign —</SelectItem>
                         {shops.map(s => (
                           <SelectItem key={s.id} value={s.id}>
                             <div className="flex items-center gap-2">
