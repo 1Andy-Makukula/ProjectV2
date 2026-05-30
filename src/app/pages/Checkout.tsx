@@ -235,6 +235,16 @@ export function Checkout() {
       return;
     }
 
+    if (!recipientName.trim()) {
+      toast.error('Please provide the recipient\'s name before proceeding.');
+      return;
+    }
+
+    if (!recipientPhone.trim() || recipientPhone.trim().length < 9) {
+      toast.error('Please provide a valid recipient phone number (e.g. 097XXXXXXX).');
+      return;
+    }
+
     if (!navigator.onLine) {
       setErrorMsg('No internet connection. Please check your network.');
       setStage('ERROR');

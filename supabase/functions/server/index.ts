@@ -505,13 +505,13 @@ async function handleVerifyPayment(payload: Record<string, any>): Promise<Respon
 
     if (confirmError) {
       console.error("confirm_payment_atomic failed:", confirmError);
-      return json({ error: "Failed to confirm payment" }, 500);
+      return json({ success: false, error: `Failed to confirm payment: ${confirmError.message || JSON.stringify(confirmError)}` }, 200);
     }
 
     return json({ success: true });
   }
 
-  return json({ error: "Payment verification failed" }, 400);
+  return json({ success: false, error: `Payment verification failed. Flutterwave status: ${data.status}, tx status: ${data.data?.status}` }, 200);
 }
 
 /**

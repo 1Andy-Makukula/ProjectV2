@@ -567,9 +567,9 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
         p_origin_type: origin_type,
         p_gateway_tx_ref: txRef,
         p_vendors: vendorsPayload,
-        p_recipient_name: recipient_name ?? null,
-        p_recipient_phone: recipient_phone ?? null,
-        p_message: message ?? null,
+        p_recipient_name: recipient_name ?? caller.user_metadata?.name ?? caller.email ?? "Gift Recipient",
+        p_recipient_phone: recipient_phone ?? caller.phone ?? "0000000000",
+        p_message: message ?? "",
       },
     );
 
