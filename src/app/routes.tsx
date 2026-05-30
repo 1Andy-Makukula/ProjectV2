@@ -120,7 +120,7 @@ export const router = createBrowserRouter([
       {
         path: 'shop/:shopId',
         element: (
-          <ProtectedRoute allowedRoles={['sender']}>
+          <ProtectedRoute allowedRoles={['sender', 'merchant', 'admin']}>
             <Lazy><ShopDetail /></Lazy>
           </ProtectedRoute>
         ),

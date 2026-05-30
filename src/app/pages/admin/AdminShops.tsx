@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
-import { Plus, Edit, Search, MapPin } from 'lucide-react';
+import { Plus, Edit, Search, MapPin, Store } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -211,18 +211,32 @@ function ShopCard({ shop, onEdit, onToggleActive, onClick }: any) {
 
           {/* Actions */}
           <div className="px-4 pb-4 pt-3 flex items-center justify-between border-t border-border">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit();
-              }}
-              className="text-primary hover:bg-primary-tint h-7"
-            >
-              <Edit className="size-3.5" />
-              Edit
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }}
+                className="text-primary hover:bg-primary-tint h-7 px-2"
+              >
+                <Edit className="size-3.5 mr-1" />
+                Edit
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(`/shop/${shop.id}`, '_blank');
+                }}
+                className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+              >
+                <Store className="size-3.5 mr-1" />
+                Public View
+              </Button>
+            </div>
 
             <div className="flex items-center gap-2">
               <span className="text-[0.6875rem] text-muted-foreground">

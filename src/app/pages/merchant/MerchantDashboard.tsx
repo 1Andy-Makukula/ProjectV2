@@ -565,6 +565,12 @@ export function MerchantDashboard() {
                 path: '/merchant/shop/edit',
               },
               {
+                label: 'View Public Storefront',
+                description: 'See how customers view your shop',
+                icon: Store,
+                path: shopId ? `/shop/${shopId}` : '#',
+              },
+              {
                 label: 'Account Settings',
                 description: 'Manage password and security',
                 icon: Settings,

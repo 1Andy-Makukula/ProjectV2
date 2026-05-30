@@ -121,6 +121,22 @@ CREATE POLICY items_admin_write ON public.items
   USING (public.current_user_role() = 'admin')
   WITH CHECK (public.current_user_role() = 'admin');
 
+DROP POLICY IF EXISTS items_merchant_write ON public.items;
+CREATE POLICY items_merchant_write ON public.items
+  FOR ALL TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.merchant_shops ms
+      WHERE ms.shop_id = items.shop_id AND ms.user_id = auth.uid()
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.merchant_shops ms
+      WHERE ms.shop_id = items.shop_id AND ms.user_id = auth.uid()
+    )
+  );
+
 ALTER TABLE public.shops ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS shops_public_read ON public.shops;
