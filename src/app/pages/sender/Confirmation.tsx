@@ -168,6 +168,10 @@ function usePaymentConfirmation(transactionId: string | null, txRef: string | nu
         if (txn) setTransaction(txn);
         setPollingStatus('confirmed');
       } else {
+        if (data?.error) {
+          console.error('[Confirmation] Server returned error:', data.error);
+          toast.error(`Verification Failed: ${data.error}`);
+        }
         setPollingStatus('failed');
       }
     } catch (err: any) {
