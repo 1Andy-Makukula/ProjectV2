@@ -152,3 +152,5 @@ CREATE INDEX IF NOT EXISTS idx_shop_orders_claim_code ON public.shop_orders (cla
 CREATE INDEX IF NOT EXISTS idx_shop_orders_transaction_id ON public.shop_orders (transaction_id);
 
 ALTER TABLE public.shops ADD COLUMN IF NOT EXISTS owner_id UUID REFERENCES public.users(id);
+ALTER TABLE public.shops ADD COLUMN IF NOT EXISTS logo_url TEXT;
+ALTER TABLE public.shops ADD COLUMN IF NOT EXISTS cover_image_url TEXT;

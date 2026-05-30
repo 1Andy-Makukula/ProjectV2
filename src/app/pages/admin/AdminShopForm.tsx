@@ -30,6 +30,7 @@ interface ShopFormData {
   location: string;
   address: string;
   logo_url: string;
+  cover_image_url: string;
   payout_method: string;
   payout_details: string;
   is_active: boolean;
@@ -46,12 +47,16 @@ export function AdminShopForm() {
     location: '',
     address: '',
     logo_url: '',
+    cover_image_url: '',
     payout_method: 'airtel',
     payout_details: '',
     is_active: true,
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  
+  const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
+  const [coverImagePreview, setCoverImagePreview] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -76,11 +81,13 @@ export function AdminShopForm() {
         location: data.location || '',
         address: data.address || '',
         logo_url: data.logo_url || '',
+        cover_image_url: data.cover_image_url || '',
         payout_method: data.payout_method || 'airtel',
         payout_details: data.payout_details || '',
         is_active: data.is_active ?? true,
       });
       setImagePreview(data.logo_url || '');
+      setCoverImagePreview(data.cover_image_url || '');
     } catch (error: any) {
       console.error('Error loading shop:', error);
       toast.error('Failed to load shop data');
@@ -100,14 +107,26 @@ export function AdminShopForm() {
     }
   };
 
-  const uploadImage = async (): Promise<string> => {
-    if (!imageFile) return formData.logo_url;
+  const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCoverImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCoverImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImage = async (file: File | null, existingUrl: string, folder: string): Promise<string> => {
+    if (!file) return existingUrl;
 
     setUploading(true);
     try {
-      const fileExt = imageFile.name.split('.').pop();
-      const fileName = `shop-${Date.now()}.${fileExt}`;
-      const filePath = `shop-logos/${fileName}`;
+      const fileExt = file.name.split('.').pop();
+      const fileName = `shop-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `${folder}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('storefront-assets')
@@ -139,11 +158,9 @@ export function AdminShopForm() {
 
     setLoading(true);
     try {
-      // Upload image if selected
-      let logoUrl = formData.logo_url;
-      if (imageFile) {
-        logoUrl = await uploadImage();
-      }
+      // Upload images if selected
+      const logoUrl = await uploadImage(imageFile, formData.logo_url, 'shop-logos');
+      const coverUrl = await uploadImage(coverImageFile, formData.cover_image_url, 'shop-covers');
 
       // V2 Schema Strict Payload
       const shopData = {
@@ -151,6 +168,7 @@ export function AdminShopForm() {
         location: formData.location,
         address: formData.address,
         logo_url: logoUrl,
+        cover_image_url: coverUrl,
         payout_method: formData.payout_method,
         payout_details: formData.payout_details,
         is_active: formData.is_active,
@@ -269,14 +287,14 @@ export function AdminShopForm() {
                 />
               </div>
 
-              {/* Image Upload */}
+              {/* Logo Upload */}
               <div className="space-y-2">
-                <Label htmlFor="image">Shop Image</Label>
+                <Label htmlFor="image">Shop Logo (Avatar)</Label>
                 {imagePreview && (
-                  <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden mb-2">
+                  <div className="relative w-24 h-24 bg-gray-100 rounded-full overflow-hidden mb-2 border-2 border-white shadow-sm">
                     <img
                       src={imagePreview}
-                      alt="Preview"
+                      alt="Logo Preview"
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -287,6 +305,32 @@ export function AdminShopForm() {
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
+                    className="flex-1"
+                  />
+                  <Button type="button" variant="outline" disabled={uploading}>
+                    <Upload className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Cover Upload */}
+              <div className="space-y-2">
+                <Label htmlFor="cover_image">Shop Cover (Banner)</Label>
+                {coverImagePreview && (
+                  <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden mb-2">
+                    <img
+                      src={coverImagePreview}
+                      alt="Cover Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <Input
+                    id="cover_image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCoverImageChange}
                     className="flex-1"
                   />
                   <Button type="button" variant="outline" disabled={uploading}>
