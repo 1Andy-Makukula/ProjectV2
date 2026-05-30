@@ -2,59 +2,63 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { Store, MapPin, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { motion } from 'motion/react';
 import { supabase } from '../../lib/supabaseClient';
-import { Badge } from '../components/ui/badge';
+import { ShopCard } from '../components/shared/ShopCard';
 
 interface Shop {
   id: string;
-  business_name: string;
-  description: string | null;
-  status: string;
-  district_id: string | null;
-  district: { name: string } | null;
-}
-
-interface District {
-  id: string;
   name: string;
+  description: string | null;
+  location: string | null;
+  logo_url: string | null;
+  cover_image_url: string | null;
+  image_url: string | null;
+  itemCount: number;
 }
 
 export function ShopDirectory() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDistrict, setSelectedDistrict] = useState<string>('');
 
   const [shops, setShops] = useState<Shop[]>([]);
-  const [districts, setDistricts] = useState<District[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [shopsRes, districtsRes] = await Promise.all([
-          supabase
-            .from('shops')
-            .select('id, name, description, is_active, district_id, districts(name)')
-            .eq('is_active', true),
-          supabase.from('districts').select('id, name')
-        ]);
+        const { data: shopsData, error } = await supabase
+          .from('shops')
+          .select('id, name, description, is_active, location, logo_url, cover_image_url, image_url')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
 
-        if (shopsRes.data) {
-          const mappedShops = shopsRes.data.map((s: any) => ({
-            id: s.id,
-            business_name: s.name,
-            description: s.description,
-            status: s.is_active ? 'active' : 'inactive',
-            district_id: s.district_id,
-            district: s.districts
-          }));
-          setShops(mappedShops as Shop[]);
-        }
-        if (districtsRes.data) {
-          setDistricts(districtsRes.data as District[]);
-        }
+        if (error) throw error;
+
+        // Manually fetch item counts to avoid 400 Bad Request
+        const shopsWithCounts = await Promise.all(
+          (shopsData ?? []).map(async (s: any) => {
+            const { count } = await supabase
+              .from('items')
+              .select('*', { count: 'exact', head: true })
+              .eq('shop_id', s.id)
+              .eq('is_available', true);
+            
+            return {
+              id: s.id,
+              name: s.name,
+              description: s.description,
+              location: s.location,
+              logo_url: s.logo_url,
+              cover_image_url: s.cover_image_url,
+              image_url: s.image_url,
+              itemCount: count ?? 0,
+            };
+          })
+        );
+
+        setShops(shopsWithCounts);
       } catch (err) {
         console.error('Error loading directory data:', err);
       } finally {
@@ -65,10 +69,10 @@ export function ShopDirectory() {
   }, []);
 
   const filteredShops = shops.filter(shop => {
-    const matchesSearch = shop.business_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (shop.description || '').toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesDistrict = !selectedDistrict || shop.district_id === selectedDistrict;
-    return matchesSearch && matchesDistrict;
+    const searchLower = searchQuery.toLowerCase();
+    return shop.name.toLowerCase().includes(searchLower) ||
+      (shop.description || '').toLowerCase().includes(searchLower) ||
+      (shop.location || '').toLowerCase().includes(searchLower);
   });
 
   return (
@@ -79,64 +83,38 @@ export function ShopDirectory() {
         {/* Filters */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" strokeWidth={1.5} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search shops..."
-              className="w-full pl-11 pr-4 py-3 bg-white border border-border rounded-full font-light focus:outline-none focus:border-[#F97316]"
+              placeholder="Search shops by name, description, or location..."
+              className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-full font-light focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
             />
           </div>
-          <select
-            value={selectedDistrict}
-            onChange={(e) => setSelectedDistrict(e.target.value)}
-            className="px-4 py-3 bg-white border border-border rounded-full font-light focus:outline-none focus:border-[#F97316]"
-          >
-            <option value="">All Districts</option>
-            {districts.map(d => (
-              <option key={d.id} value={d.id}>{d.name}</option>
-            ))}
-          </select>
         </div>
 
         {/* Shop Grid */}
         {loading ? (
-          <div className="py-12 text-center text-muted-foreground">Loading shops...</div>
+          <div className="py-12 text-center text-slate-400">Loading shops...</div>
         ) : filteredShops.length === 0 ? (
-          <div className="py-12 text-center text-muted-foreground">No shops found matching your criteria.</div>
+          <div className="py-12 text-center text-slate-400">No shops found matching your criteria.</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredShops.map((shop, idx) => (
-            <motion.div
-              key={shop.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05 }}
-              onClick={() => navigate(`/shop/${shop.id}`)}
-              className="bg-white rounded-[1.5rem] p-6 border border-border hover:shadow-lg transition-shadow cursor-pointer"
-            >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center flex-shrink-0">
-                  <Store className="w-7 h-7 text-white" strokeWidth={1.5} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-light text-black mb-1">{shop.business_name}</h3>
-                  <div className="flex items-center gap-1 text-xs font-light text-muted-foreground">
-                    <MapPin className="w-3 h-3" strokeWidth={1.5} />
-                    {shop.district?.name}
-                  </div>
-                </div>
-              </div>
-              <p className="text-sm font-light text-muted-foreground mb-4 line-clamp-2">{shop.description}</p>
-              <div className="flex items-center justify-between">
-                <Badge className="font-light">General</Badge>
-                {shop.status === 'active' && (
-                  <Badge className="bg-green-100 text-green-700 font-light">Verified</Badge>
-                )}
-              </div>
-            </motion.div>
-          ))}
+              <motion.div
+                key={shop.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05 }}
+              >
+                <ShopCard 
+                  shop={shop} 
+                  itemCount={shop.itemCount} 
+                  onClick={() => navigate(`/shop/${shop.id}`)} 
+                />
+              </motion.div>
+            ))}
           </div>
         )}
       </div>

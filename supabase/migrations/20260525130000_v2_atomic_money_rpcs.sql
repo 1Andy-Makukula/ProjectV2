@@ -610,14 +610,15 @@ END;
 $$;
 
 -- Grants: money RPCs are service-role only; merchant registration uses auth.uid()
-REVOKE ALL ON FUNCTION public.checkout_init_atomic FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.confirm_payment_atomic FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.fulfill_voucher_atomic FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.atomic_fulfill_voucher FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.settle_payout_atomic FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.increment_wallet_balance FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.increment_merchant_balance FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.request_withdrawal_atomic FROM PUBLIC;
+-- Grants: money RPCs are service-role only; merchant registration uses auth.uid()
+REVOKE ALL ON FUNCTION public.checkout_init_atomic(UUID, TEXT, TEXT, JSONB, TEXT, TEXT, TEXT) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.confirm_payment_atomic(UUID, NUMERIC, TEXT, TEXT, TEXT) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.fulfill_voucher_atomic(TEXT, UUID[], UUID[], UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.atomic_fulfill_voucher(TEXT, UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.settle_payout_atomic(UUID, UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.increment_wallet_balance(UUID, INTEGER, TEXT, UUID) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.increment_merchant_balance(UUID, INTEGER) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.request_withdrawal_atomic(UUID, INTEGER) FROM PUBLIC;
 
-GRANT EXECUTE ON FUNCTION public.register_merchant_shop TO authenticated;
-GRANT EXECUTE ON FUNCTION public.register_merchant_shop TO service_role;
+GRANT EXECUTE ON FUNCTION public.register_merchant_shop(TEXT, TEXT) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.register_merchant_shop(TEXT, TEXT) TO service_role;

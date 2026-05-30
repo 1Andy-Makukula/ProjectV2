@@ -181,7 +181,6 @@ export function ConsumerStorefront() {
             .from('items')
             .select('id, name, description, price_zmw, image_url, shop:shops(id, name)')
             .eq('is_available', true)
-            .eq('is_weekly_pick', true)
             .order('created_at', { ascending: false })
             .limit(8),
         ]);
@@ -224,7 +223,7 @@ export function ConsumerStorefront() {
           price_zmw: i.price_zmw,
           image_url: i.image_url ?? null,
           shop: i.shop ?? null,
-          is_weekly_pick: true,
+          is_weekly_pick: false,
         }));
 
         setData({ campaigns, shops, weeklyPicks });
