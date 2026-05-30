@@ -406,6 +406,7 @@ async function generateFlutterwaveLink(
   totalAmount: number,
   buyerEmail: string,
   buyerPhone: string,
+  recipientPhone?: string,
 ): Promise<string> {
   const secretKey = Deno.env.get("FLUTTERWAVE_SECRET_KEY");
   if (!secretKey) {
@@ -417,7 +418,7 @@ async function generateFlutterwaveLink(
   const appUrl = (Deno.env.get("APP_URL") ?? "https://project-h48n1.vercel.app").replace(/\/$/, "");
 
   // Use the recipient's phone as a fallback for the buyer's phone if the buyer doesn't have one on their account
-  const finalPhone = buyerPhone || raw.recipient_phone || "";
+  const finalPhone = buyerPhone || recipientPhone || "";
 
   const payload = {
     tx_ref: transactionId,
@@ -590,6 +591,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
       secureGrandTotal,
       caller.email ?? "customer@kithly.com",
       caller.phone ?? "",
+      recipient_phone,
     );
 
     // --- 9. Respond to frontend ---

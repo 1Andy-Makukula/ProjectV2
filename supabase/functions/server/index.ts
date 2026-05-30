@@ -497,7 +497,7 @@ async function handleVerifyPayment(payload: Record<string, any>): Promise<Respon
 
     const { error: confirmError } = await supabase.rpc("confirm_payment_atomic", {
       p_transaction_id: txn.transaction_id,
-      p_paid_amount: data.data.amount,
+      p_paid_amount: Math.round(data.data.amount * 100), // Convert ZMW from Flutterwave back to ngwee for DB validation
       p_paid_currency: data.data.currency ?? "ZMW",
       p_payload: JSON.stringify(data),
       p_idempotency_key: `${txn.transaction_id}:${data.data.id}`,
