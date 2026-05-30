@@ -146,7 +146,13 @@ CREATE POLICY merchant_shops_select_own ON public.merchant_shops
   FOR SELECT TO authenticated
   USING (user_id = auth.uid() OR public.current_user_role() = 'admin');
 
--- No direct INSERT — use register_merchant_shop or admin
+-- Admins can fully manage shop assignments
+DROP POLICY IF EXISTS merchant_shops_admin_write ON public.merchant_shops;
+CREATE POLICY merchant_shops_admin_write ON public.merchant_shops
+  FOR ALL
+  TO authenticated
+  USING (public.current_user_role() = 'admin')
+  WITH CHECK (public.current_user_role() = 'admin');
 
 -- ---------------------------------------------------------------------------
 -- kithly_wallets
