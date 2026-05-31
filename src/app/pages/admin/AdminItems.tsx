@@ -205,3 +205,6 @@ function ItemCard({ item, onEdit, onToggleAvailability }: any) {
     </motion.div>
   );
 }
+
+// Default export for lazy route loading (props are optional so this is safe)
+export default AdminItems;

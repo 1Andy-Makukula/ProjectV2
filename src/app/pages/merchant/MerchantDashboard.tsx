@@ -148,6 +148,10 @@ export function MerchantDashboard() {
 
       const normalizedOrders = ((data || []) as any[]).map((order) => ({
         ...order,
+        id: order.shop_order_id || order.id || 'NO-ID',
+        amount: order.subtotal || order.amount || 0,
+        code: order.claim_code || order.code || 'NO-CODE',
+        paid_at: order.created_at || order.paid_at || null,
         // Map first order_item's item to top-level 'item' so UI cards don't break
         item: order.order_items?.[0]?.item ?? null,
       }));

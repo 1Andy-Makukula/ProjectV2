@@ -10,7 +10,7 @@ import { motion } from 'motion/react';
 
 // HD lifestyle image from Unsplash — family celebrating together
 const SIDE_IMAGE =
-  'https://images.unsplash.com/photo-1511895426328-dc8714191011?w=1200&q=80&fit=crop';
+  'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&q=80&fit=crop';
 
 export function SignUp() {
   const navigate = useNavigate();

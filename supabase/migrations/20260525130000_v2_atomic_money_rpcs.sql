@@ -294,7 +294,7 @@ BEGIN
   GET DIAGNOSTICS v_orders_updated = ROW_COUNT;
 
   INSERT INTO public.transaction_events (transaction_id, event_type, payload)
-  VALUES (p_transaction_id, 'WEBHOOK_RECEIVED', COALESCE(p_payload, '{}'));
+  VALUES (p_transaction_id, 'WEBHOOK_RECEIVED', COALESCE(p_payload, '{}')::JSONB);
 
   IF p_idempotency_key IS NOT NULL THEN
     INSERT INTO public.payment_webhook_idempotency (idempotency_key, transaction_id)

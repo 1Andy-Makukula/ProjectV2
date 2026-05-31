@@ -22,7 +22,7 @@ import { Support } from './pages/Support';
 import { MerchantAgreement } from './pages/MerchantAgreement';
 import { ShopDirectory } from './pages/ShopDirectory';
 
-const lazyPage = <T extends Record<string, ComponentType<unknown>>>(
+const lazyPage = <T extends Record<string, any>>(
   loader: () => Promise<T>,
   name: keyof T,
 ) =>
