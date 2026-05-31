@@ -339,19 +339,30 @@ export function Checkout() {
             exit="exit"
             className="max-w-2xl mx-auto"
           >
-            {/* Sticky header */}
-            <div className="sticky top-0 z-10 bg-white border-b border-slate-100">
-              <div className="flex items-center gap-3 px-4 sm:px-5 py-4">
-                <button
-                  onClick={() => navigate(-1)}
-                  className="p-1.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-                  aria-label="Go back"
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                </button>
-                <h1 className="text-lg font-semibold tracking-tight text-slate-900">
-                  Your Cart
-                </h1>
+              <div className="flex flex-col items-center justify-center pt-8 pb-4">
+                <div className="flex items-center gap-3 group">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center shadow-md">
+                    <Gift className="w-6 h-6 text-white" strokeWidth={1.5} />
+                  </div>
+                  <span className="text-3xl font-light tracking-tight text-slate-800">
+                    KithLy Checkout
+                  </span>
+                </div>
+              </div>
+
+              {/* Sticky header */}
+              <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-slate-100 rounded-t-2xl">
+                <div className="flex items-center gap-3 px-4 sm:px-5 py-4">
+                  <button
+                    onClick={() => navigate(-1)}
+                    className="p-1.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                    aria-label="Go back"
+                  >
+                    <ArrowLeft className="h-5 w-5" />
+                  </button>
+                  <h1 className="text-lg font-semibold tracking-tight text-slate-900">
+                    Your Cart
+                  </h1>
                 {items.length > 0 && (
                   <span className="ml-auto text-xs text-slate-500">
                     {items.length} {items.length === 1 ? 'item' : 'items'}

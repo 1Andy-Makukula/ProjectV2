@@ -70,7 +70,6 @@ interface TransactionDetail {
   buyer: {
     name: string;
     email: string;
-    phone: string | null;
   } | null;
 }
 
@@ -156,7 +155,7 @@ export function OrderDetail() {
         origin_type,
         created_at,
         updated_at,
-        buyer:buyer_id (name, email, phone),
+        buyer:buyer_id (name, email),
         shop_orders (
           shop_order_id,
           claim_code,

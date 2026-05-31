@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { ShoppingCart, User, Menu, Gift, Bell, X, HelpCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { useCart } from '../../hooks/useCart';
 import { supabase } from '../../../lib/supabaseClient';
@@ -26,6 +26,8 @@ export function Header({
   const isAuthenticated = !!user;
   const { getTotalItems, setCartSliderOpen } = useCart();
   const cartItemCount = getTotalItems();
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
 
   // ── Role-based hub link ──────────────────────────────────────
   const hubHref =
@@ -159,6 +161,16 @@ export function Header({
               </Link>
             )}
 
+            {/* Home Link */}
+            {!isHomePage && (
+              <Link
+                to="/"
+                className="hidden md:inline-flex items-center px-3 py-1.5 text-sm font-light text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors tracking-wide"
+              >
+                Home
+              </Link>
+            )}
+
             {/* Notification Bell */}
             {isAuthenticated && (
               <button onClick={() => { setIsNotificationsOpen(true); setUnreadCount(0); }} className="relative p-2 text-gray-500 hover:text-gray-700 transition-colors">
@@ -179,20 +191,20 @@ export function Header({
             </Link>
 
             {/* Cart */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setCartSliderOpen(true)}
-              className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              aria-label="Shopping cart"
-            >
-              <ShoppingCart className="w-5 h-5" strokeWidth={1.5} />
-              {cartItemCount > 0 && (
+            {cartItemCount > 0 && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setCartSliderOpen(true)}
+                className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="Shopping cart"
+              >
+                <ShoppingCart className="w-5 h-5" strokeWidth={1.5} />
                 <Badge className="absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white text-xs">
                   {cartItemCount}
                 </Badge>
-              )}
-            </motion.button>
+              </motion.button>
+            )}
 
             {/* Profile */}
             {isAuthenticated ? (
