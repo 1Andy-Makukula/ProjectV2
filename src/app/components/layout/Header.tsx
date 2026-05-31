@@ -129,8 +129,8 @@ export function Header({
               <Menu className="w-5 h-5" strokeWidth={1.5} />
             </button>
 
-            <button
-              onClick={onLogoClick}
+            <Link
+              to={isAuthenticated ? hubHref : '/'}
               className="flex items-center gap-2 group"
             >
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center">
@@ -139,7 +139,7 @@ export function Header({
               <span className="text-xl font-light tracking-tight text-black group-hover:bg-gradient-to-r group-hover:from-[#F97316] group-hover:to-[#FB923C] group-hover:bg-clip-text group-hover:text-transparent transition-all">
                 KithLy
               </span>
-            </button>
+            </Link>
           </div>
 
           {/* Center: Search (Desktop) */}
@@ -196,10 +196,8 @@ export function Header({
 
             {/* Profile */}
             {isAuthenticated ? (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={onProfileClick}
+              <Link
+                to="/settings"
                 className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center">
@@ -210,17 +208,15 @@ export function Header({
                 <span className="hidden md:inline text-sm font-light">
                   {(user?.user_metadata?.full_name || profile?.name)?.split(' ')[0]}
                 </span>
-              </motion.button>
+              </Link>
             ) : (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={onProfileClick}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white rounded-full font-light"
+              <Link
+                to="/login"
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white rounded-full font-light transition-transform hover:scale-105 active:scale-95"
               >
                 <User className="w-4 h-4" strokeWidth={1.5} />
                 <span className="hidden md:inline">Sign In</span>
-              </motion.button>
+              </Link>
             )}
           </div>
         </div>

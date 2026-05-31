@@ -91,6 +91,7 @@ const SLIDE_MS = 5000;
 const ROLE_MAP: Record<string, string> = {
   admin: '/admin',
   merchant: '/merchant',
+  sender: '/dashboard',
 };
 
 // ─────────────────────────────────────────────

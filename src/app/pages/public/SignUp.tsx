@@ -19,7 +19,9 @@ export function SignUp() {
   // Redirect once AuthContext has loaded the user's profile after sign-up
   useEffect(() => {
     if (user && profile) {
-      navigate('/shops', { replace: true });
+      if (profile.role === 'merchant') navigate('/merchant', { replace: true });
+      else if (profile.role === 'admin') navigate('/admin', { replace: true });
+      else navigate('/dashboard', { replace: true });
     }
   }, [user, profile, navigate]);
 

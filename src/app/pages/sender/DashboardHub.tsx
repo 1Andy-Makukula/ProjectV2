@@ -331,7 +331,7 @@ export function DashboardHub() {
       <Header
         onCartClick={() => navigate('/checkout')}
         onProfileClick={() => navigate('/settings')}
-        onLogoClick={() => navigate('/')}
+        onLogoClick={() => navigate('/dashboard')}
       />
 
       <div className="mx-auto max-w-7xl px-5 sm:px-8 py-8 space-y-8">
@@ -585,7 +585,7 @@ export function DashboardHub() {
         <div className="flex flex-wrap gap-3 border-t border-slate-100 pt-6">
           {[
             { label: 'All Orders', href: '/orders' },
-            { label: 'Send a Gift', href: '/' },
+            { label: 'Send a Gift', href: '/shops' },
             { label: 'Impact Report', href: '/impact' },
             { label: 'Settings', href: '/settings' },
           ].map(link => (
