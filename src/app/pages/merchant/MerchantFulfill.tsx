@@ -212,7 +212,9 @@ export function MerchantFulfill() {
           shop_id, 
           claim_code, 
           subtotal,
-          merchant_shops!inner ( user_id ),
+          shop:shop_id!inner (
+            merchant_shops!inner ( user_id )
+          ),
           order_items (
             order_item_id,
             item_id,
@@ -221,7 +223,7 @@ export function MerchantFulfill() {
           )
         `)
         .eq('claim_code', val.toUpperCase())
-        .eq('merchant_shops.user_id', profile?.id)
+        .eq('shop.merchant_shops.user_id', profile?.id)
         .single();
 
       if (orderErr || !orderData) {
@@ -247,7 +249,7 @@ export function MerchantFulfill() {
       const initial: Record<string, boolean> = {};
       mapped.forEach(i => { initial[i.order_item_id] = true; });
 
-      const { merchant_shops, order_items, ...cleanOrder } = orderData;
+      const { shop, order_items, ...cleanOrder } = orderData;
       setShopOrder(cleanOrder as unknown as ShopOrder);
       setItems(mapped);
       setChecked(initial);

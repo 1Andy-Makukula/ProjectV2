@@ -31,7 +31,6 @@ interface ShopOrder {
   shop: {
     name: string;
     location: string | null;
-    address: string | null;
   } | null;
 }
 
@@ -88,7 +87,7 @@ export function GiftPage() {
           order_items (
             item:item_id (id, name, description, image_url)
           ),
-          shop:shop_id (name, location, address)
+          shop:shop_id (name, location)
         `)
         .eq('claim_code', code.toUpperCase())
         .single();
@@ -151,7 +150,7 @@ export function GiftPage() {
   const firstItem = shopOrder.order_items?.[0]?.item;
   const productName = firstItem?.name || 'Your gift';
   const shopName = shopOrder.shop?.name || 'KithLy partner shop';
-  const shopLocation = shopOrder.shop?.location || shopOrder.shop?.address;
+  const shopLocation = shopOrder.shop?.location;
 
   // Map V2 claim_status to display state
   const isPendingPayment = shopOrder.claim_status === 'PENDING_PAYMENT';
@@ -290,9 +289,9 @@ export function GiftPage() {
                   <li>Show this screen, the QR code, or your handshake code.</li>
                   <li>The merchant will verify the item image and hand over your gift.</li>
                 </ol>
-                {shopOrder.shop?.address && (
+                {shopOrder.shop?.location && (
                   <div className="mt-5 rounded-2xl border border-blue-100 bg-white/80 px-4 py-3 text-sm text-gray-700">
-                    <span className="font-semibold text-gray-900">Address:</span> {shopOrder.shop.address}
+                    <span className="font-semibold text-gray-900">Location:</span> {shopOrder.shop.location}
                   </div>
                 )}
               </div>

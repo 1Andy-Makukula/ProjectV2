@@ -76,20 +76,27 @@ export function ShopDirectory() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 md:px-6 py-8">
-        <h1 className="text-3xl font-light text-black mb-8">Shop Directory</h1>
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(251,146,60,0.08),_transparent_40%),linear-gradient(180deg,_#fff7ed_0%,_#ffffff_45%,_#fffaf5_100%)]">
+      <div className="container mx-auto px-4 md:px-8 py-10">
+        <div className="mb-10">
+          <h1 className="text-4xl font-semibold tracking-tight text-slate-900 mb-3">
+            Shop Directory
+          </h1>
+          <p className="text-slate-500 text-sm max-w-xl">
+            Discover verified KithLy partners. Browse their featured items and send a gift instantly using our secure escrow service.
+          </p>
+        </div>
 
         {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" strokeWidth={1.5} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+          <div className="relative group">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-orange-400 group-focus-within:text-orange-500 transition-colors" strokeWidth={1.5} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search shops by name, description, or location..."
-              className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-full font-light focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+              className="w-full pl-12 pr-6 py-4 bg-white/70 backdrop-blur-sm border border-orange-100 rounded-full text-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)] focus:outline-none focus:border-orange-300 focus:ring-4 focus:ring-orange-500/10 transition-all placeholder:text-slate-400"
             />
           </div>
         </div>
