@@ -16,6 +16,7 @@ import { ShoppingBag, Trash2, Shield, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { useCart } from '../hooks/useCart';
+import { useAuth } from '../../utils/auth/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
 import { getGroupedCartPayload } from '../../utils/sendFlowStore';
 import { useSendFlowStore } from '../../utils/sendFlowStore';
@@ -215,6 +216,7 @@ export function Checkout() {
   const navigate = useNavigate();
   const { items, removeFromCart, clearCart, getTotalAmount } = useCart();
   const { recipient } = useSendFlowStore();
+  const { profile } = useAuth();
 
   const [stage, setStage] = useState<CheckoutStage>('CART');
   const [transactionId, setTransactionId] = useState<string | null>(null);
@@ -222,7 +224,8 @@ export function Checkout() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [recipientName, setRecipientName] = useState(recipient?.name ?? '');
-  const [recipientPhone, setRecipientPhone] = useState(recipient?.phone ?? '');
+  // Default to sender's phone — Flutterwave charges this line for mobile money
+  const [recipientPhone, setRecipientPhone] = useState(recipient?.phone ?? profile?.phone ?? '');
   const [message, setMessage] = useState(recipient?.message ?? '');
 
   const totalAmount = getTotalAmount();
@@ -281,6 +284,9 @@ export function Checkout() {
 
       setTransactionId(data.transaction_id);
       setShopOrders(data.shop_orders ?? []);
+
+      // Clear the cart immediately — the transaction is created, items are committed.
+      clearCart();
       
       // Open the Flutterwave-hosted payment page in a new tab so the polling
       // screen can remain active in this tab.
@@ -298,7 +304,6 @@ export function Checkout() {
   };
 
   const handleComplete = () => {
-    clearCart();
     navigate('/orders');
   };
 
@@ -309,6 +314,8 @@ export function Checkout() {
       <PaymentProcessingScreen
         transactionId={transactionId}
         shopOrders={shopOrders}
+        recipientName={recipientName}
+        senderName={profile?.name ?? ''}
         onComplete={handleComplete}
       />
     );
@@ -384,7 +391,7 @@ export function Checkout() {
                   <Button
                     variant="outline"
                     className="mt-2"
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate('/shops')}
                   >
                     Browse Gifts
                   </Button>
@@ -422,7 +429,7 @@ export function Checkout() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="recipientPhone" className="text-xs text-slate-500 mb-1.5 block">Phone Number</Label>
+                        <Label htmlFor="recipientPhone" className="text-xs text-slate-500 mb-1.5 block">Your Phone (for payment)</Label>
                         <Input
                           id="recipientPhone"
                           placeholder="e.g. 0971234567"

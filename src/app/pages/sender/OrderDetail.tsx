@@ -41,7 +41,6 @@ interface Shop {
   id: string;
   name: string;
   location: string | null;
-  address: string | null;
 }
 
 interface ShopOrderDetail {
@@ -168,7 +167,7 @@ export function OrderDetail() {
           message,
           created_at,
           updated_at,
-          shop:shop_id (id, name, location, address),
+          shop:shop_id (id, name, location),
           order_items (
             item:item_id (id, name, description, image_url, price_zmw)
           )
@@ -405,9 +404,6 @@ export function OrderDetail() {
                 <InfoRow icon={MapPin} label="Shop" value={shopOrder.shop.name} />
                 {shopOrder.shop.location && (
                   <InfoRow icon={MapPin} label="Location" value={shopOrder.shop.location} />
-                )}
-                {shopOrder.shop.address && (
-                  <InfoRow icon={MapPin} label="Address" value={shopOrder.shop.address} />
                 )}
               </div>
             </motion.div>

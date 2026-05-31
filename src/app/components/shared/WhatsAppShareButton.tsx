@@ -1,16 +1,33 @@
 import { Share } from 'lucide-react';
 import { Button } from '../ui/button';
+import { getGiftPageUrl } from '../../../utils/whatsapp';
 
 export interface WhatsAppShareButtonProps {
   claimCode: string;
   shopName: string;
+  recipientName?: string;
+  senderName?: string;
   amount?: number;
 }
 
-export function WhatsAppShareButton({ claimCode, shopName, amount }: WhatsAppShareButtonProps) {
+export function WhatsAppShareButton({ claimCode, shopName, recipientName, senderName, amount }: WhatsAppShareButtonProps) {
   const handleShare = () => {
-    // Professional escrow notification template
-    const text = `Hello. I have purchased a gift for you from ${shopName} via KithLy Escrow. Your secure claim code is: ${claimCode}. Present this code to the cashier to collect your items.`;
+    const giftLink = getGiftPageUrl(claimCode);
+    const greeting = recipientName ? `Hi ${recipientName}, ` : 'Hi, ';
+    const fromLine = senderName ? `you've received a gift from ${senderName}` : `you've received a gift`;
+
+    const text = [
+      `${greeting}${fromLine} on KithLy! 🎁`,
+      ``,
+      `Your claim code is: *${claimCode}*`,
+      `Shop: ${shopName}`,
+      ``,
+      `Show the code to the cashier at the shop to collect your gift.`,
+      ``,
+      `Or tap the link below to view your gift details & QR code:`,
+      giftLink,
+    ].join('\n');
+
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };

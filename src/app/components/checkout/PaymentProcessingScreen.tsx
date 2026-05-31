@@ -48,6 +48,12 @@ export interface PaymentProcessingScreenProps {
    * to a confirmation or order-detail screen.
    */
   onComplete: () => void;
+
+  /** Recipient name for the share message. */
+  recipientName?: string;
+
+  /** Sender name for the share message. */
+  senderName?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -215,9 +221,13 @@ function ClaimCodeDisplay({ code }: { code: string }) {
 
 function SuccessView({
   shopOrders,
+  recipientName,
+  senderName,
   onComplete,
 }: {
   shopOrders: { shop_order_id: string; claim_code: string; shop_id: string }[];
+  recipientName?: string;
+  senderName?: string;
   onComplete: () => void;
 }) {
   return (
@@ -311,6 +321,8 @@ function SuccessView({
                 <WhatsAppShareButton
                   claimCode={order.claim_code}
                   shopName={`KithLy Merchant (${order.shop_id.slice(0, 4)})`}
+                  recipientName={recipientName}
+                  senderName={senderName}
                 />
               </div>
             </motion.div>
@@ -468,6 +480,8 @@ function TimeoutView({
 export function PaymentProcessingScreen({
   transactionId,
   shopOrders,
+  recipientName,
+  senderName,
   onComplete,
 }: PaymentProcessingScreenProps) {
 
@@ -540,6 +554,8 @@ export function PaymentProcessingScreen({
             <SuccessView
               key="success"
               shopOrders={shopOrders}
+              recipientName={recipientName}
+              senderName={senderName}
               onComplete={onComplete}
             />
           )}

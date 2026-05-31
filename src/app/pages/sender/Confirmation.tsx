@@ -17,7 +17,10 @@ import {
   MapPin,
   ArrowRight,
   MessageSquare,
+  Share,
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
+import { WhatsAppShareButton } from '../../components/shared/WhatsAppShareButton';
 
 // ---------------------------------------------------------------------------
 // V2 Schema Types
@@ -347,6 +350,15 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
                 )}
               </div>
             )}
+
+            {/* WhatsApp share */}
+            <div className="px-4 pb-4">
+              <WhatsAppShareButton
+                claimCode={shopOrder.claim_code}
+                shopName={shopOrder.shop?.name ?? 'KithLy Merchant'}
+                recipientName={shopOrder.recipient_name ?? undefined}
+              />
+            </div>
           </motion.div>
         );
       })}
@@ -469,6 +481,20 @@ export function Confirmation() {
       setAttemptCount((n) => Math.min(n + 1, MAX_ATTEMPTS));
     }, 3000);
     return () => clearInterval(timer);
+  }, [pollingStatus]);
+
+  // Fire confetti when payment is confirmed
+  useEffect(() => {
+    if (pollingStatus === 'confirmed') {
+      const brandColors = ['#F97316', '#FB923C', '#FDBA74', '#FED7AA', '#ffffff'];
+      const opts: confetti.Options = {
+        particleCount: 80, spread: 80, startVelocity: 45,
+        decay: 0.92, gravity: 1.1, ticks: 200,
+        colors: brandColors, shapes: ['circle', 'square'] as confetti.Shape[], scalar: 1.1,
+      };
+      confetti({ ...opts, origin: { x: 0.2, y: 0.75 }, angle: 60 });
+      setTimeout(() => confetti({ ...opts, origin: { x: 0.8, y: 0.75 }, angle: 120 }), 120);
+    }
   }, [pollingStatus]);
 
   if (resolving) {
