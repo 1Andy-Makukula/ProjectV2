@@ -2,17 +2,15 @@
  * CashierVerificationTerminal
  *
  * Merchant-facing POS for gift voucher redemption.
- * Input modes: Live QR scan (camera) or Manual OTP entry.
- *
- * Financial data is intentionally concealed — cashier sees
- * item name and recipient name only.
+ * Upgraded to Master-Sub Ticket architecture (Smart Bundle Protocol).
+ * Includes Checklist UI for partial fulfillment.
  */
 
 import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 import { Scanner } from '@yudiel/react-qr-scanner';
-import { QrCode, Keyboard, Camera, CameraOff } from 'lucide-react';
+import { QrCode, Keyboard, Camera, CameraOff, Package, Printer } from 'lucide-react';
 import {
   InputOTP,
   InputOTPGroup,
@@ -20,6 +18,7 @@ import {
   InputOTPSeparator,
 } from '../ui/input-otp';
 import { Button } from '../ui/button';
+import { Switch } from '../ui/switch';
 import { cn } from '../ui/utils';
 import { supabase, projectId } from '../../../lib/supabaseClient';
 
@@ -36,14 +35,22 @@ const CLAIM_CODE_LENGTH = 8 as const;
 // Types
 // ---------------------------------------------------------------------------
 
-type TerminalStatus = 'IDLE' | 'SCANNING' | 'APPROVED' | 'REJECTED';
+type TerminalStatus = 'IDLE' | 'FETCHING' | 'CHECKLIST' | 'SCANNING' | 'APPROVED' | 'REJECTED';
 type InputMode = 'qr' | 'manual';
 
-interface ApprovedResult {
-  voucher_id: string;
-  item_name: string;
-  recipient_name: string;
+interface BundleData {
+  shop_order_id: string;
+  transaction_id: string;
   claim_code: string;
+  recipient_name: string;
+  order_items: Array<{
+    order_item_id: string;
+    items: { name: string } | null;
+  }>;
+}
+
+interface ApprovedResult {
+  fulfilled_count: number;
 }
 
 interface RejectedResult {
@@ -62,7 +69,8 @@ export interface CashierVerificationTerminalProps {
 
 async function callFulfillVoucher(
   claimCode: string,
-  shopId: string,
+  present_item_ids: string[],
+  missing_item_ids: string[],
   accessToken: string,
 ): Promise<
   | { ok: true; data: ApprovedResult }
@@ -74,7 +82,7 @@ async function callFulfillVoucher(
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${accessToken}`,
     },
-    body: JSON.stringify({ claim_code: claimCode, shop_id: shopId }),
+    body: JSON.stringify({ claim_code: claimCode, present_item_ids, missing_item_ids }),
   });
 
   let payload: Record<string, unknown>;
@@ -89,7 +97,7 @@ async function callFulfillVoucher(
   }
 
   if (response.ok && payload.success === true) {
-    return { ok: true, data: payload as unknown as ApprovedResult };
+    return { ok: true, data: { fulfilled_count: present_item_ids.length } };
   }
 
   const rejectionReason =
@@ -116,9 +124,9 @@ const panelVariants = {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function ScanningView() {
+function ProcessingView({ message, subMessage }: { message: string; subMessage: string }) {
   return (
-    <motion.div key="scanning" variants={panelVariants} initial="hidden" animate="visible" exit="exit"
+    <motion.div key="processing" variants={panelVariants} initial="hidden" animate="visible" exit="exit"
       className="flex flex-col items-center gap-8"
     >
       <div className="relative flex h-20 w-20 items-center justify-center" aria-hidden>
@@ -135,26 +143,104 @@ function ScanningView() {
         <span className="h-5 w-5 rounded-full bg-gradient-to-br from-orange-500 to-blue-800" />
       </div>
       <div className="flex flex-col items-center gap-2 text-center">
-        <p className="text-lg font-medium text-slate-900">Verifying code</p>
-        <p className="text-sm text-slate-500">Checking the secure ledger...</p>
+        <p className="text-lg font-medium text-slate-900">{message}</p>
+        <p className="text-sm text-slate-500">{subMessage}</p>
       </div>
     </motion.div>
   );
 }
 
-function ApprovedView({ result, onReset }: { result: ApprovedResult; onReset: () => void }) {
+function ChecklistView({ bundle, onProcess, onCancel }: { bundle: BundleData; onProcess: (present: string[], missing: string[]) => void; onCancel: () => void }) {
+  const [itemToggles, setItemToggles] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    bundle.order_items.forEach(oi => {
+      initial[oi.order_item_id] = true;
+    });
+    return initial;
+  });
+
+  const toggleItem = (id: string) => {
+    setItemToggles(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const presentCount = Object.values(itemToggles).filter(Boolean).length;
+
+  const handleProcess = () => {
+    const present_item_ids: string[] = [];
+    const missing_item_ids: string[] = [];
+    Object.entries(itemToggles).forEach(([id, isPresent]) => {
+      if (isPresent) present_item_ids.push(id);
+      else missing_item_ids.push(id);
+    });
+    onProcess(present_item_ids, missing_item_ids);
+  };
+
+  return (
+    <motion.div key="checklist" variants={panelVariants} initial="hidden" animate="visible" exit="exit"
+      className="flex w-full flex-col gap-6"
+    >
+      <div className="flex w-full flex-col items-center gap-1.5 text-center">
+        <h1 className="text-xl font-semibold text-slate-900">Verify Items</h1>
+        <p className="text-sm text-slate-500">
+          Hand over to <strong className="font-semibold text-slate-700">{bundle.recipient_name}</strong>
+        </p>
+      </div>
+
+      <div className="flex w-full flex-col gap-3 rounded-2xl border border-slate-100 bg-white/80 backdrop-blur-xl p-4 shadow-sm">
+        {bundle.order_items.map((oi) => {
+          const isPresent = itemToggles[oi.order_item_id];
+          return (
+            <div key={oi.order_item_id} className="flex items-center justify-between gap-4 rounded-xl border border-slate-50 bg-slate-50/50 p-3 transition-colors hover:bg-slate-50">
+              <span className={cn("text-sm font-medium transition-colors line-clamp-2", isPresent ? "text-slate-800" : "text-slate-400 line-through")}>
+                {oi.items?.name || 'Unknown item'}
+              </span>
+              <div className="flex items-center gap-3 shrink-0">
+                <span className={cn("text-xs font-semibold", isPresent ? "text-emerald-600" : "text-slate-400")}>
+                  {isPresent ? 'Available' : 'Missing'}
+                </span>
+                <Switch
+                  checked={isPresent}
+                  onCheckedChange={() => toggleItem(oi.order_item_id)}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="text-[11px] text-slate-500 leading-relaxed px-2 text-center">
+        Marking an item as missing will refund the sender or return it to their vault. You will only be paid for Available items.
+      </p>
+
+      <div className="flex w-full flex-col gap-3 mt-2">
+        <Button
+          className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-blue-800 py-5 text-sm font-medium tracking-wide text-white hover:opacity-90"
+          onClick={handleProcess}
+          disabled={presentCount === 0 && bundle.order_items.length > 0}
+        >
+          Process {presentCount} Available Items
+        </Button>
+        <Button variant="ghost" onClick={onCancel} className="w-full rounded-xl py-5 text-sm font-normal text-slate-500 hover:text-slate-700">
+          Cancel & Return
+        </Button>
+      </div>
+    </motion.div>
+  );
+}
+
+function ApprovedView({ result, transactionId, onReset }: { result: ApprovedResult; transactionId?: string; onReset: () => void }) {
   return (
     <motion.div key="approved" variants={panelVariants} initial="hidden" animate="visible" exit="exit"
       className="flex w-full flex-col items-center gap-8"
     >
       <motion.div
-        className="flex w-full flex-col items-center gap-3 rounded-2xl border border-orange-100 bg-orange-50/60 backdrop-blur-xl py-8"
+        className="flex w-full flex-col items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/60 backdrop-blur-xl py-8 w-full"
         initial={{ scale: 0.94, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
         <motion.div
-          className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-blue-800"
+          className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 shadow-sm"
           initial={{ scale: 0.6, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.45, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
@@ -169,36 +255,42 @@ function ApprovedView({ result, onReset }: { result: ApprovedResult; onReset: ()
             />
           </svg>
         </motion.div>
-        <motion.span className="text-xs font-semibold uppercase tracking-[0.25em] text-orange-500"
+        <motion.span className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-600"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
         >
           Approved
         </motion.span>
         <motion.p
-          className="text-center text-4xl font-bold leading-tight tracking-tight text-slate-900 max-w-xs px-4"
+          className="text-center text-3xl font-bold leading-tight tracking-tight text-slate-900 max-w-xs px-4"
           initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.35 }}
         >
-          {result.item_name}
+          Fulfillment Complete
         </motion.p>
       </motion.div>
 
-      <motion.div className="flex w-full flex-col gap-1"
+      <motion.div className="flex w-full flex-col gap-1 text-center"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }}
       >
-        <span className="text-xs font-medium uppercase tracking-widest text-slate-400">Hand over to</span>
-        <p className="text-2xl font-medium text-slate-800">{result.recipient_name}</p>
-      </motion.div>
-
-      <motion.div
-        className="flex w-full items-center justify-between rounded-xl border border-slate-100 bg-white/80 backdrop-blur-xl px-4 py-3"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-      >
-        <span className="text-xs text-slate-400">Claim code</span>
-        <span className="font-mono text-sm font-medium text-slate-600">{result.claim_code}</span>
+        <p className="text-lg font-medium text-slate-800">
+          Successfully handed over <strong className="text-emerald-600">{result.fulfilled_count}</strong> items.
+        </p>
       </motion.div>
 
       <div className="h-px w-full bg-slate-100" />
+
+      {transactionId && (
+        <motion.div className="w-full" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+          <Button
+            variant="outline"
+            className="w-full rounded-xl border border-slate-200 bg-white hover:bg-slate-50 py-5 text-sm font-medium tracking-wide text-slate-800 flex items-center justify-center gap-1.5"
+            onClick={() => window.open(`/receipt/${transactionId}`, '_blank')}
+          >
+            <Printer className="h-4 w-4 text-primary" />
+            <span>Print Settlement Receipt</span>
+          </Button>
+        </motion.div>
+      )}
 
       <motion.div className="w-full" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
         <Button
@@ -418,11 +510,11 @@ function IdleView({
               onComplete={onSubmit} aria-label="Gift claim code"
             >
               <InputOTPGroup>
-                {[0,1,2,3].map(i => <InputOTPSlot key={i} index={i} className="h-14 w-11 text-lg font-mono uppercase" />)}
+                {[0,1,2,3].map(i => <InputOTPSlot key={i} index={i} className="h-14 w-11 text-lg font-mono uppercase bg-white/60" />)}
               </InputOTPGroup>
               <InputOTPSeparator />
               <InputOTPGroup>
-                {[4,5,6,7].map(i => <InputOTPSlot key={i} index={i} className="h-14 w-11 text-lg font-mono uppercase" />)}
+                {[4,5,6,7].map(i => <InputOTPSlot key={i} index={i} className="h-14 w-11 text-lg font-mono uppercase bg-white/60" />)}
               </InputOTPGroup>
             </InputOTP>
 
@@ -473,37 +565,36 @@ export function CashierVerificationTerminal({ shopId, onApproved }: CashierVerif
   const [status, setStatus] = useState<TerminalStatus>('IDLE');
   const [inputMode, setInputMode] = useState<InputMode>('qr');
   const [code, setCode] = useState<string>('');
+  const [bundleData, setBundleData] = useState<BundleData | null>(null);
   const [approvedResult, setApprovedResult] = useState<ApprovedResult | null>(null);
   const [rejectedResult, setRejectedResult] = useState<RejectedResult | null>(null);
   const isSubmittingRef = useRef<boolean>(false);
 
-  const handleSubmit = useCallback(async (overrideCode?: string) => {
+  // STEP A: The Secure Read
+  const handleFetchBundle = useCallback(async (overrideCode?: string) => {
     const codeToUse = overrideCode ?? code;
     if (isSubmittingRef.current || codeToUse.length !== CLAIM_CODE_LENGTH) return;
     isSubmittingRef.current = true;
-    setStatus('SCANNING');
+    setStatus('FETCHING');
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        toast.error('Session expired', { description: 'Please log in again and retry.' });
-        setStatus('IDLE');
-        return;
-      }
+      const { data, error } = await supabase
+        .from('shop_orders')
+        .select('shop_order_id, transaction_id, claim_code, recipient_name, order_items(order_item_id, items(name))')
+        .eq('claim_code', codeToUse.toUpperCase())
+        .eq('shop_id', shopId)
+        .in('claim_status', ['PENDING', 'PENDING_PAYMENT'])
+        .single();
 
-      const result = await callFulfillVoucher(codeToUse, shopId, session.access_token);
-
-      if (result.ok) {
-        setApprovedResult(result.data);
-        setStatus('APPROVED');
-        onApproved?.(result.data);
-        if ('vibrate' in navigator) navigator.vibrate([80, 40, 80]);
-        toast.success('Code approved', { description: `${result.data.item_name} — for ${result.data.recipient_name}` });
-      } else {
-        setRejectedResult({ rejection_reason: result.rejection_reason, raw_error: result.raw_error });
+      if (error || !data) {
+        setRejectedResult({ rejection_reason: "This code is invalid or does not belong to your shop.", raw_error: error?.message || 'Not found' });
         setStatus('REJECTED');
         if ('vibrate' in navigator) navigator.vibrate([300]);
-        toast.error('Code rejected', { description: result.rejection_reason });
+        toast.error('Code rejected', { description: 'Invalid code or already redeemed.' });
+      } else {
+        setBundleData(data as unknown as BundleData);
+        setStatus('CHECKLIST');
+        if ('vibrate' in navigator) navigator.vibrate([80, 40]);
       }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'An unexpected error occurred.';
@@ -513,25 +604,65 @@ export function CashierVerificationTerminal({ shopId, onApproved }: CashierVerif
     } finally {
       isSubmittingRef.current = false;
     }
-  }, [code, shopId, onApproved]);
+  }, [code, shopId]);
 
-  // QR auto-submit: populate code state then immediately verify
+  // STEP C: The Execution
+  const handleProcessBundle = useCallback(async (present_item_ids: string[], missing_item_ids: string[]) => {
+    if (isSubmittingRef.current || !bundleData) return;
+    isSubmittingRef.current = true;
+    setStatus('SCANNING'); // Using scanning view but with Processing text
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        toast.error('Session expired', { description: 'Please log in again and retry.' });
+        setStatus('IDLE');
+        return;
+      }
+
+      const result = await callFulfillVoucher(bundleData.claim_code, present_item_ids, missing_item_ids, session.access_token);
+
+      if (result.ok) {
+        setApprovedResult(result.data);
+        setStatus('APPROVED');
+        onApproved?.(result.data);
+        if ('vibrate' in navigator) navigator.vibrate([80, 40, 80]);
+        toast.success('Fulfillment Complete', { description: `${result.data.fulfilled_count} items handed over.` });
+      } else {
+        setRejectedResult({ rejection_reason: result.rejection_reason, raw_error: result.raw_error });
+        setStatus('REJECTED');
+        if ('vibrate' in navigator) navigator.vibrate([300]);
+        toast.error('Fulfillment failed', { description: result.rejection_reason });
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'An unexpected error occurred.';
+      console.error('[CashierVerificationTerminal]', message);
+      toast.error('Fulfillment failed', { description: 'A connection error occurred. Please check your network.' });
+      setStatus('CHECKLIST');
+    } finally {
+      isSubmittingRef.current = false;
+    }
+  }, [bundleData, onApproved]);
+
   const handleQRDetected = useCallback((scanned: string) => {
     setCode(scanned);
-    handleSubmit(scanned);
-  }, [handleSubmit]);
+    handleFetchBundle(scanned);
+  }, [handleFetchBundle]);
 
   const handleReset = useCallback(() => {
     setCode('');
+    setBundleData(null);
     setApprovedResult(null);
     setRejectedResult(null);
     setStatus('IDLE');
   }, []);
 
   const liveMessage =
-    status === 'SCANNING' ? 'Verifying code. Please wait.'
-    : status === 'APPROVED' ? `Code approved. Hand over ${approvedResult?.item_name} to ${approvedResult?.recipient_name}.`
+    status === 'FETCHING' ? 'Verifying code. Please wait.'
+    : status === 'SCANNING' ? 'Processing fulfillment. Please wait.'
+    : status === 'APPROVED' ? `Fulfillment complete. Handed over ${approvedResult?.fulfilled_count} items.`
     : status === 'REJECTED' ? `Code rejected. ${rejectedResult?.rejection_reason}`
+    : status === 'CHECKLIST' ? `Code verified. Please check items for ${bundleData?.recipient_name}.`
     : '';
 
   return (
@@ -553,7 +684,7 @@ export function CashierVerificationTerminal({ shopId, onApproved }: CashierVerif
           <span className="bg-gradient-to-r from-orange-500 to-blue-800 bg-clip-text text-xs font-semibold uppercase tracking-[0.25em] text-transparent">
             KithLy
           </span>
-          <span className="text-xs text-slate-300">Merchant Terminal</span>
+          <span className="text-xs text-slate-400">Merchant Terminal</span>
         </motion.div>
 
         <AnimatePresence mode="wait">
@@ -562,16 +693,24 @@ export function CashierVerificationTerminal({ shopId, onApproved }: CashierVerif
               key="idle"
               code={code}
               onCodeChange={setCode}
-              onSubmit={() => handleSubmit()}
+              onSubmit={() => handleFetchBundle()}
               isDisabled={false}
               mode={inputMode}
               onModeChange={setInputMode}
               onQRDetected={handleQRDetected}
             />
           )}
-          {status === 'SCANNING' && <ScanningView key="scanning" />}
+          {status === 'FETCHING' && (
+            <ProcessingView key="fetching" message="Verifying code" subMessage="Checking the secure ledger..." />
+          )}
+          {status === 'CHECKLIST' && bundleData && (
+            <ChecklistView key="checklist" bundle={bundleData} onProcess={handleProcessBundle} onCancel={handleReset} />
+          )}
+          {status === 'SCANNING' && (
+            <ProcessingView key="processing" message="Processing fulfillment" subMessage="Updating master and child records..." />
+          )}
           {status === 'APPROVED' && approvedResult && (
-            <ApprovedView key="approved" result={approvedResult} onReset={handleReset} />
+            <ApprovedView key="approved" result={approvedResult} transactionId={bundleData?.transaction_id} onReset={handleReset} />
           )}
           {status === 'REJECTED' && rejectedResult && (
             <RejectedView key="rejected" result={rejectedResult} onReset={handleReset} />

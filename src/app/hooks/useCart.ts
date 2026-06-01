@@ -26,6 +26,7 @@ export function toProduct(item: any): Product {
 interface CartState {
   items: CartItem[];
   isCartSliderOpen: boolean;
+  applyCredits: boolean;
 
   // Actions
   addToCart: (product: Product, quantity?: number) => void;
@@ -36,6 +37,7 @@ interface CartState {
   getTotalAmount: () => number;
   getItemsByShop: () => Map<string, CartItem[]>;
   setCartSliderOpen: (open: boolean) => void;
+  setApplyCredits: (apply: boolean) => void;
 }
 
 export const useCart = create<CartState>()(
@@ -43,7 +45,9 @@ export const useCart = create<CartState>()(
     (set, get) => ({
       items: [],
       isCartSliderOpen: false,
+      applyCredits: false,
       setCartSliderOpen: (open: boolean) => set({ isCartSliderOpen: open }),
+      setApplyCredits: (apply: boolean) => set({ applyCredits: apply }),
 
       addToCart: (product: Product, quantity = 1) => {
         const { items } = get();

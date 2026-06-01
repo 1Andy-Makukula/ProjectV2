@@ -2,331 +2,216 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { supabase } from '../../../lib/supabaseClient';
 import { motion } from 'motion/react';
-import { Gift as GiftIcon, MapPin, Package, QrCode as QrCodeIcon } from 'lucide-react';
-import QRCode from 'qrcode';
+import { Gift as GiftIcon, MapPin, Package, QrCode as QrCodeIcon, SearchX, Sparkles } from 'lucide-react';
+import QRCode from 'qrcode'; // preserved import
+
+import { calculateTimeRemaining } from '../../../utils/timeHelpers';
+
+import { QRCodeDisplay } from '../../components/shared/QRCodeDisplay';
+import { EmptyState } from '../../components/shared/EmptyState';
+import { Card, CardContent } from '../../components/ui/card';
+import { Separator } from '../../components/ui/separator';
 
 // ---------------------------------------------------------------------------
-// V2 Schema Types
+// V2 Exact Relational Types
 // ---------------------------------------------------------------------------
 
 interface ShopOrder {
-  shop_order_id: string;
   claim_code: string;
-  claim_status: string; // PENDING_PAYMENT | PENDING | REDEEMED
-  recipient_name: string;
   message: string | null;
-  transaction: {
-    buyer: {
-      name: string;
-    } | null;
+  recipient_name: string;
+  created_at: string;
+  shops: {
+    name: string;
+    address: string | null;
+    logo_url: string | null;
   } | null;
   order_items: Array<{
-    item: {
-      id: string;
+    items: {
       name: string;
-      description: string | null;
       image_url: string | null;
     } | null;
   }>;
-  shop: {
-    name: string;
-    location: string | null;
+  transactions: {
+    users: {
+      name: string;
+    } | null;
   } | null;
 }
 
 export function GiftPage() {
-  const { code } = useParams<{ code: string }>();
+  const { claimCode } = useParams<{ claimCode: string }>();
   const [shopOrder, setShopOrder] = useState<ShopOrder | null>(null);
   const [loading, setLoading] = useState(true);
-  const [qrDataUrl, setQrDataUrl] = useState('');
 
   useEffect(() => {
-    if (!code) return;
-
-    fetchShopOrder();
-
-    // V2: Subscribe to shop_orders filtered by claim_code.
-    // When claim_status changes from PENDING_PAYMENT → PENDING (payment confirmed),
-    // re-fetch to reveal the QR code and collection instructions.
-    const subscription = supabase
-      .channel(`gift:${code}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'shop_orders',
-          filter: `claim_code=eq.${code.toUpperCase()}`,
-        },
-        () => {
-          fetchShopOrder();
-        },
-      )
-      .subscribe();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [code]);
-
-  const fetchShopOrder = async () => {
-    if (!code) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('shop_orders')
-        .select(`
-          shop_order_id,
-          claim_code,
-          claim_status,
-          recipient_name,
-          message,
-          transaction:transaction_id (
-            buyer:buyer_id (name)
-          ),
-          order_items (
-            item:item_id (id, name, description, image_url)
-          ),
-          shop:shop_id (name, location)
-        `)
-        .eq('claim_code', code.toUpperCase())
-        .single();
-
-      if (error) throw error;
-      setShopOrder(data as unknown as ShopOrder);
-    } catch (error) {
-      console.error('Error fetching shop order:', error);
-    } finally {
+    if (!claimCode) {
       setLoading(false);
-    }
-  };
-
-  // Generate QR code when payment is confirmed (claim_status = 'PENDING')
-  useEffect(() => {
-    if (shopOrder?.claim_status === 'PENDING' && shopOrder.claim_code) {
-      QRCode.toDataURL(shopOrder.claim_code, {
-        width: 300,
-        margin: 2,
-        color: {
-          dark: '#1f2937',
-          light: '#ffffff',
-        },
-      })
-        .then((url) => {
-          setQrDataUrl(url);
-        })
-        .catch((error) => {
-          console.error('Error generating QR code:', error);
-        });
       return;
     }
 
-    setQrDataUrl('');
-  }, [shopOrder]);
+    const fetchShopOrder = async () => {
+      try {
+        const { data, error } = await supabase
+          .rpc('get_shop_order_by_claim_code', { code: claimCode.toUpperCase() });
+
+        if (error) throw error;
+        setShopOrder(data as unknown as ShopOrder);
+      } catch (error) {
+        console.error('Error fetching shop order:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchShopOrder();
+  }, [claimCode]);
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-primary" />
+      <div className="flex min-h-screen items-center justify-center bg-[#FAFAFA]">
+        <Package className="h-8 w-8 animate-pulse text-slate-300" strokeWidth={1} />
       </div>
     );
   }
 
   if (!shopOrder) {
     return (
-      <div className="flex min-h-screen items-center justify-center px-6">
-        <div className="max-w-md text-center">
-          <h2 className="mb-2 text-2xl font-medium">Gift Not Found</h2>
-          <p className="text-muted-foreground">
-            This gift code doesn&apos;t exist or may have expired.
-          </p>
-        </div>
+      <div className="flex min-h-screen items-center justify-center bg-[#FAFAFA]">
+        <EmptyState
+          icon={SearchX}
+          title="Gift Not Found"
+          description="This gift code doesn't exist or the link may be invalid."
+        />
       </div>
     );
   }
 
-  // Derive display values from V2 shape
-  const senderName = (shopOrder.transaction?.buyer as any)?.name || 'Someone';
-  const firstItem = shopOrder.order_items?.[0]?.item;
-  const productName = firstItem?.name || 'Your gift';
-  const shopName = shopOrder.shop?.name || 'KithLy partner shop';
-  const shopLocation = shopOrder.shop?.location;
+  const senderName = shopOrder.transactions?.users?.name || 'Someone special';
+  const shopName = shopOrder.shops?.name || 'a KithLy partner shop';
 
-  // Map V2 claim_status to display state
-  const isPendingPayment = shopOrder.claim_status === 'PENDING_PAYMENT';
-  const isConfirmed = shopOrder.claim_status === 'PENDING';
-  const isFulfilled = shopOrder.claim_status === 'REDEEMED';
+  // Group items by name to show exact counts in the checklist
+  const groupedItems = shopOrder.order_items.reduce((acc, curr) => {
+    const item = curr.items;
+    if (!item) return acc;
+    const existing = acc.find((i) => i.name === item.name);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      acc.push({ ...item, quantity: 1 });
+    }
+    return acc;
+  }, [] as Array<{ name: string; image_url: string | null; quantity: number }>);
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(251,146,60,0.22),_transparent_30%),linear-gradient(180deg,_#fff7ed_0%,_#ffffff_45%,_#fffaf5_100%)] px-4 py-8 sm:px-6 sm:py-12">
+    <div className="flex min-h-screen items-start justify-center bg-[#FAFAFA] text-slate-900 font-sans selection:bg-orange-100">
       <motion.div
-        initial={{ opacity: 0, y: 18 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45 }}
-        className="mx-auto w-full max-w-3xl overflow-hidden rounded-[2rem] border border-orange-100/80 bg-white shadow-[0_30px_90px_rgba(249,115,22,0.14)]"
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full max-w-lg mx-auto py-12 px-6 flex flex-col gap-10"
       >
-        <div className="bg-[linear-gradient(135deg,_#f97316_0%,_#fb923c_55%,_#fdba74_100%)] px-6 py-8 text-center text-white sm:px-10">
-          <motion.div
-            initial={{ scale: 0.88, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.12, duration: 0.45 }}
-            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/18 ring-1 ring-white/30 backdrop-blur-sm"
-          >
-            <GiftIcon className="h-8 w-8" />
-          </motion.div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.32em] text-white/80">
-            You&apos;ve Received a Gift
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            {shopOrder.recipient_name}, this one is for you.
+        
+        {/* The Greeting */}
+        <div className="text-center mt-4">
+          <h1 className="text-3xl sm:text-4xl font-light tracking-tight text-slate-900 leading-tight">
+            <span className="font-semibold">{shopOrder.recipient_name}</span>, you have a gift from <span className="font-medium text-slate-700">{senderName}</span>!
           </h1>
-          <p className="mt-3 text-sm text-white/90 sm:text-base">
-            Sent with care by {senderName}
-          </p>
         </div>
 
-        <div className="space-y-8 px-5 py-6 sm:px-8 sm:py-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            className="overflow-hidden rounded-[1.75rem] border border-orange-100 bg-orange-50/40"
-          >
-            {firstItem?.image_url ? (
-              <img
-                src={firstItem.image_url}
-                alt={productName}
-                className="aspect-square w-full object-cover sm:aspect-[4/3]"
-              />
-            ) : (
-              <div className="flex aspect-square w-full items-center justify-center bg-gradient-to-br from-orange-100 to-amber-50 sm:aspect-[4/3]">
-                <div className="text-center">
-                  <Package className="mx-auto h-12 w-12 text-orange-400" />
-                  <p className="mt-3 text-sm font-medium text-orange-900">{productName}</p>
-                </div>
-              </div>
-            )}
-          </motion.div>
-
-          <div className="text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.26em] text-primary/75">
-              Ready for Collection
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold text-gray-950 sm:text-3xl">
-              {productName}
-            </h2>
-            <p className="mt-3 text-lg font-medium text-gray-700">{shopName}</p>
-            {shopLocation && (
-              <div className="mt-2 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4 text-primary" />
-                <span>{shopLocation}</span>
-              </div>
-            )}
-          </div>
-
-          {shopOrder.message && (
-            <div className="rounded-2xl border border-orange-200 bg-orange-50 px-5 py-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/80">
-                Message for you
+        {/* The Digital Card (Message) */}
+        {shopOrder.message && (
+          <Card className="overflow-hidden border-slate-200/60 bg-white/50 backdrop-blur-sm shadow-sm rounded-3xl relative">
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-orange-200 via-orange-300 to-orange-200 opacity-70" />
+            <CardContent className="p-8 sm:p-10 flex flex-col items-center">
+              <GiftIcon className="h-6 w-6 text-orange-300/80 mb-6" strokeWidth={1.5} />
+              <p className="text-center text-lg sm:text-xl italic text-slate-700 font-serif leading-relaxed">
+                &ldquo;{shopOrder.message}&rdquo;
               </p>
-              <p className="mt-2 text-base italic leading-relaxed text-gray-700">
-                &quot;{shopOrder.message}&quot;
-              </p>
-            </div>
-          )}
+            </CardContent>
+          </Card>
+        )}
 
-          <div className="rounded-3xl border border-orange-200 bg-orange-50 px-5 py-6 text-center shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary/80">
-              Handshake Code
-            </p>
-            <p className="mt-3 break-all font-mono text-3xl font-bold tracking-[0.35em] text-primary sm:text-4xl">
+        {/* The Action Center (QR Code) */}
+        <div className="flex flex-col items-center mt-2">
+          <p className="text-sm font-medium text-slate-500 mb-8 text-center px-4 leading-relaxed">
+            Show this code to the cashier at <strong className="text-slate-900 font-semibold">{shopName}</strong>
+          </p>
+
+          <Card className="p-6 rounded-[2rem] shadow-sm border-slate-200/80 bg-white mb-6">
+            <QRCodeDisplay value={shopOrder.claim_code} size={220} />
+          </Card>
+
+          {/* Expiration warning banner */}
+          {(() => {
+            const remaining = calculateTimeRemaining(shopOrder.created_at);
+            return (
+              <div className={`mb-8 flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold ring-1 transition-all ${
+                remaining.isUrgent 
+                  ? 'text-red-600 bg-red-50 ring-red-100 animate-pulse' 
+                  : 'text-slate-600 bg-slate-50 ring-slate-200'
+              }`}>
+                <span>⏳</span>
+                <span>Please claim this gift: {remaining.text}</span>
+              </div>
+            );
+          })()}
+
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Master Code</p>
+            <p className="font-mono text-xl sm:text-2xl font-semibold tracking-[0.25em] text-slate-800">
               {shopOrder.claim_code}
             </p>
-            <p className="mt-3 text-sm text-muted-foreground">
-              Show this code to the merchant when you collect your gift.
-            </p>
+          </div>
+        </div>
+
+        <Separator className="my-2 bg-slate-200/60" />
+
+        {/* The Item Checklist */}
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2 px-2">
+            <Sparkles className="h-4 w-4 text-orange-400" strokeWidth={1.5} />
+            <h2 className="text-sm font-medium tracking-wide text-slate-800">
+              What's inside your bundle
+            </h2>
           </div>
 
-          {/* Pending payment state */}
-          {isPendingPayment && (
-            <div className="rounded-3xl border border-amber-200 bg-amber-50 px-5 py-6 text-center">
-              <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-amber-100">
-                <div className="h-6 w-6 rounded-full bg-primary animate-pulse" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900">Your gift is being confirmed</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Payment is still processing. Come back soon and your collection details will appear here.
-              </p>
-            </div>
-          )}
-
-          {/* Payment confirmed — show QR + collection instructions */}
-          {isConfirmed && (
-            <div className="grid gap-5 lg:grid-cols-[1fr_1.1fr]">
-              <div className="rounded-3xl border border-orange-200 bg-white p-5 text-center shadow-sm">
-                <div className="mb-3 flex items-center justify-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-primary/80">
-                  <QrCodeIcon className="h-4 w-4" />
-                  <span>Quick Scan</span>
+          <Card className="overflow-hidden rounded-3xl shadow-sm border-slate-200/60 bg-white">
+            <div className="divide-y divide-slate-100">
+              {groupedItems.map((item, idx) => (
+                <div key={idx} className="flex items-center gap-4 p-4 sm:p-5">
+                  {item.image_url ? (
+                    <img
+                      src={item.image_url}
+                      alt={item.name}
+                      className="h-14 w-14 rounded-2xl object-cover border border-slate-100 shadow-sm shrink-0"
+                    />
+                  ) : (
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 border border-slate-100 shrink-0">
+                      <Package className="h-5 w-5 text-slate-300" strokeWidth={1.5} />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0 pr-4">
+                    <p className="text-base font-medium text-slate-800 truncate">
+                      {item.name}
+                    </p>
+                  </div>
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-50 border border-slate-100">
+                    <span className="text-xs font-semibold text-slate-600">x{item.quantity}</span>
+                  </div>
                 </div>
-                {qrDataUrl ? (
-                  <div className="mx-auto inline-flex rounded-2xl border border-orange-100 bg-white p-4 shadow-sm">
-                    <img src={qrDataUrl} alt="QR Code" className="h-56 w-56" />
-                  </div>
-                ) : (
-                  <div className="mx-auto flex h-56 w-56 items-center justify-center rounded-2xl border border-dashed border-orange-200 bg-orange-50 text-sm text-muted-foreground">
-                    Generating QR code...
-                  </div>
-                )}
-              </div>
-
-              <div className="rounded-3xl border border-blue-100 bg-blue-50/65 px-5 py-6">
-                <h3 className="flex items-center gap-2 text-base font-semibold text-gray-900">
-                  <MapPin className="h-5 w-5 text-primary" />
-                  Collecting your gift
-                </h3>
-                <ol className="mt-4 space-y-3 pl-5 text-sm leading-relaxed text-gray-700 list-decimal">
-                  <li>Visit <strong>{shopName}</strong>.</li>
-                  <li>Show this screen, the QR code, or your handshake code.</li>
-                  <li>The merchant will verify the item image and hand over your gift.</li>
-                </ol>
-                {shopOrder.shop?.location && (
-                  <div className="mt-5 rounded-2xl border border-blue-100 bg-white/80 px-4 py-3 text-sm text-gray-700">
-                    <span className="font-semibold text-gray-900">Location:</span> {shopOrder.shop.location}
-                  </div>
-                )}
-              </div>
+              ))}
             </div>
-          )}
-
-          {/* Gift collected / fulfilled */}
-          {isFulfilled && (
-            <div className="rounded-3xl border border-green-200 bg-green-50 px-5 py-6 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-                <svg
-                  className="h-8 w-8 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-green-700">Gift Collected</h3>
-              <p className="mt-2 text-sm text-green-800/80">
-                This gift has already been redeemed. We hope you enjoyed it.
-              </p>
-            </div>
-          )}
+          </Card>
         </div>
 
-        <div className="border-t border-orange-100 bg-orange-50/60 px-6 py-4 text-center text-sm text-muted-foreground">
-          Powered by <span className="font-semibold text-primary">KithLy</span>
+        {/* Footer */}
+        <div className="mt-8 text-center pb-8">
+          <p className="text-[11px] font-medium tracking-widest text-slate-400 uppercase">
+            Powered by KithLy
+          </p>
         </div>
+
       </motion.div>
     </div>
   );

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { motion } from 'motion/react';
 import { supabase } from '../../../lib/supabaseClient';
+import { TelemetryTimeline } from '../../components/shared/TelemetryTimeline';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { formatCurrency } from '../../../utils/currency';
 import { getGiftPageUrl } from '../../../utils/whatsapp';
@@ -37,6 +38,8 @@ interface Item {
   price_zmw: number;
 }
 
+import { calculateTimeRemaining } from '../../../utils/timeHelpers';
+
 interface Shop {
   id: string;
   name: string;
@@ -54,7 +57,12 @@ interface ShopOrderDetail {
   created_at: string;
   updated_at: string | null;
   shop: Shop;
-  order_items: Array<{ item: Item }>;
+  order_items: Array<{
+    order_item_id: string;
+    allocated_price: number;
+    fulfillment_status: string;
+    item: Item;
+  }>;
 }
 
 interface TransactionDetail {
@@ -138,6 +146,35 @@ export function OrderDetail() {
   const [transaction, setTransaction] = useState<TransactionDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [resumingPayment, setResumingPayment] = useState(false);
+  const [events, setEvents] = useState<any[]>([]);
+
+  const parsePayload = (payload: any) => {
+    if (!payload) return {};
+    if (typeof payload === 'string') {
+      try {
+        return JSON.parse(payload);
+      } catch {
+        return {};
+      }
+    }
+    return payload;
+  };
+
+  const fetchEvents = async () => {
+    if (!orderId) return;
+    try {
+      const { data, error } = await supabase
+        .from('transaction_events')
+        .select('*')
+        .eq('transaction_id', orderId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setEvents(data || []);
+    } catch (err) {
+      console.error('[OrderDetail] fetchEvents error:', err);
+    }
+  };
 
   const fetchTransaction = async () => {
     if (!orderId) return;
@@ -188,12 +225,9 @@ export function OrderDetail() {
 
   useEffect(() => {
     fetchTransaction();
-  }, [orderId]);
+    fetchEvents();
 
-  // Real-time subscription: listen to shop_orders changes for this transaction
-  useEffect(() => {
-    if (!orderId) return;
-
+    // Real-time subscription: listen to shop_orders changes for this transaction
     const subscription = supabase
       .channel(`order-detail:${orderId}`)
       .on(
@@ -210,8 +244,39 @@ export function OrderDetail() {
       )
       .subscribe();
 
+    // Subscribe to real-time telemetry updates
+    const eventsSub = supabase
+      .channel(`order-events:${orderId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'transaction_events',
+          filter: `transaction_id=eq.${orderId}`,
+        },
+        (payload) => {
+          const newEvent = payload.new;
+          console.log('[OrderDetail] Postgres inserted telemetry:', newEvent);
+          setEvents((prev) => [newEvent, ...prev]);
+
+          // Flash a toast notification to the sender
+          let toastMsg = 'Update: An event occurred on your order.';
+          if (newEvent.event_type === 'FULFILLMENT_PROCESSED') {
+            const parsed = parsePayload(newEvent.payload);
+            const shopName = parsed?.shop_name || 'Partner Shop';
+            toastMsg = `Update: Items handed over at ${shopName}!`;
+          } else if (newEvent.event_type === 'CLAIM_VERIFIED') {
+            toastMsg = 'Update: Escrow Claim Code verified successfully.';
+          }
+          toast.success(toastMsg, { duration: 5000 });
+        },
+      )
+      .subscribe();
+
     return () => {
       subscription.unsubscribe();
+      eventsSub.unsubscribe();
     };
   }, [orderId]);
 
@@ -347,28 +412,62 @@ export function OrderDetail() {
               className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
             >
               {/* Product header */}
-              {shopOrder.order_items.map(({ item }) => (
-                <div key={item.id} className="flex gap-4 border-b border-gray-100 p-5">
-                  <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100">
-                    {item.image_url ? (
-                      <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        <Package className="h-8 w-8 text-gray-300" />
+              {shopOrder.order_items.map((orderItem) => {
+                const { item, fulfillment_status } = orderItem;
+                return (
+                  <div key={item.id} className="flex gap-4 border-b border-gray-100 p-5">
+                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100">
+                      {item.image_url ? (
+                        <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                          <Package className="h-8 w-8 text-gray-300" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="font-semibold text-gray-900 truncate">{item.name}</p>
+                        
+                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${
+                          fulfillment_status === 'COLLECTED' ? 'bg-green-50 text-green-700 ring-1 ring-green-200' :
+                          fulfillment_status === 'MISSING' ? 'bg-red-50 text-red-700 ring-1 ring-red-200' :
+                          fulfillment_status === 'FLOATING' ? 'bg-orange-50 text-orange-700 ring-1 ring-orange-200' :
+                          fulfillment_status === 'CONVERTED' ? 'bg-gray-50 text-gray-700 ring-1 ring-gray-200' :
+                          fulfillment_status === 'EXPIRED' ? 'bg-gray-50 text-gray-500 ring-1 ring-gray-200' :
+                          'bg-amber-50 text-amber-700 ring-1 ring-amber-200'
+                        }`}>
+                          {fulfillment_status}
+                        </span>
                       </div>
-                    )}
+                      
+                      {item.description && (
+                        <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{item.description}</p>
+                      )}
+                      
+                      <div className="mt-2 flex items-center justify-between">
+                        <p className="text-base font-bold text-primary">
+                          {formatCurrency(orderItem.allocated_price, 'ZMW')}
+                        </p>
+                        
+                        {(fulfillment_status === 'PENDING' || fulfillment_status === 'FLOATING') && (
+                          (() => {
+                            const remaining = calculateTimeRemaining(shopOrder.created_at);
+                            return (
+                              <div className={`inline-flex items-center gap-1 text-xs ${
+                                remaining.isUrgent ? 'text-red-500 font-medium animate-pulse animate-duration-1000' : 'text-slate-500'
+                              }`}>
+                                {remaining.isUrgent && <Clock className="h-3 w-3" />}
+                                <span>{remaining.text}</span>
+                              </div>
+                            );
+                          })()
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900">{item.name}</p>
-                    {item.description && (
-                      <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{item.description}</p>
-                    )}
-                    <p className="mt-2 text-base font-bold text-primary">
-                      {formatCurrency(shopOrder.subtotal, 'ZMW')}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
 
               {/* Claim code */}
               <div className="border-b border-gray-100 bg-orange-50/60 px-5 py-4">
@@ -454,6 +553,22 @@ export function OrderDetail() {
             label="Date"
             value={new Date(transaction.created_at).toLocaleString()}
           />
+          <div className="pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full text-xs font-semibold rounded-xl hover:bg-slate-50 flex items-center justify-center gap-1.5 border border-primary/20 hover:border-primary/40 text-primary transition-all duration-200"
+              onClick={() => navigate(`/receipt/${transaction.transaction_id}`)}
+            >
+              <Receipt className="h-3.5 w-3.5" />
+              <span>View Printable Receipt</span>
+            </Button>
+          </div>
+        </Section>
+
+        {/* Telemetry Tracking timeline */}
+        <Section title="Delivery Tracking">
+          <TelemetryTimeline events={events} />
         </Section>
       </div>
     </div>

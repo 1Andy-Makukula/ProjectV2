@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { WhatsAppShareButton } from '../../components/shared/WhatsAppShareButton';
+import QRCode from 'react-qr-code';
 
 // ---------------------------------------------------------------------------
 // V2 Schema Types
@@ -38,6 +39,7 @@ interface ShopOrderConfirm {
     location: string | null;
   } | null;
   order_items: Array<{
+    child_claim_code?: string;
     item: {
       id: string;
       name: string;
@@ -88,6 +90,7 @@ function usePaymentConfirmation(transactionId: string | null, txRef: string | nu
           message,
           shop:shop_id (id, name, location),
           order_items (
+            child_claim_code,
             item:item_id (id, name, description, image_url)
           )
         )
@@ -274,6 +277,18 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
         const firstItem = shopOrder.order_items?.[0]?.item;
         const giftUrl = getGiftPageUrl(shopOrder.claim_code);
 
+        // Group identical items for the checklist
+        const groupedItems = shopOrder.order_items.reduce((acc, curr) => {
+          if (!curr.item) return acc;
+          const existing = acc.find(i => i.item.id === curr.item?.id);
+          if (existing) {
+            existing.quantity += 1;
+          } else {
+            acc.push({ item: curr.item, quantity: 1 });
+          }
+          return acc;
+        }, [] as Array<{ item: { id: string; name: string; image_url: string | null }; quantity: number }>);
+
         return (
           <motion.div
             key={shopOrder.shop_order_id}
@@ -305,20 +320,33 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
               </div>
             </div>
 
-            {/* Claim code */}
+            {/* Master Claim Code & QR Code */}
             <div className="px-4 py-4">
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                Claim Code
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400 text-center">
+                Master Claim Code
               </p>
-              <div className="flex items-center justify-between rounded-xl border border-orange-200 bg-white px-4 py-3">
-                <span className="font-mono text-2xl font-bold tracking-[0.3em] text-primary">
+              
+              <div className="flex flex-col items-center justify-center mb-6">
+                <div className="rounded-2xl border border-orange-200 bg-white p-4 shadow-sm">
+                  <QRCode
+                    value={shopOrder.claim_code}
+                    size={160}
+                    level="H"
+                    className="h-auto max-w-full"
+                    fgColor="#1E3A8A" // Primary blue
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3">
+                <span className="font-mono text-xl font-bold tracking-[0.2em] text-slate-800">
                   {shopOrder.claim_code}
                 </span>
                 <div className="flex gap-1">
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => copyToClipboard(shopOrder.claim_code, 'Claim code')}
+                    onClick={() => copyToClipboard(shopOrder.claim_code, 'Master claim code')}
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
@@ -331,6 +359,21 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
                   </Button>
                 </div>
               </div>
+            </div>
+
+            {/* Bulleted Checklist of Bundle Items */}
+            <div className="border-t border-slate-100 bg-white px-4 py-4">
+              <p className="text-sm font-semibold text-slate-800 mb-2">Bundle Contents</p>
+              <ul className="space-y-2">
+                {groupedItems.map((group, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
+                    <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-orange-100 text-[10px] font-bold text-orange-600">
+                      {group.quantity}
+                    </span>
+                    <span>{group.item.name}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
 
             {/* Recipient info */}

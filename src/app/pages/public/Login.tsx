@@ -124,8 +124,8 @@ export function Login() {
       </div>
 
       {/* ── Right panel: form ── */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white">
-        <div className="w-full max-w-md">
+      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-[#FAFAFA]">
+        <div className="w-full max-w-md bg-white/70 backdrop-blur-md border border-slate-200/60 p-8 sm:p-10 rounded-3xl shadow-sm">
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-8">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent mb-1">
@@ -138,10 +138,10 @@ export function Login() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-3xl font-bold text-gray-900 mb-1">
+            <h2 className="text-3xl font-light tracking-tight text-slate-900 mb-1">
               {showForgotPassword ? 'Reset password' : 'Welcome back'}
             </h2>
-            <p className="text-gray-500 mb-8 text-sm">
+            <p className="text-slate-500 mb-8 text-sm">
               {showForgotPassword
                 ? "Enter your email and we'll send a reset link."
                 : 'Sign in to your KithLy account.'}
@@ -157,7 +157,7 @@ export function Login() {
 
               {/* Email */}
               <div>
-                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="email" className="text-sm font-medium text-slate-700">
                   Email address
                 </Label>
                 <Input
@@ -165,7 +165,7 @@ export function Login() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="mt-1 rounded-xl h-12"
+                  className="mt-1.5 rounded-xl h-12 border-slate-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                   placeholder="you@example.com"
                   required
                 />
@@ -175,10 +175,10 @@ export function Login() {
                 <>
                   {/* Password */}
                   <div>
-                    <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                    <Label htmlFor="password" className="text-sm font-medium text-slate-700">
                       Password
                     </Label>
-                    <div className="relative mt-1">
+                    <div className="relative mt-1.5">
                       <Input
                         id="password"
                         type={showPassword ? 'text' : 'password'}
@@ -186,14 +186,14 @@ export function Login() {
                         onChange={(e) =>
                           setFormData({ ...formData, password: e.target.value })
                         }
-                        className="rounded-xl h-12 pr-12"
+                        className="rounded-xl h-12 pr-12 border-slate-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                         placeholder="Enter your password"
                         required
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors"
                       >
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
@@ -219,7 +219,7 @@ export function Login() {
                   <Button
                     type="button"
                     onClick={handleForgotPassword}
-                    className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-primary to-primary-light hover:opacity-90 transition-all shadow-md hover:shadow-lg"
+                    className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-primary to-primary-light hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-sm"
                   >
                     Send Reset Link
                   </Button>
@@ -227,7 +227,7 @@ export function Login() {
                     type="button"
                     onClick={() => { setShowForgotPassword(false); setErrorMsg(''); }}
                     variant="outline"
-                    className="w-full h-12 text-base rounded-xl"
+                    className="w-full h-12 text-base rounded-xl border-slate-200 hover:bg-slate-50 transition-all duration-200"
                   >
                     Back to Login
                   </Button>
@@ -235,7 +235,7 @@ export function Login() {
               ) : (
                 <Button
                   type="submit"
-                  className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-primary to-primary-light hover:opacity-90 transition-all shadow-md hover:shadow-lg"
+                  className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-primary to-primary-light hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-sm"
                   disabled={loading}
                 >
                   {loading ? (
@@ -254,7 +254,7 @@ export function Login() {
 
               {/* Sign up link */}
               {!showForgotPassword && (
-                <p className="text-center text-sm text-gray-500">
+                <p className="text-center text-sm text-slate-500">
                   Don&apos;t have an account?{' '}
                   <Link
                     to="/signup"

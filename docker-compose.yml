@@ -14,4 +14,71 @@ services:
       - "8080:80"
     environment:
       - NODE_ENV=production
+    networks:
+      - kithly_secure_net
     restart: unless-stopped
+
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: kithly-postgres-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - kithly_db_data:/var/lib/postgresql/data
+    networks:
+      - kithly_secure_net
+    restart: unless-stopped
+
+  redis-queue:
+    image: redis:7-alpine
+    container_name: kithly-redis-queue
+    volumes:
+      - kithly_redis_data:/data
+    networks:
+      - kithly_secure_net
+    restart: unless-stopped
+
+  fastapi-gateway:
+    build:
+      context: ./fastapi-gateway
+      dockerfile: Dockerfile
+    container_name: kithly-fastapi-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      REDIS_URL: ${REDIS_URL}
+      FASTAPI_ENV: ${FASTAPI_ENV:-production}
+    networks:
+      - kithly_secure_net
+    depends_on:
+      - postgres-db
+      - redis-queue
+    restart: unless-stopped
+
+  cpp-worker-engine:
+    build:
+      context: ./worker-engine
+      dockerfile: Dockerfile
+    container_name: kithly-cpp-worker-engine
+    environment:
+      REDIS_URL: ${REDIS_URL}
+    networks:
+      - kithly_secure_net
+    depends_on:
+      - redis-queue
+    restart: unless-stopped
+
+networks:
+  kithly_secure_net:
+    driver: bridge
+
+volumes:
+  kithly_db_data:
+    driver: local
+  kithly_redis_data:
+    driver: local

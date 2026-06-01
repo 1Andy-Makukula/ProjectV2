@@ -104,9 +104,9 @@ export function MerchantOnboarding() {
 
   // ── Main render ───────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 flex flex-col">
+    <div className="min-h-screen bg-[#FAFAFA] flex flex-col">
       {/* Page header */}
-      <div className="bg-gradient-to-r from-primary to-primary-light text-white">
+      <div className="bg-gradient-to-r from-primary to-primary-light text-white shadow-sm">
         <div className="container mx-auto px-6 py-8 max-w-2xl">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -132,9 +132,9 @@ export function MerchantOnboarding() {
           transition={{ duration: 0.45, delay: 0.1 }}
         >
           {/* Info notice */}
-          <div className="flex items-start gap-3 bg-orange-50 border border-orange-200 rounded-xl px-5 py-4 mb-8">
+          <div className="flex items-start gap-3 bg-orange-50 border border-orange-200/80 rounded-2xl px-5 py-4 mb-8">
             <ShieldAlert className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-            <p className="text-sm text-orange-800 leading-relaxed">
+            <p className="text-sm text-orange-850 leading-relaxed">
               Your shop will be submitted for admin review before it goes live. You will be
               able to manage your inventory and fulfil orders from your merchant dashboard
               once approved.
@@ -142,12 +142,12 @@ export function MerchantOnboarding() {
           </div>
 
           {/* Card form */}
-          <Card className="shadow-sm border border-gray-100">
+          <Card className="border border-slate-200/60 bg-white/70 backdrop-blur-md shadow-sm rounded-3xl overflow-hidden">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl font-medium text-gray-900">
+              <CardTitle className="text-xl font-medium text-slate-900 tracking-tight">
                 Shop Details
               </CardTitle>
-              <CardDescription className="font-light">
+              <CardDescription className="text-slate-500 font-light">
                 These details will be displayed to customers browsing KithLy.
               </CardDescription>
             </CardHeader>
@@ -164,7 +164,7 @@ export function MerchantOnboarding() {
 
                 {/* Business Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="businessName" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="businessName" className="text-sm font-medium text-slate-700">
                     Business Name <span className="text-red-500">*</span>
                   </Label>
                   <Input
@@ -173,34 +173,34 @@ export function MerchantOnboarding() {
                     value={businessName}
                     onChange={(e) => setBusinessName(e.target.value)}
                     placeholder="e.g., Mama Chibwe Crafts"
-                    className="h-11 rounded-lg"
+                    className="h-11 rounded-xl border-slate-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                     disabled={loading}
                     required
                   />
-                  <p className="text-xs text-gray-400 font-light">
+                  <p className="text-xs text-slate-400 font-light">
                     Use your official trading name as it should appear to customers.
                   </p>
                 </div>
 
                 {/* Location */}
                 <div className="space-y-2">
-                  <Label htmlFor="location" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="location" className="text-sm font-medium text-slate-700">
                     Location <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                     <Input
                       id="location"
                       type="text"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                       placeholder="e.g., Lusaka, Ndola, Kitwe"
-                      className="h-11 rounded-lg pl-9"
+                      className="h-11 rounded-xl pl-9 border-slate-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                       disabled={loading}
                       required
                     />
                   </div>
-                  <p className="text-xs text-gray-400 font-light">
+                  <p className="text-xs text-slate-400 font-light">
                     Enter the city or area where your shop is physically located.
                   </p>
                 </div>
@@ -211,7 +211,7 @@ export function MerchantOnboarding() {
                     id="submit-merchant-onboarding"
                     type="submit"
                     disabled={loading}
-                    className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-primary to-primary-light hover:opacity-90 transition-opacity shadow-md group"
+                    className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-primary to-primary-light hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-sm group"
                   >
                     {loading ? (
                       <span className="flex items-center gap-2">
@@ -247,7 +247,7 @@ export function MerchantOnboarding() {
           </Card>
 
           {/* Back link */}
-          <p className="text-center text-sm text-gray-400 mt-6">
+          <p className="text-center text-sm text-slate-400 mt-6">
             Changed your mind?{' '}
             <button
               type="button"

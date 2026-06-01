@@ -5,6 +5,7 @@ import { Toaster } from '../components/ui/sonner';
 import { Footer } from '../components/layout/Footer'; // 1. IMPORT THE FOOTER
 import { FloatingCart } from '../components/shared/FloatingCart';
 import { CartSlider } from '../components/shared/CartSlider';
+import { FloatingHomeButton } from '../components/shared/FloatingHomeButton';
 
 export function Root() {
   return (
@@ -15,6 +16,7 @@ export function Root() {
           <Outlet />
           <FloatingCart />
           <CartSlider />
+          <FloatingHomeButton />
         </div>
         
         {/* 2. INJECT THE FOOTER AT THE BOTTOM */}

@@ -49,6 +49,7 @@ const AdminItemForm = lazyPage(() => import('./pages/admin/AdminItemForm'), 'Adm
 const AdminMerchants = lazyPage(() => import('./pages/admin/AdminMerchants'), 'AdminMerchants');
 const AdminOrders = lazyPage(() => import('./pages/admin/AdminOrders'), 'AdminOrders');
 const AdminOrderDetail = lazyPage(() => import('./pages/admin/AdminOrderDetail'), 'AdminOrderDetail');
+const PrintableReceipt = lazyPage(() => import('./pages/shared/PrintableReceipt'), 'PrintableReceipt');
 
 function PageFallback() {
   return (
@@ -109,7 +110,7 @@ export const router = createBrowserRouter([
 
       { path: 'signup', Component: SignUp },
       { path: 'login', Component: Login },
-      { path: 'gift/:code', Component: GiftPage },
+      { path: 'gift/:claimCode', Component: GiftPage },
       { path: 'about', Component: About },
       { path: 'privacy', Component: Privacy },
       { path: 'terms', Component: Terms },
@@ -155,6 +156,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['sender']}>
             <Lazy><OrderDetail /></Lazy>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'receipt/:transactionId',
+        element: (
+          <ProtectedRoute allowedRoles={['sender', 'merchant', 'admin']}>
+            <Lazy><PrintableReceipt /></Lazy>
           </ProtectedRoute>
         ),
       },

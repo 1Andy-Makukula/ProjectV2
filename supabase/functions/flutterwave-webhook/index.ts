@@ -401,11 +401,7 @@ async function handleFlutterwaveWebhook(req: Request): Promise<Response> {
   }
 
   const { event: eventType, data } = webhookEvent;
-  const voucherId = data.tx_ref.trim();
-
-  console.log(
-    `[flutterwave-webhook] Event received | event=${eventType} | tx_ref=${voucherId} | status=${data.status}`,
-  );
+  const txRefStr = data.tx_ref.trim();
 
   // --- 3. Obtain the admin client (throws if env vars are missing) ---
   let supabase: ReturnType<typeof getAdminClient>;
@@ -418,23 +414,48 @@ async function handleFlutterwaveWebhook(req: Request): Promise<Response> {
     return new Response("Server configuration error", { status: 500 });
   }
 
+  // Check if txRefStr is a valid UUID
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(txRefStr);
+  let resolvedTransactionId = txRefStr;
+
+  if (!isUuid) {
+    console.log(`[flutterwave-webhook] Non-UUID tx_ref detected: '${txRefStr}'. Resolving to transaction UUID...`);
+    const { data: txnRow, error: txnErr } = await supabase
+      .from("transactions")
+      .select("transaction_id")
+      .eq("gateway_tx_ref", txRefStr)
+      .single();
+
+    if (txnErr || !txnRow) {
+      console.error(`[flutterwave-webhook] Could not resolve transaction UUID for reference '${txRefStr}':`, txnErr?.message);
+      return json({ error: `Unresolvable transaction reference: ${txRefStr}` }, 400);
+    }
+    
+    resolvedTransactionId = txnRow.transaction_id;
+    console.log(`[flutterwave-webhook] Successfully resolved reference '${txRefStr}' to transaction ID '${resolvedTransactionId}'`);
+  }
+
+  console.log(
+    `[flutterwave-webhook] Event received | event=${eventType} | tx_ref=${txRefStr} | resolved_tx_id=${resolvedTransactionId} | status=${data.status}`,
+  );
+
   // --- 4. Immutable ledger write (always, regardless of event type or status) ---
   //
   // We write the audit event FIRST so that even if subsequent logic fails,
   // we have a permanent record that this webhook was received and authenticated.
-  await writeTransactionEvent(supabase, voucherId, rawBody);
+  await writeTransactionEvent(supabase, resolvedTransactionId, rawBody);
 
   // --- 5. Conditional business logic — only for successful charge completions ---
   if (eventType === CHARGE_COMPLETED_EVENT && data.status === SUCCESSFUL_STATUS) {
     console.log(
-      `[flutterwave-webhook] Successful charge detected | voucher_id=${voucherId} | flw_txn_id=${data.id}`,
+      `[flutterwave-webhook] Successful charge detected | transaction_id=${resolvedTransactionId} | flw_txn_id=${data.id}`,
     );
 
-    const idempotencyKey = `${voucherId}:${data.id}`;
+    const idempotencyKey = `${resolvedTransactionId}:${data.id}`;
     const { data: confirmResult, error: confirmError } = await supabase.rpc(
       "confirm_payment_atomic",
       {
-        p_transaction_id: voucherId,
+        p_transaction_id: resolvedTransactionId,
         p_paid_amount: data.amount,
         p_paid_currency: data.currency,
         p_payload: rawBody,
@@ -444,13 +465,89 @@ async function handleFlutterwaveWebhook(req: Request): Promise<Response> {
 
     if (confirmError) {
       console.warn(
-        `[flutterwave-webhook] confirm_payment_atomic failed for '${voucherId}':`,
+        `[flutterwave-webhook] confirm_payment_atomic failed for '${resolvedTransactionId}':`,
         confirmError.message,
       );
     } else {
       console.log(
-        `[flutterwave-webhook] Payment confirmed | transaction_id=${voucherId} | result=${JSON.stringify(confirmResult)}`,
+        `[flutterwave-webhook] Payment confirmed | transaction_id=${resolvedTransactionId} | result=${JSON.stringify(confirmResult)}`,
       );
+
+      // Trigger recipient WhatsApp notifications via an IIFE in the background so webhook doesn't block
+      (async () => {
+        try {
+          console.log(`[flutterwave-webhook] Fetching details for notifications | transaction_id=${resolvedTransactionId}`);
+          
+          // 1. Fetch the sender's (buyer) name from the transactions relationship
+          const { data: txnData, error: txnErr } = await supabase
+            .from("transactions")
+            .select("buyer:buyer_id (name)")
+            .eq("transaction_id", resolvedTransactionId)
+            .single();
+
+          if (txnErr) {
+            console.error(`[flutterwave-webhook] Failed to fetch sender name for transaction:`, txnErr.message);
+          }
+
+          const senderName = (txnData as any)?.buyer?.name || "A friend";
+
+          // 2. Fetch all shop orders associated with this transaction
+          const { data: bundles, error: bundlesErr } = await supabase
+            .from("shop_orders")
+            .select("shop_order_id, claim_code, recipient_name, recipient_phone, shop:shop_id (name)")
+            .eq("transaction_id", resolvedTransactionId);
+
+          if (bundlesErr) {
+            console.error(`[flutterwave-webhook] Failed to fetch bundles for transaction:`, bundlesErr.message);
+            return;
+          }
+
+          if (bundles && bundles.length > 0) {
+            console.log(`[flutterwave-webhook] Found ${bundles.length} bundle(s) to notify.`);
+            for (const bundle of bundles) {
+              const shopName = bundle.shop?.name || "KithLy Partner Shop";
+              console.log(
+                `[flutterwave-webhook] Dispatching notification invocation | claim_code=${bundle.claim_code} | recipient=${bundle.recipient_name}`
+              );
+
+              console.log(`[WEBHOOK] Attempting to invoke send-notification for bundle: ${bundle.shop_order_id}`);
+
+              // Invoke send-notification internally via Supabase functions client
+              supabase.functions.invoke("send-notification", {
+                body: {
+                  recipient_name: bundle.recipient_name,
+                  recipient_phone: bundle.recipient_phone,
+                  sender_name: senderName,
+                  shop_name: shopName,
+                  claim_code: bundle.claim_code,
+                },
+              }).then(({ data, error: invokeErr }) => {
+                if (invokeErr) {
+                  console.error(
+                    `[WEBHOOK] Failed to invoke send-notification:`,
+                    invokeErr
+                  );
+                } else {
+                  console.log(
+                    `[WEBHOOK] Successfully invoked send-notification for bundle: ${bundle.shop_order_id}`
+                  );
+                  console.log(
+                    `[flutterwave-webhook] Notification Edge Function successfully executed for claim_code=${bundle.claim_code}:`,
+                    data
+                  );
+                }
+              }).catch((error) => {
+                console.error(`[WEBHOOK] Failed to invoke send-notification:`, error);
+              });
+            }
+          } else {
+            console.log(`[flutterwave-webhook] No bundles found for transaction.`);
+          }
+        } catch (notifErr: unknown) {
+          const errMsg = notifErr instanceof Error ? notifErr.message : String(notifErr);
+          console.error(`[flutterwave-webhook] Notification background processing exception:`, errMsg);
+        }
+      })();
     }
   } else {
     // Non-successful or non-charge events: ledger row is already written above.

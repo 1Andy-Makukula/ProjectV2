@@ -9,7 +9,7 @@
  *   ERROR     → Inline error with retry
  */
 
-import { useState, memo, useCallback } from 'react';
+import { useState, useEffect, memo, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, Trash2, Shield, ArrowLeft } from 'lucide-react';
@@ -18,7 +18,7 @@ import { toast } from 'sonner';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../../utils/auth/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
-import { getGroupedCartPayload } from '../../utils/sendFlowStore';
+import { getFlatCartPayload } from '../../utils/sendFlowStore';
 import { useSendFlowStore } from '../../utils/sendFlowStore';
 import { PaymentProcessingScreen } from '../components/checkout/PaymentProcessingScreen';
 import { Button } from '../components/ui/button';
@@ -214,9 +214,9 @@ const CartLineItem = memo(function CartLineItem({
 
 export function Checkout() {
   const navigate = useNavigate();
-  const { items, removeFromCart, clearCart, getTotalAmount } = useCart();
+  const { items, removeFromCart, clearCart, getTotalAmount, applyCredits } = useCart();
   const { recipient } = useSendFlowStore();
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
 
   const [stage, setStage] = useState<CheckoutStage>('CART');
   const [transactionId, setTransactionId] = useState<string | null>(null);
@@ -227,8 +227,33 @@ export function Checkout() {
   // Default to sender's phone — Flutterwave charges this line for mobile money
   const [recipientPhone, setRecipientPhone] = useState(recipient?.phone ?? profile?.phone ?? '');
   const [message, setMessage] = useState(recipient?.message ?? '');
+  const [walletBalance, setWalletBalance] = useState<number>(0);
+
+  const fetchWalletBalance = async () => {
+    if (!user?.id) return;
+    try {
+      const { data, error } = await supabase
+        .from('kithly_wallets')
+        .select('balance')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      setWalletBalance(data?.balance ?? 0);
+    } catch (err) {
+      console.error('[Checkout] Error fetching wallet balance:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchWalletBalance();
+    }
+  }, [user?.id]);
 
   const totalAmount = getTotalAmount();
+  const creditsToApply = applyCredits ? Math.min(walletBalance, totalAmount) : 0;
+  const finalPayable = totalAmount - creditsToApply;
 
   // ---------- handlers --------------------------------------------------
 
@@ -261,7 +286,7 @@ export function Checkout() {
     try {
       // Include recipient details from the SendFlow store so checkout-init
       // can persist them to each shop_orders row it creates.
-      const payload = getGroupedCartPayload(items, {
+      const payload = getFlatCartPayload(items, {
         name: recipientName.trim(),
         phone: recipientPhone.trim(),
         message: message.trim()
@@ -464,11 +489,25 @@ export function Checkout() {
                   </div>
 
                   {/* Order total */}
-                  <div className="rounded-2xl bg-white border border-slate-100 px-5 py-4 flex items-center justify-between">
-                    <span className="text-sm text-slate-500">Total</span>
-                    <span className="text-xl font-semibold text-slate-900">
-                      {formatCurrency(totalAmount, 'ZMW')}
-                    </span>
+                  <div className="rounded-2xl bg-white border border-slate-100 px-5 py-5 flex flex-col gap-2 shadow-sm">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-slate-500 font-medium">Subtotal</span>
+                      <span className="font-semibold text-slate-800">
+                        {formatCurrency(totalAmount, 'ZMW')}
+                      </span>
+                    </div>
+                    {applyCredits && creditsToApply > 0 && (
+                      <div className="flex items-center justify-between text-sm text-orange-600 font-medium">
+                        <span>Credits applied</span>
+                        <span>-{formatCurrency(creditsToApply, 'ZMW')}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between text-sm pt-2.5 border-t border-slate-100 mt-1">
+                      <span className="text-slate-900 font-bold">Total payable</span>
+                      <span className="text-lg font-bold bg-gradient-to-r from-[#F97316] to-[#1E3A8A] bg-clip-text text-transparent">
+                        {formatCurrency(finalPayable, 'ZMW')}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Escrow notice */}
@@ -490,7 +529,7 @@ export function Checkout() {
                       onClick={handlePay}
                       className="w-full h-14 text-base font-semibold rounded-2xl bg-gradient-to-r from-[#F97316] to-[#FB923C] hover:from-[#ea6c0a] hover:to-[#f58220] text-white shadow-lg shadow-orange-200 border-0"
                     >
-                      Pay {formatCurrency(totalAmount, 'ZMW')}
+                      Pay {formatCurrency(finalPayable, 'ZMW')}
                     </Button>
                   </motion.div>
                 </>

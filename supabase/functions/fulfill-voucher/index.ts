@@ -17,6 +17,9 @@ interface ShopOrderRow {
   transaction_id: string;
   claim_status: string;
   subtotal: number;
+  shop?: {
+    name: string;
+  };
 }
 
 interface OrderItemRow {
@@ -153,7 +156,7 @@ async function fetchPendingOrder(
 ): Promise<ShopOrderRow | Response> {
   const { data: order, error } = await db
     .from("shop_orders")
-    .select("shop_order_id, shop_id, transaction_id, claim_status, subtotal")
+    .select("shop_order_id, shop_id, transaction_id, claim_status, subtotal, shop:shop_id(name)")
     .eq("claim_code", claimCode)
     .eq("claim_status", "PENDING")
     .maybeSingle<ShopOrderRow>();
@@ -450,6 +453,28 @@ async function handleFulfillVoucher(req: Request): Promise<Response> {
     const msg = fulfillError?.message ?? "Fulfillment failed.";
     console.error("[fulfill-voucher] fulfill_voucher_atomic failed:", msg);
     return json(req, { error: msg }, 500);
+  }
+
+  // --- Step 9: Telemetry Logging for real-time customer tracking ---
+  const shopName = pendingOrder.shop?.name || "KithLy Partner Shop";
+  const { error: telemetryErr } = await db
+    .from("transaction_events")
+    .insert({
+      shop_order_id: pendingOrder.shop_order_id,
+      transaction_id: pendingOrder.transaction_id,
+      event_type: "FULFILLMENT_PROCESSED",
+      payload: {
+        present_count: present_item_ids.length,
+        missing_count: missing_item_ids.length,
+        shop_name: shopName,
+      },
+      created_at: new Date().toISOString(),
+    });
+
+  if (telemetryErr) {
+    console.error("[fulfill-voucher] Telemetry insert failed:", telemetryErr.message);
+  } else {
+    console.log("[fulfill-voucher] FULFILLMENT_PROCESSED telemetry event successfully logged.");
   }
 
   return json(req, {

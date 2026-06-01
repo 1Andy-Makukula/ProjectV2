@@ -42,6 +42,55 @@ export function Header({
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [balance, setBalance] = useState<number | null>(null);
+
+  const fetchWalletBalance = async () => {
+    if (!isAuthenticated || !user?.id) return;
+    try {
+      const { data, error } = await supabase
+        .from('kithly_wallets')
+        .select('balance')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      setBalance(data?.balance ?? 0);
+    } catch (err) {
+      console.error('[Header] Error fetching wallet balance:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (!isAuthenticated || !user?.id) {
+      setBalance(null);
+      return;
+    }
+
+    fetchWalletBalance();
+
+    const handleFocus = () => {
+      fetchWalletBalance();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('wallet-update', fetchWalletBalance);
+
+    const walletChannel = supabase.channel('header-wallet')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'kithly_wallets',
+        filter: `user_id=eq.${user.id}`
+      }, () => {
+        fetchWalletBalance();
+      }).subscribe();
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('wallet-update', fetchWalletBalance);
+      supabase.removeChannel(walletChannel);
+    };
+  }, [isAuthenticated, user?.id]);
 
   useEffect(() => {
     if (!isAuthenticated || !user?.id) return;
@@ -204,6 +253,14 @@ export function Header({
                   {cartItemCount}
                 </Badge>
               </motion.button>
+            )}
+
+            {/* Wallet Balance Pill */}
+            {isAuthenticated && balance !== null && (
+              <div className="inline-flex items-center bg-slate-100 px-3 py-1 rounded-full text-xs font-light text-slate-700 tracking-wide select-none">
+                <span className="text-[10px] text-slate-400 mr-1.5 uppercase font-semibold">Credits</span>
+                <span className="font-semibold text-slate-900">ZMW {balance}</span>
+              </div>
             )}
 
             {/* Profile */}

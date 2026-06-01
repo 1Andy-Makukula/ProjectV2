@@ -160,13 +160,13 @@ function StatCard({
   accent: string;
 }) {
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-sm">
+    <div className="flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white/70 backdrop-blur-md px-5 py-4 shadow-sm">
       <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${accent}`}>
         <Icon className="h-5 w-5" />
       </div>
       <div>
-        <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="text-lg font-semibold text-gray-900">{value}</p>
+        <p className="text-xs font-medium text-slate-500">{label}</p>
+        <p className="text-lg font-semibold text-slate-900 tracking-tight">{value}</p>
       </div>
     </div>
   );
@@ -208,31 +208,29 @@ export function OrderDashboard() {
   const [resumingPayment, setResumingPayment] = useState<string | null>(null);
 
   const handleResumePayment = async (order: OrderView) => {
-    if (!order.gateway_tx_ref) {
-      toast.error('No payment reference found. Please contact support.');
-      return;
-    }
-
     setResumingPayment(order.transaction_id);
 
     try {
-      const { data, error } = await supabase.functions.invoke('server', {
+      const { data, error } = await supabase.functions.invoke('checkout-retry', {
         body: {
-          action: 'initialize_payment',
-          orderId: order.transaction_id,
-          amount: order.total_amount,
-          currency: 'ZMW',
-          email: profile?.email || '',
-          name: profile?.name || 'Customer',
-          phone: profile?.phone || '',
-          txRef: order.gateway_tx_ref,
+          transaction_id: order.transaction_id,
         },
       });
 
       if (error) throw error;
-      if (!data?.paymentLink) throw new Error('No payment link returned');
+      if (data?.success === false || data?.error) {
+        throw new Error(data.error || 'Failed to retry payment');
+      }
 
-      window.location.assign(data.paymentLink);
+      if (!data?.payment_link) {
+        throw new Error('No payment link returned');
+      }
+
+      toast.success('Opening payment gateway...');
+      window.open(data.payment_link, '_blank');
+      
+      // Refresh local UI states
+      window.location.reload();
     } catch (err: any) {
       console.error('Error resuming payment:', err);
       toast.error(err.message || 'Failed to resume payment');
@@ -322,8 +320,8 @@ export function OrderDashboard() {
   }).length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm">
+    <div className="min-h-screen bg-[#FAFAFA]">
+      <div className="sticky top-0 z-10 border-b border-slate-200/60 bg-white/50 backdrop-blur-md">
         <div className="mx-auto max-w-6xl px-6 py-4">
           <div className="flex items-center gap-3">
             <Button
@@ -331,15 +329,15 @@ export function OrderDashboard() {
               variant="ghost"
               size="icon"
               onClick={() => navigate('/dashboard')}
-              className="shrink-0"
+              className="shrink-0 hover:bg-slate-100 active:scale-95 transition-all duration-200 rounded-lg"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5 text-slate-700" />
             </Button>
             <div>
-              <h1 className="bg-gradient-to-r from-primary to-primary-light bg-clip-text text-xl font-bold text-transparent">
+              <h1 className="bg-gradient-to-r from-primary to-primary-light bg-clip-text text-xl font-bold text-transparent tracking-tight">
                 Order History
               </h1>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-slate-500 font-medium">
                 {loading
                   ? 'Loading...'
                   : `${orders.length} order${orders.length !== 1 ? 's' : ''} found`}
@@ -383,11 +381,11 @@ export function OrderDashboard() {
           </div>
         )}
 
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-            <h2 className="text-sm font-semibold text-gray-700">All Orders</h2>
+        <div className="overflow-hidden rounded-3xl border border-slate-200/60 bg-white/70 backdrop-blur-md shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+            <h2 className="text-sm font-semibold text-slate-700">All Orders</h2>
             {!loading && orders.length > 0 && (
-              <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+              <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
                 {orders.length}
               </span>
             )}
@@ -449,7 +447,7 @@ export function OrderDashboard() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.04 }}
                         onClick={() => navigate(`/orders/${order.transaction_id}`)}
-                        className="group cursor-pointer border-b border-gray-100 transition-colors hover:bg-orange-50/40"
+                        className="group cursor-pointer border-b border-slate-100 transition-colors hover:bg-slate-50/50"
                       >
                         <TableCell className="pl-6 py-3">
                           <div className="flex items-center gap-3">
@@ -467,21 +465,21 @@ export function OrderDashboard() {
                               )}
                             </div>
                             <div className="min-w-0">
-                              <p className="truncate text-sm font-medium text-gray-900">
+                              <p className="truncate text-sm font-medium text-slate-900">
                                 {order.item_name ?? 'Product unavailable'}
                               </p>
-                              <p className="font-mono text-xs text-muted-foreground">
+                              <p className="font-mono text-xs text-slate-500">
                                 #{order.claim_code ?? '—'}
                               </p>
                             </div>
                           </div>
                         </TableCell>
 
-                        <TableCell className="text-sm text-gray-700">
+                        <TableCell className="text-sm text-slate-700 font-medium">
                           {order.recipient_name || '—'}
                         </TableCell>
 
-                        <TableCell className="text-sm text-gray-600">
+                        <TableCell className="text-sm text-slate-600">
                           {order.shop_name ?? '—'}
                         </TableCell>
 

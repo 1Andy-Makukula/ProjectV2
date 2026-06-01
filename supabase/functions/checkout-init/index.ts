@@ -6,15 +6,12 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 // ---------------------------------------------------------------------------
 
 /**
- * One vendor group as sent by the frontend's `getGroupedCartPayload()` helper.
+ * A single item in the flat cart array.
  */
-interface VendorGroup {
+interface CartItemPayload {
+  item_id: string;
+  quantity: number;
   shop_id: string;
-  item_ids: string[]; // may contain duplicates when quantity > 1
-}
-
-interface SecureVendorGroup extends VendorGroup {
-  secureSubtotal: number;
 }
 
 /**
@@ -23,7 +20,7 @@ interface SecureVendorGroup extends VendorGroup {
  * captured in SendFlow.tsx and written to every shop_orders row created.
  */
 interface CheckoutInitPayload {
-  vendors: VendorGroup[];
+  cart_items: CartItemPayload[];
   origin_type: "LOCAL" | "INTERNATIONAL";
   recipient_name?: string;
   recipient_phone?: string;
@@ -147,34 +144,26 @@ function getAdminClient() {
  * Throws a descriptive `Error` on any validation failure.
  */
 function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
-  // --- vendors ---
-  if (!Array.isArray(raw.vendors) || raw.vendors.length === 0) {
-    throw new Error("vendors must be a non-empty array.");
+  // --- cart_items ---
+  if (!Array.isArray(raw.cart_items) || raw.cart_items.length === 0) {
+    throw new Error("cart_items must be a non-empty array.");
   }
 
-  const vendors: VendorGroup[] = (raw.vendors as unknown[]).map((v, i) => {
-    if (typeof v !== "object" || v === null) {
-      throw new Error(`vendors[${i}] must be an object.`);
+  const cart_items: CartItemPayload[] = (raw.cart_items as unknown[]).map((item, i) => {
+    if (typeof item !== "object" || item === null) {
+      throw new Error(`cart_items[${i}] must be an object.`);
     }
-    const vObj = v as Record<string, unknown>;
+    const itemObj = item as Record<string, unknown>;
 
-    const shop_id = requireString(vObj.shop_id, `vendors[${i}].shop_id`);
-    if (!shop_id) throw new Error(`vendors[${i}].shop_id is required.`);
+    const item_id = requireString(itemObj.item_id, `cart_items[${i}].item_id`);
+    const shop_id = requireString(itemObj.shop_id, `cart_items[${i}].shop_id`);
+    const quantity = typeof itemObj.quantity === "number" ? itemObj.quantity : 1;
 
-    if (!Array.isArray(vObj.item_ids) || vObj.item_ids.length === 0) {
-      throw new Error(`vendors[${i}].item_ids must be a non-empty array.`);
-    }
+    if (!item_id) throw new Error(`cart_items[${i}].item_id is required.`);
+    if (!shop_id) throw new Error(`cart_items[${i}].shop_id is required.`);
+    if (quantity <= 0) throw new Error(`cart_items[${i}].quantity must be strictly positive.`);
 
-    for (const id of vObj.item_ids as unknown[]) {
-      if (typeof id !== "string" || id.trim().length === 0) {
-        throw new Error(`All item_ids in vendors[${i}] must be non-empty strings.`);
-      }
-    }
-
-    return {
-      shop_id,
-      item_ids: (vObj.item_ids as string[]).map((id) => id.trim()),
-    };
+    return { item_id, shop_id, quantity };
   });
 
   // --- origin_type ---
@@ -192,7 +181,7 @@ function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
   const message         = typeof raw.message         === "string" ? raw.message.trim()         || undefined : undefined;
 
   return {
-    vendors,
+    cart_items,
     origin_type: origin_type as "LOCAL" | "INTERNATIONAL",
     recipient_name,
     recipient_phone,
@@ -291,11 +280,12 @@ export interface ShopOrderResult {
 
 /**
  * For each vendor in the payload:
- *   1. Generates a secure 8-char claim_code.
+ *   1. Generates a secure Master claim_code (BNDL-XXXX).
  *   2. Inserts one row into `shop_orders`, linking it to the parent transaction.
  *      Recipient fields (recipient_name, recipient_phone, message) are included
  *      when present in the payload.
- *   3. Bulk-inserts all item_ids into `order_items` at the per-item price.
+ *   3. Bulk-inserts all item_ids into `order_items` at the per-item price,
+ *      generating a unique child_claim_code for every single item quantity.
  *
  * Returns an array of the created `ShopOrderResult` objects.
  */
@@ -311,8 +301,8 @@ async function insertVendorOrders(
   const shopOrders: ShopOrderResult[] = [];
 
   for (const vendor of vendors) {
-    // --- 1. Generate claim code ---
-    const claimCode = generateClaimCode(8);
+    // --- 1. Generate Master claim code ---
+    const claimCode = `BNDL-${generateClaimCode(6)}`;
 
     // --- 2. Insert shop_order ---
     const shopOrderRow: Record<string, unknown> = {
@@ -363,6 +353,7 @@ async function insertVendorOrders(
       shop_order_id: shopOrderId,
       item_id: itemId,
       allocated_price: priceMap.get(itemId) ?? 0,
+      child_claim_code: `ITEM-${generateClaimCode(6)}`,
       created_at: new Date().toISOString(),
     }));
 
@@ -491,7 +482,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     return json(req, { error: message }, 400);
   }
 
-  const { vendors, origin_type, recipient_name, recipient_phone, message } = payload;
+  const { cart_items, origin_type, recipient_name, recipient_phone, message } = payload;
 
   // --- 3. Build admin client ---
   let adminClient: ReturnType<typeof getAdminClient>;
@@ -509,7 +500,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
   const caller = callerResult;
 
   // --- 4.5. Enforce Server-Side Math ---
-  const allItemIds = [...new Set(vendors.flatMap(v => v.item_ids))];
+  const allItemIds = [...new Set(cart_items.map(item => item.item_id))];
   if (allItemIds.length === 0) {
     return json(req, { error: "Cart is empty." }, 400);
   }
@@ -529,24 +520,40 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     priceMap.set(item.id, item.price_zmw);
   }
 
+  // Group into vendors dynamically
+  const vendorMap = new Map<string, { item_ids: string[], secureSubtotal: number }>();
+  
+  for (const item of cart_items) {
+    const price = priceMap.get(item.item_id);
+    if (typeof price !== "number") {
+      return json(req, { error: `Item ${item.item_id} is invalid or no longer available.` }, 400);
+    }
+    
+    const existing = vendorMap.get(item.shop_id) ?? { item_ids: [], secureSubtotal: 0 };
+    
+    // Add multiple times based on quantity
+    for (let q = 0; q < item.quantity; q++) {
+      existing.item_ids.push(item.item_id);
+      existing.secureSubtotal += price;
+    }
+    
+    vendorMap.set(item.shop_id, existing);
+  }
+
   let secureGrandTotal = 0;
   const secureVendors: SecureVendorGroup[] = [];
 
-  for (const v of vendors) {
-    let secureSubtotal = 0;
-    for (const id of v.item_ids) {
-      const price = priceMap.get(id);
-      if (typeof price !== "number") {
-        return json(req, { error: `Item ${id} is invalid or no longer available.` }, 400);
-      }
-      secureSubtotal += price;
-    }
-    secureGrandTotal += secureSubtotal;
-    secureVendors.push({ ...v, secureSubtotal });
+  for (const [shop_id, group] of vendorMap.entries()) {
+    secureGrandTotal += group.secureSubtotal;
+    secureVendors.push({
+      shop_id,
+      item_ids: group.item_ids,
+      secureSubtotal: group.secureSubtotal
+    });
   }
 
   console.log(
-    `[checkout-init] Request authenticated | user=${caller.id} | vendors=${vendors.length} | secure_total=${secureGrandTotal} ZMW | origin=${origin_type}`,
+    `[checkout-init] Request authenticated | user=${caller.id} | secureVendors=${secureVendors.length} | secure_total=${secureGrandTotal} ZMW | origin=${origin_type}`,
   );
 
   // --- 5. Generate gateway transaction reference ---
