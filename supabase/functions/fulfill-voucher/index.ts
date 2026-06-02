@@ -93,9 +93,10 @@ function validatePayload(raw: Record<string, unknown>): FulfillVoucherPayload {
     }
   }
 
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   for (const id of [...present_item_ids, ...missing_item_ids]) {
-    if (typeof id !== "string" || id.trim().length === 0) {
-      throw new Error("All item IDs must be non-empty strings.");
+    if (typeof id !== "string" || !uuidPattern.test(id)) {
+      throw new Error(`Item ID '${id}' is not a valid UUID.`);
     }
   }
 
@@ -394,96 +395,119 @@ async function writeLedgerEvent(
 // ---------------------------------------------------------------------------
 
 async function handleFulfillVoucher(req: Request): Promise<Response> {
-  // 1. Parse body
-  let raw: Record<string, unknown>;
   try {
-    raw = await req.json();
-  } catch {
-    return json(req, { error: "Request body must be valid JSON." }, 400);
-  }
+    // 1. Parse body
+    let raw: Record<string, unknown>;
+    try {
+      raw = await req.json();
+    } catch {
+      return json(req, { error: "Request body must be valid JSON." }, 400);
+    }
 
-  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
-    return json(req, { error: "Request body must be a JSON object." }, 400);
-  }
+    if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+      return json(req, { error: "Request body must be a JSON object." }, 400);
+    }
 
-  // 2. Validate payload
-  let payload: FulfillVoucherPayload;
-  try {
-    payload = validatePayload(raw);
-  } catch (e: unknown) {
-    return json(req, { error: e instanceof Error ? e.message : "Invalid payload." }, 400);
-  }
+    // 2. Validate payload
+    let payload: FulfillVoucherPayload;
+    try {
+      payload = validatePayload(raw);
+    } catch (e: unknown) {
+      return json(req, { error: e instanceof Error ? e.message : "Invalid payload." }, 400);
+    }
 
-  const { claim_code, present_item_ids, missing_item_ids } = payload;
+    const { claim_code, present_item_ids, missing_item_ids } = payload;
 
-  console.log(
-    `[fulfill-voucher] Request | claim_code=${claim_code} | present=${present_item_ids.length} | missing=${missing_item_ids.length}`,
-  );
+    console.log(
+      `[fulfill-voucher] Request | claim_code=${claim_code} | present=${present_item_ids.length} | missing=${missing_item_ids.length}`,
+    );
 
-  // 3. Admin client
-  let db: ReturnType<typeof getAdminClient>;
-  try {
-    db = getAdminClient();
-  } catch (e: unknown) {
-    console.error(e instanceof Error ? e.message : e);
-    return json(req, { error: "Server configuration error." }, 500);
-  }
+    // 3. Admin client
+    let db: ReturnType<typeof getAdminClient>;
+    try {
+      db = getAdminClient();
+    } catch (e: unknown) {
+      console.error(e instanceof Error ? e.message : e);
+      return json(req, { error: "Server configuration error." }, 500);
+    }
 
-  // 4. Read pending order (no lock yet — prevents unauthenticated DoS)
-  const pendingResult = await fetchPendingOrder(req, db, claim_code);
-  if (pendingResult instanceof Response) return pendingResult;
-  const pendingOrder = pendingResult;
+    // 4. Read pending order (no lock yet — prevents unauthenticated DoS)
+    const pendingResult = await fetchPendingOrder(req, db, claim_code);
+    if (pendingResult instanceof Response) return pendingResult;
+    const pendingOrder = pendingResult;
 
-  // 5. Verify the caller is a merchant assigned to this order's shop
-  const merchantResult = await verifyMerchant(req, pendingOrder.shop_id, db);
-  if (merchantResult instanceof Response) return merchantResult;
-  const { user_id: merchantUserId } = merchantResult;
+    // 5. Verify the caller is a merchant assigned to this order's shop
+    const merchantResult = await verifyMerchant(req, pendingOrder.shop_id, db);
+    if (merchantResult instanceof Response) return merchantResult;
+    const { user_id: merchantUserId } = merchantResult;
 
-  console.log(`[fulfill-voucher] Merchant verified | user=${merchantUserId} | shop=${pendingOrder.shop_id}`);
+    console.log(`[fulfill-voucher] Merchant verified | user=${merchantUserId} | shop=${pendingOrder.shop_id}`);
 
-  // 6. Atomic financial pipeline (lock + ledger inside Postgres)
-  const { data: fulfillResult, error: fulfillError } = await db.rpc("fulfill_voucher_atomic", {
-    p_claim_code: claim_code,
-    p_present_item_ids: present_item_ids,
-    p_missing_item_ids: missing_item_ids,
-    p_merchant_user_id: merchantUserId,
-  });
+    // 6. Atomic financial pipeline (lock + ledger inside Postgres)
+    let fulfillResult: any;
+    try {
+      const { data, error: fulfillError } = await db.rpc("fulfill_voucher_atomic", {
+        p_claim_code: claim_code,
+        p_present_item_ids: present_item_ids,
+        p_missing_item_ids: missing_item_ids,
+        p_merchant_user_id: merchantUserId,
+      });
 
-  if (fulfillError || !fulfillResult?.success) {
-    const msg = fulfillError?.message ?? "Fulfillment failed.";
-    console.error("[fulfill-voucher] fulfill_voucher_atomic failed:", msg);
-    return json(req, { error: msg }, 500);
-  }
+      if (fulfillError) {
+        console.error("[fulfill-voucher] fulfill_voucher_atomic database error:", fulfillError);
+        return json(req, {
+          error: "Database transaction failed.",
+          details: fulfillError.message,
+          code: fulfillError.code,
+          hint: fulfillError.hint
+        }, 400);
+      }
+      fulfillResult = data;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("[fulfill-voucher] rpc call threw exception:", msg);
+      return json(req, { error: "RPC invocation failed.", details: msg }, 500);
+    }
 
-  // --- Step 9: Telemetry Logging for real-time customer tracking ---
-  const shopName = pendingOrder.shop?.name || "KithLy Partner Shop";
-  const { error: telemetryErr } = await db
-    .from("transaction_events")
-    .insert({
-      shop_order_id: pendingOrder.shop_order_id,
-      transaction_id: pendingOrder.transaction_id,
-      event_type: "FULFILLMENT_PROCESSED",
-      payload: {
-        present_count: present_item_ids.length,
-        missing_count: missing_item_ids.length,
-        shop_name: shopName,
-      },
-      created_at: new Date().toISOString(),
+    if (!fulfillResult || !fulfillResult.success) {
+      console.error("[fulfill-voucher] fulfill_voucher_atomic returned unsuccessful response:", fulfillResult);
+      return json(req, { error: "Fulfillment failed to execute successfully.", result: fulfillResult }, 500);
+    }
+
+    // --- Step 9: Telemetry Logging for real-time customer tracking ---
+    const shopName = pendingOrder.shop?.name || "KithLy Partner Shop";
+    const { error: telemetryErr } = await db
+      .from("transaction_events")
+      .insert({
+        shop_order_id: pendingOrder.shop_order_id,
+        transaction_id: pendingOrder.transaction_id,
+        event_type: "FULFILLMENT_PROCESSED",
+        payload: {
+          present_count: present_item_ids.length,
+          missing_count: missing_item_ids.length,
+          shop_name: shopName,
+        },
+        created_at: new Date().toISOString(),
+      });
+
+    if (telemetryErr) {
+      console.error("[fulfill-voucher] Telemetry insert failed:", telemetryErr.message);
+    } else {
+      console.log("[fulfill-voucher] FULFILLMENT_PROCESSED telemetry event successfully logged.");
+    }
+
+    return json(req, {
+      success: true,
+      claim_status: fulfillResult.claim_status,
+      merchant_credit_zmw: fulfillResult.merchant_credit_zmw,
+      sender_refund_zmw: fulfillResult.sender_refund_zmw,
+      settlement_window_hours: 48,
     });
-
-  if (telemetryErr) {
-    console.error("[fulfill-voucher] Telemetry insert failed:", telemetryErr.message);
-  } else {
-    console.log("[fulfill-voucher] FULFILLMENT_PROCESSED telemetry event successfully logged.");
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Unknown error.";
+    console.error("[fulfill-voucher] Execution crash:", msg);
+    return json(req, { error: "An unexpected error occurred during fulfillment.", details: msg }, 500);
   }
-
-  return json(req, {
-    success: true,
-    claim_status: fulfillResult.claim_status,
-    merchant_credit_zmw: fulfillResult.merchant_credit_zmw,
-    sender_refund_zmw: fulfillResult.sender_refund_zmw,
-    settlement_window_hours: 48,
-  });
 }
 
 // ---------------------------------------------------------------------------

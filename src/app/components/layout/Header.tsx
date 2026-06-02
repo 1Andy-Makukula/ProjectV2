@@ -181,7 +181,7 @@ export function Header({
             </button>
 
             <Link
-              to={isAuthenticated ? hubHref : '/'}
+              to="/"
               className="flex items-center gap-2 group"
             >
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center">

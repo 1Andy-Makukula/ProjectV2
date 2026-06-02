@@ -4,8 +4,10 @@
  * Format Zambian Kwacha (ZMW) with proper currency formatting
  */
 export function formatZMW(amount: number): string {
-  return `ZMW ${amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+  // Values are stored as ngwee/cents in the database, divide by 100 for display
+  return `ZMW ${(amount / 100).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
 }
+
 
 /**
  * Generate 8-character handshake claim code

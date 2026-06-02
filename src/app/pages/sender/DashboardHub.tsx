@@ -331,7 +331,7 @@ export function DashboardHub() {
       <Header
         onCartClick={() => navigate('/checkout')}
         onProfileClick={() => navigate('/settings')}
-        onLogoClick={() => navigate('/dashboard')}
+        onLogoClick={() => navigate('/')}
       />
 
       <div className="mx-auto max-w-7xl px-5 sm:px-8 py-8 space-y-8">
