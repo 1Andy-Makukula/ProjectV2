@@ -318,10 +318,11 @@ async function promoteVoucherPayoutStatus(
     return false;
   }
 
-  if (paidAmount < txn.total_amount || paidCurrency !== "ZMW") {
+  const paidAmountNgwee = Math.round(paidAmount * 100);
+  if (paidAmountNgwee < txn.total_amount || paidCurrency !== "ZMW") {
     console.error(
       `[flutterwave-webhook] FRAUD ALERT: Partial payment or currency mismatch detected for transaction_id='${transactionId}'! ` +
-      `Expected: ${txn.total_amount} ZMW. Received: ${paidAmount} ${paidCurrency}. ` +
+      `Expected: ${txn.total_amount} Ngwee. Received: ${paidAmountNgwee} Ngwee (from ${paidAmount} ${paidCurrency}). ` +
       `Escrow remains locked in PENDING_PAYMENT.`
     );
     return false;
@@ -456,7 +457,7 @@ async function handleFlutterwaveWebhook(req: Request): Promise<Response> {
       "confirm_payment_atomic",
       {
         p_transaction_id: resolvedTransactionId,
-        p_paid_amount: data.amount,
+        p_paid_amount: Math.round(data.amount * 100), // Convert ZMW from Flutterwave to ngwee for DB validation
         p_paid_currency: data.currency,
         p_payload: rawBody,
         p_idempotency_key: idempotencyKey,

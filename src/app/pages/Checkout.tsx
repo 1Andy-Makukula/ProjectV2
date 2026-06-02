@@ -12,7 +12,7 @@
 import { useState, useEffect, memo, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
-import { ShoppingBag, Trash2, Shield, ArrowLeft } from 'lucide-react';
+import { ShoppingBag, Trash2, Shield, ArrowLeft, Gift } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { useCart } from '../hooks/useCart';

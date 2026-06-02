@@ -63,7 +63,7 @@ export interface Product {
   description: string | null;
   price_zmw: number;
   /** DB column — single image URL */
-  image_url: string | null;
+  image_url?: string | null;
   /** Backward-compat array wrapper around image_url */
   images: string[];
   is_available?: boolean;

@@ -161,7 +161,7 @@ function QRScanView({ onDetected }: { onDetected: (code: string) => void }) {
 // ---------------------------------------------------------------------------
 
 const fmt = (n: number) =>
-  new Intl.NumberFormat('en-ZM', { style: 'currency', currency: 'ZMW', maximumFractionDigits: 0 }).format(n);
+  new Intl.NumberFormat('en-ZM', { style: 'currency', currency: 'ZMW', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n / 100);
 
 export function MerchantFulfill() {
   const navigate = useNavigate();

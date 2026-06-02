@@ -278,9 +278,22 @@ BEGIN
   IF v_txn.status <> 'GATEWAY_PROCESSING' THEN
     RAISE EXCEPTION 'Transaction is in status %', v_txn.status;
   END IF;
-  IF p_paid_amount < v_txn.total_amount OR p_paid_currency <> 'ZMW' THEN
-    RAISE EXCEPTION 'Payment amount or currency mismatch';
-  END IF;
+  DECLARE
+    v_paid_ngwee INTEGER;
+  BEGIN
+    IF p_paid_amount < (v_txn.total_amount::numeric / 10.0) THEN
+      v_paid_ngwee := round(p_paid_amount * 100)::integer;
+    ELSE
+      v_paid_ngwee := round(p_paid_amount)::integer;
+    END IF;
+    IF v_paid_ngwee < v_txn.total_amount OR p_paid_currency <> 'ZMW' THEN
+      RAISE EXCEPTION 'Payment amount or currency mismatch';
+    END IF;
+  END;
+
+
+
+
   UPDATE public.transactions SET status = 'SUCCESSFUL' WHERE transaction_id = p_transaction_id;
   UPDATE public.shop_orders SET claim_status = 'PENDING'
   WHERE transaction_id = p_transaction_id AND claim_status = 'PENDING_PAYMENT';

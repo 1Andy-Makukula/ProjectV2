@@ -300,7 +300,7 @@ async function handleFlutterwaveWebhook(
     // Update the parent transaction
     const { error: confirmError } = await supabase.rpc("confirm_payment_atomic", {
       p_transaction_id: txn.transaction_id,
-      p_paid_amount: payload.data.amount,
+      p_paid_amount: Math.round(payload.data.amount * 100), // Convert ZMW from Flutterwave to ngwee for DB validation
       p_paid_currency: payload.data.currency ?? "ZMW",
       p_payload: JSON.stringify(payload),
       p_idempotency_key: `${txn.transaction_id}:${payload.data.id}`,
