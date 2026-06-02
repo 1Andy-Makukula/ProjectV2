@@ -57,7 +57,7 @@ export interface Product {
   shop_id: string;
   shop?: Shop;
   /** DB column — canonical name */
-  name: string;
+  name?: string;
   /** Alias kept for backward compat with CartSlider / Checkout */
   title: string;
   description: string | null;
@@ -66,8 +66,11 @@ export interface Product {
   image_url: string | null;
   /** Backward-compat array wrapper around image_url */
   images: string[];
-  is_available: boolean;
+  is_available?: boolean;
   currency?: string;
+  stock_count?: number;
+  category?: string;
+  featured?: boolean;
   created_at?: string;
 }
 
