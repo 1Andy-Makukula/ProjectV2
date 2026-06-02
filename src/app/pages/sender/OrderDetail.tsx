@@ -400,7 +400,7 @@ export function OrderDetail() {
         </motion.div>
 
         {/* Shop orders — one card per vendor */}
-        {transaction.shop_orders.map((shopOrder, idx) => {
+        {transaction?.shop_orders?.map((shopOrder, idx) => {
           const giftUrl = getGiftPageUrl(shopOrder.claim_code);
 
           return (
@@ -411,63 +411,65 @@ export function OrderDetail() {
               transition={{ delay: idx * 0.06 }}
               className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
             >
-              {/* Product header */}
-              {shopOrder.order_items.map((orderItem) => {
-                const { item, fulfillment_status } = orderItem;
-                return (
-                  <div key={item.id} className="flex gap-4 border-b border-gray-100 p-5">
-                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100">
-                      {item.image_url ? (
-                        <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center">
-                          <Package className="h-8 w-8 text-gray-300" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="font-semibold text-gray-900 truncate">{item.name}</p>
-                        
-                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${
-                          fulfillment_status === 'COLLECTED' ? 'bg-green-50 text-green-700 ring-1 ring-green-200' :
-                          fulfillment_status === 'MISSING' ? 'bg-red-50 text-red-700 ring-1 ring-red-200' :
-                          fulfillment_status === 'FLOATING' ? 'bg-orange-50 text-orange-700 ring-1 ring-orange-200' :
-                          fulfillment_status === 'CONVERTED' ? 'bg-gray-50 text-gray-700 ring-1 ring-gray-200' :
-                          fulfillment_status === 'EXPIRED' ? 'bg-gray-50 text-gray-500 ring-1 ring-gray-200' :
-                          'bg-amber-50 text-amber-700 ring-1 ring-amber-200'
-                        }`}>
-                          {fulfillment_status}
-                        </span>
-                      </div>
-                      
-                      {item.description && (
-                        <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{item.description}</p>
-                      )}
-                      
-                      <div className="mt-2 flex items-center justify-between">
-                        <p className="text-base font-bold text-primary">
-                          {formatCurrency(orderItem.allocated_price, 'ZMW')}
-                        </p>
-                        
-                        {(fulfillment_status === 'PENDING' || fulfillment_status === 'FLOATING') && (
-                          (() => {
-                            const remaining = calculateTimeRemaining(shopOrder.created_at);
-                            return (
-                              <div className={`inline-flex items-center gap-1 text-xs ${
-                                remaining.isUrgent ? 'text-red-500 font-medium animate-pulse animate-duration-1000' : 'text-slate-500'
-                              }`}>
-                                {remaining.isUrgent && <Clock className="h-3 w-3" />}
-                                <span>{remaining.text}</span>
-                              </div>
-                            );
-                          })()
+              {/* Product list in a clean stacked column layout */}
+              <div className="flex flex-col divide-y divide-gray-100">
+                {shopOrder?.order_items?.map((orderItem) => {
+                  const { item, fulfillment_status } = orderItem;
+                  return (
+                    <div key={item?.id} className="flex gap-4 p-5">
+                      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100">
+                        {item?.image_url ? (
+                          <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <Package className="h-8 w-8 text-gray-300" />
+                          </div>
                         )}
                       </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="font-semibold text-gray-900 truncate">{item?.name}</p>
+                          
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${
+                            fulfillment_status === 'COLLECTED' ? 'bg-green-50 text-green-700 ring-1 ring-green-200' :
+                            fulfillment_status === 'MISSING' ? 'bg-red-50 text-red-700 ring-1 ring-red-200' :
+                            fulfillment_status === 'FLOATING' ? 'bg-orange-50 text-orange-700 ring-1 ring-orange-200' :
+                            fulfillment_status === 'CONVERTED' ? 'bg-gray-50 text-gray-700 ring-1 ring-gray-200' :
+                            fulfillment_status === 'EXPIRED' ? 'bg-gray-50 text-gray-500 ring-1 ring-gray-200' :
+                            'bg-amber-50 text-amber-700 ring-1 ring-amber-200'
+                          }`}>
+                            {fulfillment_status}
+                          </span>
+                        </div>
+                        
+                        {item?.description && (
+                          <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{item.description}</p>
+                        )}
+                        
+                        <div className="mt-2 flex items-center justify-between">
+                          <p className="text-base font-bold text-primary">
+                            {formatCurrency(orderItem.allocated_price, 'ZMW')}
+                          </p>
+                          
+                          {(fulfillment_status === 'PENDING' || fulfillment_status === 'FLOATING') && (
+                            (() => {
+                              const remaining = calculateTimeRemaining(shopOrder.created_at);
+                              return (
+                                <div className={`inline-flex items-center gap-1 text-xs ${
+                                  remaining.isUrgent ? 'text-red-500 font-medium animate-pulse animate-duration-1000' : 'text-slate-500'
+                                }`}>
+                                  {remaining.isUrgent && <Clock className="h-3 w-3" />}
+                                  <span>{remaining.text}</span>
+                                </div>
+                              );
+                            })()
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
 
               {/* Claim code */}
               <div className="border-b border-gray-100 bg-orange-50/60 px-5 py-4">

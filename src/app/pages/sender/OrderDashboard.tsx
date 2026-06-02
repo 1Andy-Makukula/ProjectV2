@@ -30,6 +30,11 @@ import { toast } from 'sonner';
 // V2 Schema Types
 // ---------------------------------------------------------------------------
 
+interface OrderItemInfo {
+  name: string;
+  image_url: string | null;
+}
+
 interface OrderView {
   // transaction fields
   transaction_id: string;
@@ -48,6 +53,7 @@ interface OrderView {
   // from order_items → items (first item for display thumbnail)
   item_name: string | null;
   item_image_url: string | null;
+  items: OrderItemInfo[];
 }
 
 // Derived unified status for display
@@ -283,8 +289,40 @@ export function OrderDashboard() {
       // Flatten the nested V2 structure into a flat OrderView for rendering
       const flatOrders: OrderView[] = (data ?? []).map((txn: any) => {
         const firstShopOrder = txn.shop_orders?.[0];
-        const firstItem = firstShopOrder?.order_items?.[0]?.item;
         const shop = firstShopOrder?.shop;
+
+        const allItems: OrderItemInfo[] = [];
+        const uniqueShopNames = new Set<string>();
+
+        txn.shop_orders?.forEach((so: any) => {
+          if (so.shop?.name) {
+            uniqueShopNames.add(so.shop.name);
+          }
+          so.order_items?.forEach((oi: any) => {
+            if (oi.item?.name) {
+              allItems.push({
+                name: oi.item.name,
+                image_url: oi.item.image_url ?? null,
+              });
+            }
+          });
+        });
+
+        let summaryName = 'Product unavailable';
+        if (allItems.length === 1) {
+          summaryName = allItems[0].name;
+        } else if (allItems.length > 1) {
+          const shopNamesArr = Array.from(uniqueShopNames);
+          if (shopNamesArr.length === 1) {
+            summaryName = `${allItems.length} Items from ${shopNamesArr[0]}`;
+          } else if (shopNamesArr.length > 1) {
+            summaryName = `${allItems.length} Items from ${shopNamesArr[0]} & ${shopNamesArr.length - 1} other${shopNamesArr.length - 1 > 1 ? 's' : ''}`;
+          } else {
+            summaryName = `${allItems.length} Items`;
+          }
+        }
+
+        const firstItem = allItems[0] ?? null;
 
         return {
           transaction_id: txn.transaction_id,
@@ -297,8 +335,9 @@ export function OrderDashboard() {
           claim_status: firstShopOrder?.claim_status ?? null,
           recipient_name: firstShopOrder?.recipient_name ?? null,
           shop_name: shop?.name ?? null,
-          item_name: firstItem?.name ?? null,
+          item_name: summaryName,
           item_image_url: firstItem?.image_url ?? null,
+          items: allItems,
         };
       });
 
@@ -451,25 +490,53 @@ export function OrderDashboard() {
                       >
                         <TableCell className="pl-6 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-gray-100">
-                              {order.item_image_url ? (
-                                <img
-                                  src={order.item_image_url}
-                                  alt={order.item_name ?? ''}
-                                  className="h-full w-full object-cover"
-                                />
-                              ) : (
-                                <div className="flex h-full w-full items-center justify-center">
-                                  <Package className="h-5 w-5 text-gray-400" />
-                                </div>
-                              )}
-                            </div>
+                            {order?.items && order.items.length > 1 ? (
+                              <div className="flex -space-x-3 overflow-hidden shrink-0">
+                                {order.items.slice(0, 3).map((item, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="inline-block h-10 w-10 rounded-md ring-2 ring-white overflow-hidden bg-gray-100 shrink-0"
+                                  >
+                                    {item?.image_url ? (
+                                      <img
+                                        src={item.image_url}
+                                        alt={item.name}
+                                        className="h-full w-full object-cover"
+                                      />
+                                    ) : (
+                                      <div className="flex h-full w-full items-center justify-center">
+                                        <Package className="h-5 w-5 text-gray-400" />
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                                {order.items.length > 3 && (
+                                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-slate-200 text-[10px] font-bold text-slate-600 ring-2 ring-white shrink-0">
+                                    +{order.items.length - 3}
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-gray-100">
+                                {order?.item_image_url ? (
+                                  <img
+                                    src={order.item_image_url}
+                                    alt={order.item_name ?? ''}
+                                    className="h-full w-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex h-full w-full items-center justify-center">
+                                    <Package className="h-5 w-5 text-gray-400" />
+                                  </div>
+                                )}
+                              </div>
+                            )}
                             <div className="min-w-0">
                               <p className="truncate text-sm font-medium text-slate-900">
-                                {order.item_name ?? 'Product unavailable'}
+                                {order?.item_name ?? 'Product unavailable'}
                               </p>
                               <p className="font-mono text-xs text-slate-500">
-                                #{order.claim_code ?? '—'}
+                                #{order?.claim_code ?? '—'}
                               </p>
                             </div>
                           </div>

@@ -14,6 +14,12 @@ interface CartItemPayload {
   shop_id: string;
 }
 
+interface SecureVendorGroup {
+  shop_id: string;
+  item_ids: string[];
+  secureSubtotal: number;
+}
+
 /**
  * The full grouped cart payload accepted by this function.
  * recipient_name, recipient_phone, and message are optional — they are
