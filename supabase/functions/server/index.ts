@@ -508,6 +508,45 @@ async function handleVerifyPayment(payload: Record<string, any>): Promise<Respon
       return json({ success: false, error: `Failed to confirm payment: ${confirmError.message || JSON.stringify(confirmError)}` }, 200);
     }
 
+    // Trigger recipient WhatsApp notifications via background invocation
+    (async () => {
+      try {
+        const { data: txnData } = await supabase
+          .from("transactions")
+          .select("buyer:buyer_id (name)")
+          .eq("transaction_id", txn.transaction_id)
+          .single();
+
+        const senderName = (txnData as any)?.buyer?.name || "A friend";
+
+        const { data: bundles } = await supabase
+          .from("shop_orders")
+          .select("shop_order_id, claim_code, recipient_name, recipient_phone, shop:shop_id (name)")
+          .eq("transaction_id", txn.transaction_id);
+
+        if (bundles && bundles.length > 0) {
+          for (const bundle of bundles) {
+            if (!bundle.recipient_phone || !bundle.recipient_name) continue;
+            const shopName = bundle.shop?.name || "KithLy Partner Shop";
+
+            console.log(`[Verify] Invoking send-notification for bundle: ${bundle.shop_order_id}`);
+            await supabase.functions.invoke("send-notification", {
+              body: {
+                recipient_name: bundle.recipient_name,
+                recipient_phone: bundle.recipient_phone,
+                sender_name: senderName,
+                shop_name: shopName,
+                claim_code: bundle.claim_code,
+              },
+            });
+          }
+        }
+      } catch (err: unknown) {
+        const errMsg = err instanceof Error ? err.message : String(err);
+        console.error(`[Verify] Notification background processing exception:`, errMsg);
+      }
+    })();
+
     return json({ success: true });
   }
 

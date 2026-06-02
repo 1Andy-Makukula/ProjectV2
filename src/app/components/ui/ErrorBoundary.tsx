@@ -1,6 +1,7 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
 import { ShieldAlert } from 'lucide-react';
 import { Button } from './button';
+import * as Sentry from '@sentry/react';
 
 interface Props {
   children: ReactNode;
@@ -23,6 +24,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Uncaught error in component tree:', error, errorInfo);
+    Sentry.captureException(error, { extra: errorInfo as any });
   }
 
   public render() {

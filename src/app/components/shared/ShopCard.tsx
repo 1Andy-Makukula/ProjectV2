@@ -25,7 +25,7 @@ function shopInitial(name: string) {
 
 export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
   const cover = shop.cover_image_url ?? shop.image_url ?? null;
-  const logo  = shop.logo_url ?? null;
+  const logo = shop.logo_url ?? null;
 
   return (
     <article
@@ -77,7 +77,7 @@ export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
           ) : (
             <div
               className="h-14 w-14 rounded-full border-[3px] border-white shadow-sm
-                         flex items-center justify-center text-white text-lg font-bold"
+                         fl ex items-center justify-center text-white text-lg font-bold"
               style={{ background: 'linear-gradient(135deg,#f97316,#fb923c)' }}
             >
               {shopInitial(shop.name)}
