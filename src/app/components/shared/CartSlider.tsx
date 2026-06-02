@@ -238,7 +238,7 @@ export function CartSlider() {
                     <Coins className="h-4 w-4 text-orange-500" />
                     <div className="flex flex-col text-left">
                       <span className="text-xs font-semibold text-slate-800">Apply KithLy Credits</span>
-                      <span className="text-[10px] text-slate-400">Available: ZMW {walletBalance}</span>
+                      <span className="text-[10px] text-slate-400">Available: {formatCurrency(walletBalance, 'ZMW')}</span>
                     </div>
                   </div>
                   <Switch

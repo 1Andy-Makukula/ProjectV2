@@ -415,12 +415,15 @@ async function handleFlutterwaveWebhook(req: Request): Promise<Response> {
     return new Response("Server configuration error", { status: 500 });
   }
 
-  // Check if txRefStr is a valid UUID
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(txRefStr);
-  let resolvedTransactionId = txRefStr;
+  // Extract actual transaction ID (stripping any timestamp suffix)
+  const actualTransactionId = txRefStr.split('_')[0];
+
+  // Check if actualTransactionId is a valid UUID
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(actualTransactionId);
+  let resolvedTransactionId = actualTransactionId;
 
   if (!isUuid) {
-    console.log(`[flutterwave-webhook] Non-UUID tx_ref detected: '${txRefStr}'. Resolving to transaction UUID...`);
+    console.log(`[flutterwave-webhook] Non-UUID actualTransactionId detected: '${actualTransactionId}' (tx_ref: '${txRefStr}'). Resolving via gateway_tx_ref...`);
     const { data: txnRow, error: txnErr } = await supabase
       .from("transactions")
       .select("transaction_id")

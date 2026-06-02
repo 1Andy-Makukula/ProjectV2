@@ -1,22 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { supabase } from '../../../lib/supabaseClient';
 import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '../../components/ui/card';
-import { Input } from '../../components/ui/input';
-import { Label } from '../../components/ui/label';
 import { formatCurrency } from '../../../utils/currency';
-import { QrCode, LogOut, Package, TrendingUp, Camera, Save, Edit, Trash2, HelpCircle, PackagePlus, Store, Settings } from 'lucide-react';
+import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { AdminItems } from '../admin/AdminItems';
+import { SettlementDashboard } from '../../components/merchant/SettlementDashboard';
 
 import {
   Sheet,
@@ -90,7 +82,7 @@ function aggregateOrderItems(orderItems?: OrderItem[]) {
 
 export function MerchantDashboard() {
   const navigate = useNavigate();
-  const { profile, signOut } = useAuth();
+  const { profile } = useAuth();
 
   // Existing state
   const [shopName, setShopName] = useState('');
@@ -106,6 +98,8 @@ export function MerchantDashboard() {
   });
   const [loading, setLoading] = useState(true);
   const [withdrawing, setWithdrawing] = useState(false);
+  const [ledgerData, setLedgerData] = useState<any[]>([]);
+  const [ledgerLoading, setLedgerLoading] = useState(false);
 
   // Sheet drawer state
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -130,6 +124,7 @@ export function MerchantDashboard() {
           () => {
             fetchOrders(shopId);
             fetchAnalytics(shopId);
+            fetchLedger(shopId);
           }
         )
         .on(
@@ -143,6 +138,7 @@ export function MerchantDashboard() {
           () => {
             fetchOrders(shopId);
             fetchAnalytics(shopId);
+            fetchLedger(shopId);
           }
         )
         .subscribe();
@@ -173,6 +169,7 @@ export function MerchantDashboard() {
 
       await fetchOrders(currentShopId);
       await fetchAnalytics(currentShopId);
+      await fetchLedger(currentShopId);
     } catch (error) {
       console.error('Error fetching merchant data:', error);
     } finally {
@@ -255,17 +252,27 @@ export function MerchantDashboard() {
     }
   };
 
+  const fetchLedger = async (currentShopId: string) => {
+    setLedgerLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('get-merchant-ledger', {
+        body: { shop_id: currentShopId },
+      });
+      if (error) throw error;
+      if (data?.success) {
+        setLedgerData(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching merchant ledger:', error);
+    } finally {
+      setLedgerLoading(false);
+    }
+  };
+
   const handleFulfillOrder = async (_orderId: string) => {
     navigate('/merchant/fulfill');
   };
 
-  const handleEditProduct = (id: string) => {
-    console.log('Edit product', id);
-  };
-
-  const handleDeleteProduct = (id: string) => {
-    console.log('Delete product', id);
-  };
 
   const handleWithdrawRequest = async () => {
     if (!shopId || analytics.availableBalance <= 0) return;
@@ -452,9 +459,10 @@ export function MerchantDashboard() {
 
         {/* Tabs — Active Orders | Fulfilled | Inventory */}
         <Tabs defaultValue="active" className="space-y-6">
-          <TabsList className="grid w-full max-w-xl grid-cols-3">
+          <TabsList className="grid w-full max-w-2xl grid-cols-4">
             <TabsTrigger value="active">Active Orders</TabsTrigger>
             <TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
+            <TabsTrigger value="ledger">Settlements</TabsTrigger>
             <TabsTrigger value="inventory">Inventory</TabsTrigger>
           </TabsList>
 
@@ -673,6 +681,11 @@ export function MerchantDashboard() {
             )}
           </TabsContent>
 
+          {/* Settlements / Ledger */}
+          <TabsContent value="ledger" className="space-y-4">
+            <SettlementDashboard ledgerData={ledgerData} isLoading={ledgerLoading} />
+          </TabsContent>
+
           {/* Inventory */}
           <TabsContent value="inventory" className="space-y-4">
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
@@ -688,66 +701,85 @@ export function MerchantDashboard() {
 
       {/* View Order Detail Sheet */}
       <Sheet open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <SheetContent className="sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>Order Details</SheetTitle>
-            <SheetDescription>
+        <SheetContent className="sm:max-w-md overflow-y-auto max-h-screen">
+          <SheetHeader className="border-b border-slate-100 pb-4">
+            <SheetTitle className="flex items-center gap-2 text-lg font-bold text-slate-900">
+              <Sparkles className="h-5 w-5 text-orange-500" />
+              <span>Order Details</span>
+            </SheetTitle>
+            <SheetDescription className="text-slate-500 text-xs">
               Full transaction context for this gift bundle.
             </SheetDescription>
           </SheetHeader>
           {selectedOrder && (
-            <div className="space-y-6 py-4">
-              {/* Reference and Claim Status */}
-              <div className="rounded-xl bg-slate-50 p-4 space-y-3">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-500 font-medium">Claim Code:</span>
-                  <span className="font-mono font-bold text-slate-900 bg-white border px-2 py-0.5 rounded text-xs select-all">
+            <div className="space-y-6 py-5">
+              {/* Reference and Claim Status - styled like a premium coupon/ticket */}
+              <div className="relative rounded-2xl bg-gradient-to-br from-orange-50/70 to-amber-50/40 border border-orange-100/70 p-5 shadow-sm space-y-4 overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-orange-200/20 to-amber-200/10 rounded-bl-full pointer-events-none" />
+                
+                <div className="flex justify-between items-center text-sm border-b border-orange-100/50 pb-3">
+                  <div className="flex items-center gap-2">
+                    <QrCode className="h-4 w-4 text-orange-500" />
+                    <span className="text-slate-500 font-semibold">Claim Code</span>
+                  </div>
+                  <span className="font-mono font-bold text-orange-600 bg-orange-100/40 border border-orange-200/50 px-2.5 py-1 rounded-xl text-xs select-all tracking-wider shadow-sm">
                     {selectedOrder.code}
                   </span>
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-500 font-medium">Status:</span>
-                  <span className={cn(
-                    "px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider",
-                    selectedOrder.claim_status === 'FULFILLED'
-                      ? "bg-green-50 text-green-700 border border-green-200"
-                      : "bg-amber-50 text-amber-700 border border-amber-200"
-                  )}>
-                    {selectedOrder.claim_status}
-                  </span>
+
+                <div className="grid grid-cols-2 gap-4 text-xs pt-1">
+                  <div className="space-y-1">
+                    <span className="text-slate-400 block font-medium">Status</span>
+                    <span className={cn(
+                      "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider text-[10px] border shadow-sm",
+                      selectedOrder.claim_status === 'FULFILLED'
+                        ? "bg-green-50 text-green-700 border-green-200"
+                        : "bg-amber-50 text-amber-700 border-amber-200"
+                    )}>
+                      <span className={cn("h-1.5 w-1.5 rounded-full", selectedOrder.claim_status === 'FULFILLED' ? "bg-green-500" : "bg-amber-500")} />
+                      {selectedOrder.claim_status}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-slate-400 block font-medium">Date</span>
+                    <span className="text-slate-800 font-semibold flex items-center gap-1">
+                      {selectedOrder.paid_at && new Date(selectedOrder.paid_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-500 font-medium">Recipient:</span>
-                  <span className="font-semibold text-slate-800">
-                    {selectedOrder.recipient_name}
-                  </span>
-                </div>
-                {selectedOrder.recipient_phone && (
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-medium">Recipient Phone:</span>
+
+                <div className="border-t border-dashed border-orange-200/60 pt-3 space-y-2.5 text-xs text-slate-700">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400 font-medium">Recipient:</span>
                     <span className="font-semibold text-slate-800">
-                      {selectedOrder.recipient_phone}
+                      {selectedOrder.recipient_name}
                     </span>
                   </div>
-                )}
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-500 font-medium">Date:</span>
-                  <span className="text-slate-800">
-                    {selectedOrder.paid_at && new Date(selectedOrder.paid_at).toLocaleString()}
-                  </span>
+                  
+                  {selectedOrder.recipient_phone && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400 font-medium">Phone:</span>
+                      <span className="font-mono font-medium text-slate-800">
+                        {selectedOrder.recipient_phone}
+                      </span>
+                    </div>
+                  )}
+
+                  {selectedOrder.fulfilled_at && (
+                    <div className="flex items-center justify-between border-t border-orange-100/40 pt-2.5">
+                      <span className="text-slate-400 font-medium">Fulfilled At:</span>
+                      <span className="font-semibold text-green-600">
+                        {new Date(selectedOrder.fulfilled_at).toLocaleString()}
+                      </span>
+                    </div>
+                  )}
                 </div>
-                {selectedOrder.fulfilled_at && (
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-medium">Fulfilled At:</span>
-                    <span className="text-slate-800 font-medium">
-                      {new Date(selectedOrder.fulfilled_at).toLocaleString()}
-                    </span>
-                  </div>
-                )}
+
                 {selectedOrder.message && (
-                  <div className="pt-2 border-t border-slate-200/60 text-sm">
-                    <span className="text-slate-500 font-medium block mb-1">Gift Message:</span>
-                    <p className="text-slate-700 italic bg-white p-2 rounded border border-slate-100">
+                  <div className="pt-3 border-t border-orange-100/50 text-xs">
+                    <span className="text-slate-400 font-medium block mb-1">Gift Message:</span>
+                    <p className="text-slate-600 italic bg-white/85 p-2.5 rounded-xl border border-orange-100/30 shadow-inner">
                       "{selectedOrder.message}"
                     </p>
                   </div>
@@ -756,23 +788,27 @@ export function MerchantDashboard() {
 
               {/* Items List */}
               <div className="space-y-3">
-                <h4 className="font-semibold text-slate-900 text-sm">Products in Bundle</h4>
-                <div className="divide-y divide-slate-100 max-h-[300px] overflow-y-auto pr-1">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-bold text-slate-900 text-sm">Products in Bundle</h4>
+                  <span className="text-xs font-semibold text-slate-400">{aggregateOrderItems(selectedOrder.order_items).length} Items</span>
+                </div>
+                {/* Product cards list letting it flow naturally inside scrollable SheetContent */}
+                <div className="space-y-2.5">
                   {aggregateOrderItems(selectedOrder.order_items).map((oi, idx) => (
-                    <div key={idx} className="flex items-center gap-3 py-3">
-                      <div className="h-12 w-12 rounded-lg overflow-hidden bg-slate-100 shrink-0">
+                    <div key={idx} className="flex items-center gap-3.5 p-3 rounded-2xl border border-slate-100 bg-white/60 hover:bg-slate-50/50 hover:border-slate-200 transition-all duration-200 shadow-sm">
+                      <div className="h-12 w-12 rounded-xl overflow-hidden bg-slate-50 shrink-0 border border-slate-100/70 flex items-center justify-center shadow-inner">
                         {oi.image_url ? (
                           <img src={oi.image_url} alt={oi.name} className="h-full w-full object-cover" />
                         ) : (
-                          <div className="h-full w-full flex items-center justify-center">
-                            <Package className="h-5 w-5 text-slate-400" />
-                          </div>
+                          <Package className="h-5 w-5 text-slate-400" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-slate-800 text-sm truncate">{oi.name}</p>
+                        <p className="font-semibold text-slate-800 text-sm truncate">{oi.name}</p>
                         {oi.quantity > 1 && (
-                          <p className="text-xs text-slate-500 mt-0.5">Quantity: {oi.quantity}</p>
+                          <span className="inline-flex items-center mt-1 px-2 py-0.5 rounded-full bg-slate-100 text-[10px] font-bold text-slate-600">
+                            Qty: {oi.quantity}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -780,9 +816,11 @@ export function MerchantDashboard() {
                 </div>
               </div>
               
-              <div className="flex justify-between items-center pt-4 border-t border-slate-100">
-                <span className="text-sm font-semibold text-slate-950">Total Value:</span>
-                <span className="text-lg font-bold text-primary">{formatCurrency(selectedOrder.amount)}</span>
+              <div className="flex justify-between items-center pt-5 border-t border-slate-100">
+                <span className="text-sm font-bold text-slate-900">Total Value:</span>
+                <span className="text-xl font-extrabold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+                  {formatCurrency(selectedOrder.amount)}
+                </span>
               </div>
             </div>
           )}

@@ -1,4 +1,4 @@
-import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.8";
 import { getCorsHeaders } from "../_shared/cors.ts";
 
 // ---------------------------------------------------------------------------
@@ -26,11 +26,12 @@ interface SecureVendorGroup {
  * captured in SendFlow.tsx and written to every shop_orders row created.
  */
 interface CheckoutInitPayload {
-  cart_items: CartItemPayload[];
-  origin_type: "LOCAL" | "INTERNATIONAL";
+  cart_items?: CartItemPayload[];
+  origin_type?: "LOCAL" | "INTERNATIONAL";
   recipient_name?: string;
   recipient_phone?: string;
   message?: string;
+  transaction_id?: string;
 }
 
 /**
@@ -150,6 +151,14 @@ function getAdminClient() {
  * Throws a descriptive `Error` on any validation failure.
  */
 function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
+  // If transaction_id is present, short-circuit validation for payment recovery
+  const transaction_id = requireString(raw.transaction_id, "transaction_id");
+  if (transaction_id) {
+    return {
+      transaction_id,
+    };
+  }
+
   // --- cart_items ---
   if (!Array.isArray(raw.cart_items) || raw.cart_items.length === 0) {
     throw new Error("cart_items must be a non-empty array.");
@@ -417,11 +426,12 @@ async function generateFlutterwaveLink(
   // Use the recipient's phone as a fallback for the buyer's phone if the buyer doesn't have one on their account
   const finalPhone = buyerPhone || recipientPhone || "";
 
+  const dynamicTxRef = `${transactionId}_${Date.now()}`;
   const payload = {
-    tx_ref: transactionId,
+    tx_ref: dynamicTxRef,
     amount: totalAmount / 100, // Convert from ngwee to ZMW for Flutterwave
     currency: "ZMW",
-    redirect_url: `${appUrl}/confirmation/${transactionId}?tx_ref=${transactionId}`,
+    redirect_url: `${appUrl}/confirmation/${transactionId}?tx_ref=${dynamicTxRef}`,
     customer: {
       email: buyerEmail,
       ...(finalPhone ? { phonenumber: finalPhone } : {}),
@@ -505,7 +515,75 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
   if (callerResult instanceof Response) return callerResult;
   const caller = callerResult;
 
+  // --- 4.2. Recovery flow for existing transaction_id ---
+  if (payload.transaction_id) {
+    console.log(`[checkout-init] Payment recovery flow initiated for transaction_id=${payload.transaction_id}`);
+    
+    // 1. Fetch transaction and verify it exists and belongs to the buyer
+    const { data: txn, error: txnError } = await adminClient
+      .from("transactions")
+      .select("transaction_id, total_amount, status, buyer_id")
+      .eq("transaction_id", payload.transaction_id)
+      .single();
+
+    if (txnError || !txn) {
+      console.error("[checkout-init] Recovery: Transaction lookup failed:", txnError?.message);
+      return json(req, { error: "Transaction not found." }, 404);
+    }
+
+    if (txn.buyer_id !== caller.id) {
+      console.error(`[checkout-init] Recovery: Unauthorized — buyer '${txn.buyer_id}' does not match caller '${caller.id}'`);
+      return json(req, { error: "Unauthorized access to transaction." }, 403);
+    }
+
+    if (txn.status === "SUCCESSFUL") {
+      return json(req, { error: "Transaction is already completed." }, 400);
+    }
+
+    // Get any associated shop_orders recipient phone number as a fallback
+    const { data: shopOrders, error: shopOrdersErr } = await adminClient
+      .from("shop_orders")
+      .select("recipient_phone")
+      .eq("transaction_id", payload.transaction_id)
+      .limit(1);
+
+    const recipientPhone = (!shopOrdersErr && shopOrders && shopOrders.length > 0)
+      ? shopOrders[0].recipient_phone
+      : undefined;
+
+    // Update status to GATEWAY_PROCESSING (in case it failed or was PENDING_PAYMENT)
+    const { error: updateTxErr } = await adminClient
+      .from("transactions")
+      .update({
+        status: "GATEWAY_PROCESSING"
+      })
+      .eq("transaction_id", payload.transaction_id);
+
+    if (updateTxErr) {
+      console.error("[checkout-init] Recovery: Failed to update transaction status:", updateTxErr.message);
+    }
+
+    // Generate fresh Flutterwave link
+    const paymentLink = await generateFlutterwaveLink(
+      payload.transaction_id,
+      txn.total_amount,
+      caller.email ?? "customer@kithly.com",
+      caller.phone ?? "",
+      recipientPhone
+    );
+
+    return json(req, {
+      success: true,
+      transaction_id: payload.transaction_id,
+      payment_link: paymentLink,
+    });
+  }
+
   // --- 4.5. Enforce Server-Side Math ---
+  if (!cart_items || !Array.isArray(cart_items)) {
+    return json(req, { error: "cart_items is required for standard checkout." }, 400);
+  }
+
   const allItemIds = [...new Set(cart_items.map(item => item.item_id))];
   if (allItemIds.length === 0) {
     return json(req, { error: "Cart is empty." }, 400);

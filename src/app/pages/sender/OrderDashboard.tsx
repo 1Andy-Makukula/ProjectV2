@@ -217,7 +217,7 @@ export function OrderDashboard() {
     setResumingPayment(order.transaction_id);
 
     try {
-      const { data, error } = await supabase.functions.invoke('checkout-retry', {
+      const { data, error } = await supabase.functions.invoke('checkout-init', {
         body: {
           transaction_id: order.transaction_id,
         },
@@ -225,7 +225,7 @@ export function OrderDashboard() {
 
       if (error) throw error;
       if (data?.success === false || data?.error) {
-        throw new Error(data.error || 'Failed to retry payment');
+        throw new Error(data.error || 'Failed to resume payment');
       }
 
       if (!data?.payment_link) {
@@ -233,10 +233,7 @@ export function OrderDashboard() {
       }
 
       toast.success('Opening payment gateway...');
-      window.open(data.payment_link, '_blank');
-      
-      // Refresh local UI states
-      window.location.reload();
+      window.location.assign(data.payment_link);
     } catch (err: any) {
       console.error('Error resuming payment:', err);
       toast.error(err.message || 'Failed to resume payment');

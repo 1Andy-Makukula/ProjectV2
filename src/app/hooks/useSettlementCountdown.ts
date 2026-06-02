@@ -4,15 +4,21 @@ import { useState, useEffect } from 'react';
  * Calculates the time remaining between now and a future target timestamp.
  * Returns a strictly formatted string: "1d 04h 22m 11s" or a processing state.
  */
-export function useSettlementCountdown(targetTime: string): string {
-  const [timeLeftStr, setTimeLeftStr] = useState<string>('');
+export function useSettlementCountdown(targetTime?: string | null): string {
+  const [timeLeftStr, setTimeLeftStr] = useState<string>('Processing Batch Clearance...');
 
   useEffect(() => {
-    // We only need to parse the target time once per prop change
+    if (!targetTime) {
+      console.warn('[useSettlementCountdown] Warning: targetTime is undefined or null.');
+      setTimeLeftStr('Processing Batch Clearance...');
+      return;
+    }
+
     const targetMs = new Date(targetTime).getTime();
 
     // Guard against invalid dates
     if (isNaN(targetMs)) {
+      console.warn(`[useSettlementCountdown] Warning: Invalid targetTime format received: "${targetTime}".`);
       setTimeLeftStr('Processing Batch Clearance...');
       return;
     }

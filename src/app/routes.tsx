@@ -6,21 +6,12 @@ import { Root } from './layouts/Root';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { Navigate } from 'react-router';
 
-// Eager: auth surfaces + payment return path (low latency)
+// Eager: auth surfaces + landing page (low latency to prevent CLS / FCP degradation)
 import { ConsumerStorefront } from './pages/ConsumerStorefront';
 import { SignUp } from './pages/public/SignUp';
 import { Login } from './pages/public/Login';
 import { GiftPage } from './pages/public/GiftPage';
-import { Confirmation } from './pages/sender/Confirmation';
-import { Checkout } from './pages/Checkout';
-import { DashboardHub } from './pages/sender/DashboardHub';
 import { NotFound } from './pages/NotFound';
-import { About } from './pages/About';
-import { Privacy } from './pages/Privacy';
-import { Terms } from './pages/Terms';
-import { Support } from './pages/Support';
-import { MerchantAgreement } from './pages/MerchantAgreement';
-import { ShopDirectory } from './pages/ShopDirectory';
 
 const lazyPage = <T extends Record<string, any>>(
   loader: () => Promise<T>,
@@ -31,6 +22,16 @@ const lazyPage = <T extends Record<string, any>>(
       default: m[name] as ComponentType<any>,
     })),
   );
+
+const Confirmation = lazyPage(() => import('./pages/sender/Confirmation'), 'Confirmation');
+const Checkout = lazyPage(() => import('./pages/Checkout'), 'Checkout');
+const DashboardHub = lazyPage(() => import('./pages/sender/DashboardHub'), 'DashboardHub');
+const About = lazyPage(() => import('./pages/About'), 'About');
+const Privacy = lazyPage(() => import('./pages/Privacy'), 'Privacy');
+const Terms = lazyPage(() => import('./pages/Terms'), 'Terms');
+const Support = lazyPage(() => import('./pages/Support'), 'Support');
+const MerchantAgreement = lazyPage(() => import('./pages/MerchantAgreement'), 'MerchantAgreement');
+const ShopDirectory = lazyPage(() => import('./pages/ShopDirectory'), 'ShopDirectory');
 
 const ShopDetail = lazyPage(() => import('./pages/sender/ShopDetail'), 'ShopDetail');
 const SendFlow = lazyPage(() => import('./pages/sender/SendFlow'), 'SendFlow');
@@ -103,7 +104,7 @@ export const router = createBrowserRouter([
         path: 'dashboard',
         element: (
           <ProtectedRoute allowedRoles={['sender', 'merchant', 'admin']}>
-            <DashboardHub />
+            <Lazy><DashboardHub /></Lazy>
           </ProtectedRoute>
         ),
       },
@@ -111,12 +112,12 @@ export const router = createBrowserRouter([
       { path: 'signup', Component: SignUp },
       { path: 'login', Component: Login },
       { path: 'gift/:claimCode', Component: GiftPage },
-      { path: 'about', Component: About },
-      { path: 'privacy', Component: Privacy },
-      { path: 'terms', Component: Terms },
-      { path: 'support', Component: Support },
-      { path: 'merchant-agreement', Component: MerchantAgreement },
-      { path: 'shops', Component: ShopDirectory },
+      { path: 'about', element: <Lazy><About /></Lazy> },
+      { path: 'privacy', element: <Lazy><Privacy /></Lazy> },
+      { path: 'terms', element: <Lazy><Terms /></Lazy> },
+      { path: 'support', element: <Lazy><Support /></Lazy> },
+      { path: 'merchant-agreement', element: <Lazy><MerchantAgreement /></Lazy> },
+      { path: 'shops', element: <Lazy><ShopDirectory /></Lazy> },
 
       {
         path: 'shop/:shopId',
@@ -139,7 +140,7 @@ export const router = createBrowserRouter([
         path: 'confirmation/:orderId',
         element: (
           <ProtectedRoute allowedRoles={['sender']}>
-            <Confirmation />
+            <Lazy><Confirmation /></Lazy>
           </ProtectedRoute>
         ),
       },
@@ -187,7 +188,7 @@ export const router = createBrowserRouter([
         path: 'checkout',
         element: (
           <ProtectedRoute allowedRoles={['sender']}>
-            <Checkout />
+            <Lazy><Checkout /></Lazy>
           </ProtectedRoute>
         ),
       },

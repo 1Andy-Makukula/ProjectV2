@@ -10,6 +10,7 @@ import { useCart } from '../../hooks/useCart';
 import { supabase } from '../../../lib/supabaseClient';
 import { Badge } from '../ui/badge';
 import { SearchBar } from '../shared/SearchBar';
+import { formatCurrency } from '../../../utils/currency';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -259,7 +260,7 @@ export function Header({
             {isAuthenticated && balance !== null && (
               <div className="inline-flex items-center bg-slate-100 px-3 py-1 rounded-full text-xs font-light text-slate-700 tracking-wide select-none">
                 <span className="text-[10px] text-slate-400 mr-1.5 uppercase font-semibold">Credits</span>
-                <span className="font-semibold text-slate-900">ZMW {balance}</span>
+                <span className="font-semibold text-slate-900">{formatCurrency(balance, 'ZMW')}</span>
               </div>
             )}
 

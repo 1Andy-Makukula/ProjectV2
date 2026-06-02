@@ -25,6 +25,7 @@ import {
   Loader2,
   Layers,
 } from 'lucide-react';
+import { cn } from '../../components/ui/utils';
 
 // ---------------------------------------------------------------------------
 // V2 Schema Types
@@ -203,6 +204,9 @@ export function OrderDetail() {
           created_at,
           shop:shop_id (id, name, location),
           order_items (
+            order_item_id,
+            allocated_price,
+            fulfillment_status,
             item:item_id (id, name, description, image_url, price_zmw)
           )
         )
@@ -279,31 +283,29 @@ export function OrderDetail() {
   }, [orderId]);
 
   const handleResumePayment = async () => {
-    if (!transaction?.gateway_tx_ref) {
-      toast.error('No payment reference found.');
+    if (!transaction?.transaction_id) {
+      toast.error('No transaction reference found.');
       return;
     }
 
     setResumingPayment(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('server', {
+      const { data, error } = await supabase.functions.invoke('checkout-init', {
         body: {
-          action: 'initialize_payment',
-          orderId: transaction.transaction_id,
-          amount: transaction.total_amount,
-          currency: 'ZMW',
-          email: profile?.email || '',
-          name: profile?.name || 'Customer',
-          phone: profile?.phone || '',
-          txRef: transaction.gateway_tx_ref,
+          transaction_id: transaction.transaction_id,
         },
       });
 
       if (error) throw error;
-      if (!data?.paymentLink) throw new Error('No payment link returned');
+      if (data?.success === false || data?.error) {
+        throw new Error(data.error || 'Failed to resume payment');
+      }
 
-      window.location.assign(data.paymentLink);
+      if (!data?.payment_link) throw new Error('No payment link returned');
+
+      toast.success('Opening payment gateway...');
+      window.location.assign(data.payment_link);
     } catch (err: any) {
       console.error('Error resuming payment:', err);
       toast.error(err.message || 'Failed to resume payment');
@@ -407,15 +409,15 @@ export function OrderDetail() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.06 }}
-              className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
+              className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-md hover:shadow-lg transition-all duration-350"
             >
-              {/* Product list in a clean stacked column layout */}
-              <div className="flex flex-col divide-y divide-gray-100">
+              {/* Product list in a scrollable container */}
+              <div className="flex flex-col divide-y divide-gray-100 max-h-[340px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200">
                 {shopOrder?.order_items?.map((orderItem) => {
                   const { item, fulfillment_status } = orderItem;
                   return (
-                    <div key={item?.id} className="flex gap-4 p-5">
-                      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100">
+                    <div key={item?.id} className="flex gap-4 p-5 hover:bg-slate-50/30 transition-colors duration-200">
+                      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-gray-50 border border-gray-100/70 shadow-inner flex items-center justify-center">
                         {item?.image_url ? (
                           <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
                         ) : (
@@ -424,39 +426,51 @@ export function OrderDetail() {
                           </div>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <p className="font-semibold text-gray-900 truncate">{item?.name}</p>
+                      <div className="flex-1 min-w-0 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="font-bold text-gray-900 text-sm truncate leading-snug">{item?.name}</p>
+                            
+                            <span className={cn(
+                              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider border shadow-sm",
+                              fulfillment_status === 'COLLECTED' ? 'bg-green-50 text-green-700 border-green-200' :
+                              fulfillment_status === 'MISSING' ? 'bg-red-50 text-red-700 border-red-200' :
+                              fulfillment_status === 'FLOATING' ? 'bg-orange-50 text-orange-700 border-orange-200' :
+                              fulfillment_status === 'CONVERTED' ? 'bg-slate-50 text-slate-700 border-slate-200' :
+                              fulfillment_status === 'EXPIRED' ? 'bg-gray-50 text-gray-500 border-gray-200' :
+                              'bg-amber-50 text-amber-700 border-amber-200'
+                            )}>
+                              <span className={cn("h-1 w-1 rounded-full",
+                                fulfillment_status === 'COLLECTED' ? 'bg-green-500' :
+                                fulfillment_status === 'MISSING' ? 'bg-red-500' :
+                                fulfillment_status === 'FLOATING' ? 'bg-orange-500' :
+                                fulfillment_status === 'CONVERTED' ? 'bg-slate-500' :
+                                fulfillment_status === 'EXPIRED' ? 'bg-gray-400' :
+                                'bg-amber-500'
+                              )} />
+                              {fulfillment_status}
+                            </span>
+                          </div>
                           
-                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${
-                            fulfillment_status === 'COLLECTED' ? 'bg-green-50 text-green-700 ring-1 ring-green-200' :
-                            fulfillment_status === 'MISSING' ? 'bg-red-50 text-red-700 ring-1 ring-red-200' :
-                            fulfillment_status === 'FLOATING' ? 'bg-orange-50 text-orange-700 ring-1 ring-orange-200' :
-                            fulfillment_status === 'CONVERTED' ? 'bg-gray-50 text-gray-700 ring-1 ring-gray-200' :
-                            fulfillment_status === 'EXPIRED' ? 'bg-gray-50 text-gray-500 ring-1 ring-gray-200' :
-                            'bg-amber-50 text-amber-700 ring-1 ring-amber-200'
-                          }`}>
-                            {fulfillment_status}
-                          </span>
+                          {item?.description && (
+                            <p className="mt-1 text-xs text-slate-500 line-clamp-2 leading-relaxed">{item.description}</p>
+                          )}
                         </div>
                         
-                        {item?.description && (
-                          <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{item.description}</p>
-                        )}
-                        
-                        <div className="mt-2 flex items-center justify-between">
-                          <p className="text-base font-bold text-primary">
-                            {formatCurrency(orderItem.allocated_price, 'ZMW')}
+                        <div className="mt-2.5 flex items-center justify-between">
+                          <p className="text-base font-extrabold text-primary">
+                            {formatCurrency(orderItem.allocated_price || item?.price_zmw, 'ZMW')}
                           </p>
                           
                           {(fulfillment_status === 'PENDING' || fulfillment_status === 'FLOATING') && (
                             (() => {
                               const remaining = calculateTimeRemaining(shopOrder.created_at);
                               return (
-                                <div className={`inline-flex items-center gap-1 text-xs ${
-                                  remaining.isUrgent ? 'text-red-500 font-medium animate-pulse animate-duration-1000' : 'text-slate-500'
-                                }`}>
-                                  {remaining.isUrgent && <Clock className="h-3 w-3" />}
+                                <div className={cn(
+                                  "inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border shadow-sm",
+                                  remaining.isUrgent ? 'text-red-600 bg-red-50 border-red-150 animate-pulse font-semibold' : 'text-slate-500 bg-slate-50 border-slate-100'
+                                )}>
+                                  <Clock className="h-3.5 w-3.5" />
                                   <span>{remaining.text}</span>
                                 </div>
                               );
@@ -469,13 +483,13 @@ export function OrderDetail() {
                 })}
               </div>
 
-              {/* Claim code */}
-              <div className="border-b border-gray-100 bg-orange-50/60 px-5 py-4">
-                <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {/* Claim code - Styled like a premium coupon/ticket */}
+              <div className="border-t border-b border-dashed border-gray-200 bg-gradient-to-br from-orange-50/60 to-amber-50/30 px-6 py-5">
+                <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-orange-500">
                   Claim Code
                 </p>
                 <div className="flex items-center gap-3">
-                  <span className="flex-1 font-mono text-2xl font-bold tracking-[0.3em] text-primary">
+                  <span className="flex-1 font-mono text-2xl font-black tracking-[0.25em] text-orange-600 select-all selection:bg-orange-100">
                     {shopOrder.claim_code}
                   </span>
                   <Button
@@ -483,6 +497,7 @@ export function OrderDetail() {
                     size="icon"
                     onClick={() => copyToClipboard(shopOrder.claim_code, 'Claim code')}
                     title="Copy claim code"
+                    className="h-9 w-9 rounded-xl hover:bg-orange-100/50 hover:text-orange-600 transition-colors"
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
@@ -491,6 +506,7 @@ export function OrderDetail() {
                     size="icon"
                     onClick={() => window.open(giftUrl, '_blank')}
                     title="Open gift page"
+                    className="h-9 w-9 rounded-xl hover:bg-orange-100/50 hover:text-orange-600 transition-colors"
                   >
                     <ExternalLink className="h-4 w-4" />
                   </Button>
@@ -498,7 +514,7 @@ export function OrderDetail() {
               </div>
 
               {/* Shop details */}
-              <div className="space-y-3 px-5 py-4">
+              <div className="space-y-3.5 px-6 py-5 bg-slate-50/30">
                 <InfoRow icon={MapPin} label="Shop" value={shopOrder.shop.name} />
                 {shopOrder.shop.location && (
                   <InfoRow icon={MapPin} label="Location" value={shopOrder.shop.location} />

@@ -17,7 +17,6 @@ import {
   MapPin,
   ArrowRight,
   MessageSquare,
-  Share,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { WhatsAppShareButton } from '../../components/shared/WhatsAppShareButton';
@@ -40,6 +39,7 @@ interface ShopOrderConfirm {
   } | null;
   order_items: Array<{
     child_claim_code?: string;
+    allocated_price: number;
     item: {
       id: string;
       name: string;
@@ -91,6 +91,7 @@ function usePaymentConfirmation(transactionId: string | null, txRef: string | nu
           shop:shop_id (id, name, location),
           order_items (
             child_claim_code,
+            allocated_price,
             item:item_id (id, name, description, image_url)
           )
         )
@@ -276,18 +277,23 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
       {transaction.shop_orders.map((shopOrder, idx) => {
         const firstItem = shopOrder.order_items?.[0]?.item;
         const giftUrl = getGiftPageUrl(shopOrder.claim_code);
+        const { profile } = useAuth();
 
-        // Group identical items for the checklist
+        // Group identical items for the checklist, extracting prices and image_urls
         const groupedItems = shopOrder.order_items.reduce((acc, curr) => {
           if (!curr.item) return acc;
           const existing = acc.find(i => i.item.id === curr.item?.id);
           if (existing) {
             existing.quantity += 1;
           } else {
-            acc.push({ item: curr.item, quantity: 1 });
+            acc.push({ 
+              item: curr.item, 
+              quantity: 1, 
+              price: curr.allocated_price 
+            });
           }
           return acc;
-        }, [] as Array<{ item: { id: string; name: string; image_url: string | null }; quantity: number }>);
+        }, [] as Array<{ item: { id: string; name: string; image_url: string | null }; quantity: number; price: number }>);
 
         return (
           <motion.div
@@ -361,19 +367,45 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
               </div>
             </div>
 
-            {/* Bulleted Checklist of Bundle Items */}
+            {/* High-fidelity checklist of Bundle Items with Images & Prices */}
             <div className="border-t border-slate-100 bg-white px-4 py-4">
-              <p className="text-sm font-semibold text-slate-800 mb-2">Bundle Contents</p>
-              <ul className="space-y-2">
+              <p className="text-sm font-semibold text-slate-800 mb-3">Bundle Contents</p>
+              <div className="space-y-3">
                 {groupedItems.map((group, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
-                    <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-orange-100 text-[10px] font-bold text-orange-600">
-                      {group.quantity}
-                    </span>
-                    <span>{group.item.name}</span>
-                  </li>
+                  <div key={i} className="flex items-center gap-3">
+                    {/* Item Thumbnail */}
+                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-slate-100 border border-slate-200">
+                      {group.item.image_url ? (
+                        <img src={group.item.image_url} alt={group.item.name} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                          <Package className="h-4 w-4 text-slate-400" />
+                        </div>
+                      )}
+                    </div>
+                    {/* Item Details */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-slate-700 truncate">
+                        {group.item.name}
+                      </p>
+                      {group.quantity > 1 && (
+                        <p className="text-xs text-slate-400">Qty: {group.quantity}</p>
+                      )}
+                    </div>
+                    {/* Price */}
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-slate-900">
+                        {formatCurrency(group.price * group.quantity, 'ZMW')}
+                      </p>
+                      {group.quantity > 1 && (
+                        <p className="text-[10px] text-slate-400">
+                          {formatCurrency(group.price, 'ZMW')} each
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
 
             {/* Recipient info */}
@@ -394,12 +426,13 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
               </div>
             )}
 
-            {/* WhatsApp share */}
+            {/* WhatsApp share with Sender Name */}
             <div className="px-4 pb-4">
               <WhatsAppShareButton
                 claimCode={shopOrder.claim_code}
                 shopName={shopOrder.shop?.name ?? 'KithLy Merchant'}
                 recipientName={shopOrder.recipient_name ?? undefined}
+                senderName={profile?.name ?? undefined}
               />
             </div>
           </motion.div>
@@ -459,7 +492,6 @@ function FailedView({ onVerify, verifying }: { onVerify: () => void; verifying: 
 export function Confirmation() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { profile } = useAuth();
 
   // V2: The Flutterwave redirect appends tx_ref (our transaction_id) to the URL.
   // Per the agreed design, transaction_id IS the gateway_tx_ref (KITHLY-{ts}-{suffix}).
@@ -477,11 +509,12 @@ export function Confirmation() {
     }
 
     const resolveTransaction = async () => {
+      const cleanTxRef = txRef.split('_')[0];
       const isUuid =
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(txRef);
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanTxRef);
 
       if (isUuid) {
-        setTransactionId(txRef);
+        setTransactionId(cleanTxRef);
         setResolving(false);
         return;
       }
@@ -599,7 +632,7 @@ export function Confirmation() {
             <motion.div key="failed" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <FailedView
                 onVerify={verifyManually}
-                verifying={pollingStatus === 'polling'}
+                verifying={false}
               />
             </motion.div>
           )}

@@ -9,8 +9,15 @@ export function getCorsHeaders(req: Request): Record<string, string> {
     : [Deno.env.get("APP_URL") ?? "http://localhost:5173"];
 
   const origin = req.headers.get("Origin");
+  const isLocalhost = origin && (
+    origin.startsWith("http://localhost:") || 
+    origin.startsWith("http://127.0.0.1:") || 
+    origin === "http://localhost" || 
+    origin === "http://127.0.0.1"
+  );
+  
   const allowOrigin =
-    origin && allowed.some((a) => a === origin) ? origin : allowed[0];
+    origin && (isLocalhost || allowed.some((a) => a === origin)) ? origin : allowed[0];
 
   return {
     "Access-Control-Allow-Origin": allowOrigin,

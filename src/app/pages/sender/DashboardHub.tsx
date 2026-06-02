@@ -23,6 +23,7 @@ import { Header } from '../../components/layout/Header';
 
 interface Order {
   id: string;
+  transactionId: string;
   code: string;
   recipient_name: string;
   amount: number;
@@ -213,6 +214,7 @@ export function DashboardHub() {
 
           return {
             id: so.shop_order_id,
+            transactionId: tx.transaction_id,
             code: so.claim_code,
             recipient_name: so.recipient_name,
             amount: so.subtotal || tx.total_amount,
@@ -426,7 +428,7 @@ export function DashboardHub() {
                           initial={{ opacity: 0, y: 4 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: i * 0.03 }}
-                          onClick={() => navigate(`/orders/${order.id}`)}
+                          onClick={() => navigate(`/orders/${order.transactionId}`)}
                           className="group cursor-pointer hover:bg-slate-50/60 transition-colors"
                         >
                           {/* Item */}
