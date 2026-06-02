@@ -191,7 +191,6 @@ export function OrderDetail() {
         gateway_tx_ref,
         origin_type,
         created_at,
-        updated_at,
         buyer:buyer_id (name, email),
         shop_orders (
           shop_order_id,
@@ -202,7 +201,6 @@ export function OrderDetail() {
           recipient_phone,
           message,
           created_at,
-          updated_at,
           shop:shop_id (id, name, location),
           order_items (
             item:item_id (id, name, description, image_url, price_zmw)

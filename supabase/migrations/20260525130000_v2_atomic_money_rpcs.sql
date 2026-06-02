@@ -436,7 +436,7 @@ BEGIN
       'claim_code', upper(trim(p_claim_code)),
       'present_total', v_present_total,
       'missing_total', v_missing_total
-    )::TEXT
+    )
   );
 
   RETURN jsonb_build_object(

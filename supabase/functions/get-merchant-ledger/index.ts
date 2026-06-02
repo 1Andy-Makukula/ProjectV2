@@ -10,6 +10,9 @@ interface FormattedLedgerRow {
   amount: number;
   settlement_target_time: string;
   claim_code: string;
+  order_items: Array<{
+    item: { name: string; price_zmw: number } | null;
+  }> | null;
 }
 
 interface RawShopOrderRow {
@@ -125,6 +128,7 @@ async function handleGetMerchantLedger(req: Request): Promise<Response> {
       amount: row.subtotal,
       settlement_target_time: row.settlement_target_time ?? new Date().toISOString(),
       claim_code: row.claim_code,
+      order_items: row.order_items,
     };
   });
 

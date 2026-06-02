@@ -375,7 +375,7 @@ async function writeLedgerEvent(
     .insert({
       shop_order_id: shopOrderId,
       event_type: "CLAIM_VERIFIED",
-      payload: JSON.stringify(payload),
+      payload,
       created_at: new Date().toISOString(),
     });
 

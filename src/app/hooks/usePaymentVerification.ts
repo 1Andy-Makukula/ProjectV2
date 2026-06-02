@@ -224,52 +224,63 @@ export function usePaymentVerification({
     );
 
     // --- DATABASE QUERY ---
-    const { data: txnRow, error: queryError } = await supabase
-      .from('transactions')
-      .select('transaction_id, status')
-      .eq('transaction_id', currentVoucherId)
-      .eq('status', PAID_STATUS)
-      .maybeSingle<TransactionStatusRow>();
+    try {
+      const { data: txnRow, error: queryError } = await supabase
+        .from('transactions')
+        .select('transaction_id, status')
+        .eq('transaction_id', currentVoucherId)
+        .eq('status', PAID_STATUS)
+        .maybeSingle<TransactionStatusRow>();
 
-    // Guard: the component may have unmounted while the query was in flight.
-    if (!isMountedRef.current) {
-      return;
-    }
+      // Guard: the component may have unmounted while the query was in flight.
+      if (!isMountedRef.current) {
+        return;
+      }
 
-    // --- ERROR BRANCH ---
-    if (queryError) {
+      // --- ERROR BRANCH ---
+      if (queryError) {
+        clearActiveInterval();
+        setStatus('ERROR');
+        console.error(
+          `[usePaymentVerification] Supabase query error on attempt ${thisAttempt}:`,
+          queryError.code,
+          queryError.message,
+        );
+        return;
+      }
+
+      // --- SUCCESS BRANCH ---
+      if (txnRow !== null) {
+        clearActiveInterval();
+        console.log(
+          `[usePaymentVerification] SUCCESS: transaction ${txnRow.transaction_id} is SUCCESSFUL on attempt ${thisAttempt}.`,
+        );
+        // Fire the callback before updating state so the parent can start its
+        // own transition logic (e.g. navigation) before this component re-renders.
+        onSuccessRef.current?.();
+        setStatus('SUCCESS');
+        return;
+      }
+
+      // --- NOT YET FOUND — check if this was the final allowed attempt ---
+      if (thisAttempt >= maxAttempts) {
+        clearActiveInterval();
+        setStatus('TIMEOUT');
+        console.warn(
+          `[usePaymentVerification] TIMEOUT: final attempt ${thisAttempt} exhausted for voucher '${currentVoucherId}'.`,
+        );
+      }
+      // Otherwise: interval continues; next tick will call poll() again.
+    } catch (err) {
       clearActiveInterval();
-      setStatus('ERROR');
+      if (isMountedRef.current) {
+        setStatus('ERROR');
+      }
       console.error(
-        `[usePaymentVerification] Supabase query error on attempt ${thisAttempt}:`,
-        queryError.code,
-        queryError.message,
-      );
-      return;
-    }
-
-    // --- SUCCESS BRANCH ---
-    if (txnRow !== null) {
-      clearActiveInterval();
-      console.log(
-        `[usePaymentVerification] SUCCESS: transaction ${txnRow.transaction_id} is SUCCESSFUL on attempt ${thisAttempt}.`,
-      );
-      // Fire the callback before updating state so the parent can start its
-      // own transition logic (e.g. navigation) before this component re-renders.
-      onSuccessRef.current?.();
-      setStatus('SUCCESS');
-      return;
-    }
-
-    // --- NOT YET FOUND — check if this was the final allowed attempt ---
-    if (thisAttempt >= maxAttempts) {
-      clearActiveInterval();
-      setStatus('TIMEOUT');
-      console.warn(
-        `[usePaymentVerification] TIMEOUT: final attempt ${thisAttempt} exhausted for voucher '${currentVoucherId}'.`,
+        `[usePaymentVerification] Unexpected exception on attempt ${thisAttempt}:`,
+        err,
       );
     }
-    // Otherwise: interval continues; next tick will call poll() again.
   }, [clearActiveInterval, intervalMs, maxAttempts]);
 
   /**

@@ -18,17 +18,37 @@ import { QrCode, LogOut, Package, TrendingUp, Camera, Save, Edit, Trash2, HelpCi
 import { motion } from 'motion/react';
 import { AdminItems } from '../admin/AdminItems';
 
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '../../components/ui/sheet';
+import { cn } from '../../components/ui/utils';
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
+
+interface OrderItem {
+  item: {
+    name: string;
+    image_url: string | null;
+  } | null;
+}
 
 interface Order {
   id: string;
   code: string;
   recipient_name: string;
+  recipient_phone?: string | null;
+  message?: string | null;
   amount: number;
   paid_at: string | null;
   fulfilled_at: string | null;
+  claim_status: string;
+  order_items?: OrderItem[];
   item: {
     name: string;
     image_url: string | null;
@@ -43,7 +63,27 @@ interface Analytics {
   availableBalance: number;
 }
 
-// Removed incomplete ShopProfileCard inline form. Merchants will use the full /merchant/shop/edit route.
+// Helper to aggregate duplicate items and compute their total quantities
+function aggregateOrderItems(orderItems?: OrderItem[]) {
+  if (!orderItems) return [];
+  const map = new Map<string, { name: string; image_url: string | null; quantity: number }>();
+  for (const oi of orderItems) {
+    if (!oi?.item) continue;
+    const name = oi.item.name;
+    const existing = map.get(name);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      map.set(name, {
+        name,
+        image_url: oi.item.image_url ?? null,
+        quantity: 1,
+      });
+    }
+  }
+  return Array.from(map.values());
+}
+
 // ---------------------------------------------------------------------------
 // Main component
 // ---------------------------------------------------------------------------
@@ -66,6 +106,10 @@ export function MerchantDashboard() {
   });
   const [loading, setLoading] = useState(true);
   const [withdrawing, setWithdrawing] = useState(false);
+
+  // Sheet drawer state
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   useEffect(() => {
     fetchMerchantData();
@@ -152,12 +196,15 @@ export function MerchantDashboard() {
         amount: order.subtotal || order.amount || 0,
         code: order.claim_code || order.code || 'NO-CODE',
         paid_at: order.created_at || order.paid_at || null,
+        order_items: order.order_items ?? [],
         // Map first order_item's item to top-level 'item' so UI cards don't break
         item: order.order_items?.[0]?.item ?? null,
       }));
 
       // V2 enums: claim_status is PENDING, PARTIAL_FULFILLMENT, FULFILLED, EXPIRED
-      const active = normalizedOrders.filter((o) => o.claim_status === 'PENDING');
+      const active = normalizedOrders.filter(
+        (o) => o.claim_status === 'PENDING' || o.claim_status === 'PARTIAL_FULFILLMENT'
+      );
       const fulfilled = normalizedOrders.filter((o) => o.claim_status === 'FULFILLED');
 
       setActiveOrders(active as unknown as Order[]);
@@ -422,50 +469,106 @@ export function MerchantDashboard() {
                 </p>
               </div>
             ) : (
-              activeOrders.map((order) => (
-                <div key={order.id} className="bg-white p-6 rounded-xl shadow-sm border">
-                  <div className="mb-4 flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-4">
-                      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100">
-                        {order.item?.image_url ? (
-                          <img
-                            src={order.item.image_url}
-                            alt={order.item.name}
-                            className="h-full w-full object-cover"
-                          />
+              activeOrders.map((order) => {
+                const aggregatedItems = aggregateOrderItems(order.order_items);
+                return (
+                  <div key={order.id} className="bg-white p-6 rounded-xl shadow-sm border">
+                    <div className="mb-4 flex items-start justify-between gap-4">
+                      <div className="flex items-start gap-4">
+                        {aggregatedItems.length > 1 ? (
+                          <div className="flex -space-x-4 overflow-hidden shrink-0 py-1">
+                            {aggregatedItems.slice(0, 3).map((item, idx) => (
+                              <div
+                                key={idx}
+                                className="inline-block h-20 w-20 rounded-xl ring-4 ring-white overflow-hidden bg-gray-100 shrink-0 shadow-sm"
+                              >
+                                {item.image_url ? (
+                                  <img
+                                    src={item.image_url}
+                                    alt={item.name}
+                                    className="h-full w-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex h-full w-full items-center justify-center">
+                                    <Package className="h-8 w-8 text-gray-400" />
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                            {aggregatedItems.length > 3 && (
+                              <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-slate-200 text-sm font-bold text-slate-600 ring-4 ring-white shrink-0 shadow-sm">
+                                +{aggregatedItems.length - 3}
+                              </div>
+                            )}
+                          </div>
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center">
-                            <Package className="h-8 w-8 text-gray-400" />
+                          <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100">
+                            {aggregatedItems[0]?.image_url ? (
+                              <img
+                                src={aggregatedItems[0].image_url}
+                                alt={aggregatedItems[0].name}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center">
+                                <Package className="h-8 w-8 text-gray-400" />
+                              </div>
+                            )}
                           </div>
                         )}
+                        <div>
+                          <h3 className="font-semibold text-lg">
+                            {aggregatedItems.length === 0 ? (
+                              'Gift Bundle'
+                            ) : aggregatedItems.length === 1 ? (
+                              `${aggregatedItems[0].name}${aggregatedItems[0].quantity > 1 ? ` (×${aggregatedItems[0].quantity})` : ''}`
+                            ) : (
+                              <span>
+                                {aggregatedItems[0].name}{' '}
+                                <span className="text-sm font-normal text-muted-foreground">
+                                  and {order.order_items?.length! - 1} other item{order.order_items?.length! - 1 > 1 ? 's' : ''}
+                                </span>
+                              </span>
+                            )}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            For: {order.recipient_name}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-lg">{order.item?.name}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          For: {order.recipient_name}
-                        </p>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-primary">REF-{order.id.split('-')[0].toUpperCase()}</p>
+                        <p className="text-xs text-muted-foreground">Order Reference</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold text-primary">REF-{order.id.split('-')[0].toUpperCase()}</p>
-                      <p className="text-xs text-muted-foreground">Order Reference</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-muted-foreground">
+                        {order.paid_at &&
+                          `Paid ${new Date(order.paid_at).toLocaleDateString()}`}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          onClick={() => {
+                            setSelectedOrder(order);
+                            setIsDetailsOpen(true);
+                          }}
+                          variant="outline"
+                          size="sm"
+                        >
+                          View Order
+                        </Button>
+                        <Button
+                          onClick={() => handleFulfillOrder(order.id)}
+                          size="sm"
+                          className="bg-gradient-to-r from-primary to-primary-light"
+                        >
+                          Fulfill This Order
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground">
-                      {order.paid_at &&
-                        `Paid ${new Date(order.paid_at).toLocaleDateString()}`}
-                    </p>
-                    <Button
-                      onClick={() => handleFulfillOrder(order.id)}
-                      size="sm"
-                      className="bg-gradient-to-r from-primary to-primary-light"
-                    >
-                      Fulfill This Order
-                    </Button>
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </TabsContent>
 
@@ -477,40 +580,96 @@ export function MerchantDashboard() {
                 <p className="text-muted-foreground">No fulfilled orders yet</p>
               </div>
             ) : (
-              fulfilledOrders.map((order) => (
-                <div key={order.id} className="bg-white p-6 rounded-xl shadow-sm border">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-4">
-                      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100">
-                        {order.item?.image_url ? (
-                          <img
-                            src={order.item.image_url}
-                            alt={order.item.name}
-                            className="h-full w-full object-cover"
-                          />
+              fulfilledOrders.map((order) => {
+                const aggregatedItems = aggregateOrderItems(order.order_items);
+                return (
+                  <div key={order.id} className="bg-white p-6 rounded-xl shadow-sm border">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-start gap-4">
+                        {aggregatedItems.length > 1 ? (
+                          <div className="flex -space-x-4 overflow-hidden shrink-0 py-1">
+                            {aggregatedItems.slice(0, 3).map((item, idx) => (
+                              <div
+                                key={idx}
+                                className="inline-block h-20 w-20 rounded-xl ring-4 ring-white overflow-hidden bg-gray-100 shrink-0 shadow-sm"
+                              >
+                                {item.image_url ? (
+                                  <img
+                                    src={item.image_url}
+                                    alt={item.name}
+                                    className="h-full w-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex h-full w-full items-center justify-center">
+                                    <Package className="h-8 w-8 text-gray-400" />
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                            {aggregatedItems.length > 3 && (
+                              <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-slate-200 text-sm font-bold text-slate-600 ring-4 ring-white shrink-0 shadow-sm">
+                                +{aggregatedItems.length - 3}
+                              </div>
+                            )}
+                          </div>
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center">
-                            <Package className="h-8 w-8 text-gray-400" />
+                          <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100">
+                            {aggregatedItems[0]?.image_url ? (
+                              <img
+                                src={aggregatedItems[0].image_url}
+                                alt={aggregatedItems[0].name}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center">
+                                <Package className="h-8 w-8 text-gray-400" />
+                              </div>
+                            )}
                           </div>
                         )}
+                        <div>
+                          <h3 className="font-semibold text-lg">
+                            {aggregatedItems.length === 0 ? (
+                              'Gift Bundle'
+                            ) : aggregatedItems.length === 1 ? (
+                              `${aggregatedItems[0].name}${aggregatedItems[0].quantity > 1 ? ` (×${aggregatedItems[0].quantity})` : ''}`
+                            ) : (
+                              <span>
+                                {aggregatedItems[0].name}{' '}
+                                <span className="text-sm font-normal text-muted-foreground">
+                                  and {order.order_items?.length! - 1} other item{order.order_items?.length! - 1 > 1 ? 's' : ''}
+                                </span>
+                              </span>
+                            )}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            For: {order.recipient_name}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-medium">{order.item?.name}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {order.recipient_name}
+                      <div className="text-right">
+                        <p className="font-semibold text-lg">{formatCurrency(order.amount)}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {order.fulfilled_at &&
+                            new Date(order.fulfilled_at).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold">{formatCurrency(order.amount)}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {order.fulfilled_at &&
-                          new Date(order.fulfilled_at).toLocaleDateString()}
-                      </p>
+                    <div className="flex items-center justify-end mt-4 pt-4 border-t border-slate-100">
+                      <Button
+                        onClick={() => {
+                          setSelectedOrder(order);
+                          setIsDetailsOpen(true);
+                        }}
+                        variant="outline"
+                        size="sm"
+                      >
+                        View Order
+                      </Button>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </TabsContent>
 
@@ -526,6 +685,109 @@ export function MerchantDashboard() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* View Order Detail Sheet */}
+      <Sheet open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        <SheetContent className="sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>Order Details</SheetTitle>
+            <SheetDescription>
+              Full transaction context for this gift bundle.
+            </SheetDescription>
+          </SheetHeader>
+          {selectedOrder && (
+            <div className="space-y-6 py-4">
+              {/* Reference and Claim Status */}
+              <div className="rounded-xl bg-slate-50 p-4 space-y-3">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-500 font-medium">Claim Code:</span>
+                  <span className="font-mono font-bold text-slate-900 bg-white border px-2 py-0.5 rounded text-xs select-all">
+                    {selectedOrder.code}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-500 font-medium">Status:</span>
+                  <span className={cn(
+                    "px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider",
+                    selectedOrder.claim_status === 'FULFILLED'
+                      ? "bg-green-50 text-green-700 border border-green-200"
+                      : "bg-amber-50 text-amber-700 border border-amber-200"
+                  )}>
+                    {selectedOrder.claim_status}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-500 font-medium">Recipient:</span>
+                  <span className="font-semibold text-slate-800">
+                    {selectedOrder.recipient_name}
+                  </span>
+                </div>
+                {selectedOrder.recipient_phone && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-500 font-medium">Recipient Phone:</span>
+                    <span className="font-semibold text-slate-800">
+                      {selectedOrder.recipient_phone}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-500 font-medium">Date:</span>
+                  <span className="text-slate-800">
+                    {selectedOrder.paid_at && new Date(selectedOrder.paid_at).toLocaleString()}
+                  </span>
+                </div>
+                {selectedOrder.fulfilled_at && (
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-slate-500 font-medium">Fulfilled At:</span>
+                    <span className="text-slate-800 font-medium">
+                      {new Date(selectedOrder.fulfilled_at).toLocaleString()}
+                    </span>
+                  </div>
+                )}
+                {selectedOrder.message && (
+                  <div className="pt-2 border-t border-slate-200/60 text-sm">
+                    <span className="text-slate-500 font-medium block mb-1">Gift Message:</span>
+                    <p className="text-slate-700 italic bg-white p-2 rounded border border-slate-100">
+                      "{selectedOrder.message}"
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Items List */}
+              <div className="space-y-3">
+                <h4 className="font-semibold text-slate-900 text-sm">Products in Bundle</h4>
+                <div className="divide-y divide-slate-100 max-h-[300px] overflow-y-auto pr-1">
+                  {aggregateOrderItems(selectedOrder.order_items).map((oi, idx) => (
+                    <div key={idx} className="flex items-center gap-3 py-3">
+                      <div className="h-12 w-12 rounded-lg overflow-hidden bg-slate-100 shrink-0">
+                        {oi.image_url ? (
+                          <img src={oi.image_url} alt={oi.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center">
+                            <Package className="h-5 w-5 text-slate-400" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-slate-800 text-sm truncate">{oi.name}</p>
+                        {oi.quantity > 1 && (
+                          <p className="text-xs text-slate-500 mt-0.5">Quantity: {oi.quantity}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="flex justify-between items-center pt-4 border-t border-slate-100">
+                <span className="text-sm font-semibold text-slate-950">Total Value:</span>
+                <span className="text-lg font-bold text-primary">{formatCurrency(selectedOrder.amount)}</span>
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

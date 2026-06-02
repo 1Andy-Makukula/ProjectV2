@@ -29,6 +29,9 @@ export interface LedgerEntry {
   amount: number;
   settlement_target_time: string;
   claim_code: string;
+  order_items?: Array<{
+    item: { name: string; price_zmw: number } | null;
+  }> | null;
 }
 
 export interface SettlementDashboardProps {
@@ -49,12 +52,12 @@ export interface SettlementDashboardProps {
 // ---------------------------------------------------------------------------
 
 /**
- * Formats the ZMW * V2 NOTE:
- * The `get-merchant-ledger` Edge Function returns `amount` as whole integers.
- * The `currency.ts` utilities expect Ngwee (ZMW * 100), so we multiply by 100 before formatting.
+ * Formats the ZMW amount.
+ * The `get-merchant-ledger` Edge Function returns `amount` in ngwee (subtotal),
+ * so we divide by 100 to display the correct ZMW value.
  */
 function formatZmw(amount: number): string {
-  return `ZMW ${amount.toLocaleString('en-ZM', {
+  return `ZMW ${(amount / 100).toLocaleString('en-ZM', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
@@ -81,7 +84,13 @@ function LedgerRow({ entry, isLast }: { entry: LedgerEntry; isLast: boolean }) {
       {/* Left side: Item and amount */}
       <div className="flex flex-col gap-1">
         <p className="text-sm font-medium text-slate-800">
-          {entry.item_name}
+          {entry?.order_items && entry.order_items.length > 0 ? (
+            entry.order_items.length === 1
+              ? entry.order_items[0]?.item?.name
+              : `${entry.order_items.length} items (${entry.order_items.map(oi => oi?.item?.name).filter(Boolean).join(', ')})`
+          ) : (
+            entry?.item_name
+          )}
         </p>
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium uppercase tracking-wider text-slate-400">
