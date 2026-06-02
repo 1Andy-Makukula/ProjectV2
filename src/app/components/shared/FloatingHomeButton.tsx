@@ -1,20 +1,31 @@
 import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { Home } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 
 export function FloatingHomeButton() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { profile } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
   const timeoutRef = useRef<any>(null);
 
-  // STEP 1: Routing Guard — return null if user is on the landing page
-  if (location.pathname === '/') {
-    return null;
-  }
+  // Unconditional Safety: execute role checks as boolean flag constants at the top
+  const isMerchantRole = profile?.role === 'merchant';
+  const isAdminRole = profile?.role === 'admin';
+  const isMerchantPath = location.pathname.startsWith('/merchant');
+  const isAdminPath = location.pathname.startsWith('/admin');
+  const isLandingPage = location.pathname === '/';
+
+  const shouldHideButton = isMerchantRole || isAdminRole || isMerchantPath || isAdminPath || isLandingPage;
 
   // STEP 2: The Activity/Fade Logic
   useEffect(() => {
+    // If we should hide the button, do not bind any listeners or run fade logic
+    if (shouldHideButton) {
+      return;
+    }
+
     const handleActivity = () => {
       // Clear any existing debounce timer
       if (timeoutRef.current) {
@@ -49,7 +60,12 @@ export function FloatingHomeButton() {
       window.removeEventListener('touchstart', handleActivity);
       window.removeEventListener('keydown', handleActivity);
     };
-  }, [location.pathname]);
+  }, [shouldHideButton]);
+
+  // STEP 1: Routing Guard & Role Verification Blocker
+  if (shouldHideButton) {
+    return null;
+  }
 
   // STEP 3: Render button with Tailwind styling aligned to glassmorphism
   return (
@@ -66,3 +82,4 @@ export function FloatingHomeButton() {
     </button>
   );
 }
+

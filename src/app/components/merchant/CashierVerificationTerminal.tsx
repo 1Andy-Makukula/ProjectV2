@@ -390,6 +390,15 @@ function ModeToggle({ mode, onChange }: { mode: InputMode; onChange: (m: InputMo
 
 // ---- QR scanner viewport ----------------------------------------------------
 
+const SCANNER_STYLES = {
+  container: { width: '100%', aspectRatio: '1 / 1' },
+  video: { objectFit: 'cover', width: '100%', height: '100%' }
+};
+
+const SCANNER_COMPONENTS = {
+  finder: false
+};
+
 function QRScanView({ onDetected }: { onDetected: (code: string) => void }) {
   const [camDenied, setCamDenied] = useState(false);
 
@@ -433,11 +442,8 @@ function QRScanView({ onDetected }: { onDetected: (code: string) => void }) {
               setCamDenied(true);
             }
           }}
-          styles={{
-            container: { width: '100%', aspectRatio: '1 / 1' },
-            video: { objectFit: 'cover', width: '100%', height: '100%' },
-          }}
-          components={{ finder: false }}
+          styles={SCANNER_STYLES}
+          components={SCANNER_COMPONENTS}
         />
         {/* Corner frame overlay */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">

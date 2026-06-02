@@ -89,6 +89,15 @@ function ModeToggle({ mode, onChange }: { mode: InputMode; onChange: (m: InputMo
   );
 }
 
+const SCANNER_STYLES = {
+  container: { width: '100%', aspectRatio: '1 / 1' },
+  video: { objectFit: 'cover', width: '100%', height: '100%' }
+};
+
+const SCANNER_COMPONENTS = {
+  finder: false
+};
+
 function QRScanView({ onDetected }: { onDetected: (code: string) => void }) {
   const [camDenied, setCamDenied] = useState(false);
 
@@ -129,8 +138,8 @@ function QRScanView({ onDetected }: { onDetected: (code: string) => void }) {
               setCamDenied(true);
             }
           }}
-          styles={{ container: { width: '100%', aspectRatio: '1 / 1' }, video: { objectFit: 'cover', width: '100%', height: '100%' } }}
-          components={{ finder: false }}
+          styles={SCANNER_STYLES}
+          components={SCANNER_COMPONENTS}
         />
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="relative h-44 w-44">
