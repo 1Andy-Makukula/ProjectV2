@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { supabase } from '../../../lib/supabaseClient';
 import { motion } from 'motion/react';
-import { Gift as GiftIcon, MapPin, Package, QrCode as QrCodeIcon, SearchX, Sparkles } from 'lucide-react';
-import QRCode from 'qrcode'; // preserved import
+import { Gift as GiftIcon, Package, SearchX, Sparkles, Check } from 'lucide-react';
 
 import { calculateTimeRemaining } from '../../../utils/timeHelpers';
 
@@ -21,6 +20,8 @@ interface ShopOrder {
   message: string | null;
   recipient_name: string;
   created_at: string;
+  claim_status?: string;
+  shop_order_id?: string;
   shops: {
     name: string;
     address: string | null;
@@ -66,6 +67,66 @@ export function GiftPage() {
 
     fetchShopOrder();
   }, [claimCode]);
+
+  // Real-time listener & polling fallback
+  useEffect(() => {
+    if (!claimCode || !shopOrder) return;
+    
+    const isPending = shopOrder.claim_status === 'PENDING' || !shopOrder.claim_status;
+    if (!isPending) return;
+
+    let pollInterval: any;
+
+    const handleSuccess = (newStatus: string) => {
+      import('canvas-confetti').then((module) => {
+        const confetti = module.default;
+        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+      });
+      setShopOrder(prev => prev ? { ...prev, claim_status: newStatus } : null);
+    };
+
+    // 1. Real-time Subscription
+    const channel = supabase.channel(`gift-order-${claimCode.toUpperCase()}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'claim_status_feed',
+          filter: `claim_code=eq.${claimCode.toUpperCase()}`,
+        },
+        (payload) => {
+          const newStatus = payload.new?.claim_status;
+          if (newStatus === 'FULFILLED' || newStatus === 'PARTIAL_FULFILLMENT') {
+            handleSuccess(newStatus);
+          }
+        }
+      )
+      .subscribe();
+
+    // 2. Polling Fallback
+    pollInterval = setInterval(async () => {
+      try {
+        const { data, error } = await supabase
+          .rpc('get_shop_order_by_claim_code', { code: claimCode.toUpperCase() });
+        
+        if (!error && data) {
+          const updated = data as any;
+          const newStatus = updated.claim_status;
+          if (newStatus === 'FULFILLED' || newStatus === 'PARTIAL_FULFILLMENT') {
+            handleSuccess(newStatus);
+          }
+        }
+      } catch (err) {
+        console.error('[Polling] Error:', err);
+      }
+    }, 3000);
+
+    return () => {
+      supabase.removeChannel(channel);
+      if (pollInterval) clearInterval(pollInterval);
+    };
+  }, [claimCode, shopOrder?.claim_status]);
 
   if (loading) {
     return (
@@ -135,12 +196,36 @@ export function GiftPage() {
         {/* The Action Center (QR Code) */}
         <div className="flex flex-col items-center mt-2">
           <p className="text-sm font-medium text-slate-500 mb-8 text-center px-4 leading-relaxed">
-            Show this code to the cashier at <strong className="text-slate-900 font-semibold">{shopName}</strong>
+            {shopOrder.claim_status === 'FULFILLED' || shopOrder.claim_status === 'PARTIAL_FULFILLMENT' ? (
+              <span>Verified at <strong className="text-slate-900 font-semibold">{shopName}</strong></span>
+            ) : (
+              <span>Show this code to the cashier at <strong className="text-slate-900 font-semibold">{shopName}</strong></span>
+            )}
           </p>
 
-          <Card className="p-6 rounded-[2rem] shadow-sm border-slate-200/80 bg-white mb-6">
-            <QRCodeDisplay value={shopOrder.claim_code} size={220} />
-          </Card>
+          {shopOrder.claim_status === 'FULFILLED' || shopOrder.claim_status === 'PARTIAL_FULFILLMENT' ? (
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="p-8 rounded-[2rem] shadow-lg border border-emerald-100 bg-emerald-50/60 backdrop-blur-md flex flex-col items-center justify-center text-center max-w-sm mb-6"
+            >
+              <div className="h-16 w-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4 shadow-inner">
+                <Check className="h-8 w-8 text-emerald-600 animate-bounce" strokeWidth={2.5} />
+              </div>
+              <h3 className="text-xl font-bold text-emerald-950">
+                {shopOrder.claim_status === 'FULFILLED' ? 'Gift Claimed!' : 'Partially Claimed!'}
+              </h3>
+              <p className="text-xs text-emerald-700 mt-2 leading-relaxed max-w-[240px]">
+                {shopOrder.claim_status === 'FULFILLED' 
+                  ? 'All items in this bundle have been verified and successfully handed over.' 
+                  : 'Items have been successfully claimed. Some bundle items are still pending.'}
+              </p>
+            </motion.div>
+          ) : (
+            <Card className="p-6 rounded-[2rem] shadow-sm border-slate-200/80 bg-white mb-6">
+              <QRCodeDisplay value={shopOrder.claim_code} size={220} />
+            </Card>
+          )}
 
           {/* Expiration warning banner */}
           {(() => {

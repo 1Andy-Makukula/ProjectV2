@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { supabase } from '../../../lib/supabaseClient';
 import { motion, AnimatePresence } from 'motion/react';
-import { TrendingUp, Gift, Store, ArrowLeft, Sparkles, Bell, X, Clock, CheckCircle2, AlertCircle, ExternalLink, ChevronRight, CreditCard, Receipt } from 'lucide-react';
+import { TrendingUp, Gift, Store, ArrowLeft, Sparkles, Bell, X, Clock, AlertCircle, ChevronRight, CreditCard, Receipt } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -152,18 +152,17 @@ function deriveDisplayStatus(txStatus: string, claimStatus: string | null): Disp
 
 function formatDate(iso: string): string {
   const date = new Date(iso);
-  const diffMs = Date.now() - date.getTime();
-  const diffH = diffMs / 3_600_000;
-  const diffD = diffMs / 86_400_000;
-
-  if (diffH < 1) return 'Just now';
-  if (diffH < 24) return `${Math.floor(diffH)}h ago`;
-  if (diffD < 7) return `${Math.floor(diffD)}d ago`;
-  return date.toLocaleDateString('en-US', {
+  const dateStr = date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
   });
+  const timeStr = date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+  return `${dateStr} · ${timeStr}`;
 }
 
 export function CustomerDashboard() {
@@ -187,6 +186,9 @@ export function CustomerDashboard() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [resumingPaymentId, setResumingPaymentId] = useState<string | null>(null);
+
+  const [receivedGifts, setReceivedGifts] = useState<any[]>([]);
+  const [loadingReceived, setLoadingReceived] = useState(false);
 
   const fetchOrders = async () => {
     if (!profile?.id) return;
@@ -298,6 +300,51 @@ export function CustomerDashboard() {
     }
   };
 
+  const fetchReceivedGifts = async () => {
+    if (!profile?.phone) return;
+    setLoadingReceived(true);
+    try {
+      const { data, error } = await supabase
+        .from('shop_orders')
+        .select(`
+          shop_order_id,
+          claim_code,
+          claim_status,
+          created_at,
+          message,
+          recipient_name,
+          recipient_phone,
+          subtotal,
+          shops (
+            name,
+            address,
+            logo_url
+          ),
+          transactions (
+            users (
+              name
+            )
+          ),
+          order_items (
+            items (
+              name,
+              image_url
+            )
+          )
+        `)
+        .eq('recipient_phone', profile.phone)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setReceivedGifts(data || []);
+    } catch (err) {
+      console.error('[CustomerDashboard] fetchReceivedGifts error:', err);
+      setReceivedGifts([]);
+    } finally {
+      setLoadingReceived(false);
+    }
+  };
+
   const handleConvert = async (item: FloatingItem) => {
     if (!user?.id) {
       toast.error('You must be logged in to convert items to credits.');
@@ -305,7 +352,7 @@ export function CustomerDashboard() {
     }
     setConvertingItemId(item.order_item_id);
     try {
-      const { data, error } = await supabase.rpc('convert_floating_item_to_credits', {
+      const { error } = await supabase.rpc('convert_floating_item_to_credits', {
         p_item_id: item.order_item_id,
         p_user_id: user.id,
       });
@@ -332,6 +379,8 @@ export function CustomerDashboard() {
       fetchFloatingItems();
     } else if (activeTab === 'orders' && profile?.id) {
       fetchOrders();
+    } else if (activeTab === 'received' && profile?.phone) {
+      fetchReceivedGifts();
     }
   }, [activeTab, profile?.phone, profile?.id]);
 
@@ -542,6 +591,7 @@ export function CustomerDashboard() {
           <TabsList className="mb-6">
             <TabsTrigger value="orders">Order History</TabsTrigger>
             <TabsTrigger value="vault">My Vault</TabsTrigger>
+            <TabsTrigger value="received">Gifts Received</TabsTrigger>
           </TabsList>
 
           <TabsContent value="orders">
@@ -828,6 +878,125 @@ export function CustomerDashboard() {
                     </div>
                   </motion.div>
                 ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="received">
+            {!profile?.phone ? (
+              <EmptyState
+                icon={PhoneOff}
+                title="Phone Number Required"
+                description="We need your phone number to find your received gifts. Please update your profile in settings."
+                action={{
+                  label: "Go to Settings",
+                  onClick: () => navigate('/settings')
+                }}
+              />
+            ) : loadingReceived ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[1, 2].map((i) => (
+                  <div key={i} className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
+                    <div className="flex items-center gap-4">
+                      <Skeleton className="h-16 w-16 rounded-xl shrink-0" />
+                      <div className="space-y-2 flex-1">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-3 w-1/2" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-10 w-full rounded-xl" />
+                  </div>
+                ))}
+              </div>
+            ) : receivedGifts.length === 0 ? (
+              <EmptyState
+                icon={Gift}
+                title="No Gifts Received Yet"
+                description="When someone sends a gift to your phone number, it will show up here!"
+              />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {receivedGifts.map((order, idx) => {
+                  const firstItem = order.order_items?.[0]?.items;
+                  const sender = order.transactions?.users?.name || 'Someone special';
+                  const shop = order.shops?.name || 'Partner Shop';
+                  const isClaimed = order.claim_status === 'FULFILLED';
+                  const isPartial = order.claim_status === 'PARTIAL_FULFILLMENT';
+
+                  return (
+                    <motion.div
+                      key={order.shop_order_id}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: idx * 0.05 }}
+                      className="group rounded-3xl border border-slate-100 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-4">
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                            From: {sender}
+                          </span>
+                          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ring-1 ring-inset ${
+                            isClaimed 
+                              ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/10' 
+                              : isPartial 
+                                ? 'bg-amber-50 text-amber-700 ring-amber-600/10'
+                                : 'bg-blue-50 text-blue-700 ring-blue-600/10'
+                          }`}>
+                            <span className={`h-1 w-1 rounded-full ${
+                              isClaimed ? 'bg-emerald-600' : isPartial ? 'bg-amber-600' : 'bg-blue-600'
+                            }`} />
+                            {isClaimed ? 'Claimed' : isPartial ? 'Partial' : 'Available'}
+                          </span>
+                        </div>
+
+                        <div className="flex items-start gap-4 mb-4">
+                          <div className="h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center">
+                            {firstItem?.image_url ? (
+                              <img
+                                src={firstItem.image_url}
+                                alt={firstItem.name}
+                                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+                            ) : (
+                              <Gift className="h-6 w-6 text-slate-300" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-slate-900 truncate text-sm">
+                              {firstItem?.name || 'Gift Bundle'}
+                            </h4>
+                            <p className="text-xs text-slate-400 mt-0.5">
+                              {formatDate(order.created_at)}
+                            </p>
+                            <p className="text-xs text-slate-500 font-medium mt-1">
+                              @ {shop}
+                            </p>
+                          </div>
+                        </div>
+
+                        {order.message && (
+                          <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100/50 mb-4">
+                            <p className="text-xs text-slate-600 italic leading-relaxed">
+                              "{order.message}"
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="mt-2">
+                        <Button
+                          variant={isClaimed ? "outline" : "default"}
+                          size="sm"
+                          className="w-full text-xs font-semibold rounded-xl"
+                          onClick={() => navigate(`/gift/${order.claim_code}`)}
+                        >
+                          {isClaimed ? 'View Claim Details' : 'Open Gift Voucher'}
+                        </Button>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
             )}
           </TabsContent>

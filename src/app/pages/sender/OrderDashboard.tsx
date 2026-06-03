@@ -127,18 +127,17 @@ const getStatus = (raw: DisplayStatus) =>
 
 function formatDate(iso: string): string {
   const date = new Date(iso);
-  const diffMs = Date.now() - date.getTime();
-  const diffH = diffMs / 3_600_000;
-  const diffD = diffMs / 86_400_000;
-
-  if (diffH < 1) return 'Just now';
-  if (diffH < 24) return `${Math.floor(diffH)}h ago`;
-  if (diffD < 7) return `${Math.floor(diffD)}d ago`;
-  return date.toLocaleDateString('en-US', {
+  const dateStr = date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
   });
+  const timeStr = date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+  return `${dateStr} · ${timeStr}`;
 }
 
 function StatusBadge({ status }: { status: DisplayStatus }) {

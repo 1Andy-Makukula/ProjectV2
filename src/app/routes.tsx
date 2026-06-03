@@ -35,7 +35,7 @@ const ShopDirectory = lazyPage(() => import('./pages/ShopDirectory'), 'ShopDirec
 
 const ShopDetail = lazyPage(() => import('./pages/sender/ShopDetail'), 'ShopDetail');
 const SendFlow = lazyPage(() => import('./pages/sender/SendFlow'), 'SendFlow');
-const OrderDashboard = lazyPage(() => import('./pages/sender/OrderDashboard'), 'OrderDashboard');
+const CustomerDashboard = lazyPage(() => import('./pages/sender/CustomerDashboard'), 'CustomerDashboard');
 const OrderDetail = lazyPage(() => import('./pages/sender/OrderDetail'), 'OrderDetail');
 const Settings = lazyPage(() => import('./pages/sender/Settings'), 'Settings');
 const MerchantOnboarding = lazyPage(() => import('./pages/MerchantOnboarding'), 'MerchantOnboarding');
@@ -148,7 +148,7 @@ export const router = createBrowserRouter([
         path: 'orders',
         element: (
           <ProtectedRoute allowedRoles={['sender']}>
-            <Lazy><OrderDashboard /></Lazy>
+            <Lazy><CustomerDashboard /></Lazy>
           </ProtectedRoute>
         ),
       },

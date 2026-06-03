@@ -64,15 +64,6 @@ const getStatus = (raw: string) =>
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function relativeTime(iso: string): string {
-  const ms = Date.now() - new Date(iso).getTime();
-  const h = ms / 3_600_000;
-  const d = ms / 86_400_000;
-  if (h < 1) return 'Just now';
-  if (h < 24) return `${Math.floor(h)}h ago`;
-  if (d < 7) return `${Math.floor(d)}d ago`;
-  return new Date(iso).toLocaleDateString('en-ZM', { day: 'numeric', month: 'short', year: 'numeric' });
-}
 
 function absTime(iso: string): string {
   return new Date(iso).toLocaleString('en-ZM', {
@@ -152,7 +143,7 @@ function ClaimCode({ order, onCopy }: { order: Order; onCopy: (code: string) => 
         <Store className="h-3 w-3 shrink-0" strokeWidth={1.5} />
         <p className="truncate text-xs">{order.shop?.name ?? '—'}{order.shop?.location ? ` · ${order.shop.location}` : ''}</p>
       </div>
-      <p className="text-[10px] text-slate-400">{relativeTime(order.created_at)}</p>
+      <p className="text-[10px] text-slate-400">{absTime(order.created_at)}</p>
     </div>
   );
 }
@@ -331,7 +322,6 @@ export function DashboardHub() {
 
       {/* ── Global Header ─────────────────────────────────────────────── */}
       <Header
-        onCartClick={() => navigate('/checkout')}
         onProfileClick={() => navigate('/settings')}
         onLogoClick={() => navigate('/')}
       />
@@ -472,7 +462,7 @@ export function DashboardHub() {
 
                           {/* Date */}
                           <TableCell className="whitespace-nowrap text-xs text-slate-400">
-                            {relativeTime(order.created_at)}
+                            {absTime(order.created_at)}
                           </TableCell>
 
                           {/* Chevron */}

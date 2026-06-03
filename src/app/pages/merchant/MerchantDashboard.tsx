@@ -552,7 +552,7 @@ export function MerchantDashboard() {
                     <div className="flex items-center justify-between">
                       <p className="text-sm text-muted-foreground">
                         {order.paid_at &&
-                          `Paid ${new Date(order.paid_at).toLocaleDateString()}`}
+                          `Paid ${new Date(order.paid_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}`}
                       </p>
                       <div className="flex items-center gap-2">
                         <Button
@@ -659,7 +659,7 @@ export function MerchantDashboard() {
                         <p className="font-semibold text-lg">{formatCurrency(order.amount)}</p>
                         <p className="text-xs text-muted-foreground">
                           {order.fulfilled_at &&
-                            new Date(order.fulfilled_at).toLocaleDateString()}
+                            new Date(order.fulfilled_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
                         </p>
                       </div>
                     </div>
@@ -744,7 +744,7 @@ export function MerchantDashboard() {
                   <div className="space-y-1">
                     <span className="text-slate-400 block font-medium">Date</span>
                     <span className="text-slate-800 font-semibold flex items-center gap-1">
-                      {selectedOrder.paid_at && new Date(selectedOrder.paid_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {selectedOrder.paid_at && new Date(selectedOrder.paid_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
                     </span>
                   </div>
                 </div>
@@ -770,7 +770,7 @@ export function MerchantDashboard() {
                     <div className="flex items-center justify-between border-t border-orange-100/40 pt-2.5">
                       <span className="text-slate-400 font-medium">Fulfilled At:</span>
                       <span className="font-semibold text-green-600">
-                        {new Date(selectedOrder.fulfilled_at).toLocaleString()}
+                        {new Date(selectedOrder.fulfilled_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
                       </span>
                     </div>
                   )}
