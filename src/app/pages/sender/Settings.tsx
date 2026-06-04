@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { supabase } from '../../../lib/supabaseClient';
+import { validateAndFormatPhone } from '../../../utils/phone';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
+import { PhoneInput } from '../../components/shared/PhoneInput';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Separator } from '../../components/ui/separator';
 import { ArrowLeft, User, Mail, Phone, Lock, LogOut, Check, AlertCircle, Store, ArrowRight } from 'lucide-react';
@@ -28,15 +30,31 @@ export function Settings() {
     email !== profile?.email ||
     phone !== (profile?.phone || '');
 
+  const handlePhoneChange = useCallback((value: string) => {
+    setPhone(value);
+  }, []);
+
   const handleSaveProfile = async () => {
     if (!hasChanges) return;
+
+    // Validate phone if it changed
+    if (phone !== (profile?.phone || '')) {
+      const { isValid } = validateAndFormatPhone(phone);
+      if (!isValid && phone.replace(/\D/g, '').length > 0) {
+        toast.error('Please enter a valid phone number for Zambia, USA, UK, or Australia.');
+        return;
+      }
+    }
 
     setLoading(true);
     try {
       const updates: any = {};
       if (name !== profile?.name) updates.name = name;
       if (email !== profile?.email) updates.email = email;
-      if (phone !== (profile?.phone || '')) updates.phone = phone;
+      if (phone !== (profile?.phone || '')) {
+        const { formatted } = validateAndFormatPhone(phone);
+        updates.phone = formatted;
+      }
 
       const { error } = await updateProfile(updates);
 
@@ -161,17 +179,11 @@ export function Settings() {
 
               <div className="space-y-2">
                 <Label htmlFor="phone" className="text-sm font-medium text-slate-750">Phone Number</Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="pl-10 rounded-xl border-slate-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
-                    placeholder="+260 977 123 456"
-                  />
-                </div>
+                <PhoneInput
+                  id="phone"
+                  value={phone}
+                  onChange={handlePhoneChange}
+                />
               </div>
 
               <Button

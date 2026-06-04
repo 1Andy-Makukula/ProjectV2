@@ -133,30 +133,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateProfile = async (updates: Partial<UserProfile>) => {
     if (!user) return { error: new Error('Not authenticated') };
 
+    const promises = [];
+
     if (updates.email || updates.name || updates.phone) {
-      const { error: authError } = await supabase.auth.updateUser({
-        email: updates.email,
-        data: {
-          name: updates.name ?? profile?.name,
-          phone: updates.phone ?? profile?.phone,
-        },
-      });
+      promises.push(
+        supabase.auth.updateUser({
+          email: updates.email,
+          data: {
+            name: updates.name ?? profile?.name,
+            phone: updates.phone ?? profile?.phone,
+          },
+        })
+      );
+    }
 
-      if (authError) {
-        return { error: authError };
+    promises.push(
+      supabase
+        .from('users')
+        .update(updates)
+        .eq('id', user.id)
+    );
+
+    try {
+      const results = await Promise.all(promises);
+      const errors = results.map(r => (r as any).error).filter(Boolean);
+
+      if (errors.length > 0) {
+        return { error: errors[0] };
       }
-    }
 
-    const { error } = await supabase
-      .from('users')
-      .update(updates)
-      .eq('id', user.id);
-
-    if (!error) {
       setProfile((prev: UserProfile | null) => (prev ? { ...prev, ...updates } : null));
+      return { error: null };
+    } catch (error: any) {
+      return { error };
     }
-
-    return { error };
   };
 
   return (

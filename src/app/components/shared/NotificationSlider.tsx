@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router';
-import { Bell, CheckCircle, X, ExternalLink } from 'lucide-react';
+import { Bell, CheckCircle, X, ExternalLink, Gift, Send, ArrowRight, CheckCheck, Clock } from 'lucide-react';
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { Button } from '../ui/button';
@@ -20,17 +20,62 @@ interface NotificationSliderProps {
   onClose: () => void;
 }
 
+// ---------------------------------------------------------------------------
+// Live relative-time hook — ticks every 30 s while panel is open
+// ---------------------------------------------------------------------------
+
+function useNow(active: boolean) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!active) return;
+    const id = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(id);
+  }, [active]);
+  return now;
+}
+
+function relativeTime(iso: string, now: number): string {
+  const diffMs = now - new Date(iso).getTime();
+  const diffS  = diffMs / 1_000;
+  const diffM  = diffMs / 60_000;
+  const diffH  = diffMs / 3_600_000;
+  const diffD  = diffMs / 86_400_000;
+
+  if (diffS < 10)  return 'Just now';
+  if (diffM < 1)   return `${Math.floor(diffS)}s ago`;
+  if (diffM < 60)  return `${Math.floor(diffM)}m ago`;
+  if (diffH < 24)  return `${Math.floor(diffH)}h ago`;
+  if (diffD < 7)   return `${Math.floor(diffD)}d ago`;
+  return new Date(iso).toLocaleDateString();
+}
+
+function absoluteTime(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleString('en-US', {
+    month: 'short', day: 'numeric',
+    hour: 'numeric', minute: '2-digit', hour12: true,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
 export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps) {
   const { profile } = useAuth();
   const navigate = useNavigate();
+  const now = useNow(isOpen);
+
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [inboundGifts, setInboundGifts] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [dismissedGiftIds, setDismissedGiftIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    if (isOpen && profile?.id) {
-      fetchNotifications();
-    }
-  }, [isOpen, profile?.id]);
+    if (isOpen && profile?.id)    fetchNotifications();
+    if (isOpen && profile?.phone) fetchInboundGifts();
+  }, [isOpen, profile?.id, profile?.phone]);
 
   const fetchNotifications = async () => {
     if (!profile?.id) return;
@@ -41,8 +86,7 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
         .select('*')
         .eq('user_id', profile.id)
         .order('created_at', { ascending: false })
-        .limit(10);
-
+        .limit(20);
       if (error) throw error;
       setNotifications(data || []);
     } catch (err) {
@@ -52,41 +96,66 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
     }
   };
 
+  const fetchInboundGifts = async () => {
+    if (!profile?.phone) return;
+    try {
+      const { data, error } = await supabase
+        .from('shop_orders')
+        .select(`
+          shop_order_id,
+          claim_code,
+          claim_status,
+          created_at,
+          message,
+          order_items(items(name)),
+          transactions(users(name))
+        `)
+        .eq('recipient_phone', profile.phone)
+        .order('created_at', { ascending: false })
+        .limit(5);
+      if (error) throw error;
+      setInboundGifts(data || []);
+    } catch (err) {
+      console.error('Error fetching inbound gifts for slider:', err);
+    }
+  };
+
   const markAsRead = async (id: string, is_read: boolean) => {
     if (is_read) return;
-    try {
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
-      );
-      await supabase.from('notifications').update({ is_read: true }).eq('id', id);
-    } catch (err) {
-      console.error('Error marking as read:', err);
-    }
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+    try { await supabase.from('notifications').update({ is_read: true }).eq('id', id); } catch (e) { console.error(e); }
+  };
+
+  const markAllRead = async () => {
+    const unread = notifications.filter(n => !n.is_read).map(n => n.id);
+    if (!unread.length) return;
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    try { await supabase.from('notifications').update({ is_read: true }).in('id', unread); } catch (e) { console.error(e); }
+  };
+
+  const dismissNotification = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
+  const dismissGift = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setDismissedGiftIds(prev => new Set(prev).add(id));
+  };
+
+  const toggleExpand = (id: string) => {
+    setExpandedId(prev => prev === id ? null : id);
   };
 
   const getIcon = (type: string) => {
     switch (type) {
-      case 'success':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      default:
-        return <Bell className="h-5 w-5 text-blue-500" />;
+      case 'success': return <CheckCircle className="h-5 w-5 text-emerald-500" />;
+      default:        return <Bell className="h-5 w-5 text-blue-400" />;
     }
   };
 
-  const formatDate = (iso: string) => {
-    const date = new Date(iso);
-    const diffMs = Date.now() - date.getTime();
-    const diffH = diffMs / 3_600_000;
-    const diffD = diffMs / 86_400_000;
-
-    if (diffH < 1) {
-      const mins = Math.floor(diffMs / 60_000);
-      return mins <= 0 ? 'Just now' : `${mins}m ago`;
-    }
-    if (diffH < 24) return `${Math.floor(diffH)}h ago`;
-    if (diffD < 7) return `${Math.floor(diffD)}d ago`;
-    return date.toLocaleDateString();
-  };
+  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const visibleGifts = inboundGifts.filter(g => !dismissedGiftIds.has(g.shop_order_id));
 
   return (
     <AnimatePresence>
@@ -106,70 +175,237 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-y-0 right-0 z-50 flex w-full max-w-sm flex-col bg-white shadow-xl"
+            transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+            className="fixed inset-y-0 right-0 z-50 flex w-full max-w-sm flex-col bg-white shadow-2xl"
           >
-            <div className="flex items-center justify-between border-b px-6 py-4">
-              <h2 className="text-lg font-semibold text-gray-900">Notifications</h2>
-              <button
-                onClick={onClose}
-                className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-              >
-                <X className="h-5 w-5" />
-              </button>
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+              <div className="flex items-center gap-2.5">
+                <h2 className="text-lg font-bold text-gray-900">Notifications</h2>
+                {unreadCount > 0 && (
+                  <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-white">
+                    {unreadCount}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-1">
+                {unreadCount > 0 && (
+                  <button
+                    onClick={markAllRead}
+                    title="Mark all as read"
+                    className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+                  >
+                    <CheckCheck className="h-3.5 w-3.5" />
+                    <span>All read</span>
+                  </button>
+                )}
+                <button
+                  onClick={onClose}
+                  className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
 
+            {/* Content */}
             <div className="flex-1 overflow-y-auto">
               {loading ? (
-                <div className="flex justify-center p-8">
-                  <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-primary"></div>
-                </div>
-              ) : notifications.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-12 text-center">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-50">
-                    <Bell className="h-6 w-6 text-gray-400" />
-                  </div>
-                  <p className="text-sm font-medium text-gray-900">No notifications yet</p>
-                  <p className="mt-1 text-sm text-gray-500">We'll let you know when there's an update.</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-gray-100">
-                  {notifications.map((notification) => (
-                    <div
-                      key={notification.id}
-                      onClick={() => markAsRead(notification.id, notification.is_read)}
-                      className={`flex cursor-pointer gap-4 p-4 transition-colors hover:bg-gray-50 ${
-                        !notification.is_read ? 'bg-orange-50/50' : ''
-                      }`}
-                    >
-                      <div className="shrink-0 pt-1">{getIcon(notification.type)}</div>
-                      <div className="flex-1">
-                        <div className="flex justify-between gap-2">
-                          <p className="text-sm text-gray-900">{notification.message}</p>
-                          {!notification.is_read && (
-                            <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
-                              New
-                            </span>
-                          )}
-                        </div>
-                        <p className="mt-1 text-xs text-gray-500">
-                          {formatDate(notification.created_at)}
-                        </p>
+                <div className="flex flex-col gap-3 p-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="flex gap-3 animate-pulse">
+                      <div className="h-8 w-8 rounded-full bg-slate-100 shrink-0" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-3 w-3/4 rounded bg-slate-100" />
+                        <div className="h-2.5 w-1/3 rounded bg-slate-100" />
                       </div>
                     </div>
                   ))}
                 </div>
+              ) : (
+                <div className="divide-y divide-gray-100">
+
+                  {/* ── Gifts Received ── */}
+                  {visibleGifts.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-2 px-4 pt-4 pb-2">
+                        <Gift className="h-3.5 w-3.5 text-primary" />
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Gifts Received</p>
+                      </div>
+                      <AnimatePresence>
+                        {visibleGifts.map((order) => {
+                          const itemName = order.order_items?.[0]?.items?.name;
+                          const senderName = order.transactions?.users?.name || 'Someone';
+                          const isPending = order.claim_status === 'PENDING' || !order.claim_status;
+                          const relTime = relativeTime(order.created_at, now);
+                          const absTime = absoluteTime(order.created_at);
+
+                          return (
+                            <motion.div
+                              key={order.shop_order_id}
+                              layout
+                              initial={{ opacity: 0, x: 30 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: 60, height: 0, marginBottom: 0 }}
+                              transition={{ duration: 0.22 }}
+                              className="group relative flex cursor-pointer gap-4 px-4 py-3.5 hover:bg-orange-50/50 active:bg-orange-50 transition-colors"
+                              onClick={() => { navigate(`/gift/${order.claim_code}`); onClose(); }}
+                            >
+                              {/* Icon */}
+                              <div className="shrink-0 pt-0.5">
+                                <div className={`h-9 w-9 rounded-full flex items-center justify-center shadow-sm ${
+                                  isPending ? 'bg-gradient-to-br from-primary/20 to-primary/10' : 'bg-emerald-50'
+                                }`}>
+                                  <Gift className={`h-4 w-4 ${isPending ? 'text-primary' : 'text-emerald-500'}`} />
+                                </div>
+                              </div>
+
+                              {/* Body */}
+                              <div className="flex-1 min-w-0 pr-6">
+                                <p className="text-sm text-gray-900 leading-snug">
+                                  <span className="font-semibold">{senderName}</span>
+                                  {' sent you '}
+                                  {itemName ? <span className="font-semibold">{itemName}</span> : 'a gift'}
+                                </p>
+
+                                {/* Time row */}
+                                <div className="flex items-center gap-1.5 mt-1">
+                                  <Clock className="h-3 w-3 text-slate-300 shrink-0" />
+                                  <span className="text-xs text-slate-400 font-medium">{relTime}</span>
+                                  <span className="text-slate-200">·</span>
+                                  <span className="text-[11px] text-slate-300">{absTime}</span>
+                                </div>
+
+                                {isPending && (
+                                  <div className="flex items-center gap-1.5 mt-2">
+                                    <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-bold text-primary">
+                                      Ready to Claim
+                                    </span>
+                                    <ArrowRight className="h-3 w-3 text-primary" />
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Dismiss */}
+                              <button
+                                onClick={(e) => dismissGift(order.shop_order_id, e)}
+                                className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 rounded-full p-1 text-slate-300 hover:bg-slate-100 hover:text-slate-500 transition-all"
+                                title="Dismiss"
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            </motion.div>
+                          );
+                        })}
+                      </AnimatePresence>
+                    </div>
+                  )}
+
+                  {/* ── Activity / System ── */}
+                  {notifications.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-2 px-4 pt-4 pb-2">
+                        <Send className="h-3.5 w-3.5 text-slate-400" />
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Activity</p>
+                      </div>
+                      <AnimatePresence>
+                        {notifications.map((notification) => {
+                          const isExpanded = expandedId === notification.id;
+                          const relTime = relativeTime(notification.created_at, now);
+                          const absTime = absoluteTime(notification.created_at);
+
+                          return (
+                            <motion.div
+                              key={notification.id}
+                              layout
+                              initial={{ opacity: 0, x: 20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: 60, height: 0 }}
+                              transition={{ duration: 0.2 }}
+                              onClick={() => { markAsRead(notification.id, notification.is_read); toggleExpand(notification.id); }}
+                              className={`group relative flex cursor-pointer gap-4 px-4 py-3.5 transition-colors ${
+                                !notification.is_read
+                                  ? 'bg-orange-50/60 hover:bg-orange-50'
+                                  : 'hover:bg-gray-50/80'
+                              }`}
+                            >
+                              {/* Unread dot */}
+                              {!notification.is_read && (
+                                <span className="absolute left-2 top-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full bg-primary" />
+                              )}
+
+                              <div className="shrink-0 pt-0.5">{getIcon(notification.type)}</div>
+
+                              <div className="flex-1 min-w-0 pr-6">
+                                <div className="flex items-start justify-between gap-2">
+                                  <p className={`text-sm leading-snug ${!notification.is_read ? 'font-medium text-gray-900' : 'text-gray-700'}`}>
+                                    {notification.message}
+                                  </p>
+                                  {!notification.is_read && (
+                                    <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">New</span>
+                                  )}
+                                </div>
+
+                                {/* Live timer row */}
+                                <div className="flex items-center gap-1.5 mt-1">
+                                  <Clock className="h-3 w-3 text-slate-300 shrink-0" />
+                                  <span className="text-xs text-slate-400 font-medium tabular-nums">{relTime}</span>
+                                  <span className="text-slate-200">·</span>
+                                  <span className="text-[11px] text-slate-300">{absTime}</span>
+                                </div>
+
+                                {/* Expandable reference */}
+                                {isExpanded && notification.reference_id && (
+                                  <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    className="mt-2"
+                                  >
+                                    <button
+                                      onClick={(e) => { e.stopPropagation(); navigate(`/order/${notification.reference_id}`); onClose(); }}
+                                      className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-200 transition-colors"
+                                    >
+                                      View Details <ArrowRight className="h-3 w-3" />
+                                    </button>
+                                  </motion.div>
+                                )}
+                              </div>
+
+                              {/* Per-item dismiss */}
+                              <button
+                                onClick={(e) => dismissNotification(notification.id, e)}
+                                className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 rounded-full p-1 text-slate-300 hover:bg-slate-100 hover:text-slate-500 transition-all"
+                                title="Dismiss"
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            </motion.div>
+                          );
+                        })}
+                      </AnimatePresence>
+                    </div>
+                  )}
+
+                  {/* Empty state */}
+                  {notifications.length === 0 && visibleGifts.length === 0 && (
+                    <div className="flex flex-col items-center justify-center p-12 text-center">
+                      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 shadow-inner">
+                        <Bell className="h-6 w-6 text-slate-300" />
+                      </div>
+                      <p className="text-sm font-semibold text-gray-900">All caught up</p>
+                      <p className="mt-1 text-sm text-gray-400">No notifications right now.</p>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 
-            <div className="border-t p-4">
+            {/* Footer */}
+            <div className="border-t border-slate-100 p-4">
               <Button
                 variant="outline"
-                className="w-full"
-                onClick={() => {
-                  onClose();
-                  navigate('/notifications');
-                }}
+                className="w-full rounded-xl"
+                onClick={() => { onClose(); navigate('/notifications'); }}
               >
                 View All Notifications
                 <ExternalLink className="ml-2 h-4 w-4" />

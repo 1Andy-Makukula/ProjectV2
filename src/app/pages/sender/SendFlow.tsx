@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { supabase } from '../../../lib/supabaseClient';
 import { useSendFlowStore } from '../../../utils/sendFlowStore';
+import { validateAndFormatPhone } from '../../../utils/phone';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { PhoneInput } from '../../components/shared/PhoneInput';
 import { ArrowLeft, Store } from 'lucide-react';
 import { motion } from 'motion/react';
 import { formatCurrency } from '../../../utils/currency';
@@ -46,6 +48,15 @@ export function SendFlow() {
     message: '',
   });
   const [errors, setErrors] = useState<Partial<SendFlowFormData>>({});
+  const [phoneValid, setPhoneValid] = useState(false);
+
+  const handlePhoneChange = useCallback((value: string) => {
+    setFormData(prev => ({ ...prev, recipientPhone: value }));
+  }, []);
+
+  const handlePhoneValidation = useCallback((result: { isValid: boolean; formatted: string }) => {
+    setPhoneValid(result.isValid);
+  }, []);
 
   useEffect(() => {
     fetchItemDetails();
@@ -55,25 +66,17 @@ export function SendFlow() {
     if (!itemId) return;
 
     try {
-      // Fetch item details
-      const { data: itemData, error: itemError } = await supabase
+      const { data, error } = await supabase
         .from('items')
-        .select('*')
+        .select('*, shop:shops(id, name)')
         .eq('id', itemId)
         .single();
 
-      if (itemError) throw itemError;
+      if (error) throw error;
+      
+      const { shop, ...itemData } = data as any;
       setItem(itemData);
-
-      // Fetch shop details
-      const { data: shopData, error: shopError } = await supabase
-        .from('shops')
-        .select('id, name')
-        .eq('id', itemData.shop_id)
-        .single();
-
-      if (shopError) throw shopError;
-      setShop(shopData);
+      setShop(shop);
     } catch (error) {
       console.error('Error fetching item details:', error);
     } finally {
@@ -90,8 +93,11 @@ export function SendFlow() {
 
     if (!formData.recipientPhone.trim()) {
       newErrors.recipientPhone = 'Recipient phone is required';
-    } else if (formData.recipientPhone.trim().length < 4) {
-      newErrors.recipientPhone = 'Please enter a valid phone number';
+    } else {
+      const { isValid } = validateAndFormatPhone(formData.recipientPhone);
+      if (!isValid) {
+        newErrors.recipientPhone = 'Please enter a valid phone number for Zambia, USA, UK, or Australia';
+      }
     }
 
     if (formData.message.length > 200) {
@@ -105,11 +111,14 @@ export function SendFlow() {
   const handleContinue = () => {
     if (!validateForm() || !item || !shop) return;
 
+    // Normalize to E.164 before persisting
+    const { formatted } = validateAndFormatPhone(formData.recipientPhone);
+
     // Persist recipient details into the Zustand store so Checkout.tsx can
     // include them in the checkout-init payload → written to shop_orders.
     setRecipient({
       name:    formData.recipientName.trim(),
-      phone:   formData.recipientPhone.trim(),
+      phone:   formatted,
       message: formData.message.trim(),
     });
 
@@ -256,14 +265,11 @@ export function SendFlow() {
                 >
                   Recipient Phone <span className="text-red-500">*</span>
                 </label>
-                <Input
+                <PhoneInput
                   id="recipientPhone"
-                  type="tel"
-                  placeholder="+260 XXX XXX XXX"
                   value={formData.recipientPhone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, recipientPhone: e.target.value })
-                  }
+                  onChange={handlePhoneChange}
+                  onValidation={handlePhoneValidation}
                   aria-invalid={!!errors.recipientPhone}
                 />
                 {errors.recipientPhone && (

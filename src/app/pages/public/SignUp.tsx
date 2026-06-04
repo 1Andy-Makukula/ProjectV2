@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
+import { validateAndFormatPhone } from '../../../utils/phone';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
+import { PhoneInput } from '../../components/shared/PhoneInput';
 import { Eye, EyeOff, Gift } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
@@ -38,6 +40,10 @@ export function SignUp() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  const handlePhoneChange = useCallback((value: string) => {
+    setFormData(prev => ({ ...prev, phone: value }));
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
@@ -70,13 +76,22 @@ export function SignUp() {
       return;
     }
 
+    // Validate & normalize phone to E.164
+    const { isValid, formatted: formattedPhone } = validateAndFormatPhone(formData.phone);
+    if (!isValid) {
+      const msg = 'Please enter a valid phone number for Zambia, USA, UK, or Australia.';
+      setErrorMsg(msg);
+      toast.error(msg);
+      return;
+    }
+
     setLoading(true);
 
     const { error } = await signUp(
       formData.email,
       formData.password,
       formData.name,
-      formData.phone
+      formattedPhone
     );
 
     setLoading(false);
@@ -212,15 +227,13 @@ export function SignUp() {
                 <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
                   Phone Number
                 </Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="mt-1 rounded-xl h-12"
-                  placeholder="+260 XXX XXX XXX"
-                  required
-                />
+                <div className="mt-1">
+                  <PhoneInput
+                    id="phone"
+                    value={formData.phone}
+                    onChange={handlePhoneChange}
+                  />
+                </div>
               </div>
 
               {/* Password */}

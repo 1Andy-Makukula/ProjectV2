@@ -10,7 +10,7 @@ export interface WhatsAppShareButtonProps {
   amount?: number;
 }
 
-export function WhatsAppShareButton({ claimCode, shopName, recipientName, senderName, amount }: WhatsAppShareButtonProps) {
+export function WhatsAppShareButton({ claimCode, shopName, recipientName, senderName }: WhatsAppShareButtonProps) {
   const handleShare = () => {
     const giftLink = getGiftPageUrl(claimCode);
     const greeting = recipientName ? `Hi ${recipientName}, ` : 'Hi, ';

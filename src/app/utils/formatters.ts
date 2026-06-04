@@ -42,17 +42,12 @@ export function validateTPIN(tpin: string): boolean {
 }
 
 /**
- * Format phone number for Zambian mobile (Airtel/MTN)
- * Format: +260 XX XXX XXXX
+ * Format phone number for display.
+ * Supports Zambia (+260), USA/Canada (+1), UK (+44), Australia (+61).
+ *
+ * @deprecated Prefer importing `formatPhoneDisplay` from `@/utils/phone` directly.
  */
-export function formatPhoneZM(phone: string): string {
-  const cleaned = phone.replace(/\D/g, '');
-  if (cleaned.startsWith('260')) {
-    const number = cleaned.slice(3);
-    return `+260 ${number.slice(0, 2)} ${number.slice(2, 5)} ${number.slice(5)}`;
-  }
-  return phone;
-}
+export { formatPhoneDisplay as formatPhoneZM } from '../../utils/phone';
 
 /**
  * Calculate days remaining until expiration

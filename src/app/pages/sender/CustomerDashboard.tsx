@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { supabase } from '../../../lib/supabaseClient';
 import { motion, AnimatePresence } from 'motion/react';
-import { TrendingUp, Gift, Store, ArrowLeft, Sparkles, Bell, X, Clock, AlertCircle, ChevronRight, CreditCard, Receipt } from 'lucide-react';
+import { TrendingUp, Gift, Store, ArrowLeft, Sparkles, Bell, X, Clock, AlertCircle, ChevronRight, CreditCard, Receipt, Send, Inbox, Package, CheckCircle2 } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -176,6 +176,20 @@ export function CustomerDashboard() {
 
   const [latestNotification, setLatestNotification] = useState<any | null>(null);
 
+  // Top-level panel: 'sending' | 'receiving' — persisted to localStorage
+  const LS_KEY = 'kithly_active_dashboard_view';
+  const [activePanel, setActivePanelState] = useState<'sending' | 'receiving'>(() => {
+    try {
+      const stored = localStorage.getItem(LS_KEY);
+      return stored === 'receiving' ? 'receiving' : 'sending';
+    } catch { return 'sending'; }
+  });
+
+  const setActivePanel = useCallback((panel: 'sending' | 'receiving') => {
+    setActivePanelState(panel);
+    try { localStorage.setItem(LS_KEY, panel); } catch { /* ignore */ }
+  }, []);
+
   const [activeTab, setActiveTab] = useState('orders');
   const [floatingItems, setFloatingItems] = useState<FloatingItem[]>([]);
   const [loadingFloating, setLoadingFloating] = useState(false);
@@ -345,6 +359,87 @@ export function CustomerDashboard() {
     }
   };
 
+  const fetchOrdersAndMetrics = async () => {
+    if (!profile?.id) return;
+    setLoadingOrders(true);
+    setMetricsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select(`
+          transaction_id,
+          buyer_id,
+          total_amount,
+          status,
+          gateway_tx_ref,
+          created_at,
+          shop_orders (
+            shop_order_id,
+            claim_code,
+            claim_status,
+            recipient_name,
+            shop_id,
+            shop:shop_id (name),
+            order_items (
+              item:item_id (name, image_url)
+            )
+          )
+        `)
+        .eq('buyer_id', profile.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      let totalGen = 0;
+      let deliveredCount = 0;
+      const uniqueShops = new Set<string>();
+
+      const flatOrders = (data ?? []).map((txn: any) => {
+        totalGen += txn.total_amount ?? 0;
+        
+        if (txn.shop_orders) {
+          txn.shop_orders.forEach((so: any) => {
+            deliveredCount += 1;
+            if (so.shop_id) uniqueShops.add(so.shop_id);
+          });
+        }
+
+        const firstShopOrder = txn.shop_orders?.[0];
+        const firstItem = firstShopOrder?.order_items?.[0]?.item;
+        const shop = firstShopOrder?.shop;
+
+        return {
+          transaction_id: txn.transaction_id,
+          buyer_id: txn.buyer_id,
+          total_amount: txn.total_amount,
+          status: txn.status,
+          gateway_tx_ref: txn.gateway_tx_ref,
+          created_at: txn.created_at,
+          claim_code: firstShopOrder?.claim_code ?? null,
+          claim_status: firstShopOrder?.claim_status ?? null,
+          recipient_name: firstShopOrder?.recipient_name ?? null,
+          shop_name: shop?.name ?? null,
+          item_name: firstItem?.name ?? null,
+          item_image_url: firstItem?.image_url ?? null,
+        };
+      });
+
+      setOrders(flatOrders);
+      setTotalGenerosity(totalGen);
+      setGiftsDelivered(deliveredCount);
+      setShopsSupported(uniqueShops.size);
+
+    } catch (err) {
+      console.error('[CustomerDashboard] fetchOrdersAndMetrics error:', err);
+      setTotalGenerosity(0);
+      setGiftsDelivered(0);
+      setShopsSupported(0);
+    } finally {
+      setLoadingOrders(false);
+      setMetricsLoading(false);
+    }
+  };
+
   const handleConvert = async (item: FloatingItem) => {
     if (!user?.id) {
       toast.error('You must be logged in to convert items to credits.');
@@ -360,11 +455,7 @@ export function CustomerDashboard() {
       if (error) throw error;
 
       toast.success('Credits added to your wallet!');
-      
-      // Refresh local UI states
       fetchFloatingItems();
-      
-      // Update global header wallet balance
       window.dispatchEvent(new Event('wallet-update'));
     } catch (err: any) {
       console.error('[CustomerDashboard] handleConvert error:', err);
@@ -375,26 +466,14 @@ export function CustomerDashboard() {
   };
 
   useEffect(() => {
-    if (activeTab === 'vault' && profile?.phone) {
-      fetchFloatingItems();
-    } else if (activeTab === 'orders' && profile?.id) {
-      fetchOrders();
-    } else if (activeTab === 'received' && profile?.phone) {
-      fetchReceivedGifts();
-    }
-  }, [activeTab, profile?.phone, profile?.id]);
-
-
-  const fetchNotifications = async () => {
-    // Left empty or fetch latest unread for banner if needed. 
-    // Usually handled by realtime below for ephemeral banners.
-  };
-
-  useEffect(() => {
     if (!profile?.id) return;
-    fetchMetrics();
-    fetchNotifications();
-    fetchOrders();
+    
+    // Fire all initial queries in parallel
+    const promises = [fetchOrdersAndMetrics()];
+    if (profile?.phone) {
+      promises.push(fetchReceivedGifts(), fetchFloatingItems());
+    }
+    Promise.all(promises);
 
     const channel = supabase
       .channel('dashboard-notifications')
@@ -409,7 +488,7 @@ export function CustomerDashboard() {
         (payload) => {
           const newNotif = payload.new;
           setLatestNotification(newNotif);
-          setTimeout(() => setLatestNotification(null), 5000); // Hide banner after 5s
+          setTimeout(() => setLatestNotification(null), 5000);
         }
       )
       .subscribe();
@@ -417,47 +496,7 @@ export function CustomerDashboard() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [profile?.id]);
-
-  const fetchMetrics = async () => {
-    if (!profile?.id) return;
-
-    setMetricsLoading(true);
-
-    try {
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('total_amount, shop_orders(shop_id)')
-        .eq('buyer_id', profile.id);
-
-      if (error) throw error;
-
-      const rows = data ?? [];
-      setTotalGenerosity(rows.reduce((sum: number, tx: any) => sum + (tx.total_amount ?? 0), 0));
-      
-      let delivered = 0;
-      const uniqueShops = new Set<string>();
-      
-      rows.forEach((tx: any) => {
-        if (tx.shop_orders) {
-          tx.shop_orders.forEach((so: any) => {
-            delivered += 1;
-            if (so.shop_id) uniqueShops.add(so.shop_id);
-          });
-        }
-      });
-
-      setGiftsDelivered(delivered);
-      setShopsSupported(uniqueShops.size);
-    } catch (err) {
-      console.error('[CustomerDashboard] fetchMetrics error:', err);
-      setTotalGenerosity(0);
-      setGiftsDelivered(0);
-      setShopsSupported(0);
-    } finally {
-      setMetricsLoading(false);
-    }
-  };
+  }, [profile?.id, profile?.phone]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -587,11 +626,33 @@ export function CustomerDashboard() {
           )}
         </div>
 
+        {/* ── Top-level P2P panel toggle ── */}
+        <div className="flex w-full items-center gap-1 rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur-md p-1 shadow-sm mb-2">
+          {([['sending', Send, 'Sending Details'], ['receiving', Inbox, 'Receiving Details']] as const).map(([panel, Icon, label]) => (
+            <button
+              key={panel}
+              id={`dashboard-panel-${panel}`}
+              onClick={() => setActivePanel(panel)}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 min-h-[44px] ${
+                activePanel === panel
+                  ? 'bg-gradient-to-r from-primary to-primary-light text-white shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <Icon className="h-4 w-4 shrink-0" />
+              <span>{label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* ── SENDING DETAILS panel ── */}
+        <AnimatePresence mode="wait">
+        {activePanel === 'sending' && (
+          <motion.div key="sending" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22 }}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-6">
             <TabsTrigger value="orders">Order History</TabsTrigger>
             <TabsTrigger value="vault">My Vault</TabsTrigger>
-            <TabsTrigger value="received">Gifts Received</TabsTrigger>
           </TabsList>
 
           <TabsContent value="orders">
@@ -882,125 +943,146 @@ export function CustomerDashboard() {
             )}
           </TabsContent>
 
-          <TabsContent value="received">
+        </Tabs>
+        </motion.div>
+        )}
+
+        {/* ── RECEIVING DETAILS panel ── */}
+        {activePanel === 'receiving' && (
+          <motion.div key="receiving" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22 }}>
             {!profile?.phone ? (
               <EmptyState
                 icon={PhoneOff}
                 title="Phone Number Required"
-                description="We need your phone number to find your received gifts. Please update your profile in settings."
-                action={{
-                  label: "Go to Settings",
-                  onClick: () => navigate('/settings')
-                }}
+                description="We need your phone number to find gifts sent to you. Add it in Settings."
+                action={{ label: 'Go to Settings', onClick: () => navigate('/settings') }}
               />
             ) : loadingReceived ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[1, 2].map((i) => (
-                  <div key={i} className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
-                    <div className="flex items-center gap-4">
-                      <Skeleton className="h-16 w-16 rounded-xl shrink-0" />
-                      <div className="space-y-2 flex-1">
-                        <Skeleton className="h-4 w-3/4" />
-                        <Skeleton className="h-3 w-1/2" />
-                      </div>
-                    </div>
+              <div className="space-y-8">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm space-y-4">
+                    <Skeleton className="h-5 w-32" />
+                    <Skeleton className="h-40 w-full rounded-2xl" />
                     <Skeleton className="h-10 w-full rounded-xl" />
                   </div>
                 ))}
               </div>
-            ) : receivedGifts.length === 0 ? (
-              <EmptyState
-                icon={Gift}
-                title="No Gifts Received Yet"
-                description="When someone sends a gift to your phone number, it will show up here!"
-              />
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {receivedGifts.map((order, idx) => {
-                  const firstItem = order.order_items?.[0]?.items;
-                  const sender = order.transactions?.users?.name || 'Someone special';
-                  const shop = order.shops?.name || 'Partner Shop';
-                  const isClaimed = order.claim_status === 'FULFILLED';
-                  const isPartial = order.claim_status === 'PARTIAL_FULFILLMENT';
+            ) : (() => {
+              const activeVouchers = receivedGifts.filter(o => o.claim_status === 'PENDING' || !o.claim_status);
+              const claimHistory = receivedGifts.filter(o => o.claim_status === 'FULFILLED' || o.claim_status === 'PARTIAL_FULFILLMENT');
 
-                  return (
-                    <motion.div
-                      key={order.shop_order_id}
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: idx * 0.05 }}
-                      className="group rounded-3xl border border-slate-100 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
-                    >
-                      <div>
-                        <div className="flex items-center justify-between gap-2 mb-4">
-                          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                            From: {sender}
-                          </span>
-                          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ring-1 ring-inset ${
-                            isClaimed 
-                              ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/10' 
-                              : isPartial 
-                                ? 'bg-amber-50 text-amber-700 ring-amber-600/10'
-                                : 'bg-blue-50 text-blue-700 ring-blue-600/10'
-                          }`}>
-                            <span className={`h-1 w-1 rounded-full ${
-                              isClaimed ? 'bg-emerald-600' : isPartial ? 'bg-amber-600' : 'bg-blue-600'
-                            }`} />
-                            {isClaimed ? 'Claimed' : isPartial ? 'Partial' : 'Available'}
-                          </span>
-                        </div>
+              return (
+                <div className="space-y-10">
+                  {/* Active Vouchers */}
+                  <section>
+                    <div className="flex items-center gap-2 mb-4">
+                      <QrCode className="h-4 w-4 text-primary" />
+                      <h3 className="text-sm font-semibold uppercase tracking-widest text-slate-700">Active Vouchers</h3>
+                      {activeVouchers.length > 0 && (
+                        <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                          {activeVouchers.length}
+                        </span>
+                      )}
+                    </div>
 
-                        <div className="flex items-start gap-4 mb-4">
-                          <div className="h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center">
-                            {firstItem?.image_url ? (
-                              <img
-                                src={firstItem.image_url}
-                                alt={firstItem.name}
-                                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                              />
-                            ) : (
-                              <Gift className="h-6 w-6 text-slate-300" />
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-slate-900 truncate text-sm">
-                              {firstItem?.name || 'Gift Bundle'}
-                            </h4>
-                            <p className="text-xs text-slate-400 mt-0.5">
-                              {formatDate(order.created_at)}
-                            </p>
-                            <p className="text-xs text-slate-500 font-medium mt-1">
-                              @ {shop}
-                            </p>
-                          </div>
-                        </div>
-
-                        {order.message && (
-                          <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100/50 mb-4">
-                            <p className="text-xs text-slate-600 italic leading-relaxed">
-                              "{order.message}"
-                            </p>
-                          </div>
-                        )}
+                    {activeVouchers.length === 0 ? (
+                      <EmptyState icon={Package} title="No active vouchers" description="Gifts sent to your phone number will appear here, ready to show to the merchant." />
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        {activeVouchers.map((order, idx) => {
+                          const firstItem = order.order_items?.[0]?.items;
+                          const sender = order.transactions?.users?.name || 'Someone special';
+                          const shop = order.shops?.name || 'Partner Shop';
+                          return (
+                            <motion.div
+                              key={order.shop_order_id}
+                              initial={{ opacity: 0, scale: 0.97 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ duration: 0.3, delay: idx * 0.06 }}
+                              className="rounded-3xl border-2 border-primary/20 bg-white shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden"
+                            >
+                              {/* Header accent */}
+                              <div className="h-1.5 bg-gradient-to-r from-primary to-primary-light" />
+                              <div className="p-6 flex flex-col items-center gap-5">
+                                <div className="text-center">
+                                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-0.5">From {sender}</p>
+                                  <h4 className="font-bold text-slate-900 text-base">{firstItem?.name || 'Gift Bundle'}</h4>
+                                  <p className="text-xs text-slate-500 mt-0.5">@ {shop}</p>
+                                </div>
+                                {/* Large QR */}
+                                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner">
+                                  <QRCodeDisplay value={order.claim_code} size={160} />
+                                </div>
+                                {/* Claim code */}
+                                <div className="flex flex-col items-center gap-1">
+                                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Claim Code</p>
+                                  <p className="font-mono text-xl font-bold tracking-[0.25em] text-slate-800 select-all">{order.claim_code}</p>
+                                </div>
+                                {order.message && (
+                                  <p className="text-xs italic text-slate-500 text-center max-w-[200px] leading-relaxed">"{order.message}"</p>
+                                )}
+                                <Button
+                                  className="w-full rounded-xl text-sm font-semibold bg-gradient-to-r from-primary to-primary-light text-white shadow-sm"
+                                  onClick={() => navigate(`/gift/${order.claim_code}`)}
+                                >
+                                  Open Gift Page
+                                </Button>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
                       </div>
+                    )}
+                  </section>
 
-                      <div className="mt-2">
-                        <Button
-                          variant={isClaimed ? "outline" : "default"}
-                          size="sm"
-                          className="w-full text-xs font-semibold rounded-xl"
-                          onClick={() => navigate(`/gift/${order.claim_code}`)}
-                        >
-                          {isClaimed ? 'View Claim Details' : 'Open Gift Voucher'}
-                        </Button>
+                  {/* Claim History */}
+                  <section>
+                    <div className="flex items-center gap-2 mb-4">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                      <h3 className="text-sm font-semibold uppercase tracking-widest text-slate-400">Claim History</h3>
+                    </div>
+
+                    {claimHistory.length === 0 ? (
+                      <p className="text-sm text-slate-400 text-center py-6">No completed claims yet.</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {claimHistory.map((order) => {
+                          const firstItem = order.order_items?.[0]?.items;
+                          const sender = order.transactions?.users?.name || 'Someone special';
+                          const shop = order.shops?.name || 'Partner Shop';
+                          const isPartial = order.claim_status === 'PARTIAL_FULFILLMENT';
+                          return (
+                            <div
+                              key={order.shop_order_id}
+                              className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50/60 px-5 py-4 opacity-70 hover:opacity-90 transition-opacity cursor-pointer"
+                              onClick={() => navigate(`/gift/${order.claim_code}`)}
+                            >
+                              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center">
+                                {firstItem?.image_url
+                                  ? <img src={firstItem.image_url} alt={firstItem.name} className="h-full w-full object-cover grayscale" />
+                                  : <Gift className="h-5 w-5 text-slate-300" />}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-slate-600 truncate">{firstItem?.name || 'Gift Bundle'}</p>
+                                <p className="text-xs text-slate-400 mt-0.5">From {sender} · {shop}</p>
+                              </div>
+                              <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ring-1 ring-inset ${
+                                isPartial ? 'bg-amber-50 text-amber-600 ring-amber-200' : 'bg-emerald-50 text-emerald-600 ring-emerald-200'
+                              }`}>
+                                {isPartial ? 'Partial' : 'Claimed'}
+                              </span>
+                            </div>
+                          );
+                        })}
                       </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+                    )}
+                  </section>
+                </div>
+              );
+            })()}
+          </motion.div>
+        )}
+        </AnimatePresence>
 
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogContent className="sm:max-w-md text-center p-8 rounded-3xl">

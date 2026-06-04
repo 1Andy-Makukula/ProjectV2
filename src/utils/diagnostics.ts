@@ -1,4 +1,4 @@
-import { supabase } from './supabase/client';
+import { supabase } from '../lib/supabaseClient';
 
 /**
  * Antigravity Diagnostic Suite
@@ -124,10 +124,11 @@ export async function runAntigravityDiagnostics() {
       const { data: profile } = await supabase.from('users').select('phone').eq('id', user.id).single();
       const phone = profile?.phone || '';
       
-      // Strict E.164 Zambian format check (+260 followed by 9 digits starting with 7 or 9)
-      const isE164 = /^\+260[79][567]\d{7}$/.test(phone);
+      // Universal E.164 format check — supports ZM, US/CA, UK, AU
+      const { validateAndFormatPhone } = await import('./phone');
+      const { isValid } = validateAndFormatPhone(phone);
       
-      if (isE164) {
+      if (isValid) {
         score++;
         report['Layer 5 (The Schema)'] = { status: 'GO', details: `Phone perfectly standardized to E.164: ${phone}` };
       } else {

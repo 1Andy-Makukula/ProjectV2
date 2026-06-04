@@ -44,26 +44,25 @@ export function ShopDetail() {
     if (!shopId) return;
 
     try {
-      // Fetch shop details
-      const { data: shopData, error: shopError } = await supabase
-        .from('shops')
-        .select('*')
-        .eq('id', shopId)
-        .eq('is_active', true)
-        .single();
+      const [shopResponse, itemsResponse] = await Promise.all([
+        supabase
+          .from('shops')
+          .select('*')
+          .eq('id', shopId)
+          .eq('is_active', true)
+          .single(),
+        supabase
+          .from('items')
+          .select('*')
+          .eq('shop_id', shopId)
+          .order('created_at', { ascending: false })
+      ]);
 
-      if (shopError) throw shopError;
-      setShop(shopData);
+      if (shopResponse.error) throw shopResponse.error;
+      if (itemsResponse.error) throw itemsResponse.error;
 
-      // Fetch items for this shop
-      const { data: itemsData, error: itemsError } = await supabase
-        .from('items')
-        .select('*')
-        .eq('shop_id', shopId)
-        .order('created_at', { ascending: false });
-
-      if (itemsError) throw itemsError;
-      setItems(itemsData || []);
+      setShop(shopResponse.data);
+      setItems(itemsResponse.data || []);
     } catch (error) {
       console.error('Error fetching shop details:', error);
     } finally {
