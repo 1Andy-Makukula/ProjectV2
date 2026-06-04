@@ -327,25 +327,27 @@ export function MerchantDashboard() {
 
       {/* Header */}
       <div className="bg-white border-b sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-xl font-semibold">{shopName}</h1>
             <p className="text-sm text-muted-foreground">Merchant Dashboard</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
             <Button
               onClick={() => navigate('/merchant/fulfill')}
-              className="bg-gradient-to-r from-primary to-primary-light"
+              className="bg-gradient-to-r from-primary to-primary-light flex-1 sm:flex-none"
             >
               <QrCode className="w-4 h-4 mr-2" />
               Redeem Gift
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => navigate('/support')}>
-              <HelpCircle className="w-5 h-5" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={handleLogout}>
-              <LogOut className="w-5 h-5" />
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" onClick={() => navigate('/support')}>
+                <HelpCircle className="w-5 h-5" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={handleLogout}>
+                <LogOut className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -459,7 +461,7 @@ export function MerchantDashboard() {
 
         {/* Tabs — Active Orders | Fulfilled | Inventory */}
         <Tabs defaultValue="active" className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl grid-cols-4">
+          <TabsList className="flex overflow-x-auto w-full max-w-2xl md:grid md:grid-cols-4 h-auto md:h-9 gap-1 md:gap-0 p-1 md:p-[3px] justify-start scrollbar-none">
             <TabsTrigger value="active">Active Orders</TabsTrigger>
             <TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
             <TabsTrigger value="ledger">Settlements</TabsTrigger>
@@ -481,7 +483,7 @@ export function MerchantDashboard() {
                 const aggregatedItems = aggregateOrderItems(order.order_items);
                 return (
                   <div key={order.id} className="bg-white p-6 rounded-xl shadow-sm border">
-                    <div className="mb-4 flex items-start justify-between gap-4">
+                    <div className="mb-4 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                       <div className="flex items-start gap-4">
                         {aggregatedItems.length > 1 ? (
                           <div className="flex -space-x-4 overflow-hidden shrink-0 py-1">
@@ -544,17 +546,17 @@ export function MerchantDashboard() {
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-left sm:text-right shrink-0">
                         <p className="text-2xl font-bold text-primary">REF-{order.id.split('-')[0].toUpperCase()}</p>
                         <p className="text-xs text-muted-foreground">Order Reference</p>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                       <p className="text-sm text-muted-foreground">
                         {order.paid_at &&
                           `Paid ${new Date(order.paid_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}`}
                       </p>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                         <Button
                           onClick={() => {
                             setSelectedOrder(order);
@@ -592,7 +594,7 @@ export function MerchantDashboard() {
                 const aggregatedItems = aggregateOrderItems(order.order_items);
                 return (
                   <div key={order.id} className="bg-white p-6 rounded-xl shadow-sm border">
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                       <div className="flex items-start gap-4">
                         {aggregatedItems.length > 1 ? (
                           <div className="flex -space-x-4 overflow-hidden shrink-0 py-1">
@@ -655,7 +657,7 @@ export function MerchantDashboard() {
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-left sm:text-right shrink-0">
                         <p className="font-semibold text-lg">{formatCurrency(order.amount)}</p>
                         <p className="text-xs text-muted-foreground">
                           {order.fulfilled_at &&

@@ -77,9 +77,9 @@ export function ShopDirectory() {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(251,146,60,0.08),_transparent_40%),linear-gradient(180deg,_#fff7ed_0%,_#ffffff_45%,_#fffaf5_100%)]">
-      <div className="container mx-auto px-4 md:px-8 py-10">
-        <div className="mb-10">
-          <h1 className="text-4xl font-semibold tracking-tight text-slate-900 mb-3">
+      <div className="container mx-auto px-4 md:px-8 py-8 md:py-10">
+        <div className="mb-8 md:mb-10">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-slate-900 mb-3">
             Shop Directory
           </h1>
           <p className="text-slate-500 text-sm max-w-xl">

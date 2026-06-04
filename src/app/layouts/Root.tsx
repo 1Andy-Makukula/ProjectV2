@@ -10,7 +10,7 @@ import { FloatingHomeButton } from '../components/shared/FloatingHomeButton';
 export function Root() {
   return (
     <AuthProvider>
-      <div className="flex min-h-screen flex-col bg-background">
+      <div className="flex min-h-screen flex-col bg-background" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
         {/* The Outlet represents the main page content, which expands to fill space */}
         <div className="flex-1">
           <Outlet />

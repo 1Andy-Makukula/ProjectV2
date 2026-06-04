@@ -11,6 +11,8 @@
     "test:integration": "vitest run tests/integration"
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/ios": "^8.3.4",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
     "@mui/icons-material": "7.3.5",
@@ -73,6 +75,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.3.4",
     "@supabase/supabase-js": "^2.105.4",
     "@tailwindcss/vite": "4.1.12",
     "@types/canvas-confetti": "^1.6.4",

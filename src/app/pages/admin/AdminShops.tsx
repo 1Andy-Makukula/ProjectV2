@@ -108,19 +108,19 @@ export function AdminShops() {
         subtitle="View and manage all storefronts"
         onBack={() => navigate('/admin')}
         actions={
-          <div className="flex items-center gap-2">
-            <div className="relative">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <div className="relative flex-1 sm:flex-none">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-white/60" />
               <Input
                 placeholder="Search shops…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 h-8 w-48 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus-visible:ring-white/30"
+                className="pl-8 h-8 w-full sm:w-48 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus-visible:ring-white/30"
               />
             </div>
             <Button
               onClick={() => navigate('/admin/shops/new')}
-              className="bg-white text-primary hover:bg-white/90 h-8"
+              className="bg-white text-primary hover:bg-white/90 h-8 w-full sm:w-auto"
             >
               <Plus className="size-3.5" />
               Add Shop

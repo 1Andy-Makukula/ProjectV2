@@ -335,7 +335,7 @@ export function AdminItemForm() {
               <div className="space-y-2">
                 <Label htmlFor="image">Item Image</Label>
                 {imagePreview && (
-                  <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden mb-2 max-w-xs">
+                  <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden mb-2 w-full max-w-xs">
                     <img
                       src={imagePreview}
                       alt="Preview"
@@ -343,16 +343,17 @@ export function AdminItemForm() {
                     />
                   </div>
                 )}
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 w-full">
                   <Input
                     id="image"
                     type="file"
                     accept="image/jpeg,image/png,image/webp,image/gif"
                     onChange={handleImageChange}
-                    className="flex-1"
+                    className="w-full"
                   />
-                  <Button type="button" variant="outline" disabled={uploading}>
+                  <Button type="button" variant="outline" disabled={uploading} className="w-full sm:w-auto flex items-center justify-center gap-2">
                     <Upload className="w-4 h-4" />
+                    <span className="sm:hidden">Upload Image</span>
                   </Button>
                 </div>
               </div>
@@ -375,12 +376,12 @@ export function AdminItemForm() {
           </Card>
 
           {/* Actions */}
-          <div className="flex items-center justify-between mt-6">
-            <div>
+          <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between mt-6 w-full">
+            <div className="w-full sm:w-auto">
               {isEditing && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button type="button" variant="destructive">
+                    <Button type="button" variant="destructive" className="w-full sm:w-auto flex items-center justify-center gap-2">
                       <Trash2 className="w-4 h-4" />
                       Delete Item
                     </Button>
@@ -401,16 +402,17 @@ export function AdminItemForm() {
               )}
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button
                 type="button"
                 variant="outline"
                 onClick={handleCancel}
                 disabled={loading}
+                className="w-full sm:w-auto"
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading || uploading}>
+              <Button type="submit" disabled={loading || uploading} className="w-full sm:w-auto">
                 {loading ? 'Saving...' : isEditing ? 'Update Item' : 'Create Item'}
               </Button>
             </div>

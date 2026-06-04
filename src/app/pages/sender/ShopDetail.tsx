@@ -97,7 +97,7 @@ export function ShopDetail() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center gap-4">
+        <div className="max-w-4xl mx-auto px-4 md:px-6 py-4 flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
@@ -110,7 +110,7 @@ export function ShopDetail() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-6 py-8 space-y-8">
+      <div className="max-w-4xl mx-auto px-4 md:px-6 py-6 md:py-8 space-y-6 md:space-y-8">
         {/* Shop Banner */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -171,7 +171,7 @@ export function ShopDetail() {
               </p>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {items.map((item, index) => (
                 <motion.div
                   key={item.id}
@@ -185,7 +185,7 @@ export function ShopDetail() {
                     }`}
                   >
                     {/* Item Image */}
-                    <div className="relative w-full h-48 bg-gray-100">
+                    <div className="relative w-full h-40 sm:h-48 bg-gray-100">
                       {item.image_url ? (
                         <img
                           src={item.image_url}

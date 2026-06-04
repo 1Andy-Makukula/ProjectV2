@@ -36,9 +36,9 @@ export function AdminPageHeader({
       )}
     >
       <div className="container mx-auto px-5 max-w-6xl py-5">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           {/* Left: back + title */}
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
             {onBack && (
               <Button
                 variant="ghost"
@@ -63,7 +63,7 @@ export function AdminPageHeader({
 
           {/* Right: actions */}
           {actions && (
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
               {actions}
             </div>
           )}

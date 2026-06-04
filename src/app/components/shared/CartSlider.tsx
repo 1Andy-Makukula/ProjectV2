@@ -229,7 +229,7 @@ export function CartSlider() {
 
         {/* ── Footer ────────────────────────────── */}
         {items.length > 0 && (
-          <SheetFooter className="px-5 py-4 border-t border-slate-100/80 flex flex-col gap-3">
+          <SheetFooter className="px-5 py-4 border-t border-slate-100/80 flex flex-col gap-3" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)' }}>
             {/* Apply KithLy Credits Section */}
             {user && walletBalance > 0 && (
               <div className="w-full flex flex-col gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100/80 mb-1">

@@ -76,54 +76,87 @@ function LedgerRow({ entry, isLast }: { entry: LedgerEntry; isLast: boolean }) {
   // Distinguish the ticking state visually from the processing state
   const isProcessing = countdownText === 'Processing Batch Clearance...';
 
+  const itemName = entry?.order_items && entry.order_items.length > 0 ? (
+    entry.order_items.length === 1
+      ? entry.order_items[0]?.item?.name
+      : `${entry.order_items.length} items (${entry.order_items.map(oi => oi?.item?.name).filter(Boolean).join(', ')})`
+  ) : (
+    entry?.item_name
+  );
+
   return (
-    <div className={cn(
-      "flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6",
-      !isLast && "border-b border-slate-100"
-    )}>
-      {/* Left side: Item and amount */}
-      <div className="flex flex-col gap-1">
-        <p className="text-sm font-medium text-slate-800">
-          {entry?.order_items && entry.order_items.length > 0 ? (
-            entry.order_items.length === 1
-              ? entry.order_items[0]?.item?.name
-              : `${entry.order_items.length} items (${entry.order_items.map(oi => oi?.item?.name).filter(Boolean).join(', ')})`
-          ) : (
-            entry?.item_name
-          )}
-        </p>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-medium uppercase tracking-wider text-slate-400">
-            Amount Due
-          </span>
-          <span className="font-semibold text-gray-900 block text-right">
+    <>
+      {/* Mobile Card Layout */}
+      <div className={cn(
+        "flex md:hidden flex-col gap-3 p-4 rounded-xl border border-slate-100 bg-white/70 backdrop-blur-md shadow-sm mb-3",
+        isProcessing ? "border-amber-100 bg-amber-50/40" : ""
+      )}>
+        <div className="flex items-start justify-between gap-3">
+          <p className="text-sm font-semibold text-slate-800 line-clamp-2">
+            {itemName}
+          </p>
+          <span className="text-xs font-mono font-bold text-slate-900 shrink-0">
             {formatZmw(entry.amount)}
           </span>
         </div>
-      </div>
-
-      {/* Right side: Countdown clock */}
-      <div className="flex flex-col items-start sm:items-end">
-        <span className="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
-          Releases In
-        </span>
-        <div className={cn(
-          "rounded-md border px-2.5 py-1",
-          isProcessing 
-            ? "border-amber-100 bg-amber-50" 
-            : "border-slate-200 bg-slate-50 shadow-sm shadow-slate-100/50"
-        )}>
-          <span className={cn(
-            "font-mono text-sm tracking-tight tabular-nums transition-colors duration-300",
+        <div className="flex items-center justify-between pt-2.5 border-t border-slate-100">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+            Releases In
+          </span>
+          <div className={cn(
+            "rounded-md border px-2 py-0.5 text-xs font-mono tabular-nums",
             isProcessing 
-              ? "font-medium text-amber-700"
-              : "font-semibold text-slate-900"
+              ? "border-amber-100 bg-amber-50 text-amber-700 font-medium" 
+              : "border-slate-200 bg-slate-50 text-slate-900 font-semibold shadow-sm shadow-slate-100/50"
           )}>
             {countdownText}
-          </span>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Desktop Row Layout */}
+      <div className={cn(
+        "hidden md:flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6",
+        !isLast && "border-b border-slate-100"
+      )}>
+        {/* Left side: Item and amount */}
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-medium text-slate-800">
+            {itemName}
+          </p>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium uppercase tracking-wider text-slate-400">
+              Amount Due
+            </span>
+            <span className="font-semibold text-gray-900 block text-right">
+              {formatZmw(entry.amount)}
+            </span>
+          </div>
+        </div>
+
+        {/* Right side: Countdown clock */}
+        <div className="flex flex-col items-start sm:items-end">
+          <span className="mb-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+            Releases In
+          </span>
+          <div className={cn(
+            "rounded-md border px-2.5 py-1",
+            isProcessing 
+              ? "border-amber-100 bg-amber-50" 
+              : "border-slate-200 bg-slate-50 shadow-sm shadow-slate-100/50"
+          )}>
+            <span className={cn(
+              "font-mono text-sm tracking-tight tabular-nums transition-colors duration-300",
+              isProcessing 
+                ? "font-medium text-amber-700"
+                : "font-semibold text-slate-900"
+            )}>
+              {countdownText}
+            </span>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -180,7 +213,7 @@ export function SettlementDashboard({ ledgerData, isLoading }: SettlementDashboa
           </h3>
         </div>
         
-        <div className="flex flex-col px-6">
+        <div className="flex flex-col px-4 py-3 md:px-6 md:py-0">
           <AnimatePresence mode="wait">
             {isLoading ? (
               <motion.div 

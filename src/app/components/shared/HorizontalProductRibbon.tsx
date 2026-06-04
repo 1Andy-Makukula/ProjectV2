@@ -3,7 +3,6 @@
 import { ChevronRight } from 'lucide-react';
 import type { Product } from '../../types';
 import { ProductCard } from './ProductCard';
-import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 
 interface HorizontalProductRibbonProps {
   title: string;
@@ -44,20 +43,25 @@ export function HorizontalProductRibbon({
         )}
       </div>
 
-      {/* Horizontal Scroll */}
-      <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex gap-4 px-4 md:px-6 pb-4">
-          {products.map((product) => (
-            <div key={product.id} className="w-64 flex-shrink-0">
-              <ProductCard
-                product={product}
-                onClick={() => onProductClick?.(product)}
-              />
-            </div>
-          ))}
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+      {/* Horizontal Scroll — native touch-friendly swipe */}
+      <div
+        className="flex gap-4 px-4 md:px-6 pb-4 overflow-x-auto snap-x snap-mandatory scroll-smooth"
+        style={{
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}
+      >
+        {products.map((product) => (
+          <div key={product.id} className="w-56 sm:w-64 flex-shrink-0 snap-start">
+            <ProductCard
+              product={product}
+              onClick={() => onProductClick?.(product)}
+            />
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
+

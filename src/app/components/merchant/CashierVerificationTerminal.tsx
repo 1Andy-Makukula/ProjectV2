@@ -190,7 +190,7 @@ function ChecklistView({ bundle, onProcess, onCancel }: { bundle: BundleData; on
         {bundle.order_items.map((oi) => {
           const isPresent = itemToggles[oi.order_item_id];
           return (
-            <div key={oi.order_item_id} className="flex items-center justify-between gap-4 rounded-xl border border-slate-50 bg-slate-50/50 p-3 transition-colors hover:bg-slate-50">
+            <div key={oi.order_item_id} className="flex items-center justify-between gap-4 rounded-xl border border-slate-50 bg-slate-50/50 p-3 min-h-[48px] transition-colors hover:bg-slate-50">
               <span className={cn("text-sm font-medium transition-colors line-clamp-2", isPresent ? "text-slate-800" : "text-slate-400 line-through")}>
                 {oi.items?.name || 'Unknown item'}
               </span>
@@ -214,13 +214,13 @@ function ChecklistView({ bundle, onProcess, onCancel }: { bundle: BundleData; on
 
       <div className="flex w-full flex-col gap-3 mt-2">
         <Button
-          className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-blue-800 py-5 text-sm font-medium tracking-wide text-white hover:opacity-90"
+          className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-blue-800 py-5 min-h-[48px] text-sm font-medium tracking-wide text-white hover:opacity-90"
           onClick={handleProcess}
           disabled={presentCount === 0 && bundle.order_items.length > 0}
         >
           Process {presentCount} Available Items
         </Button>
-        <Button variant="ghost" onClick={onCancel} className="w-full rounded-xl py-5 text-sm font-normal text-slate-500 hover:text-slate-700">
+        <Button variant="ghost" onClick={onCancel} className="w-full rounded-xl py-5 min-h-[48px] text-sm font-normal text-slate-500 hover:text-slate-700">
           Cancel & Return
         </Button>
       </div>
@@ -283,7 +283,7 @@ function ApprovedView({ result, transactionId, onReset }: { result: ApprovedResu
         <motion.div className="w-full" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
           <Button
             variant="outline"
-            className="w-full rounded-xl border border-slate-200 bg-white hover:bg-slate-50 py-5 text-sm font-medium tracking-wide text-slate-800 flex items-center justify-center gap-1.5"
+            className="w-full rounded-xl border border-slate-200 bg-white hover:bg-slate-50 py-5 min-h-[48px] text-sm font-medium tracking-wide text-slate-800 flex items-center justify-center gap-1.5"
             onClick={() => window.open(`/receipt/${transactionId}`, '_blank')}
           >
             <Printer className="h-4 w-4 text-primary" />
@@ -294,7 +294,7 @@ function ApprovedView({ result, transactionId, onReset }: { result: ApprovedResu
 
       <motion.div className="w-full" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
         <Button
-          className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-blue-800 py-5 text-sm font-medium tracking-wide text-white hover:opacity-90"
+          className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-blue-800 py-5 min-h-[48px] text-sm font-medium tracking-wide text-white hover:opacity-90"
           onClick={onReset}
         >
           Verify next code
@@ -342,13 +342,13 @@ function RejectedView({ result, onReset }: { result: RejectedResult; onReset: ()
         initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
       >
         <Button
-          className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-blue-800 py-5 text-sm font-medium tracking-wide text-white hover:opacity-90"
+          className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-blue-800 py-5 min-h-[48px] text-sm font-medium tracking-wide text-white hover:opacity-90"
           onClick={onReset}
         >
           Try another code
         </Button>
         <Button variant="ghost"
-          className="w-full rounded-xl py-5 text-sm font-normal text-slate-400 hover:text-slate-600"
+          className="w-full rounded-xl py-5 min-h-[48px] text-sm font-normal text-slate-400 hover:text-slate-600"
           onClick={() => window.open('mailto:merchants@kithly.com', '_blank')}
         >
           Contact merchant support
@@ -370,7 +370,7 @@ function ModeToggle({ mode, onChange }: { mode: InputMode; onChange: (m: InputMo
             key={m}
             onClick={() => onChange(m)}
             className={cn(
-              'flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-all',
+              'flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 min-h-[48px] text-sm font-medium transition-all',
               active
                 ? 'bg-gradient-to-r from-orange-500 to-blue-800 text-white shadow-sm'
                 : 'text-slate-500 hover:text-slate-700',
@@ -417,7 +417,7 @@ function QRScanView({ onDetected }: { onDetected: (code: string) => void }) {
   }
 
   return (
-    <div className="w-full overflow-hidden rounded-2xl border border-orange-200 shadow-lg shadow-orange-100/60">
+    <div className="w-full max-w-sm mx-auto overflow-hidden rounded-2xl border border-orange-200 shadow-lg shadow-orange-100/60">
       {/* Active indicator strip */}
       <div className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-blue-800 px-4 py-2">
         <Camera className="h-3.5 w-3.5 text-white" strokeWidth={1.5} />
@@ -425,7 +425,7 @@ function QRScanView({ onDetected }: { onDetected: (code: string) => void }) {
         <span className="ml-auto flex h-2 w-2 rounded-full bg-white animate-pulse" />
       </div>
 
-      <div className="relative bg-slate-900">
+      <div className="relative bg-slate-900 w-full max-w-sm mx-auto aspect-square">
         <Scanner
           onScan={(results) => {
             const raw = results?.[0]?.rawValue;
@@ -530,7 +530,7 @@ function IdleView({
 
             <Button
               className={cn(
-                'w-full rounded-xl py-5 text-sm font-medium tracking-wide',
+                'w-full rounded-xl py-5 min-h-[48px] text-sm font-medium tracking-wide',
                 isComplete && !isDisabled
                   ? 'bg-gradient-to-r from-orange-500 to-blue-800 text-white hover:opacity-90'
                   : 'cursor-not-allowed bg-slate-100 text-slate-400',
@@ -673,7 +673,7 @@ export function CashierVerificationTerminal({ shopId, onApproved }: CashierVerif
 
   return (
     <div className={cn(
-      'flex min-h-screen w-full flex-col items-center justify-start',
+      'flex h-[calc(100vh-theme(spacing.16))] w-full flex-col items-center justify-start overflow-y-auto',
       'bg-gradient-to-br from-orange-50/60 via-white to-blue-50/40 px-6 py-10',
     )}>
       <span role="status" aria-live={status === 'REJECTED' ? 'assertive' : 'polite'}

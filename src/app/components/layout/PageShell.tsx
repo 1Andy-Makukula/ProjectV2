@@ -2,6 +2,8 @@
  * PageShell — Wraps every admin/merchant/sender page with the consistent
  * KithLy background and entrance animation.
  *
+ * Includes safe-area padding for Capacitor mobile deployment (notch/home indicator).
+ *
  * Usage:
  *   <PageShell>
  *     <PageHeader ... />
@@ -22,6 +24,10 @@ export function PageShell({ children, className }: PageShellProps) {
         'min-h-screen bg-background kl-animate-fade-up',
         className,
       )}
+      style={{
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      }}
     >
       {children}
     </div>
@@ -40,8 +46,8 @@ export function PageBody({ children, className, contained = true }: PageBodyProp
   return (
     <div
       className={cn(
-        'py-7',
-        contained && 'container mx-auto px-5 max-w-6xl',
+        'py-7 px-4 md:px-5',
+        contained && 'container mx-auto max-w-6xl',
         className,
       )}
     >

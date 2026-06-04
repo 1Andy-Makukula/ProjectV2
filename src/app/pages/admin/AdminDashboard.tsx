@@ -368,7 +368,7 @@ export function AdminDashboard() {
 
       <div className="container mx-auto px-4 py-8">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <StatCard
             title="Total Orders"
             value={stats.totalOrders}
@@ -486,45 +486,96 @@ export function AdminDashboard() {
             ) : recentOrders.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">No orders yet</div>
             ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="font-light">Code</TableHead>
-                      <TableHead className="font-light">Item</TableHead>
-                      <TableHead className="font-light">Shop</TableHead>
-                      <TableHead className="font-light">Sender</TableHead>
-                      <TableHead className="font-light">Recipient</TableHead>
-                      <TableHead className="font-light">Amount</TableHead>
-                      <TableHead className="font-light">Status</TableHead>
-                      <TableHead className="font-light">Date</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {recentOrders.map((order: RecentOrder) => (
-                      <TableRow
-                        key={order.id}
-                        className="cursor-pointer hover:bg-orange-50"
-                        onClick={() => navigate(`/admin/orders/${order.id}`)}
-                      >
-                        <TableCell className="font-mono font-light">{order.code}</TableCell>
-                        <TableCell className="font-light">{order.item_name}</TableCell>
-                        <TableCell className="font-light">{order.shop_name}</TableCell>
-                        <TableCell className="font-light">{order.sender_name}</TableCell>
-                        <TableCell className="font-light">{order.recipient_name}</TableCell>
-                        <TableCell className="font-light">{formatCurrency(order.amount)}</TableCell>
-                        <TableCell>
-                          <Badge className={`font-light ${getStatusColor(order.status)}`}>
-                            {getStatusLabel(order.status)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-light">
-                          {new Date(order.created_at).toLocaleDateString()}
-                        </TableCell>
+              <div>
+                {/* Desktop View */}
+                <div className="hidden md:block overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="font-light">Code</TableHead>
+                        <TableHead className="font-light">Item</TableHead>
+                        <TableHead className="font-light">Shop</TableHead>
+                        <TableHead className="font-light">Sender</TableHead>
+                        <TableHead className="font-light">Recipient</TableHead>
+                        <TableHead className="font-light">Amount</TableHead>
+                        <TableHead className="font-light">Status</TableHead>
+                        <TableHead className="font-light">Date</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {recentOrders.map((order: RecentOrder) => (
+                        <TableRow
+                          key={order.id}
+                          className="cursor-pointer hover:bg-orange-50"
+                          onClick={() => navigate(`/admin/orders/${order.id}`)}
+                        >
+                          <TableCell className="font-mono font-light">{order.code}</TableCell>
+                          <TableCell className="font-light">{order.item_name}</TableCell>
+                          <TableCell className="font-light">{order.shop_name}</TableCell>
+                          <TableCell className="font-light">{order.sender_name}</TableCell>
+                          <TableCell className="font-light">{order.recipient_name}</TableCell>
+                          <TableCell className="font-light">{formatCurrency(order.amount)}</TableCell>
+                          <TableCell>
+                            <Badge className={`font-light ${getStatusColor(order.status)}`}>
+                              {getStatusLabel(order.status)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-light">
+                            {new Date(order.created_at).toLocaleDateString()}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Mobile View */}
+                <div className="flex flex-col gap-4 md:hidden">
+                  {recentOrders.map((order: RecentOrder) => (
+                    <div
+                      key={order.id}
+                      className="p-4 border border-slate-100 bg-white rounded-2xl shadow-sm cursor-pointer hover:bg-orange-50/50"
+                      onClick={() => navigate(`/admin/orders/${order.id}`)}
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="font-mono text-xs font-semibold text-slate-500">
+                          Code: {order.code}
+                        </span>
+                        <Badge className={`font-light ${getStatusColor(order.status)}`}>
+                          {getStatusLabel(order.status)}
+                        </Badge>
+                      </div>
+
+                      <div className="space-y-1 my-3">
+                        <p className="text-sm font-medium text-slate-900 truncate">
+                          {order.item_name}
+                        </p>
+                        <p className="text-xs text-slate-500 truncate">
+                          Shop: {order.shop_name}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-y-1.5 text-xs text-slate-600 border-t pt-3">
+                        <div>
+                          <span className="text-slate-400">Sender: </span>
+                          <span className="font-medium text-slate-800">{order.sender_name}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400">Recipient: </span>
+                          <span className="font-medium text-slate-800">{order.recipient_name}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400">Amount: </span>
+                          <span className="font-semibold text-slate-950">{formatCurrency(order.amount)}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-400">Date: </span>
+                          <span className="text-slate-800">{new Date(order.created_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </CardContent>

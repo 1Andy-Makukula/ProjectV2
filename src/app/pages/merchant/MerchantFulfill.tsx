@@ -74,7 +74,7 @@ function ModeToggle({ mode, onChange }: { mode: InputMode; onChange: (m: InputMo
             key={m}
             onClick={() => onChange(m)}
             className={cn(
-              'flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-all',
+              'flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 min-h-[48px] text-sm font-medium transition-all',
               active
                 ? 'bg-gradient-to-r from-orange-500 to-blue-800 text-white shadow-sm'
                 : 'text-slate-500 hover:text-slate-700',
@@ -116,14 +116,14 @@ function QRScanView({ onDetected }: { onDetected: (code: string) => void }) {
   }
 
   return (
-    <div className="w-full overflow-hidden rounded-2xl border border-orange-200 shadow-lg shadow-orange-100/60 mb-6">
+    <div className="w-full max-w-sm mx-auto overflow-hidden rounded-2xl border border-orange-200 shadow-lg shadow-orange-100/60 mb-6">
       <div className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-blue-800 px-4 py-2">
         <Camera className="h-3.5 w-3.5 text-white" strokeWidth={1.5} />
         <span className="text-[11px] font-semibold uppercase tracking-widest text-white">Camera Active</span>
         <span className="ml-auto flex h-2 w-2 rounded-full bg-white animate-pulse" />
       </div>
 
-      <div className="relative bg-slate-900">
+      <div className="relative bg-slate-900 w-full max-w-sm mx-auto aspect-square">
         <Scanner
           onScan={(results) => {
             const raw = results?.[0]?.rawValue;
@@ -334,7 +334,7 @@ export function MerchantFulfill() {
   // ---- render --------------------------------------------------------
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50/60 via-white to-blue-50/40">
+    <div className="h-[calc(100vh-theme(spacing.16))] w-full overflow-y-auto bg-gradient-to-br from-orange-50/60 via-white to-blue-50/40">
       {/* Header */}
       <div className="sticky top-0 z-10 border-b border-white/20 bg-white/60 backdrop-blur-md">
         <div className="mx-auto flex max-w-xl items-center gap-3 px-5 py-4">
@@ -557,7 +557,7 @@ export function MerchantFulfill() {
                 id="confirm-handover-button"
                 onClick={handleConfirm}
                 disabled={checkedIds.length === 0}
-                className="w-full h-14 text-base font-semibold rounded-2xl bg-gradient-to-r from-orange-500 to-blue-800 text-white hover:opacity-90 transition-opacity"
+                className="w-full h-14 min-h-[48px] text-base font-semibold rounded-2xl bg-gradient-to-r from-orange-500 to-blue-800 text-white hover:opacity-90 transition-opacity"
               >
                 Confirm Handover
               </Button>
@@ -662,7 +662,7 @@ export function MerchantFulfill() {
 
               <div className="flex w-full flex-col gap-3">
                 <Button onClick={handleReset}
-                  className="w-full h-12 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium">
+                  className="w-full h-12 min-h-[48px] rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium">
                   Try another code
                 </Button>
                 <Button variant="ghost"
