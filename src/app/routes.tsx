@@ -25,7 +25,7 @@ const lazyPage = <T extends Record<string, any>>(
 
 const Confirmation = lazyPage(() => import('./pages/sender/Confirmation'), 'Confirmation');
 const Checkout = lazyPage(() => import('./pages/Checkout'), 'Checkout');
-const DashboardHub = lazyPage(() => import('./pages/sender/DashboardHub'), 'DashboardHub');
+
 const About = lazyPage(() => import('./pages/About'), 'About');
 const Privacy = lazyPage(() => import('./pages/Privacy'), 'Privacy');
 const Terms = lazyPage(() => import('./pages/Terms'), 'Terms');
@@ -104,7 +104,7 @@ export const router = createBrowserRouter([
         path: 'dashboard',
         element: (
           <ProtectedRoute allowedRoles={['sender', 'merchant', 'admin']}>
-            <Lazy><DashboardHub /></Lazy>
+            <Lazy><CustomerDashboard /></Lazy>
           </ProtectedRoute>
         ),
       },

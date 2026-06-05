@@ -203,65 +203,6 @@ export function CustomerDashboard() {
 
   const [receivedGifts, setReceivedGifts] = useState<any[]>([]);
   const [loadingReceived, setLoadingReceived] = useState(false);
-
-  const fetchOrders = async () => {
-    if (!profile?.id) return;
-    setLoadingOrders(true);
-    try {
-      const { data, error } = await supabase
-        .from('transactions')
-        .select(`
-          transaction_id,
-          buyer_id,
-          total_amount,
-          status,
-          gateway_tx_ref,
-          created_at,
-          shop_orders (
-            shop_order_id,
-            claim_code,
-            claim_status,
-            recipient_name,
-            shop:shop_id (name),
-            order_items (
-              item:item_id (name, image_url)
-            )
-          )
-        `)
-        .eq('buyer_id', profile.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      const flatOrders = (data ?? []).map((txn: any) => {
-        const firstShopOrder = txn.shop_orders?.[0];
-        const firstItem = firstShopOrder?.order_items?.[0]?.item;
-        const shop = firstShopOrder?.shop;
-
-        return {
-          transaction_id: txn.transaction_id,
-          buyer_id: txn.buyer_id,
-          total_amount: txn.total_amount,
-          status: txn.status,
-          gateway_tx_ref: txn.gateway_tx_ref,
-          created_at: txn.created_at,
-          claim_code: firstShopOrder?.claim_code ?? null,
-          claim_status: firstShopOrder?.claim_status ?? null,
-          recipient_name: firstShopOrder?.recipient_name ?? null,
-          shop_name: shop?.name ?? null,
-          item_name: firstItem?.name ?? null,
-          item_image_url: firstItem?.image_url ?? null,
-        };
-      });
-
-      setOrders(flatOrders);
-    } catch (err) {
-      console.error('[CustomerDashboard] fetchOrders error:', err);
-    } finally {
-      setLoadingOrders(false);
-    }
-  };
-
   const handleResumePayment = async (order: any) => {
     setResumingPaymentId(order.transaction_id);
 
@@ -284,8 +225,8 @@ export function CustomerDashboard() {
       toast.success('Opening payment gateway...');
       window.open(data.payment_link, '_blank');
       
-      // Refresh local UI states
-      fetchOrders();
+      // Refresh local UI states using the optimized pipeline
+      fetchOrdersAndMetrics();
     } catch (err: any) {
       console.error('[CustomerDashboard] resume payment error:', err);
       toast.error(err.message || 'Failed to resume payment');
@@ -293,6 +234,7 @@ export function CustomerDashboard() {
       setResumingPaymentId(null);
     }
   };
+
 
   const fetchFloatingItems = async () => {
     if (!profile?.phone) return;
