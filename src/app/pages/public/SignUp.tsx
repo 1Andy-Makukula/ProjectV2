@@ -97,7 +97,11 @@ export function SignUp() {
     setLoading(false);
 
     if (error) {
-      const msg = error.message || 'Failed to create account. Please try again.';
+      let msg = error.message || 'Failed to create account. Please try again.';
+      // E.164 Error Boundary Catch
+      if (msg.toLowerCase().includes('e.164') || msg.toLowerCase().includes('e164') || msg.includes('users_phone_check')) {
+        msg = 'International format required (e.g., +260...).';
+      }
       setErrorMsg(msg);
       toast.error(msg);
     } else {

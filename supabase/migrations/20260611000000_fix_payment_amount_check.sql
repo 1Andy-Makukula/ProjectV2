@@ -34,7 +34,7 @@ BEGIN
     RAISE EXCEPTION 'Transaction not found';
   END IF;
 
-  IF v_txn.status = 'SUCCESSFUL' THEN
+  IF v_txn.status = 'SUCCESS' THEN
     IF p_idempotency_key IS NOT NULL THEN
       INSERT INTO public.payment_webhook_idempotency (idempotency_key, transaction_id)
       VALUES (p_idempotency_key, p_transaction_id)
@@ -60,7 +60,7 @@ BEGIN
   END IF;
 
   UPDATE public.transactions
-  SET status = 'SUCCESSFUL'
+  SET status = 'SUCCESS'
   WHERE transaction_id = p_transaction_id;
 
   UPDATE public.shop_orders

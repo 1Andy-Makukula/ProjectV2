@@ -55,16 +55,26 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
 AS $$
+DECLARE
+  v_wallet_id UUID;
 BEGIN
   IF p_amount <= 0 THEN
     RETURN;
   END IF;
 
+  -- 1. Ensure the wallet exists and get its ID
   INSERT INTO public.kithly_wallets (user_id, balance, currency)
-  VALUES (p_user_id, p_amount, 'ZMW')
-  ON CONFLICT (user_id) DO UPDATE
-    SET balance = public.kithly_wallets.balance + EXCLUDED.balance,
-        updated_at = now();
+  VALUES (p_user_id, 0, 'ZMW')
+  ON CONFLICT (user_id) DO NOTHING
+  RETURNING id INTO v_wallet_id;
+
+  IF v_wallet_id IS NULL THEN
+    SELECT id INTO v_wallet_id FROM public.kithly_wallets WHERE user_id = p_user_id;
+  END IF;
+
+  -- 2. Insert into the immutable ledger (Postgres trigger will update the cache)
+  INSERT INTO public.wallet_ledger (wallet_id, amount, description)
+  VALUES (v_wallet_id, p_amount, COALESCE(p_reference, 'WALLET_CREDIT'));
 END;
 $$;
 
@@ -97,8 +107,9 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
 AS $$
-DECLARE
+  DECLARE
   v_owner_id UUID;
+  v_wallet_id UUID;
   v_balance INTEGER;
   v_ledger_id UUID := gen_random_uuid();
 BEGIN
@@ -111,14 +122,14 @@ BEGIN
     RAISE EXCEPTION 'Shop not found';
   END IF;
 
-  SELECT balance INTO v_balance FROM public.kithly_wallets WHERE user_id = v_owner_id FOR UPDATE;
-  IF v_balance IS NULL OR v_balance < withdrawal_amount THEN
+  SELECT id, balance INTO v_wallet_id, v_balance FROM public.kithly_wallets WHERE user_id = v_owner_id FOR UPDATE;
+  IF v_wallet_id IS NULL OR v_balance < withdrawal_amount THEN
     RAISE EXCEPTION 'Insufficient balance';
   END IF;
 
-  UPDATE public.kithly_wallets
-  SET balance = balance - withdrawal_amount, updated_at = now()
-  WHERE user_id = v_owner_id;
+  -- Insert debit into the immutable ledger (trigger updates balance)
+  INSERT INTO public.wallet_ledger (wallet_id, amount, description)
+  VALUES (v_wallet_id, -withdrawal_amount, 'WITHDRAWAL_REQUEST');
 
   INSERT INTO public.payout_ledger (id, shop_id, credit_amount, ledger_type, reference, status, amount)
   VALUES (v_ledger_id, target_shop_id, withdrawal_amount, 'WITHDRAWAL_REQUEST', 'withdrawal', 'pending', withdrawal_amount);
@@ -265,7 +276,7 @@ BEGIN
     RAISE EXCEPTION 'Transaction not found';
   END IF;
 
-  IF v_txn.status = 'SUCCESSFUL' THEN
+  IF v_txn.status = 'SUCCESS' THEN
     IF p_idempotency_key IS NOT NULL THEN
       INSERT INTO public.payment_webhook_idempotency (idempotency_key, transaction_id)
       VALUES (p_idempotency_key, p_transaction_id)
@@ -283,7 +294,7 @@ BEGIN
   END IF;
 
   UPDATE public.transactions
-  SET status = 'SUCCESSFUL'
+  SET status = 'SUCCESS'
   WHERE transaction_id = p_transaction_id;
 
   UPDATE public.shop_orders

@@ -38,7 +38,7 @@ const POLL_INTERVAL_MS = 3_000 as const;
 const MAX_ATTEMPTS = 100 as const;
 
 /** Terminal status written by the Flutterwave webhook handler. */
-const PAID_STATUS = 'SUCCESSFUL' as const;
+const PAID_STATUS = 'SUCCESS' as const;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -186,7 +186,7 @@ export function usePaymentVerification({
    *
    * Queries `transactions` for payment confirmation:
    *   transaction_id = voucherId (checkout-init UUID)
-   *   status         = 'SUCCESSFUL'
+   *   status         = 'SUCCESS'
    *
    * We use `.maybeSingle()` rather than `.single()` so that "no rows found"
    * is returned as `{ data: null, error: null }` instead of throwing an

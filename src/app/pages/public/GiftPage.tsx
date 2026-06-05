@@ -22,6 +22,7 @@ interface ShopOrder {
   created_at: string;
   claim_status?: string;
   shop_order_id?: string;
+  transaction_id?: string;
   shops: {
     name: string;
     address: string | null;
@@ -85,20 +86,23 @@ export function GiftPage() {
       setShopOrder(prev => prev ? { ...prev, claim_status: newStatus } : null);
     };
 
-    // 1. Real-time Subscription
+    // 1. Real-time Subscription to `transaction_events`
     const channel = supabase.channel(`gift-order-${claimCode.toUpperCase()}`)
       .on(
         'postgres_changes',
         {
-          event: 'UPDATE',
+          event: 'INSERT',
           schema: 'public',
-          table: 'claim_status_feed',
-          filter: `claim_code=eq.${claimCode.toUpperCase()}`,
+          table: 'transaction_events',
+          filter: `transaction_id=eq.${shopOrder.transaction_id}`,
         },
         (payload) => {
-          const newStatus = payload.new?.claim_status;
-          if (newStatus === 'FULFILLED' || newStatus === 'PARTIAL_FULFILLMENT') {
-            handleSuccess(newStatus);
+          const eventType = payload.new?.event_type;
+          const newStatus = payload.new?.payload?.claim_status; // Assuming payload includes claim_status or we infer from CLAIM_VERIFIED
+          if (eventType === 'CLAIM_VERIFIED' || newStatus === 'FULFILLED' || newStatus === 'PARTIAL_FULFILLMENT') {
+            // Optimistically update based on the event
+            const updatedStatus = payload.new?.payload?.missing_total > 0 ? 'PARTIAL_FULFILLMENT' : 'FULFILLED';
+            handleSuccess(updatedStatus);
           }
         }
       )

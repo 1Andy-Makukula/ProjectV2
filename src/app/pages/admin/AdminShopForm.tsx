@@ -172,7 +172,7 @@ export function AdminShopForm() {
         payout_method: formData.payout_method,
         payout_details: formData.payout_details,
         is_active: formData.is_active,
-        owner_id: user?.id,
+        // owner_id is deprecated on shops table. We map using merchant_shops instead.
       };
 
       if (isEditing) {
@@ -184,11 +184,26 @@ export function AdminShopForm() {
         if (error) throw error;
         toast.success('Shop updated successfully');
       } else {
-        const { error } = await supabase
+        const { data: newShop, error } = await supabase
           .from('shops')
-          .insert([shopData]);
+          .insert([shopData])
+          .select('id')
+          .single();
 
         if (error) throw error;
+
+        // Map ownership using the intersection table
+        if (user?.id && newShop?.id) {
+          const { error: mappingError } = await supabase
+            .from('merchant_shops')
+            .insert([{ user_id: user.id, shop_id: newShop.id }]);
+
+          if (mappingError) {
+            console.error('Failed to map merchant ownership:', mappingError);
+            toast.error('Shop created, but ownership assignment failed.');
+          }
+        }
+
         toast.success('Shop created successfully');
       }
 

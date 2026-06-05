@@ -18,6 +18,7 @@ BEGIN
       'claim_code', so.claim_code,
       'claim_status', so.claim_status,
       'shop_order_id', so.shop_order_id,
+      'transaction_id', so.transaction_id,
       'message', so.message,
       'recipient_name', so.recipient_name,
       'created_at', so.created_at,

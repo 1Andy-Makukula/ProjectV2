@@ -127,7 +127,7 @@ function usePaymentConfirmation(transactionId: string | null, txRef: string | nu
 
       setTransaction(txn);
 
-      if (txn.status === 'SUCCESSFUL') {
+      if (txn.status === 'SUCCESS') {
         clearInterval(pollingRef.current!);
         setPollingStatus('confirmed');
         return;

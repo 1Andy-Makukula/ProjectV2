@@ -25,6 +25,7 @@ import { QRCodeDisplay } from '../../components/shared/QRCodeDisplay';
 import { EmptyState } from '../../components/shared/EmptyState';
 import { PhoneOff, QrCode, Coins, Lock } from 'lucide-react';
 import { toast } from 'sonner';
+import { WalletLedgerView } from '../../components/shared/WalletLedgerView';
 
 
 function MetricCardSkeleton() {
@@ -915,6 +916,11 @@ export function CustomerDashboard() {
 
               return (
                 <div className="space-y-10">
+                  {/* Immutable Wallet Ledger */}
+                  <section>
+                    <WalletLedgerView />
+                  </section>
+
                   {/* Active Vouchers */}
                   <section>
                     <div className="flex items-center gap-2 mb-4">
