@@ -21,6 +21,7 @@ export async function callServer<T>(
 ): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || '',
   };
 
   if (auth) {

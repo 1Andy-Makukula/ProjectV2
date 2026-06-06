@@ -119,6 +119,7 @@ export const router = createBrowserRouter([
       { path: 'merchant-agreement', element: <Lazy><MerchantAgreement /></Lazy> },
       { path: 'shops', element: <Lazy><ShopDirectory /></Lazy> },
 
+
       {
         path: 'shop/:shopId',
         element: (

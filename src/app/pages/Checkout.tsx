@@ -26,6 +26,8 @@ import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Label } from '../components/ui/label';
 import { formatCurrency } from '../../utils/currency';
+import { PhoneInput } from '../components/shared/PhoneInput';
+import { validateAndFormatPhone } from '../../utils/phone';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -268,10 +270,12 @@ export function Checkout() {
       return;
     }
 
-    if (!recipientPhone.trim() || recipientPhone.trim().length < 9) {
-      toast.error('Please provide a valid recipient phone number (e.g. 097XXXXXXX).');
+    const { isValid, formatted } = validateAndFormatPhone(recipientPhone);
+    if (!isValid) {
+      toast.error('Please provide a valid phone number (including country code) for Flutterwave payment.');
       return;
     }
+    setRecipientPhone(formatted);
 
     if (!navigator.onLine) {
       setErrorMsg('No internet connection. Please check your network.');
@@ -466,12 +470,11 @@ export function Checkout() {
                       </div>
                       <div>
                         <Label htmlFor="recipientPhone" className="text-xs text-slate-500 mb-1.5 block">Your Phone (for payment)</Label>
-                        <Input
+                        <PhoneInput
                           id="recipientPhone"
-                          placeholder="e.g. 0971234567"
+                          placeholder="e.g. 97 123 4567"
                           value={recipientPhone}
-                          onChange={(e) => setRecipientPhone(e.target.value)}
-                          className="h-11 rounded-xl"
+                          onChange={(val) => setRecipientPhone(val)}
                         />
                       </div>
                       <div>

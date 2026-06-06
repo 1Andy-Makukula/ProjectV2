@@ -12,6 +12,7 @@ import {
   Table, TableBody, TableCell, TableHead,
   TableHeader, TableRow,
 } from '../../components/ui/table';
+import { PhoneInput } from '../../components/shared/PhoneInput';
 import {
   Select, SelectContent, SelectItem,
   SelectTrigger, SelectValue,
@@ -533,9 +534,12 @@ export function AdminMerchants() {
 
                   <div className="space-y-1.5">
                     <Label htmlFor="e-phone">Phone</Label>
-                    <Input id="e-phone" value={editProfile.phone}
-                      onChange={e => setEditProfile({ ...editProfile, phone: e.target.value })}
-                      placeholder="+260 XXX XXX XXX" />
+                    <PhoneInput 
+                      id="e-phone" 
+                      value={editProfile.phone}
+                      onChange={val => setEditProfile({ ...editProfile, phone: val })}
+                      placeholder="+260 97 123 4567" 
+                    />
                   </div>
 
                   <div className="pt-2 flex items-center gap-3">

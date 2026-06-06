@@ -114,46 +114,52 @@ export function ShopDetail() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl overflow-hidden shadow-sm"
+          className="bg-white rounded-2xl overflow-hidden shadow-sm relative pb-6"
         >
           {/* Banner Image */}
-          {(shop.cover_image_url || shop.image_url) && (
-            <div className="w-full h-48 overflow-hidden bg-gray-100">
+          {(shop.cover_image_url || shop.image_url) ? (
+            <div className="w-full h-48 sm:h-64 overflow-hidden bg-gray-100 relative">
               <img
                 src={shop.cover_image_url || shop.image_url || ''}
                 alt={shop.name}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover"
               />
             </div>
+          ) : (
+            <div className="w-full h-32 sm:h-48 bg-gradient-to-r from-orange-100 to-amber-50"></div>
           )}
 
-          {/* Shop Info */}
-          <div className="p-6">
-            <div className="flex items-start gap-4">
+          {/* Shop Info (Overlapping Profile Pic) */}
+          <div className="px-6 relative">
+            <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-16 sm:-mt-12 relative z-10 mb-4">
               {(shop.logo_url || shop.image_url) ? (
                 <img
                   src={shop.logo_url || shop.image_url || ''}
                   alt={shop.name}
-                  className="w-16 h-16 rounded-xl object-cover flex-shrink-0 bg-white border shadow-sm"
+                  loading="lazy"
+                  decoding="async"
+                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover flex-shrink-0 bg-white border-4 border-white shadow-md"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-xl bg-orange-100 flex items-center justify-center flex-shrink-0">
-                  <Store className="w-8 h-8 text-primary" />
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0 border-4 border-white shadow-md">
+                  <Store className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />
                 </div>
               )}
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold mb-2">{shop.name}</h2>
+              <div className="flex-1 text-center sm:text-left mt-2 sm:mt-0 sm:mb-2">
+                <h2 className="text-2xl sm:text-3xl font-bold mb-1">{shop.name}</h2>
                 {shop.address && (
-                  <div className="flex items-center gap-2 text-muted-foreground mb-3">
+                  <div className="flex items-center justify-center sm:justify-start gap-2 text-muted-foreground">
                     <MapPin className="w-4 h-4" />
                     <p className="text-sm">{shop.address}</p>
                   </div>
                 )}
-                {shop.description && (
-                  <p className="text-muted-foreground">{shop.description}</p>
-                )}
               </div>
             </div>
+            {shop.description && (
+              <p className="text-muted-foreground mt-4 text-center sm:text-left max-w-2xl">{shop.description}</p>
+            )}
           </div>
         </motion.div>
 
@@ -189,6 +195,8 @@ export function ShopDetail() {
                         <img
                           src={item.image_url}
                           alt={item.name}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-cover"
                         />
                       ) : (

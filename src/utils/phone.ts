@@ -23,9 +23,19 @@ export interface CountryCode {
 
 export const COUNTRY_CODES: CountryCode[] = [
   { code: '+260', flag: '🇿🇲', label: 'Zambia',     iso: 'ZM' },
+  { code: '+234', flag: '🇳🇬', label: 'Nigeria',    iso: 'NG' },
+  { code: '+254', flag: '🇰🇪', label: 'Kenya',      iso: 'KE' },
+  { code: '+27',  flag: '🇿🇦', label: 'South Africa', iso: 'ZA' },
+  { code: '+233', flag: '🇬🇭', label: 'Ghana',      iso: 'GH' },
+  { code: '+250', flag: '🇷🇼', label: 'Rwanda',     iso: 'RW' },
+  { code: '+256', flag: '🇺🇬', label: 'Uganda',     iso: 'UG' },
+  { code: '+255', flag: '🇹🇿', label: 'Tanzania',   iso: 'TZ' },
   { code: '+1',   flag: '🇺🇸', label: 'USA/Canada', iso: 'US' },
   { code: '+44',  flag: '🇬🇧', label: 'UK',         iso: 'GB' },
   { code: '+61',  flag: '🇦🇺', label: 'Australia',  iso: 'AU' },
+  { code: '+971', flag: '🇦🇪', label: 'UAE',        iso: 'AE' },
+  { code: '+91',  flag: '🇮🇳', label: 'India',      iso: 'IN' },
+  { code: '+86',  flag: '🇨🇳', label: 'China',      iso: 'CN' },
 ];
 
 export const DEFAULT_COUNTRY_CODE = '+260';
@@ -36,23 +46,32 @@ export const DEFAULT_COUNTRY_CODE = '+260';
 
 export function validateAndFormatPhone(phone: string): { isValid: boolean; formatted: string } {
   if (!phone) return { isValid: false, formatted: '' };
+  
   const cleaned = phone.replace(/[^\d+]/g, '');
 
-  // 🇿🇲 Zambia — 9 digits starting with 9x or 7x (x = 5, 6, 7)
+  // 🇿🇲 Zambia Strict validation — 9 digits starting with 9x or 7x
   const zmMatch = cleaned.match(/^(?:\+?260|0)?([79][567]\d{7})$/);
   if (zmMatch) return { isValid: true, formatted: `+260${zmMatch[1]}` };
 
-  // 🇺🇸 USA / Canada — NANP 10 digits, area code starts 2-9
+  // 🇺🇸 USA / Canada Strict validation
   const usMatch = cleaned.match(/^(?:\+?1)?([2-9]\d{9})$/);
   if (usMatch) return { isValid: true, formatted: `+1${usMatch[1]}` };
 
-  // 🇬🇧 UK — mobile starting with 7, 10 digits after 0/44
-  const ukMatch = cleaned.match(/^(?:\+?44|0)?(7\d{9})$/);
-  if (ukMatch) return { isValid: true, formatted: `+44${ukMatch[1]}` };
+  // Generic fallback for all other countries (E.164: + followed by 10 to 15 digits)
+  // Ensure we at least have a valid looking international number
+  if (cleaned.startsWith('+')) {
+    const digits = cleaned.replace(/\D/g, '');
+    if (digits.length >= 10 && digits.length <= 15) {
+      return { isValid: true, formatted: `+${digits}` };
+    }
+  }
 
-  // 🇦🇺 Australia — mobile starting with 4, 9 digits after 0/61
-  const auMatch = cleaned.match(/^(?:\+?61|0)?(4\d{8})$/);
-  if (auMatch) return { isValid: true, formatted: `+61${auMatch[1]}` };
+  // If they didn't supply a '+' but it's 10-15 digits, assume they just forgot the + 
+  // (We rely on the UI to prepend the country code, so this shouldn't happen via PhoneInput)
+  const genericDigits = cleaned.replace(/\D/g, '');
+  if (genericDigits.length >= 10 && genericDigits.length <= 15) {
+      return { isValid: true, formatted: `+${genericDigits}` };
+  }
 
   return { isValid: false, formatted: phone };
 }
