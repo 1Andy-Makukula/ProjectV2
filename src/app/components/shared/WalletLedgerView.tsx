@@ -1,19 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { ScrollArea } from '../ui/scroll-area';
-import { formatZMW } from '../../../utils/currencyHelpers';
+import { formatCurrency } from '../../../utils/currency';
 import { formatDistanceToNow } from 'date-fns';
 import { ArrowDownLeft, ArrowUpRight, Clock, Wallet } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import type { LedgerEntry } from '../../../types/database.types';
 
-interface LedgerEntry {
-  id: string;
-  amount: number;
-  description: string | null;
-  created_at: string;
-}
 
 export function WalletLedgerView() {
   const { user } = useAuth();
@@ -85,7 +80,7 @@ export function WalletLedgerView() {
               <span className="font-medium uppercase tracking-wider text-sm">Available Balance</span>
             </div>
             <div className="text-4xl sm:text-5xl font-light tracking-tight text-slate-900">
-              {formatZMW(balance)}
+              {formatCurrency(balance, 'ZMW')}
             </div>
           </CardContent>
         </Card>
@@ -138,7 +133,7 @@ export function WalletLedgerView() {
                             </div>
                           </div>
                           <div className={`font-medium ${isCredit ? 'text-emerald-600' : 'text-slate-900'}`}>
-                            {isCredit ? '+' : ''}{formatZMW(entry.amount)}
+                            {isCredit ? '+' : ''}{formatCurrency(entry.amount, 'ZMW')}
                           </div>
                         </motion.div>
                       );

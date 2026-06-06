@@ -23,9 +23,9 @@ import {
 } from '../../components/ui/dialog';
 import { QRCodeDisplay } from '../../components/shared/QRCodeDisplay';
 import { EmptyState } from '../../components/shared/EmptyState';
-import { PhoneOff, QrCode, Coins, Lock } from 'lucide-react';
-import { toast } from 'sonner';
-import { WalletLedgerView } from '../../components/shared/WalletLedgerView';
+import type { FloatingItem } from '../../../types/database.types';
+import { ActiveVouchers } from '../../components/features/ActiveVouchers';
+import { ClaimHistory } from '../../components/features/ClaimHistory';
 
 
 function MetricCardSkeleton() {
@@ -84,19 +84,6 @@ function MetricCard({
 
 import { calculateTimeRemaining } from '../../../utils/timeHelpers';
 
-interface FloatingItem {
-  order_item_id: string;
-  created_at: string;
-  child_claim_code: string;
-  allocated_price: number;
-  items: {
-    name: string;
-    image_url: string | null;
-  } | null;
-  shop_orders: {
-    recipient_phone: string;
-  };
-}
 
 // Derived unified status for display
 type DisplayStatus =
@@ -936,50 +923,7 @@ export function CustomerDashboard() {
                     {activeVouchers.length === 0 ? (
                       <EmptyState icon={Package} title="No active vouchers" description="Gifts sent to your phone number will appear here, ready to show to the merchant." />
                     ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        {activeVouchers.map((order, idx) => {
-                          const firstItem = order.order_items?.[0]?.items;
-                          const sender = order.transactions?.users?.name || 'Someone special';
-                          const shop = order.shops?.name || 'Partner Shop';
-                          return (
-                            <motion.div
-                              key={order.shop_order_id}
-                              initial={{ opacity: 0, scale: 0.97 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ duration: 0.3, delay: idx * 0.06 }}
-                              className="rounded-3xl border-2 border-primary/20 bg-white shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden"
-                            >
-                              {/* Header accent */}
-                              <div className="h-1.5 bg-gradient-to-r from-primary to-primary-light" />
-                              <div className="p-6 flex flex-col items-center gap-5">
-                                <div className="text-center">
-                                  <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-0.5">From {sender}</p>
-                                  <h4 className="font-bold text-slate-900 text-base">{firstItem?.name || 'Gift Bundle'}</h4>
-                                  <p className="text-xs text-slate-500 mt-0.5">@ {shop}</p>
-                                </div>
-                                {/* Large QR */}
-                                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner">
-                                  <QRCodeDisplay value={order.claim_code} size={160} />
-                                </div>
-                                {/* Claim code */}
-                                <div className="flex flex-col items-center gap-1">
-                                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Claim Code</p>
-                                  <p className="font-mono text-xl font-bold tracking-[0.25em] text-slate-800 select-all">{order.claim_code}</p>
-                                </div>
-                                {order.message && (
-                                  <p className="text-xs italic text-slate-500 text-center max-w-[200px] leading-relaxed">"{order.message}"</p>
-                                )}
-                                <Button
-                                  className="w-full rounded-xl text-sm font-semibold bg-gradient-to-r from-primary to-primary-light text-white shadow-sm"
-                                  onClick={() => navigate(`/gift/${order.claim_code}`)}
-                                >
-                                  Open Gift Page
-                                </Button>
-                              </div>
-                            </motion.div>
-                          );
-                        })}
-                      </div>
+                      <ActiveVouchers activeVouchers={activeVouchers} />
                     )}
                   </section>
 
@@ -990,40 +934,7 @@ export function CustomerDashboard() {
                       <h3 className="text-sm font-semibold uppercase tracking-widest text-slate-400">Claim History</h3>
                     </div>
 
-                    {claimHistory.length === 0 ? (
-                      <p className="text-sm text-slate-400 text-center py-6">No completed claims yet.</p>
-                    ) : (
-                      <div className="space-y-3">
-                        {claimHistory.map((order) => {
-                          const firstItem = order.order_items?.[0]?.items;
-                          const sender = order.transactions?.users?.name || 'Someone special';
-                          const shop = order.shops?.name || 'Partner Shop';
-                          const isPartial = order.claim_status === 'PARTIAL_FULFILLMENT';
-                          return (
-                            <div
-                              key={order.shop_order_id}
-                              className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50/60 px-5 py-4 opacity-70 hover:opacity-90 transition-opacity cursor-pointer"
-                              onClick={() => navigate(`/gift/${order.claim_code}`)}
-                            >
-                              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center">
-                                {firstItem?.image_url
-                                  ? <img src={firstItem.image_url} alt={firstItem.name} className="h-full w-full object-cover grayscale" />
-                                  : <Gift className="h-5 w-5 text-slate-300" />}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-slate-600 truncate">{firstItem?.name || 'Gift Bundle'}</p>
-                                <p className="text-xs text-slate-400 mt-0.5">From {sender} · {shop}</p>
-                              </div>
-                              <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ring-1 ring-inset ${
-                                isPartial ? 'bg-amber-50 text-amber-600 ring-amber-200' : 'bg-emerald-50 text-emerald-600 ring-emerald-200'
-                              }`}>
-                                {isPartial ? 'Partial' : 'Claimed'}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
+                    <ClaimHistory claimHistory={claimHistory} />
                   </section>
                 </div>
               );

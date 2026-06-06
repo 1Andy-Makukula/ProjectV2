@@ -46,6 +46,7 @@
     "@radix-ui/react-tooltip": "1.1.8",
     "@sentry/react": "^8.55.2",
     "@yudiel/react-qr-scanner": "^2.6.0",
+    "browser-image-compression": "^2.0.2",
     "canvas-confetti": "1.9.4",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",

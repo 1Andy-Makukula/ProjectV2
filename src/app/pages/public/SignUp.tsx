@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { validateAndFormatPhone } from '../../../utils/phone';
+import { parseAuthError } from '../../../utils/errorParser';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
@@ -97,11 +98,7 @@ export function SignUp() {
     setLoading(false);
 
     if (error) {
-      let msg = error.message || 'Failed to create account. Please try again.';
-      // E.164 Error Boundary Catch
-      if (msg.toLowerCase().includes('e.164') || msg.toLowerCase().includes('e164') || msg.includes('users_phone_check')) {
-        msg = 'International format required (e.g., +260...).';
-      }
+      const msg = parseAuthError(error);
       setErrorMsg(msg);
       toast.error(msg);
     } else {

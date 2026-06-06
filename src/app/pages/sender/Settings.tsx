@@ -12,6 +12,7 @@ import { Separator } from '../../components/ui/separator';
 import { ArrowLeft, User, Mail, Phone, Lock, LogOut, Check, AlertCircle, Store, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
+import { parseAuthError } from '../../../utils/errorParser';
 
 export function Settings() {
   const navigate = useNavigate();
@@ -63,7 +64,7 @@ export function Settings() {
       toast.success('Profile updated successfully!');
     } catch (error: any) {
       console.error('Error updating profile:', error);
-      toast.error(error.message || 'Failed to update profile');
+      toast.error(parseAuthError(error));
     } finally {
       setLoading(false);
     }
@@ -84,7 +85,7 @@ export function Settings() {
       toast.success('Password reset email sent! Check your inbox.');
     } catch (error: any) {
       console.error('Error sending reset email:', error);
-      toast.error(error.message || 'Failed to send reset email');
+      toast.error(parseAuthError(error));
     } finally {
       setResetLoading(false);
     }

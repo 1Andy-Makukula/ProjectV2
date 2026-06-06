@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { motion } from 'motion/react';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { useEffect } from 'react';
+import { parseAuthError } from '../../../utils/errorParser';
 
 // HD lifestyle image from Unsplash (friends laughing together)
 const SIDE_IMAGE =
@@ -62,7 +63,7 @@ export function Login() {
 
     if (signInError) {
       setLoading(false);
-      const msg = signInError.message || 'Failed to log in. Please try again.';
+      const msg = parseAuthError(signInError);
       setErrorMsg(msg);
       toast.error(msg);
       return;
@@ -80,7 +81,7 @@ export function Login() {
 
     const { error } = await supabase.auth.resetPasswordForEmail(formData.email);
     if (error) {
-      const msg = error.message || 'Failed to send reset email.';
+      const msg = parseAuthError(error);
       setErrorMsg(msg);
       toast.error(msg);
     } else {
