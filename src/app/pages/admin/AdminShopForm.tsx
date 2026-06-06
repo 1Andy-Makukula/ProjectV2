@@ -24,6 +24,7 @@ import {
 } from '../../components/ui/alert-dialog';
 import { supabase } from '../../../lib/supabaseClient';
 import { toast } from 'sonner';
+import imageCompression from 'browser-image-compression';
 
 interface ShopFormData {
   name: string;
@@ -124,13 +125,29 @@ export function AdminShopForm() {
 
     setUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `shop-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      let fileToUpload = file;
+      try {
+        const options = {
+          maxSizeMB: 0.5, 
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+          fileType: 'image/webp' as string
+        };
+        const compressedBlob = await imageCompression(file, options);
+        fileToUpload = new File([compressedBlob], file.name.replace(/\.[^/.]+$/, "") + ".webp", {
+          type: 'image/webp',
+          lastModified: Date.now()
+        });
+      } catch (err) {
+        console.error('Image compression failed, falling back to original:', err);
+      }
+
+      const fileName = `shop-${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
       const filePath = `${folder}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('storefront-assets')
-        .upload(filePath, imageFile);
+        .upload(filePath, fileToUpload);
 
       if (uploadError) throw uploadError;
 

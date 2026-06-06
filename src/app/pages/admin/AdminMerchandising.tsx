@@ -9,6 +9,7 @@ import {
   ArrowLeft, Upload, Trash2, ToggleLeft, ToggleRight,
   Search, Image, Store, Package, Tag, RefreshCw,
 } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 
 // ─── Generic helpers ──────────────────────────────────────────────────────────
 
@@ -46,9 +47,25 @@ function StatusTag({ ok }: { ok: boolean }) {
 // ─── Upload helper — reuses existing kithly-images bucket ─────────────────────
 
 async function uploadFile(file: File, folder: string): Promise<string> {
-  const ext = file.name.split('.').pop();
-  const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-  const { error } = await supabase.storage.from('storefront-assets').upload(path, file, { upsert: true });
+  let fileToUpload = file;
+  try {
+    const options = {
+      maxSizeMB: 0.5,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+      fileType: 'image/webp' as string
+    };
+    const compressedBlob = await imageCompression(file, options);
+    fileToUpload = new File([compressedBlob], file.name.replace(/\.[^/.]+$/, "") + ".webp", {
+      type: 'image/webp',
+      lastModified: Date.now()
+    });
+  } catch (err) {
+    console.error('Image compression failed, falling back to original:', err);
+  }
+
+  const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
+  const { error } = await supabase.storage.from('storefront-assets').upload(path, fileToUpload, { upsert: true });
   if (error) throw error;
   const { data: { publicUrl } } = supabase.storage.from('storefront-assets').getPublicUrl(path);
   return publicUrl;
