@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { useAuth } from '../../../utils/auth/AuthContext';
 import { Upload, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -22,79 +21,33 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '../../components/ui/alert-dialog';
-import { supabase } from '../../../lib/supabaseClient';
-import { toast } from 'sonner';
-import imageCompression from 'browser-image-compression';
-
-interface ShopFormData {
-  name: string;
-  location: string;
-  address: string;
-  logo_url: string;
-  cover_image_url: string;
-  payout_method: string;
-  payout_details: string;
-  is_active: boolean;
-}
+import { useAdminShopForm } from '../../hooks/useAdminShopForm';
 
 export function AdminShopForm() {
   const navigate = useNavigate();
   const { shopId } = useParams();
   const isEditing = Boolean(shopId);
-  const { user } = useAuth();
 
-  const [formData, setFormData] = useState<ShopFormData>({
-    name: '',
-    location: '',
-    address: '',
-    logo_url: '',
-    cover_image_url: '',
-    payout_method: 'airtel',
-    payout_details: '',
-    is_active: true,
-  });
+  const {
+    formData,
+    setFormData,
+    loading,
+    uploading,
+    saveShop,
+    deleteShop,
+  } = useAdminShopForm(shopId);
+
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   
   const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
   const [coverImagePreview, setCoverImagePreview] = useState<string>('');
-  const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
 
+  // Sync previews with loaded data
   useEffect(() => {
-    if (isEditing) {
-      loadShop();
-    }
-  }, [shopId]);
-
-  const loadShop = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('shops')
-        .select('*')
-        .eq('id', shopId)
-        .single();
-
-      if (error) throw error;
-
-      setFormData({
-        name: data.name || '',
-        location: data.location || '',
-        address: data.address || '',
-        logo_url: data.logo_url || '',
-        cover_image_url: data.cover_image_url || '',
-        payout_method: data.payout_method || 'airtel',
-        payout_details: data.payout_details || '',
-        is_active: data.is_active ?? true,
-      });
-      setImagePreview(data.logo_url || '');
-      setCoverImagePreview(data.cover_image_url || '');
-    } catch (error: any) {
-      console.error('Error loading shop:', error);
-      toast.error('Failed to load shop data');
-      navigate('/admin/shops');
-    }
-  };
+    if (formData.logo_url) setImagePreview(formData.logo_url);
+    if (formData.cover_image_url) setCoverImagePreview(formData.cover_image_url);
+  }, [formData.logo_url, formData.cover_image_url]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -120,152 +73,18 @@ export function AdminShopForm() {
     }
   };
 
-  const uploadImage = async (file: File | null, existingUrl: string, folder: string): Promise<string> => {
-    if (!file) return existingUrl;
-
-    setUploading(true);
-    try {
-      let fileToUpload = file;
-      try {
-        const options = {
-          maxSizeMB: 0.5, 
-          maxWidthOrHeight: 1920,
-          useWebWorker: true,
-          fileType: 'image/webp' as string
-        };
-        const compressedBlob = await imageCompression(file, options);
-        fileToUpload = new File([compressedBlob], file.name.replace(/\.[^/.]+$/, "") + ".webp", {
-          type: 'image/webp',
-          lastModified: Date.now()
-        });
-      } catch (err) {
-        console.error('Image compression failed, falling back to original:', err);
-      }
-
-      const fileName = `shop-${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
-      const filePath = `${folder}/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('storefront-assets')
-        .upload(filePath, fileToUpload);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('storefront-assets')
-        .getPublicUrl(filePath);
-
-      return publicUrl;
-    } catch (error: any) {
-      console.error('Error uploading image:', error);
-      toast.error('Failed to upload image');
-      throw error;
-    } finally {
-      setUploading(false);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!formData.name || !formData.location) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // Upload images if selected
-      const logoUrl = await uploadImage(imageFile, formData.logo_url, 'shop-logos');
-      const coverUrl = await uploadImage(coverImageFile, formData.cover_image_url, 'shop-covers');
-
-      // V2 Schema Strict Payload
-      const shopData = {
-        name: formData.name,
-        location: formData.location,
-        address: formData.address,
-        logo_url: logoUrl,
-        cover_image_url: coverUrl,
-        payout_method: formData.payout_method,
-        payout_details: formData.payout_details,
-        is_active: formData.is_active,
-        // owner_id is deprecated on shops table. We map using merchant_shops instead.
-      };
-
-      if (isEditing) {
-        const { error } = await supabase
-          .from('shops')
-          .update(shopData)
-          .eq('id', shopId);
-
-        if (error) throw error;
-        toast.success('Shop updated successfully');
-      } else {
-        const { data: newShop, error } = await supabase
-          .from('shops')
-          .insert([shopData])
-          .select('id')
-          .single();
-
-        if (error) throw error;
-
-        // Map ownership using the intersection table
-        if (user?.id && newShop?.id) {
-          const { error: mappingError } = await supabase
-            .from('merchant_shops')
-            .insert([{ user_id: user.id, shop_id: newShop.id }]);
-
-          if (mappingError) {
-            console.error('Failed to map merchant ownership:', mappingError);
-            toast.error('Shop created, but ownership assignment failed.');
-          }
-        }
-
-        toast.success('Shop created successfully');
-      }
-
+    const success = await saveShop(imageFile, coverImageFile);
+    if (success) {
       navigate('/admin/shops');
-    } catch (error: any) {
-      console.error('Error saving shop:', error);
-      toast.error('Failed to save shop');
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!shopId) return;
-
-    setLoading(true);
-    try {
-      // Option 1: App-level cleanup of orphaned images
-      // (For a robust Option 2 later: Use a PostgreSQL Trigger + pg_net Edge Function)
-      if (formData.logo_url) {
-        const filePath = formData.logo_url.split('/public/storefront-assets/')[1];
-        if (filePath) {
-          await supabase.storage.from('storefront-assets').remove([filePath]).catch(console.error);
-        }
-      }
-      if (formData.cover_image_url) {
-        const coverPath = formData.cover_image_url.split('/public/storefront-assets/')[1];
-        if (coverPath) {
-          await supabase.storage.from('storefront-assets').remove([coverPath]).catch(console.error);
-        }
-      }
-
-      const { error } = await supabase
-        .from('shops')
-        .delete()
-        .eq('id', shopId);
-
-      if (error) throw error;
-
-      toast.success('Shop deleted successfully');
+    const success = await deleteShop();
+    if (success) {
       navigate('/admin/shops');
-    } catch (error: any) {
-      console.error('Error deleting shop:', error);
-      toast.error('Failed to delete shop');
-      setLoading(false);
     }
   };
 

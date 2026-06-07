@@ -219,7 +219,16 @@ export function CustomerDashboard() {
       fetchOrdersAndMetrics();
     } catch (err: any) {
       console.error('[CustomerDashboard] resume payment error:', err);
-      toast.error(err.message || 'Failed to resume payment');
+      let errorMsg = err.message || 'Failed to resume payment';
+      if (err.context && typeof err.context.json === 'function') {
+        try {
+          const body = await err.context.json();
+          if (body && body.error) {
+            errorMsg = body.error;
+          }
+        } catch (_) {}
+      }
+      toast.error(errorMsg);
     } finally {
       setResumingPaymentId(null);
     }

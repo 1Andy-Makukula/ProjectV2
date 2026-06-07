@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
 import { Plus, Edit, Search, MapPin, Store } from 'lucide-react';
@@ -9,97 +9,19 @@ import { Badge } from '../../components/ui/badge';
 import { Switch } from '../../components/ui/switch';
 import { PageShell, PageBody } from '../../components/layout/PageShell';
 import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
-import { supabase } from '../../../lib/supabaseClient';
-import { toast } from 'sonner';
-
-interface Shop {
-  id: string;
-  name: string;
-  description: string;
-  location: string;
-  image_url: string;
-  logo_url?: string;
-  cover_image_url?: string;
-  is_active: boolean;
-  item_count?: number;
-}
+import { useAdminShops } from '../../hooks/useAdminShops';
 
 export function AdminShops() {
   const navigate = useNavigate();
-  const [shops, setShops] = useState<Shop[]>([]);
-  const [filteredShops, setFilteredShops] = useState<Shop[]>([]);
+  const { shops, loading, toggleShopActive } = useAdminShops();
   const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadShops();
-  }, []);
-
-  useEffect(() => {
-    if (searchQuery) {
-      const filtered = shops.filter(shop =>
+  const filteredShops = searchQuery
+    ? shops.filter(shop =>
         shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         shop.location?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredShops(filtered);
-    } else {
-      setFilteredShops(shops);
-    }
-  }, [searchQuery, shops]);
-
-  const loadShops = async () => {
-    try {
-      setLoading(true);
-
-      const { data: shopsData, error: shopsError } = await supabase
-        .from('shops')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (shopsError) throw shopsError;
-
-      // Get item counts for each shop
-      const shopsWithCounts = await Promise.all(
-        (shopsData || []).map(async (shop) => {
-          const { count } = await supabase
-            .from('items')
-            .select('*', { count: 'exact', head: true })
-            .eq('shop_id', shop.id)
-            .eq('is_available', true);
-
-          return {
-            ...shop,
-            item_count: count || 0,
-          };
-        })
-      );
-
-      setShops(shopsWithCounts);
-      setFilteredShops(shopsWithCounts);
-    } catch (error: any) {
-      console.error('Error loading shops:', error);
-      toast.error('Failed to load shops');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const toggleShopActive = async (shopId: string, currentStatus: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('shops')
-        .update({ is_active: !currentStatus })
-        .eq('id', shopId);
-
-      if (error) throw error;
-
-      toast.success(`Shop ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
-      loadShops();
-    } catch (error: any) {
-      console.error('Error toggling shop status:', error);
-      toast.error('Failed to update shop status');
-    }
-  };
+      )
+    : shops;
 
   return (
     <PageShell>

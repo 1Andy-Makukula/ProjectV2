@@ -1,15 +1,16 @@
 // AdminMerchandising — Full storefront control panel at '/admin-merch'
 // Manages: Banners · Weekly Picks · Shop Logos · Category Flags
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useRef } from 'react';
 import { useNavigate } from 'react-router';
-import { supabase } from '../../../lib/supabaseClient';
-import { toast } from 'sonner';
 import {
   ArrowLeft, Upload, Trash2, ToggleLeft, ToggleRight,
-  Search, Image, Store, Package, Tag, RefreshCw,
+  Search, Store, Package, Tag, RefreshCw,
 } from 'lucide-react';
-import imageCompression from 'browser-image-compression';
+import { useBannerManager, Banner } from '../../hooks/useBannerManager';
+import { useWeeklyPicks, Item } from '../../hooks/useWeeklyPicks';
+import { useShopLogoManager, ShopRow } from '../../hooks/useShopLogoManager';
+import { useCategoryFlags, Category } from '../../hooks/useCategoryFlags';
 
 // ─── Generic helpers ──────────────────────────────────────────────────────────
 
@@ -44,55 +45,26 @@ function StatusTag({ ok }: { ok: boolean }) {
   );
 }
 
-// ─── Upload helper — reuses existing kithly-images bucket ─────────────────────
-
-async function uploadFile(file: File, folder: string): Promise<string> {
-  let fileToUpload = file;
-  try {
-    const options = {
-      maxSizeMB: 0.5,
-      maxWidthOrHeight: 1920,
-      useWebWorker: true,
-      fileType: 'image/webp' as string
-    };
-    const compressedBlob = await imageCompression(file, options);
-    fileToUpload = new File([compressedBlob], file.name.replace(/\.[^/.]+$/, "") + ".webp", {
-      type: 'image/webp',
-      lastModified: Date.now()
-    });
-  } catch (err) {
-    console.error('Image compression failed, falling back to original:', err);
-  }
-
-  const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
-  const { error } = await supabase.storage.from('storefront-assets').upload(path, fileToUpload, { upsert: true });
-  if (error) throw error;
-  const { data: { publicUrl } } = supabase.storage.from('storefront-assets').getPublicUrl(path);
-  return publicUrl;
-}
-
 // ─── 1. Banner Manager ────────────────────────────────────────────────────────
 
-interface Banner { id: string; title: string; image_url: string; is_active: boolean; sort_order: number }
-
 function BannerManager() {
-  const [banners, setBanners] = useState<Banner[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [title, setTitle] = useState('');
-  const [sortOrder, setSortOrder] = useState('0');
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState('');
+  const {
+    banners,
+    loading,
+    saving,
+    title,
+    setTitle,
+    sortOrder,
+    setSortOrder,
+    file,
+    setFile,
+    preview,
+    setPreview,
+    handleAdd,
+    toggleActive,
+    deleteBanner,
+  } = useBannerManager();
   const fileRef = useRef<HTMLInputElement>(null);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    const { data } = await supabase.from('banners').select('*').order('sort_order');
-    setBanners((data as Banner[]) ?? []);
-    setLoading(false);
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -101,44 +73,15 @@ function BannerManager() {
     setPreview(URL.createObjectURL(f));
   };
 
-  const handleAdd = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!file || !title.trim()) { toast.error('Title and image required'); return; }
-    setSaving(true);
-    try {
-      const url = await uploadFile(file, 'banners');
-      const { error } = await supabase.from('banners').insert({
-        title: title.trim(), image_url: url, is_active: true,
-        sort_order: parseInt(sortOrder, 10) || 0,
-      });
-      if (error) throw error;
-      toast.success('Banner added');
-      setTitle(''); setSortOrder('0'); setFile(null); setPreview('');
-      if (fileRef.current) fileRef.current.value = '';
-      await load();
-    } catch (err: any) {
-      toast.error(err.message ?? 'Upload failed');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const toggleActive = async (b: Banner) => {
-    await supabase.from('banners').update({ is_active: !b.is_active }).eq('id', b.id);
-    setBanners(prev => prev.map(x => x.id === b.id ? { ...x, is_active: !x.is_active } : x));
-  };
-
-  const deleteBanner = async (id: string) => {
-    if (!confirm('Delete this banner?')) return;
-    await supabase.from('banners').delete().eq('id', id);
-    setBanners(prev => prev.filter(x => x.id !== id));
-    toast.success('Deleted');
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    await handleAdd(e);
+    if (fileRef.current) fileRef.current.value = '';
   };
 
   return (
     <SectionShell title="Banner / Campaign Manager" sub="Manages the hero carousel on the storefront. Table: banners.">
       {/* Add form */}
-      <form onSubmit={handleAdd} className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_1fr_auto_auto] mb-6">
+      <form onSubmit={handleFormSubmit} className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_1fr_auto_auto] mb-6">
         <div>
           <label className="block text-xs font-semibold text-slate-600 mb-1">Title</label>
           <input
@@ -214,53 +157,17 @@ function BannerManager() {
 
 // ─── 2. Weekly Picks Toggles ──────────────────────────────────────────────────
 
-interface Item { id: string; name: string; image_url: string | null; is_weekly_pick: boolean; shop: { name: string } | null }
-
 function WeeklyPicksPanel() {
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [query, setQuery] = useState('');
-  const [toggling, setToggling] = useState<string | null>(null);
-  const [schemaError, setSchemaError] = useState(false);
-
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('items')
-        .select('id, name, image_url, is_weekly_pick, shop:shops(name)')
-        .eq('is_available', true)
-        .order('name');
-
-      if (error) {
-        if (error.message.includes('is_weekly_pick')) setSchemaError(true);
-        else toast.error('Failed to load items');
-      } else {
-        setItems((data as unknown as Item[]) ?? []);
-      }
-      setLoading(false);
-    }
-    load();
-  }, []);
-
-  const toggle = async (item: Item) => {
-    setToggling(item.id);
-    const { error } = await supabase
-      .from('items')
-      .update({ is_weekly_pick: !item.is_weekly_pick })
-      .eq('id', item.id);
-
-    if (error) {
-      if (error.message.includes('is_weekly_pick')) setSchemaError(true);
-      else toast.error(error.message);
-    } else {
-      setItems(prev => prev.map(x => x.id === item.id ? { ...x, is_weekly_pick: !x.is_weekly_pick } : x));
-    }
-    setToggling(null);
-  };
-
-  const filtered = items.filter(i => i.name.toLowerCase().includes(query.toLowerCase()));
-  const picksCount = items.filter(i => i.is_weekly_pick).length;
+  const {
+    loading,
+    query,
+    setQuery,
+    toggling,
+    schemaError,
+    toggle,
+    filtered,
+    picksCount,
+  } = useWeeklyPicks();
 
   if (schemaError) {
     return (
@@ -322,45 +229,15 @@ function WeeklyPicksPanel() {
 
 // ─── 3. Shop Logo Uploader ────────────────────────────────────────────────────
 
-interface ShopRow { id: string; name: string; logo_url: string | null }
-
 function ShopLogoPanel() {
-  const [shops, setShops] = useState<ShopRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState<string | null>(null);
+  const {
+    shops,
+    loading,
+    uploading,
+    handleUpload,
+    clearLogo,
+  } = useShopLogoManager();
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
-
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      const { data } = await supabase.from('shops').select('id, name, logo_url').order('name');
-      setShops((data as ShopRow[]) ?? []);
-      setLoading(false);
-    }
-    load();
-  }, []);
-
-  const handleUpload = async (shop: ShopRow, file: File) => {
-    setUploading(shop.id);
-    try {
-      const url = await uploadFile(file, 'shop-logos');
-      const { error } = await supabase.from('shops').update({ logo_url: url }).eq('id', shop.id);
-      if (error) throw error;
-      setShops(prev => prev.map(s => s.id === shop.id ? { ...s, logo_url: url } : s));
-      toast.success(`Logo updated for ${shop.name}`);
-    } catch (err: any) {
-      toast.error(err.message ?? 'Upload failed');
-    } finally {
-      setUploading(null);
-    }
-  };
-
-  const clearLogo = async (shop: ShopRow) => {
-    if (!confirm(`Remove logo for ${shop.name}?`)) return;
-    await supabase.from('shops').update({ logo_url: null }).eq('id', shop.id);
-    setShops(prev => prev.map(s => s.id === shop.id ? { ...s, logo_url: null } : s));
-    toast.success('Logo removed');
-  };
 
   return (
     <SectionShell title="Shop Logo Uploader" sub="Upload square images to kithly-images/shops/logos/ and link to shops.logo_url.">
@@ -413,47 +290,14 @@ function ShopLogoPanel() {
 
 // ─── 4. Category Feature Flags ────────────────────────────────────────────────
 
-interface Category { id: string; name: string; is_featured: boolean }
-
 function CategoryFlagsPanel() {
-  const [cats, setCats] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [toggling, setToggling] = useState<string | null>(null);
-  const [schemaError, setSchemaError] = useState(false);
-
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('categories')
-        .select('id, name, is_featured')
-        .order('name');
-
-      if (error) {
-        if (error.message.toLowerCase().includes('does not exist') || error.code === '42P01') {
-          setSchemaError(true);
-        } else {
-          toast.error('Failed to load categories');
-        }
-      } else {
-        setCats((data as Category[]) ?? []);
-      }
-      setLoading(false);
-    }
-    load();
-  }, []);
-
-  const toggle = async (cat: Category) => {
-    setToggling(cat.id);
-    const { error } = await supabase
-      .from('categories')
-      .update({ is_featured: !cat.is_featured })
-      .eq('id', cat.id);
-
-    if (error) toast.error(error.message);
-    else setCats(prev => prev.map(c => c.id === cat.id ? { ...c, is_featured: !c.is_featured } : c));
-    setToggling(null);
-  };
+  const {
+    cats,
+    loading,
+    toggling,
+    schemaError,
+    toggle,
+  } = useCategoryFlags();
 
   if (schemaError) {
     return (

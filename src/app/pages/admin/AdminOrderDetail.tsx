@@ -31,227 +31,19 @@ import { toast } from 'sonner';
  *   transactions → shop_orders → order_items → items, shops
  *   transactions.buyer → users
  */
-interface OrderDetail {
-  // Transaction
-  transaction_id: string;
-  tx_status: string;        // GATEWAY_PROCESSING | SUCCESSFUL | FAILED | CANCELLED
-  total_amount: number;
-  gateway_tx_ref: string | null;
-  origin_type: string;
-  created_at: string;
-  updated_at: string | null;
-
-  // First shop order (display)
-  shop_order_id: string | null;
-  claim_code: string | null;
-  claim_status: string | null;  // PENDING_PAYMENT | PENDING | REDEEMED | CANCELLED
-  recipient_name: string | null;
-  recipient_phone: string | null;
-  message: string | null;
-  shop_order_updated_at: string | null;
-
-  // First item (display)
-  item_id: string | null;
-  item_name: string | null;
-  item_description: string | null;
-  item_image_url: string | null;
-  item_price: number | null;
-
-  // Shop
-  shop_id: string | null;
-  shop_name: string | null;
-  shop_location: string | null;
-  shop_address: string | null;
-
-  // Buyer (sender)
-  buyer_id: string;
-  buyer_name: string | null;
-  buyer_email: string | null;
-  buyer_phone: string | null;
-
-  // Derived
-  derived_status: string;
-}
-
-// ---------------------------------------------------------------------------
-// Status helpers
-// ---------------------------------------------------------------------------
-
-function deriveStatus(txStatus: string, claimStatus: string | null): string {
-  if (txStatus === 'GATEWAY_PROCESSING') return 'pending_payment';
-  if (txStatus === 'FAILED' || txStatus === 'CANCELLED') return 'cancelled';
-  if (claimStatus === 'REDEEMED') return 'fulfilled';
-  if (claimStatus === 'PENDING') return 'paid';
-  return 'pending_payment';
-}
-
-const STATUS_COLOR: Record<string, string> = {
-  fulfilled:       'bg-green-100 text-green-800 border-green-200',
-  paid:            'bg-blue-100 text-blue-800 border-blue-200',
-  pending_payment: 'bg-orange-100 text-orange-800 border-orange-200',
-  cancelled:       'bg-red-100 text-red-800 border-red-200',
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  fulfilled:       'Gift Fulfilled',
-  paid:            'Payment Confirmed',
-  pending_payment: 'Pending Payment',
-  cancelled:       'Cancelled',
-};
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
+import { useAdminOrderDetail } from '../../hooks/useAdminOrderDetail';
+import { STATUS_COLORS, STATUS_LABELS } from '../../../utils/orderStatus';
 
 export function AdminOrderDetail() {
   const navigate = useNavigate();
-  const { orderId } = useParams<{ orderId: string }>(); // orderId == transaction_id in V2
-  const [order, setOrder] = useState<OrderDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
+  const { orderId } = useParams<{ orderId: string }>();
 
-  useEffect(() => {
-    if (orderId) {
-      loadOrder();
-    }
-  }, [orderId]);
-
-  const loadOrder = async () => {
-    try {
-      setLoading(true);
-
-      // V2: Query the transaction by transaction_id, joining all related tables
-      const { data, error } = await supabase
-        .from('transactions')
-        .select(`
-          transaction_id,
-          status,
-          total_amount,
-          gateway_tx_ref,
-          origin_type,
-          created_at,
-          updated_at,
-          buyer_id,
-          buyer:buyer_id (name, email, phone),
-          shop_orders (
-            shop_order_id,
-            claim_code,
-            claim_status,
-            recipient_name,
-            recipient_phone,
-            message,
-            updated_at,
-            shop:shop_id (id, name, location, address),
-            order_items (
-              item:item_id (id, name, description, image_url, price_zmw)
-            )
-          )
-        `)
-        .eq('transaction_id', orderId)
-        .single();
-
-      if (error) throw error;
-
-      const txn = data as any;
-      const firstShopOrder = txn.shop_orders?.[0];
-      const firstItem = firstShopOrder?.order_items?.[0]?.item;
-      const shop = firstShopOrder?.shop;
-      const buyer = txn.buyer;
-
-      const detail: OrderDetail = {
-        transaction_id: txn.transaction_id,
-        tx_status: txn.status,
-        total_amount: txn.total_amount,
-        gateway_tx_ref: txn.gateway_tx_ref,
-        origin_type: txn.origin_type,
-        created_at: txn.created_at,
-        updated_at: txn.updated_at,
-
-        shop_order_id: firstShopOrder?.shop_order_id ?? null,
-        claim_code: firstShopOrder?.claim_code ?? null,
-        claim_status: firstShopOrder?.claim_status ?? null,
-        recipient_name: firstShopOrder?.recipient_name ?? null,
-        recipient_phone: firstShopOrder?.recipient_phone ?? null,
-        message: firstShopOrder?.message ?? null,
-        shop_order_updated_at: firstShopOrder?.updated_at ?? null,
-
-        item_id: firstItem?.id ?? null,
-        item_name: firstItem?.name ?? null,
-        item_description: firstItem?.description ?? null,
-        item_image_url: firstItem?.image_url ?? null,
-        item_price: firstItem?.price_zmw ?? null,
-
-        shop_id: shop?.id ?? null,
-        shop_name: shop?.name ?? null,
-        shop_location: shop?.location ?? null,
-        shop_address: shop?.address ?? null,
-
-        buyer_id: txn.buyer_id,
-        buyer_name: buyer?.name ?? null,
-        buyer_email: buyer?.email ?? null,
-        buyer_phone: buyer?.phone ?? null,
-
-        derived_status: deriveStatus(txn.status, firstShopOrder?.claim_status ?? null),
-      };
-
-      setOrder(detail);
-    } catch (error: any) {
-      console.error('Error loading order:', error);
-      toast.error('Failed to load order details');
-      navigate('/admin/orders');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /**
-   * V2 status update:
-   *   "paid"      → confirm_payment action → SUCCESSFUL + PENDING shop_orders
-   *   "fulfilled" → set shop_orders.claim_status = REDEEMED
-   *   "expired"   → set transactions.status = CANCELLED + shop_orders.claim_status = CANCELLED
-   */
-  const updateOrderStatus = async (newStatus: 'paid' | 'fulfilled' | 'expired') => {
-    if (!order) return;
-
-    setUpdating(true);
-    try {
-      if (newStatus === 'paid') {
-        // Calls server/index.ts confirm_payment → updates transactions + shop_orders
-        await callServer(`/orders/${order.transaction_id}/confirm-payment`);
-
-      } else if (newStatus === 'fulfilled') {
-        if (!order.shop_order_id) throw new Error('No shop order found');
-
-        const { error } = await supabase
-          .from('shop_orders')
-          .update({ claim_status: 'REDEEMED' })
-          .eq('transaction_id', order.transaction_id);
-
-        if (error) throw error;
-
-      } else if (newStatus === 'expired') {
-        const { error: txErr } = await supabase
-          .from('transactions')
-          .update({ status: 'CANCELLED' })
-          .eq('transaction_id', order.transaction_id);
-
-        if (txErr) throw txErr;
-
-        await supabase
-          .from('shop_orders')
-          .update({ claim_status: 'CANCELLED' })
-          .eq('transaction_id', order.transaction_id);
-      }
-
-      toast.success(`Order marked as ${newStatus}`);
-      loadOrder();
-    } catch (error: any) {
-      console.error('Error updating order status:', error);
-      toast.error('Failed to update order status');
-    } finally {
-      setUpdating(false);
-    }
-  };
+  const {
+    order,
+    loading,
+    updating,
+    updateOrderStatus,
+  } = useAdminOrderDetail(orderId);
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -274,8 +66,8 @@ export function AdminOrderDetail() {
   if (!order) return null;
 
   const giftUrl = getGiftPageUrl(order.claim_code || '');
-  const statusColor = STATUS_COLOR[order.derived_status] ?? 'bg-gray-100 text-gray-800 border-gray-200';
-  const statusLabel = STATUS_LABEL[order.derived_status] ?? order.derived_status;
+  const statusColor = STATUS_COLORS[order.derived_status] ?? 'bg-gray-100 text-gray-800 border-gray-200';
+  const statusLabel = STATUS_LABELS[order.derived_status] ?? order.derived_status;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">

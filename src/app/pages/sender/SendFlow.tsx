@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { PhoneInput } from '../../components/shared/PhoneInput';
 import { ArrowLeft, Store } from 'lucide-react';
 import { motion } from 'motion/react';
-import { formatCurrency } from '../../../utils/currency';
+import { useCart, toProduct } from '../../hooks/useCart';
 
 interface Item {
   id: string;
@@ -38,6 +38,7 @@ export function SendFlow() {
   const { itemId } = useParams<{ itemId: string }>();
   const navigate = useNavigate();
   const { setRecipient } = useSendFlowStore();
+  const { addToCart, items: cartItems } = useCart();
 
   const [item, setItem] = useState<Item | null>(null);
   const [shop, setShop] = useState<Shop | null>(null);
@@ -48,14 +49,9 @@ export function SendFlow() {
     message: '',
   });
   const [errors, setErrors] = useState<Partial<SendFlowFormData>>({});
-  const [phoneValid, setPhoneValid] = useState(false);
 
   const handlePhoneChange = useCallback((value: string) => {
     setFormData(prev => ({ ...prev, recipientPhone: value }));
-  }, []);
-
-  const handlePhoneValidation = useCallback((result: { isValid: boolean; formatted: string }) => {
-    setPhoneValid(result.isValid);
   }, []);
 
   useEffect(() => {
@@ -121,6 +117,13 @@ export function SendFlow() {
       phone:   formatted,
       message: formData.message.trim(),
     });
+
+    // Add item to cart if not already present
+    const product = toProduct(item);
+    const isAlreadyInCart = cartItems.some(cartItem => cartItem.product.id === product.id);
+    if (!isAlreadyInCart) {
+      addToCart(product, 1);
+    }
 
     navigate('/checkout');
   };
@@ -269,7 +272,6 @@ export function SendFlow() {
                   id="recipientPhone"
                   value={formData.recipientPhone}
                   onChange={handlePhoneChange}
-                  onValidation={handlePhoneValidation}
                   aria-invalid={!!errors.recipientPhone}
                 />
                 {errors.recipientPhone && (

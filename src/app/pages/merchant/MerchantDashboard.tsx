@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
-import { supabase } from '../../../lib/supabaseClient';
 import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { formatCurrency } from '../../../utils/currency';
@@ -18,44 +17,12 @@ import {
   SheetDescription,
 } from '../../components/ui/sheet';
 import { cn } from '../../components/ui/utils';
+import { useMerchantDashboard, Order, OrderItem } from '../../hooks/useMerchantDashboard';
 
 // ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-interface OrderItem {
-  item: {
-    name: string;
-    image_url: string | null;
-  } | null;
-}
-
-interface Order {
-  id: string;
-  code: string;
-  recipient_name: string;
-  recipient_phone?: string | null;
-  message?: string | null;
-  amount: number;
-  paid_at: string | null;
-  fulfilled_at: string | null;
-  claim_status: string;
-  order_items?: OrderItem[];
-  item: {
-    name: string;
-    image_url: string | null;
-  } | null;
-}
-
-interface Analytics {
-  totalFulfilled: number;
-  totalValue: number;
-  weekFulfilled: number;
-  weekValue: number;
-  availableBalance: number;
-}
-
 // Helper to aggregate duplicate items and compute their total quantities
+// ---------------------------------------------------------------------------
+
 function aggregateOrderItems(orderItems?: OrderItem[]) {
   if (!orderItems) return [];
   const map = new Map<string, { name: string; image_url: string | null; quantity: number }>();
@@ -82,232 +49,32 @@ function aggregateOrderItems(orderItems?: OrderItem[]) {
 
 export function MerchantDashboard() {
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
 
-  // Existing state
-  const [shopName, setShopName] = useState('');
-  const [shopId, setShopId] = useState<string | null>(null);
-  const [activeOrders, setActiveOrders] = useState<Order[]>([]);
-  const [fulfilledOrders, setFulfilledOrders] = useState<Order[]>([]);
-  const [analytics, setAnalytics] = useState<Analytics>({
-    totalFulfilled: 0,
-    totalValue: 0,
-    weekFulfilled: 0,
-    weekValue: 0,
-    availableBalance: 0,
-  });
-  const [loading, setLoading] = useState(true);
-  const [withdrawing, setWithdrawing] = useState(false);
-  const [ledgerData, setLedgerData] = useState<any[]>([]);
-  const [ledgerLoading, setLedgerLoading] = useState(false);
+  const {
+    shopName,
+    shopId,
+    activeOrders,
+    fulfilledOrders,
+    analytics,
+    loading,
+    withdrawing,
+    ledgerData,
+    ledgerLoading,
+    handleWithdrawRequest,
+  } = useMerchantDashboard(profile?.id);
 
   // Sheet drawer state
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
-  useEffect(() => {
-    fetchMerchantData();
-  }, [profile?.id]);
-
-  useEffect(() => {
-    if (shopId) {
-      const subscription = supabase
-        .channel(`shop:${shopId}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'shop_orders',
-            filter: `shop_id=eq.${shopId}`,
-          },
-          () => {
-            fetchOrders(shopId);
-            fetchAnalytics(shopId);
-            fetchLedger(shopId);
-          }
-        )
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'shop_orders',
-            filter: `shop_id=eq.${shopId}`,
-          },
-          () => {
-            fetchOrders(shopId);
-            fetchAnalytics(shopId);
-            fetchLedger(shopId);
-          }
-        )
-        .subscribe();
-
-      return () => {
-        subscription.unsubscribe();
-      };
-    }
-  }, [shopId]);
-
-  const fetchMerchantData = async () => {
-    if (!profile?.id) return;
-
-    try {
-      const { data: merchantShop, error: shopError } = await supabase
-        .from('merchant_shops')
-        .select('shop_id, shop:shops(id, name, location, image_url, payout_details, payout_method)')
-        .eq('user_id', profile.id)
-        .single();
-
-      if (shopError) throw shopError;
-
-      const shop = merchantShop.shop as any;
-      const currentShopId = merchantShop.shop_id;
-
-      setShopId(currentShopId);
-      setShopName(shop?.name ?? 'Your Shop');
-
-      await fetchOrders(currentShopId);
-      await fetchAnalytics(currentShopId);
-      await fetchLedger(currentShopId);
-    } catch (error) {
-      console.error('Error fetching merchant data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchOrders = async (currentShopId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('shop_orders')
-        .select('*, order_items(item:items(name, image_url))')
-        .eq('shop_id', currentShopId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      const normalizedOrders = ((data || []) as any[]).map((order) => ({
-        ...order,
-        id: order.shop_order_id || order.id || 'NO-ID',
-        amount: order.subtotal || order.amount || 0,
-        code: order.claim_code || order.code || 'NO-CODE',
-        paid_at: order.created_at || order.paid_at || null,
-        order_items: order.order_items ?? [],
-        // Map first order_item's item to top-level 'item' so UI cards don't break
-        item: order.order_items?.[0]?.item ?? null,
-      }));
-
-      // V2 enums: claim_status is PENDING, PARTIAL_FULFILLMENT, FULFILLED, EXPIRED
-      const active = normalizedOrders.filter(
-        (o) => o.claim_status === 'PENDING' || o.claim_status === 'PARTIAL_FULFILLMENT'
-      );
-      const fulfilled = normalizedOrders.filter((o) => o.claim_status === 'FULFILLED');
-
-      setActiveOrders(active as unknown as Order[]);
-      setFulfilledOrders(fulfilled as unknown as Order[]);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-    }
-  };
-
-  const fetchAnalytics = async (currentShopId: string) => {
-    try {
-      // 1. Get fulfilled shop_orders for volume and value stats (V2)
-      const { data: ordersData } = await supabase
-        .from('shop_orders')
-        .select('subtotal, fulfilled_at')
-        .eq('shop_id', currentShopId)
-        .eq('claim_status', 'FULFILLED');
-
-      const totalValue = ordersData?.reduce((sum: number, o: any) => sum + (o.subtotal || 0), 0) || 0;
-
-      const oneWeekAgo = new Date();
-      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-      const weekOrders = ordersData?.filter(
-        (o: any) => o.fulfilled_at && new Date(o.fulfilled_at) >= oneWeekAgo
-      );
-      const weekFulfilled = weekOrders?.length || 0;
-      const weekValue = weekOrders?.reduce((sum: number, o: any) => sum + (o.subtotal || 0), 0) || 0;
-
-      // 2. Calculate available balance from payout_ledger (unsettled credits)
-      const { data: ledgerData } = await supabase
-        .from('payout_ledger')
-        .select('credit_amount')
-        .eq('shop_id', currentShopId)
-        .neq('status', 'SETTLED');
-
-      const availableBalance = ledgerData?.reduce((sum: number, row: any) => sum + (row.credit_amount || 0), 0) || 0;
-
-      setAnalytics(prev => ({
-        ...prev,
-        totalFulfilled: ordersData?.length || 0,
-        totalValue,
-        weekFulfilled,
-        weekValue,
-        availableBalance,
-      }));
-    } catch (error) {
-      console.error('Error syncing dashboard:', error);
-    }
-  };
-
-  const fetchLedger = async (currentShopId: string) => {
-    setLedgerLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('get-merchant-ledger', {
-        body: { shop_id: currentShopId },
-      });
-      if (error) throw error;
-      if (data?.success) {
-        setLedgerData(data.data || []);
-      }
-    } catch (error) {
-      console.error('Error fetching merchant ledger:', error);
-    } finally {
-      setLedgerLoading(false);
-    }
-  };
-
-  const handleFulfillOrder = async (_orderId: string) => {
-    navigate('/merchant/fulfill');
-  };
-
-
-  const handleWithdrawRequest = async () => {
-    if (!shopId || analytics.availableBalance <= 0) return;
-    setWithdrawing(true);
-    try {
-      const { error } = await supabase.functions.invoke('server', {
-        body: {
-          action: 'request_withdrawal',
-          shopId,
-          amount: analytics.availableBalance,
-        },
-      });
-      if (error) throw error;
-      // Optimistically clear the balance in UI — it'll reconcile on next fetch
-      setAnalytics(prev => ({ ...prev, availableBalance: 0 }));
-      alert('Withdrawal request submitted! KithLy will process it within 1-2 business days.');
-    } catch (err: any) {
-      console.error('[Withdraw] Failed:', err);
-      alert(err.message || 'Withdrawal request failed. Please try again.');
-    } finally {
-      setWithdrawing(false);
-    }
-  };
-
   const handleLogout = async (e: React.MouseEvent) => {
-    e.preventDefault(); // 1. STOPS the annoying page refresh!
+    e.preventDefault();
 
     try {
-      // 2. Tell the data center to destroy the token
-      await supabase.auth.signOut();
-
-      // 3. Clear any leftover zombie data in the browser
+      await signOut();
       localStorage.clear();
       sessionStorage.clear();
-
       navigate('/login', { replace: true });
     } catch (error) {
       console.error('Logout failed:', error);

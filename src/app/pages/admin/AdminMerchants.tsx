@@ -51,18 +51,39 @@ interface Shop {
 
 type EditTab = 'profile' | 'shop' | 'security';
 
+import { useAdminMerchants } from '../../hooks/useAdminMerchants';
+
+interface Merchant {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  created_at: string;
+  shop_id?: string;
+  shop_name?: string;
+}
+
+type EditTab = 'profile' | 'shop' | 'security';
+
 export function AdminMerchants() {
   const navigate = useNavigate();
 
-  // ── List state ──────────────────────────────────────────────────────────────
-  const [merchants, setMerchants] = useState<Merchant[]>([]);
-  const [shops, setShops] = useState<Shop[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    merchants,
+    shops,
+    loading,
+    creating,
+    saving,
+    createMerchant,
+    saveProfile: saveMerchantProfile,
+    saveShopAssignment: saveMerchantShopAssignment,
+    setNewPassword: saveMerchantNewPassword,
+    deleteMerchant,
+  } = useAdminMerchants();
 
   // ── Create dialog ────────────────────────────────────────────────────────────
   const [createOpen, setCreateOpen] = useState(false);
   const [createForm, setCreateForm] = useState({ name: '', email: '', password: '', shopId: '' });
-  const [creating, setCreating] = useState(false);
 
   // ── Edit panel ───────────────────────────────────────────────────────────────
   const [editMerchant, setEditMerchant] = useState<Merchant | null>(null);
@@ -70,16 +91,6 @@ export function AdminMerchants() {
   const [editProfile, setEditProfile] = useState({ name: '', phone: '' });
   const [editShopId, setEditShopId] = useState('');
   const [editPassword, setEditPassword] = useState('');
-  const [saving, setSaving] = useState(false);
-
-  // ── Init ─────────────────────────────────────────────────────────────────────
-  useEffect(() => { loadData(); }, []);
-
-  useEffect(() => {
-    if (createOpen) {
-      setCreateForm({ name: '', email: '', password: generatePassword(), shopId: '' });
-    }
-  }, [createOpen]);
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
   const generatePassword = () => {
@@ -87,87 +98,23 @@ export function AdminMerchants() {
     return Array.from({ length: 12 }, () => charset[Math.floor(Math.random() * charset.length)]).join('');
   };
 
-  const loadData = async () => {
-    try {
-      setLoading(true);
-
-      const { data: merchantsData, error: mErr } = await supabase
-        .from('users')
-        .select('*')
-        .eq('role', 'merchant')
-        .order('created_at', { ascending: false });
-      if (mErr) throw mErr;
-
-      const { data: shopsData, error: sErr } = await supabase
-        .from('shops')
-        .select('id, name')
-        .order('name');
-      if (sErr) throw sErr;
-      setShops(shopsData || []);
-
-      const enriched = await Promise.all(
-        (merchantsData || []).map(async (m) => {
-          const { data: assign } = await supabase
-            .from('merchant_shops')
-            .select('shop_id, shop:shops(name)')
-            .eq('user_id', m.id)
-            .maybeSingle();
-
-          const shopName =
-            (assign?.shop as any)?.name ??
-            (Array.isArray(assign?.shop) ? (assign.shop as any)[0]?.name : undefined) ??
-            null;
-
-          return {
-            id: m.id,
-            name: m.name,
-            email: m.email,
-            phone: m.phone ?? '',
-            created_at: m.created_at,
-            shop_id: assign?.shop_id ?? undefined,
-            shop_name: shopName,
-          } as Merchant;
-        })
-      );
-
-      setMerchants(enriched);
-    } catch (err: any) {
-      toast.error('Failed to load merchants');
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (createOpen) {
+      setCreateForm({ name: '', email: '', password: generatePassword(), shopId: '' });
     }
-  };
+  }, [createOpen]);
 
   // ── Create ───────────────────────────────────────────────────────────────────
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!createForm.name || !createForm.email || !createForm.password || !createForm.shopId) {
-      toast.error('Please fill in all fields');
-      return;
-    }
-    setCreating(true);
-    try {
-      await callServer('/merchants', {
-        body: {
-          name: createForm.name,
-          email: createForm.email,
-          password: createForm.password,
-          shopId: createForm.shopId,
-        },
-      });
-      toast.success('Merchant account created');
-      toast.info(`Temporary password: ${createForm.password}`, { duration: 10000 });
+    const success = await createMerchant(createForm);
+    if (success) {
       setCreateOpen(false);
-      loadData();
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to create merchant');
-    } finally {
-      setCreating(false);
     }
   };
 
   // ── Open edit panel ───────────────────────────────────────────────────────────
-  const openEdit = (m: Merchant) => {
+  const openEdit = (m: any) => {
     setEditMerchant(m);
     setEditProfile({ name: m.name, phone: m.phone ?? '' });
     setEditShopId(m.shop_id ?? 'unassigned');
@@ -179,104 +126,37 @@ export function AdminMerchants() {
 
   // ── Save profile ─────────────────────────────────────────────────────────────
   const saveProfile = async () => {
-    if (!editMerchant || !editProfile.name.trim()) {
-      toast.error('Name is required');
-      return;
-    }
-    setSaving(true);
-    try {
-      const { error } = await supabase
-        .from('users')
-        .update({ name: editProfile.name.trim(), phone: editProfile.phone.trim() || null })
-        .eq('id', editMerchant.id);
-      if (error) throw error;
-      toast.success('Profile updated');
-      loadData();
+    if (!editMerchant) return;
+    const success = await saveMerchantProfile(editMerchant.id, editProfile);
+    if (success) {
       closeEdit();
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to update profile');
-    } finally {
-      setSaving(false);
     }
   };
 
   // ── Save shop assignment ──────────────────────────────────────────────────────
   const saveShopAssignment = async () => {
     if (!editMerchant) return;
-    setSaving(true);
-    try {
-      // Remove old assignment
-      await supabase.from('merchant_shops').delete().eq('user_id', editMerchant.id);
-
-      if (editShopId && editShopId !== 'unassigned') {
-        const { error } = await supabase
-          .from('merchant_shops')
-          .insert({ user_id: editMerchant.id, shop_id: editShopId });
-        if (error) throw error;
-      }
-
-      toast.success('Shop assignment updated');
-      loadData();
+    const success = await saveMerchantShopAssignment(editMerchant.id, editShopId);
+    if (success) {
       closeEdit();
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to update shop assignment');
-    } finally {
-      setSaving(false);
     }
   };
 
   // ── Reset password ────────────────────────────────────────────────────────────
-  const sendPasswordReset = async (email: string) => {
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
-      if (error) throw error;
-      toast.success(`Password reset email sent to ${email}`);
-    } catch (err: any) {
-      toast.error('Failed to send reset email');
-    }
-  };
-
   const setNewPassword = async () => {
-    if (!editMerchant || editPassword.length < 8) {
-      toast.error('Password must be at least 8 characters');
-      return;
-    }
-    setSaving(true);
-    try {
-      // Admin password reset via server function
-      await callServer('/admin-reset-password', {
-        body: { userId: editMerchant.id, newPassword: editPassword },
-      });
-      toast.success('Password updated');
+    if (!editMerchant) return;
+    const success = await saveMerchantNewPassword(editMerchant.id, editPassword, editMerchant.email);
+    if (success) {
       setEditPassword('');
       closeEdit();
-    } catch (err: any) {
-      // Fallback: send email reset instead
-      await sendPasswordReset(editMerchant.email);
-      toast.info('Direct reset unavailable — sent email reset instead');
-      closeEdit();
-    } finally {
-      setSaving(false);
     }
   };
 
   // ── Delete ────────────────────────────────────────────────────────────────────
-  const handleDelete = async (merchant: Merchant) => {
-    try {
-      // Remove shop assignment first
-      await supabase.from('merchant_shops').delete().eq('user_id', merchant.id);
-      // Downgrade role to sender (auth deletion requires Admin API)
-      const { error } = await supabase
-        .from('users')
-        .update({ role: 'sender' })
-        .eq('id', merchant.id);
-      if (error) throw error;
-      toast.success(`${merchant.name} removed as merchant`);
-      loadData();
-    } catch (err: any) {
-      toast.error('Failed to remove merchant');
-    }
+  const handleDelete = async (merchant: any) => {
+    await deleteMerchant(merchant.id, merchant.name);
   };
+
 
   // ── UI ────────────────────────────────────────────────────────────────────────
   const tabs: { id: EditTab; label: string; icon: React.ReactNode }[] = [

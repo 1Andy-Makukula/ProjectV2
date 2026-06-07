@@ -7,166 +7,29 @@ import { Input } from '../../components/ui/input';
 import { Badge } from '../../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
-import { supabase } from '../../../lib/supabaseClient';
 import { formatCurrency } from '../../../utils/currency';
-import { callServer } from '../../../utils/server';
-import { toast } from 'sonner';
-
-// ---------------------------------------------------------------------------
-// V2 Schema Types
-// ---------------------------------------------------------------------------
-
-/**
- * Flattened order view combining fields from:
- *   transactions → shop_orders → order_items → items, shops
- *   transactions.buyer → users
- */
-interface Order {
-  // transaction fields
-  transaction_id: string;        // used as the primary "id" throughout
-  tx_status: string;             // GATEWAY_PROCESSING | SUCCESSFUL | FAILED | CANCELLED
-  total_amount: number;
-  gateway_tx_ref: string | null;
-  created_at: string;
-
-  // shop_order fields (first shop order for display)
-  shop_order_id: string | null;
-  claim_code: string | null;
-  claim_status: string | null;   // PENDING_PAYMENT | PENDING | REDEEMED | CANCELLED
-
-  // display fields
-  item_name: string | null;
-  item_image_url: string | null;
-  shop_name: string | null;
-  sender_name: string | null;
-  recipient_name: string | null;
-  amount: number;                // alias for total_amount
-  status: StatusFilter;          // derived unified status
-  fulfilled_at: string | null;   // shop_order.updated_at when REDEEMED
-}
-
-/** Unified display statuses that map multiple V2 states onto simple UI tabs */
-type StatusFilter = 'all' | 'pending_payment' | 'paid' | 'fulfilled' | 'expired' | 'cancelled';
-
-// ---------------------------------------------------------------------------
-// Status mapping
-// ---------------------------------------------------------------------------
-
-function deriveStatus(txStatus: string, claimStatus: string | null): Exclude<StatusFilter, 'all'> {
-  if (txStatus === 'GATEWAY_PROCESSING') return 'pending_payment';
-  if (txStatus === 'FAILED' || txStatus === 'CANCELLED') return 'cancelled';
-  if (claimStatus === 'REDEEMED') return 'fulfilled';
-  if (claimStatus === 'PENDING') return 'paid';
-  return 'pending_payment';
-}
-
-const STATUS_COLORS: Record<string, string> = {
-  fulfilled:       'bg-green-100 text-green-800 border-green-200',
-  paid:            'bg-blue-100 text-blue-800 border-blue-200',
-  pending_payment: 'bg-orange-100 text-orange-800 border-orange-200',
-  expired:         'bg-red-100 text-red-800 border-red-200',
-  cancelled:       'bg-red-100 text-red-800 border-red-200',
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  fulfilled:       'Fulfilled',
-  paid:            'Paid',
-  pending_payment: 'Pending',
-  expired:         'Expired',
-  cancelled:       'Cancelled',
-};
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
+import { useAdminOrders } from '../../hooks/useAdminOrders';
+import { STATUS_COLORS, STATUS_LABELS } from '../../../utils/orderStatus';
+import { Order, StatusFilter } from '../../types/orders';
 
 export function AdminOrders() {
   const navigate = useNavigate();
-  const [orders, setOrders] = useState<Order[]>([]);
+
+  const {
+    orders,
+    loading,
+    actionOrderId,
+    updateOrderStatus,
+    exportToCSV,
+  } = useAdminOrders();
+
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
-  const [loading, setLoading] = useState(true);
-  const [actionOrderId, setActionOrderId] = useState<string | null>(null);
-
-  useEffect(() => {
-    loadOrders();
-  }, []);
 
   useEffect(() => {
     filterOrders();
   }, [orders, searchQuery, statusFilter]);
-
-  const loadOrders = async () => {
-    try {
-      setLoading(true);
-
-      // V2: Query transactions joined with shop_orders, order_items → items, shops, buyer
-      const { data, error } = await supabase
-        .from('transactions')
-        .select(`
-          transaction_id,
-          status,
-          total_amount,
-          gateway_tx_ref,
-          created_at,
-          buyer:buyer_id (name),
-          shop_orders (
-            shop_order_id,
-            claim_code,
-            claim_status,
-            recipient_name,
-            updated_at,
-            shop:shop_id (name),
-            order_items (
-              item:item_id (name, image_url)
-            )
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      const formattedOrders: Order[] = (data ?? []).map((txn: any) => {
-        const firstShopOrder = txn.shop_orders?.[0];
-        const firstItem = firstShopOrder?.order_items?.[0]?.item;
-        const shop = firstShopOrder?.shop;
-        const claimStatus = firstShopOrder?.claim_status ?? null;
-        const derivedStatus = deriveStatus(txn.status, claimStatus);
-
-        return {
-          transaction_id: txn.transaction_id,
-          tx_status: txn.status,
-          total_amount: txn.total_amount,
-          gateway_tx_ref: txn.gateway_tx_ref,
-          created_at: txn.created_at,
-
-          shop_order_id: firstShopOrder?.shop_order_id ?? null,
-          claim_code: firstShopOrder?.claim_code ?? null,
-          claim_status: claimStatus,
-
-          item_name: firstItem?.name ?? null,
-          item_image_url: firstItem?.image_url ?? null,
-          shop_name: shop?.name ?? null,
-          sender_name: (txn.buyer as any)?.name ?? null,
-          recipient_name: firstShopOrder?.recipient_name ?? null,
-          amount: txn.total_amount,
-          status: derivedStatus,
-          fulfilled_at:
-            derivedStatus === 'fulfilled'
-              ? (firstShopOrder?.updated_at ?? null)
-              : null,
-        };
-      });
-
-      setOrders(formattedOrders);
-    } catch (error: any) {
-      console.error('Error loading orders:', error);
-      toast.error('Failed to load orders');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const filterOrders = () => {
     let filtered = orders;
@@ -189,77 +52,8 @@ export function AdminOrders() {
     setFilteredOrders(filtered);
   };
 
-  const exportToCSV = () => {
-    const headers = ['Code', 'Item', 'Shop', 'Sender', 'Recipient', 'Amount', 'Status', 'Created', 'Fulfilled'];
-    const rows = filteredOrders.map((order) => [
-      order.claim_code ?? '',
-      order.item_name ?? '',
-      order.shop_name ?? '',
-      order.sender_name ?? '',
-      order.recipient_name ?? '',
-      (order.total_amount).toFixed(2),
-      order.status,
-      new Date(order.created_at).toLocaleDateString(),
-      order.fulfilled_at ? new Date(order.fulfilled_at).toLocaleDateString() : 'N/A',
-    ]);
-
-    const csvContent = [
-      headers.join(','),
-      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `kithly-orders-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-    toast.success('Orders exported to CSV');
-  };
-
-  /**
-   * V2 status update logic:
-   *   "paid"      → call confirm_payment action, which sets transaction.status = SUCCESSFUL
-   *                  and all shop_orders.claim_status = PENDING
-   *   "expired"   → set transaction.status = CANCELLED + shop_orders.claim_status = CANCELLED
-   */
-  const updateOrderStatus = async (
-    order: Order,
-    newStatus: 'paid' | 'expired',
-  ) => {
-    try {
-      setActionOrderId(order.transaction_id);
-
-      if (newStatus === 'paid') {
-        // callServer invokes the server Edge Function's confirm_payment action
-        // which now updates transactions + shop_orders (V2).
-        await callServer(`/orders/${order.transaction_id}/confirm-payment`);
-      } else {
-        // Mark as expired/cancelled in both tables
-        const { error: txError } = await supabase
-          .from('transactions')
-          .update({ status: 'CANCELLED' })
-          .eq('transaction_id', order.transaction_id);
-
-        if (txError) throw txError;
-
-        if (order.shop_order_id) {
-          await supabase
-            .from('shop_orders')
-            .update({ claim_status: 'CANCELLED' })
-            .eq('transaction_id', order.transaction_id);
-        }
-      }
-
-      toast.success(`Order marked as ${newStatus}`);
-      await loadOrders();
-    } catch (error: any) {
-      console.error('Error updating order:', error);
-      toast.error(error.message || 'Failed to update order');
-    } finally {
-      setActionOrderId(null);
-    }
+  const handleExport = () => {
+    exportToCSV(filteredOrders);
   };
 
   const getStatusColor = (status: string) =>

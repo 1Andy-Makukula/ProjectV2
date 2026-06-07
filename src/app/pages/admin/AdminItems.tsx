@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { motion } from 'motion/react';
 import { Plus, Edit } from 'lucide-react';
@@ -8,22 +7,7 @@ import { Badge } from '../../components/ui/badge';
 import { Switch } from '../../components/ui/switch';
 import { PageShell, PageBody } from '../../components/layout/PageShell';
 import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
-import { supabase } from '../../../lib/supabaseClient';
-import { toast } from 'sonner';
-
-interface Item {
-  id: string;
-  name: string;
-  description: string;
-  price_zmw: number;
-  image_url: string;
-  is_available: boolean;
-}
-
-interface Shop {
-  id: string;
-  name: string;
-}
+import { useAdminItems } from '../../hooks/useAdminItems';
 
 interface AdminItemsProps {
   merchantShopId?: string;
@@ -36,70 +20,8 @@ export function AdminItems({ merchantShopId, baseRoute = '/admin' }: AdminItemsP
   const activeShopId = merchantShopId || paramShopId;
   const isMerchantMode = !!merchantShopId;
 
-  const [shop, setShop] = useState<Shop | null>(null);
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { shop, items, loading, toggleItemAvailability } = useAdminItems(activeShopId);
 
-  useEffect(() => {
-    if (activeShopId) {
-      loadShopAndItems();
-    }
-  }, [activeShopId]);
-
-  const loadShopAndItems = async () => {
-    try {
-      setLoading(true);
-
-      // Load shop details
-      const { data: shopData, error: shopError } = await supabase
-        .from('shops')
-        .select('id, name')
-        .eq('id', activeShopId)
-        .single();
-
-      if (shopError) throw shopError;
-      setShop(shopData);
-
-      // Load items
-      const { data: itemsData, error: itemsError } = await supabase
-        .from('items')
-        .select('*')
-        .eq('shop_id', activeShopId)
-        .order('created_at', { ascending: false });
-
-      if (itemsError) throw itemsError;
-      setItems(itemsData || []);
-    } catch (error: any) {
-      console.error('Error loading data:', error);
-      toast.error('Failed to load items');
-      navigate('/admin/shops');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const toggleItemAvailability = async (itemId: string, currentStatus: boolean) => {
-    try {
-      let query = supabase
-        .from('items')
-        .update({ is_available: !currentStatus })
-        .eq('id', itemId);
-        
-      if (merchantShopId) {
-        query = query.eq('shop_id', merchantShopId);
-      }
-
-      const { error } = await query;
-
-      if (error) throw error;
-
-      toast.success(`Item ${!currentStatus ? 'enabled' : 'disabled'} successfully`);
-      loadShopAndItems();
-    } catch (error: any) {
-      console.error('Error toggling item availability:', error);
-      toast.error('Failed to update item availability');
-    }
-  };
 
   return (
     <PageShell>

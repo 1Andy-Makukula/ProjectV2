@@ -10,14 +10,12 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   ChevronLeft,
   ChevronRight,
-  MapPin,
   Shield,
   Store,
   ArrowRight,
   Package,
 } from 'lucide-react';
 import { Skeleton } from '../components/ui/skeleton';
-import { formatCurrency } from '../../utils/currency';
 import { ShopCard } from '../components/shared/ShopCard';
 import { StorefrontProductCard } from '../components/shared/StorefrontProductCard';
 import { Header } from '../components/layout/Header';
@@ -123,14 +121,6 @@ function ItemCardSkeleton() {
       </div>
     </div>
   );
-}
-
-// ─────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────
-
-function shopInitial(name: string) {
-  return name.trim().charAt(0).toUpperCase();
 }
 
 // ─────────────────────────────────────────────
@@ -287,7 +277,6 @@ export function ConsumerStorefront() {
 
       {/* ── Global Header ─────────────────────── */}
       <Header
-        onCartClick={() => navigate('/checkout')}
         onProfileClick={() => navigate('/settings')}
         onLogoClick={() => navigate('/')}
       />
@@ -492,7 +481,7 @@ export function ConsumerStorefront() {
                   <ShopCard
                     shop={shop}
                     itemCount={shop.itemCount}
-                    onClick={() => navigate('/signup')}
+                    onClick={() => navigate(profile ? `/shop/${shop.id}` : '/signup')}
                   />
                 </motion.div>
               ))}

@@ -64,26 +64,26 @@ export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
             </span>
           </div>
         )}
+      </div>
 
-        {/* ── Logo — overlaps the bottom-left of the cover ────── */}
-        <div className="absolute -bottom-6 left-5">
-          {logo ? (
-            <img
-              src={logo}
-              alt={`${shop.name} logo`}
-              className="h-14 w-14 rounded-full object-cover
-                         border-[3px] border-white shadow-sm bg-white"
-            />
-          ) : (
-            <div
-              className="h-14 w-14 rounded-full border-[3px] border-white shadow-sm
-                         fl ex items-center justify-center text-white text-lg font-bold"
-              style={{ background: 'linear-gradient(135deg,#f97316,#fb923c)' }}
-            >
-              {shopInitial(shop.name)}
-            </div>
-          )}
-        </div>
+      {/* ── Logo — overlaps the bottom-left of the cover ────── */}
+      <div className="absolute top-[164px] left-5 z-10">
+        {logo ? (
+          <img
+            src={logo}
+            alt={`${shop.name} logo`}
+            className="h-14 w-14 rounded-full object-cover
+                       border-[3px] border-white shadow-sm bg-white"
+          />
+        ) : (
+          <div
+            className="h-14 w-14 rounded-full border-[3px] border-white shadow-sm
+                       flex items-center justify-center text-white text-lg font-bold"
+            style={{ background: 'linear-gradient(135deg,#f97316,#fb923c)' }}
+          >
+            {shopInitial(shop.name)}
+          </div>
+        )}
       </div>
 
       {/* ── Body — top padding clears logo overlap ────────────── */}
