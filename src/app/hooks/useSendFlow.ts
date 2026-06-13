@@ -215,5 +215,6 @@ export function useSendFlow(itemId: string | undefined) {
     setSenderPhone,
     handlePay,
     resetFlow,
+    profile,
   };
 }

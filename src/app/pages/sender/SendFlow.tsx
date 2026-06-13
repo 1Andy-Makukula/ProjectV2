@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { useSendFlowStore } from '../../../utils/sendFlowStore';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
@@ -8,16 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import { PhoneInput } from '../../components/shared/PhoneInput';
 import { ArrowLeft, Store, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useCart } from '../../hooks/useCart';
 import { PaymentProcessingScreen } from '../../components/checkout/PaymentProcessingScreen';
 import { formatZMW } from '../../utils/formatters';
 import { useSendFlow } from '../../hooks/useSendFlow';
-
-type CheckoutStage =
-  | 'FORM'
-  | 'SECURING'
-  | 'PROCESSING'
-  | 'ERROR';
 
 interface ShopOrderResult {
   shop_order_id: string;
@@ -26,24 +18,15 @@ interface ShopOrderResult {
   subtotal: number;
 }
 
-interface CheckoutInitResponse {
-  success: boolean;
-  transaction_id: string;
-  shop_orders: ShopOrderResult[];
-  payment_link: string;
-}
-
-const fadeUp = {
+const fadeUp: any = {
   hidden:  { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const } },
   exit:    { opacity: 0, y: -12, transition: { duration: 0.25, ease: 'easeIn' } },
 };
 
 export function SendFlow() {
   const { itemId } = useParams<{ itemId: string }>();
   const navigate = useNavigate();
-  const { setRecipient } = useSendFlowStore();
-  const { addToCart, items: cartItems } = useCart();
 
   const {
     item,
@@ -59,7 +42,7 @@ export function SendFlow() {
     senderPhone,
     setSenderPhone,
     handlePay,
-    resetFlow,
+    profile,
   } = useSendFlow(itemId);
 
   const handlePhoneChange = useCallback((value: string) => {

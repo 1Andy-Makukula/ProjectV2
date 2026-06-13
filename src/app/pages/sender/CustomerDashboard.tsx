@@ -1,10 +1,10 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { useCustomerDashboard } from '../../hooks/useCustomerDashboard';
 import { motion, AnimatePresence } from 'motion/react';
 import { TrendingUp, Gift, Store, ArrowLeft, Sparkles, Bell, X, Clock, AlertCircle, ChevronRight, CreditCard, Receipt, Send, Inbox, Package, CheckCircle2, QrCode, Coins, Lock, PhoneOff } from 'lucide-react';
-import { toast } from 'sonner';
+
 import {
   Card,
   CardContent,
@@ -24,7 +24,7 @@ import {
 } from '../../components/ui/dialog';
 import { QRCodeDisplay } from '../../components/shared/QRCodeDisplay';
 import { EmptyState } from '../../components/shared/EmptyState';
-import type { FloatingItem } from '../../../types/database.types';
+
 import { WalletLedgerView } from '../../components/shared/WalletLedgerView';
 import { ActiveVouchers } from '../../components/features/ActiveVouchers';
 import { ClaimHistory } from '../../components/features/ClaimHistory';
