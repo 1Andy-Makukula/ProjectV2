@@ -135,12 +135,16 @@ export function useAdminMerchants() {
     setSaving(true);
     try {
       // Remove old assignment
-      await supabase.from('merchant_shops').delete().eq('user_id', merchantId);
+      const { error: deleteError } = await supabase
+        .from('merchant_shops')
+        .delete()
+        .eq('user_id', merchantId);
+      if (deleteError) throw deleteError;
 
       if (shopId && shopId !== 'unassigned') {
         const { error } = await supabase
           .from('merchant_shops')
-          .insert({ user_id: merchantId, shop_id: shopId });
+          .upsert({ user_id: merchantId, shop_id: shopId }, { onConflict: 'user_id' });
         if (error) throw error;
       }
 

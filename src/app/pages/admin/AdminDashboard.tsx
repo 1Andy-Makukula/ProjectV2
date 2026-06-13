@@ -19,7 +19,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
-import { useAdminDashboard, RecentOrder } from '../../hooks/useAdminDashboard';
+import { useAdminDashboard } from '../../hooks/useAdminDashboard';
+import { RecentOrder } from '../../types/orders';
 import { STATUS_COLORS, STATUS_LABELS } from '../../../utils/orderStatus';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { formatCurrency } from '../../../utils/currency';

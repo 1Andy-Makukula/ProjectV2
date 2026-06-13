@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
-import { supabase } from '../../../lib/supabaseClient';
+import { useCustomerDashboard } from '../../hooks/useCustomerDashboard';
 import { motion, AnimatePresence } from 'motion/react';
 import { TrendingUp, Gift, Store, ArrowLeft, Sparkles, Bell, X, Clock, AlertCircle, ChevronRight, CreditCard, Receipt, Send, Inbox, Package, CheckCircle2, QrCode, Coins, Lock, PhoneOff } from 'lucide-react';
 import { toast } from 'sonner';
@@ -157,14 +157,26 @@ function formatDate(iso: string): string {
 
 export function CustomerDashboard() {
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { profile } = useAuth();
 
-  const [metricsLoading, setMetricsLoading] = useState(true);
-  const [totalGenerosity, setTotalGenerosity] = useState(0);
-  const [giftsDelivered, setGiftsDelivered] = useState(0);
-  const [shopsSupported, setShopsSupported] = useState(0);
-
-  const [latestNotification, setLatestNotification] = useState<any | null>(null);
+  const {
+    orders,
+    loadingOrders,
+    floatingItems,
+    loadingFloating,
+    receivedGifts,
+    loadingReceived,
+    metricsLoading,
+    totalGenerosity,
+    giftsDelivered,
+    shopsSupported,
+    resumingPaymentId,
+    convertingItemId,
+    latestNotification,
+    setLatestNotification,
+    handleResumePayment,
+    handleConvert,
+  } = useCustomerDashboard();
 
   // Top-level panel: 'sending' | 'receiving' — persisted to localStorage
   const LS_KEY = 'kithly_active_dashboard_view';
@@ -181,263 +193,8 @@ export function CustomerDashboard() {
   }, []);
 
   const [activeTab, setActiveTab] = useState('orders');
-  const [floatingItems, setFloatingItems] = useState<FloatingItem[]>([]);
-  const [loadingFloating, setLoadingFloating] = useState(false);
   const [selectedClaimCode, setSelectedClaimCode] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [convertingItemId, setConvertingItemId] = useState<string | null>(null);
-
-  const [orders, setOrders] = useState<any[]>([]);
-  const [loadingOrders, setLoadingOrders] = useState(true);
-  const [resumingPaymentId, setResumingPaymentId] = useState<string | null>(null);
-
-  const [receivedGifts, setReceivedGifts] = useState<any[]>([]);
-  const [loadingReceived, setLoadingReceived] = useState(false);
-  const handleResumePayment = async (order: any) => {
-    setResumingPaymentId(order.transaction_id);
-
-    try {
-      const { data, error } = await supabase.functions.invoke('checkout-retry', {
-        body: {
-          transaction_id: order.transaction_id,
-        },
-      });
-
-      if (error) throw error;
-      if (data?.success === false || data?.error) {
-        throw new Error(data.error || 'Failed to retry payment');
-      }
-
-      if (!data?.payment_link) {
-        throw new Error('No payment link returned');
-      }
-
-      toast.success('Opening payment gateway...');
-      window.open(data.payment_link, '_blank');
-      
-      // Refresh local UI states using the optimized pipeline
-      fetchOrdersAndMetrics();
-    } catch (err: any) {
-      console.error('[CustomerDashboard] resume payment error:', err);
-      let errorMsg = err.message || 'Failed to resume payment';
-      if (err.context && typeof err.context.json === 'function') {
-        try {
-          const body = await err.context.json();
-          if (body && body.error) {
-            errorMsg = body.error;
-          }
-        } catch (_) {}
-      }
-      toast.error(errorMsg);
-    } finally {
-      setResumingPaymentId(null);
-    }
-  };
-
-
-  const fetchFloatingItems = async () => {
-    if (!profile?.phone) return;
-    setLoadingFloating(true);
-    try {
-      const { data, error } = await supabase
-        .from('order_items')
-        .select('order_item_id, created_at, child_claim_code, allocated_price, items(name, image_url), shop_orders!inner(recipient_phone)')
-        .eq('fulfillment_status', 'FLOATING')
-        .eq('shop_orders.recipient_phone', profile.phone);
-
-      if (error) throw error;
-      setFloatingItems((data as any) || []);
-    } catch (err) {
-      console.error('[CustomerDashboard] fetchFloatingItems error:', err);
-      setFloatingItems([]);
-    } finally {
-      setLoadingFloating(false);
-    }
-  };
-
-  const fetchReceivedGifts = async () => {
-    if (!profile?.phone) return;
-    setLoadingReceived(true);
-    try {
-      const { data, error } = await supabase
-        .from('shop_orders')
-        .select(`
-          shop_order_id,
-          claim_code,
-          claim_status,
-          created_at,
-          message,
-          recipient_name,
-          recipient_phone,
-          subtotal,
-          shops (
-            name,
-            address,
-            logo_url
-          ),
-          transactions (
-            users (
-              name
-            )
-          ),
-          order_items (
-            items (
-              name,
-              image_url
-            )
-          )
-        `)
-        .eq('recipient_phone', profile.phone)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setReceivedGifts(data || []);
-    } catch (err) {
-      console.error('[CustomerDashboard] fetchReceivedGifts error:', err);
-      setReceivedGifts([]);
-    } finally {
-      setLoadingReceived(false);
-    }
-  };
-
-  const fetchOrdersAndMetrics = async () => {
-    if (!profile?.id) return;
-    setLoadingOrders(true);
-    setMetricsLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('transactions')
-        .select(`
-          transaction_id,
-          buyer_id,
-          total_amount,
-          status,
-          gateway_tx_ref,
-          created_at,
-          shop_orders (
-            shop_order_id,
-            claim_code,
-            claim_status,
-            recipient_name,
-            shop_id,
-            shop:shop_id (name),
-            order_items (
-              item:item_id (name, image_url)
-            )
-          )
-        `)
-        .eq('buyer_id', profile.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      let totalGen = 0;
-      let deliveredCount = 0;
-      const uniqueShops = new Set<string>();
-
-      const flatOrders = (data ?? []).map((txn: any) => {
-        totalGen += txn.total_amount ?? 0;
-        
-        if (txn.shop_orders) {
-          txn.shop_orders.forEach((so: any) => {
-            deliveredCount += 1;
-            if (so.shop_id) uniqueShops.add(so.shop_id);
-          });
-        }
-
-        const firstShopOrder = txn.shop_orders?.[0];
-        const firstItem = firstShopOrder?.order_items?.[0]?.item;
-        const shop = firstShopOrder?.shop;
-
-        return {
-          transaction_id: txn.transaction_id,
-          buyer_id: txn.buyer_id,
-          total_amount: txn.total_amount,
-          status: txn.status,
-          gateway_tx_ref: txn.gateway_tx_ref,
-          created_at: txn.created_at,
-          claim_code: firstShopOrder?.claim_code ?? null,
-          claim_status: firstShopOrder?.claim_status ?? null,
-          recipient_name: firstShopOrder?.recipient_name ?? null,
-          shop_name: shop?.name ?? null,
-          item_name: firstItem?.name ?? null,
-          item_image_url: firstItem?.image_url ?? null,
-        };
-      });
-
-      setOrders(flatOrders);
-      setTotalGenerosity(totalGen);
-      setGiftsDelivered(deliveredCount);
-      setShopsSupported(uniqueShops.size);
-
-    } catch (err) {
-      console.error('[CustomerDashboard] fetchOrdersAndMetrics error:', err);
-      setTotalGenerosity(0);
-      setGiftsDelivered(0);
-      setShopsSupported(0);
-    } finally {
-      setLoadingOrders(false);
-      setMetricsLoading(false);
-    }
-  };
-
-  const handleConvert = async (item: FloatingItem) => {
-    if (!user?.id) {
-      toast.error('You must be logged in to convert items to credits.');
-      return;
-    }
-    setConvertingItemId(item.order_item_id);
-    try {
-      const { error } = await supabase.rpc('convert_floating_item_to_credits', {
-        p_item_id: item.order_item_id,
-        p_user_id: user.id,
-      });
-
-      if (error) throw error;
-
-      toast.success('Credits added to your wallet!');
-      fetchFloatingItems();
-      window.dispatchEvent(new Event('wallet-update'));
-    } catch (err: any) {
-      console.error('[CustomerDashboard] handleConvert error:', err);
-      toast.error(err.message || 'Failed to convert item to credits.');
-    } finally {
-      setConvertingItemId(null);
-    }
-  };
-
-  useEffect(() => {
-    if (!profile?.id) return;
-    
-    // Fire all initial queries in parallel
-    const promises = [fetchOrdersAndMetrics()];
-    if (profile?.phone) {
-      promises.push(fetchReceivedGifts(), fetchFloatingItems());
-    }
-    Promise.all(promises);
-
-    const channel = supabase
-      .channel('dashboard-notifications')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${profile.id}`,
-        },
-        (payload) => {
-          const newNotif = payload.new;
-          setLatestNotification(newNotif);
-          setTimeout(() => setLatestNotification(null), 5000);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [profile?.id, profile?.phone]);
 
   return (
     <div className="min-h-screen bg-gray-50">

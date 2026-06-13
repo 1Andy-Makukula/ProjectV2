@@ -1,74 +1,17 @@
-import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { supabase } from '../../../lib/supabaseClient';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
 import { ArrowLeft, Store, MapPin, ShoppingCart, Gift } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useCart, toProduct } from '../../hooks/useCart';
+import { useShopDetail } from '../../hooks/useShopDetail';
 import { toast } from 'sonner';
-
-interface Shop {
-  id: string;
-  name: string;
-  description: string | null;
-  address: string | null;
-  image_url: string | null;
-  logo_url: string | null;
-  cover_image_url: string | null;
-}
-
-interface Item {
-  id: string;
-  name: string;
-  description: string | null;
-  price_zmw: number;
-  currency: string;
-  image_url: string | null;
-  is_available: boolean;
-}
 
 export function ShopDetail() {
   const { shopId } = useParams<{ shopId: string }>();
   const navigate = useNavigate();
   const { addToCart, setCartSliderOpen } = useCart();
-  const [shop, setShop] = useState<Shop | null>(null);
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchShopDetails();
-  }, [shopId]);
-
-  const fetchShopDetails = async () => {
-    if (!shopId) return;
-
-    try {
-      const [shopResponse, itemsResponse] = await Promise.all([
-        supabase
-          .from('shops')
-          .select('*')
-          .eq('id', shopId)
-          .eq('is_active', true)
-          .single(),
-        supabase
-          .from('items')
-          .select('*')
-          .eq('shop_id', shopId)
-          .order('created_at', { ascending: false })
-      ]);
-
-      if (shopResponse.error) throw shopResponse.error;
-      if (itemsResponse.error) throw itemsResponse.error;
-
-      setShop(shopResponse.data);
-      setItems(itemsResponse.data || []);
-    } catch (error) {
-      console.error('Error fetching shop details:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { shop, items, loading } = useShopDetail(shopId);
 
   if (loading) {
     return (

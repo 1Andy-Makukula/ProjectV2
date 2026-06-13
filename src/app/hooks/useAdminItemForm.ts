@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { uploadItemImage } from '../../utils/uploadImage';
+import { uploadItemImage, deleteStorefrontAsset } from '../../utils/uploadImage';
 import { toCents } from '../../utils/currency';
 import { toast } from 'sonner';
+import { parseAuthError } from '../../utils/errorParser';
 
 export interface ItemFormData {
   name: string;
@@ -71,7 +72,7 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
       });
     } catch (error: any) {
       console.error('Error loading item:', error);
-      toast.error('Failed to load item data');
+      toast.error(parseAuthError(error));
     } finally {
       setLoading(false);
     }
@@ -141,7 +142,7 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
       return true;
     } catch (error: any) {
       console.error('Error saving item:', error);
-      toast.error(error.message || 'Failed to save item');
+      toast.error(parseAuthError(error));
       return false;
     } finally {
       setLoading(false);
@@ -155,10 +156,7 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
     setLoading(true);
     try {
       if (formData.image_url) {
-        const filePath = formData.image_url.split('/public/storefront-assets/')[1];
-        if (filePath) {
-          await supabase.storage.from('storefront-assets').remove([filePath]).catch(console.error);
-        }
+        await deleteStorefrontAsset(formData.image_url).catch(console.error);
       }
 
       const { error } = await supabase
@@ -172,7 +170,7 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
       return true;
     } catch (error: any) {
       console.error('Error deleting item:', error);
-      toast.error('Failed to delete item');
+      toast.error(parseAuthError(error));
       return false;
     } finally {
       setLoading(false);

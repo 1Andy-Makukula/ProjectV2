@@ -4,6 +4,7 @@ import { callServer } from '../../utils/server';
 import { OrderDetail } from '../types/orders';
 import { deriveStatus } from '../../utils/orderStatus';
 import { toast } from 'sonner';
+import { parseAuthError } from '../../utils/errorParser';
 
 export function useAdminOrderDetail(orderId?: string) {
   const [order, setOrder] = useState<OrderDetail | null>(null);
@@ -91,7 +92,7 @@ export function useAdminOrderDetail(orderId?: string) {
       setOrder(detail);
     } catch (error: any) {
       console.error('Error loading order:', error);
-      toast.error('Failed to load order details');
+      toast.error(parseAuthError(error));
     } finally {
       setLoading(false);
     }
@@ -121,10 +122,11 @@ export function useAdminOrderDetail(orderId?: string) {
 
         if (txErr) throw txErr;
 
-        await supabase
+        const { error: soErr } = await supabase
           .from('shop_orders')
           .update({ claim_status: 'CANCELLED' })
           .eq('transaction_id', order.transaction_id);
+        if (soErr) throw soErr;
       }
 
       toast.success(`Order marked as ${newStatus}`);
@@ -132,7 +134,7 @@ export function useAdminOrderDetail(orderId?: string) {
       return true;
     } catch (error: any) {
       console.error('Error updating order status:', error);
-      toast.error('Failed to update order status');
+      toast.error(parseAuthError(error));
       return false;
     } finally {
       setUpdating(false);

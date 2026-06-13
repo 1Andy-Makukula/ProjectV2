@@ -1,7 +1,10 @@
 {
   "npm.packageManager": "pnpm",
-  "deno.enablePaths": ["supabase/functions"],
+  "deno.enablePaths": [
+    "supabase/functions"
+  ],
   "deno.unstable": [],
   "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.tsc.autoDetect": "on"
+  "typescript.tsc.autoDetect": "on",
+  "java.configuration.updateBuildConfiguration": "interactive"
 }

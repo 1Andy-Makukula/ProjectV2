@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../utils/auth/AuthContext';
-import { uploadPublicAsset } from '../../utils/uploadImage';
+import { uploadPublicAsset, deleteStorefrontAsset } from '../../utils/uploadImage';
 import { toast } from 'sonner';
+import { parseAuthError } from '../../utils/errorParser';
 
 export interface ShopFormData {
   name: string;
@@ -56,7 +57,7 @@ export function useAdminShopForm(shopId?: string) {
       });
     } catch (error: any) {
       console.error('Error loading shop:', error);
-      toast.error('Failed to load shop data');
+      toast.error(parseAuthError(error));
     } finally {
       setLoading(false);
     }
@@ -128,7 +129,7 @@ export function useAdminShopForm(shopId?: string) {
       return true;
     } catch (error: any) {
       console.error('Error saving shop:', error);
-      toast.error('Failed to save shop');
+      toast.error(parseAuthError(error));
       return false;
     } finally {
       setLoading(false);
@@ -142,16 +143,10 @@ export function useAdminShopForm(shopId?: string) {
     setLoading(true);
     try {
       if (formData.logo_url) {
-        const filePath = formData.logo_url.split('/public/storefront-assets/')[1];
-        if (filePath) {
-          await supabase.storage.from('storefront-assets').remove([filePath]).catch(console.error);
-        }
+        await deleteStorefrontAsset(formData.logo_url).catch(console.error);
       }
       if (formData.cover_image_url) {
-        const coverPath = formData.cover_image_url.split('/public/storefront-assets/')[1];
-        if (coverPath) {
-          await supabase.storage.from('storefront-assets').remove([coverPath]).catch(console.error);
-        }
+        await deleteStorefrontAsset(formData.cover_image_url).catch(console.error);
       }
 
       const { error } = await supabase
@@ -165,7 +160,7 @@ export function useAdminShopForm(shopId?: string) {
       return true;
     } catch (error: any) {
       console.error('Error deleting shop:', error);
-      toast.error('Failed to delete shop');
+      toast.error(parseAuthError(error));
       return false;
     } finally {
       setLoading(false);

@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { ArrowLeft, Copy, CheckCircle, XCircle, Package, ExternalLink } from 'lucide-react';
+import { Copy, CheckCircle, XCircle, Package, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
-import { Separator } from '../../components/ui/separator';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,21 +14,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '../../components/ui/alert-dialog';
-import { supabase } from '../../../lib/supabaseClient';
 import { formatCurrency } from '../../../utils/currency';
-import { callServer } from '../../../utils/server';
 import { getGiftPageUrl } from '../../../utils/whatsapp';
 import { toast } from 'sonner';
-
-// ---------------------------------------------------------------------------
-// V2 Schema Types
-// ---------------------------------------------------------------------------
-
-/**
- * Full detail view combining:
- *   transactions → shop_orders → order_items → items, shops
- *   transactions.buyer → users
- */
+import { PageShell, PageBody } from '../../components/layout/PageShell';
+import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
 import { useAdminOrderDetail } from '../../hooks/useAdminOrderDetail';
 import { STATUS_COLORS, STATUS_LABELS } from '../../../utils/orderStatus';
 
@@ -57,9 +45,18 @@ export function AdminOrderDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 flex items-center justify-center">
-        <div className="text-muted-foreground">Loading order details...</div>
-      </div>
+      <PageShell>
+        <AdminPageHeader
+          title="Order Details"
+          subtitle="Loading..."
+          onBack={() => navigate('/admin/orders')}
+        />
+        <PageBody contained>
+          <div className="text-center py-12 text-sm text-muted-foreground">
+            Loading order details...
+          </div>
+        </PageBody>
+      </PageShell>
     );
   }
 
@@ -70,30 +67,14 @@ export function AdminOrderDetail() {
   const statusLabel = STATUS_LABELS[order.derived_status] ?? order.derived_status;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-primary/90 text-white">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/admin/orders')}
-              className="text-white hover:bg-white/10"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-light">Order Details</h1>
-              <p className="text-sm opacity-90 font-light font-mono">
-                {order.claim_code ?? order.transaction_id.slice(0, 12)}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+    <PageShell>
+      <AdminPageHeader
+        title="Order Details"
+        subtitle={order.claim_code ?? order.transaction_id.slice(0, 12)}
+        onBack={() => navigate('/admin/orders')}
+      />
 
-      {/* Content */}
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <PageBody contained>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
@@ -160,7 +141,7 @@ export function AdminOrderDetail() {
                     </AlertDialog>
                   )}
 
-                  {(order.derived_status === 'pending_payment') && (
+                  {order.derived_status === 'pending_payment' && (
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="destructive" disabled={updating}>
@@ -392,7 +373,7 @@ export function AdminOrderDetail() {
             </Card>
           </div>
         </div>
-      </div>
-    </div>
+      </PageBody>
+    </PageShell>
   );
 }

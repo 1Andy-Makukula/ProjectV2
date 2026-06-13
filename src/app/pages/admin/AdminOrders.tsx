@@ -97,7 +97,7 @@ export function AdminOrders() {
               />
             </div>
             <Button
-              onClick={exportToCSV}
+              onClick={handleExport}
               className="bg-white text-primary hover:bg-white/90"
               disabled={filteredOrders.length === 0}
             >

@@ -1,32 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { toast } from 'sonner';
-
-export interface Stats {
-  totalOrders: number;
-  totalValue: number;
-  ordersThisWeek: number;
-  valueThisWeek: number;
-  totalCommission: number;
-  commissionThisWeek: number;
-  totalShops: number;
-  totalUsers: number;
-  fulfilledOrders: number;
-  pendingOrders: number;
-  expiredOrders: number;
-}
-
-export interface RecentOrder {
-  id: string;
-  code: string;
-  item_name: string;
-  shop_name: string;
-  sender_name: string;
-  recipient_name: string;
-  amount: number;
-  status: string;
-  created_at: string;
-}
+import { Stats, RecentOrder } from '../types/orders';
+import { parseAuthError } from '../../utils/errorParser';
 
 export function useAdminDashboard() {
   const [stats, setStats] = useState<Stats>({
@@ -135,7 +111,7 @@ export function useAdminDashboard() {
       setRecentOrders(formattedOrders);
     } catch (error: any) {
       console.error('Error loading dashboard data:', error);
-      toast.error('Failed to load dashboard data');
+      toast.error(parseAuthError(error));
     } finally {
       setLoading(false);
     }
@@ -254,7 +230,7 @@ export function useAdminDashboard() {
       toast.success('Platform data exported to CSV');
     } catch (error: any) {
       console.error('Error exporting data:', error);
-      toast.error(error.message || 'Failed to export platform data');
+      toast.error(parseAuthError(error));
     } finally {
       setExporting(false);
     }

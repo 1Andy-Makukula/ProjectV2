@@ -13,12 +13,9 @@ import { useState, useEffect, memo, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, Trash2, Shield, ArrowLeft, Gift } from 'lucide-react';
-import { toast } from 'sonner';
 
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../../utils/auth/AuthContext';
-import { supabase } from '../../lib/supabaseClient';
-import { getFlatCartPayload } from '../../utils/sendFlowStore';
 import { useSendFlowStore } from '../../utils/sendFlowStore';
 import { PaymentProcessingScreen } from '../components/checkout/PaymentProcessingScreen';
 import { Button } from '../components/ui/button';
@@ -27,7 +24,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Label } from '../components/ui/label';
 import { formatCurrency } from '../../utils/currency';
 import { PhoneInput } from '../components/shared/PhoneInput';
-import { validateAndFormatPhone } from '../../utils/phone';
+import { useCheckout, ShopOrderResult } from '../hooks/useCheckout';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -39,27 +36,13 @@ type CheckoutStage =
   | 'PROCESSING' // voucherId received, polling begins
   | 'ERROR';     // checkout-init failed
 
-interface ShopOrderResult {
-  shop_order_id: string;
-  claim_code: string;
-  shop_id: string;
-  subtotal: number;
-}
-
-interface CheckoutInitResponse {
-  success: boolean;
-  transaction_id: string;
-  shop_orders: ShopOrderResult[];
-  payment_link: string;
-}
-
 // ---------------------------------------------------------------------------
 // Animation presets
 // ---------------------------------------------------------------------------
 
-const fadeUp = {
+const fadeUp: any = {
   hidden:  { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const } },
   exit:    { opacity: 0, y: -12, transition: { duration: 0.25, ease: 'easeIn' } },
 };
 
@@ -218,40 +201,28 @@ export function Checkout() {
   const navigate = useNavigate();
   const { items, removeFromCart, clearCart, getTotalAmount, applyCredits } = useCart();
   const { recipient } = useSendFlowStore();
-  const { user, profile } = useAuth();
+  const { profile } = useAuth();
 
   const [stage, setStage] = useState<CheckoutStage>('CART');
   const [transactionId, setTransactionId] = useState<string | null>(null);
   const [shopOrders, setShopOrders] = useState<ShopOrderResult[]>([]);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [recipientName, setRecipientName] = useState(recipient?.name ?? '');
-  // Default to sender's phone — Flutterwave charges this line for mobile money
-  const [recipientPhone, setRecipientPhone] = useState(recipient?.phone ?? profile?.phone ?? '');
+  const [recipientPhone, setRecipientPhone] = useState(recipient?.phone ?? '');
+  const [senderPhone, setSenderPhone] = useState(profile?.phone ?? '');
   const [message, setMessage] = useState(recipient?.message ?? '');
-  const [walletBalance, setWalletBalance] = useState<number>(0);
 
-  const fetchWalletBalance = async () => {
-    if (!user?.id) return;
-    try {
-      const { data, error } = await supabase
-        .from('kithly_wallets')
-        .select('balance')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (error) throw error;
-      setWalletBalance(data?.balance ?? 0);
-    } catch (err) {
-      console.error('[Checkout] Error fetching wallet balance:', err);
-    }
-  };
+  const {
+    walletBalance,
+    errorMsg,
+    handleCheckout,
+  } = useCheckout();
 
   useEffect(() => {
-    if (user?.id) {
-      fetchWalletBalance();
+    if (profile?.phone && !senderPhone) {
+      setSenderPhone(profile.phone);
     }
-  }, [user?.id]);
+  }, [profile, senderPhone]);
 
   const totalAmount = getTotalAmount();
   const creditsToApply = applyCredits ? Math.min(walletBalance, totalAmount) : 0;
@@ -260,74 +231,37 @@ export function Checkout() {
   // ---------- handlers --------------------------------------------------
 
   const handlePay = async () => {
-    if (items.length === 0) {
-      toast.error('Your cart is empty.');
-      return;
-    }
-
-    if (!recipientName.trim()) {
-      toast.error('Please provide the recipient\'s name before proceeding.');
-      return;
-    }
-
-    const { isValid, formatted } = validateAndFormatPhone(recipientPhone);
-    if (!isValid) {
-      toast.error('Please provide a valid phone number (including country code) for Flutterwave payment.');
-      return;
-    }
-    setRecipientPhone(formatted);
-
-    if (!navigator.onLine) {
-      setErrorMsg('No internet connection. Please check your network.');
-      setStage('ERROR');
-      return;
-    }
-
     // Immediately shift UI to the compliance screen — don't wait for the API.
     setStage('SECURING');
-    setErrorMsg(null);
 
     try {
-      // Include recipient details from the SendFlow store so checkout-init
-      // can persist them to each shop_orders row it creates.
-      const payload = getFlatCartPayload(items, {
-        name: recipientName.trim(),
-        phone: recipientPhone.trim(),
-        message: message.trim()
+      const result = await handleCheckout({
+        items,
+        recipientName,
+        recipientPhone,
+        message,
+        senderPhone,
       });
 
-      const { data, error } = await supabase.functions.invoke<CheckoutInitResponse>(
-        'checkout-init',
-        { body: { ...payload, origin_type: 'LOCAL' } },
-      );
-
-      if (error) {
-        throw new Error(error?.message ?? 'Checkout initialisation failed.');
-      }
-      if (data?.success === false || data?.error) {
-        throw new Error((data as any).error ?? 'Checkout rejected by server.');
-      }
-      if (!data?.transaction_id) {
-        throw new Error('Checkout initialisation failed (missing transaction ID).');
+      if (!result) {
+        setStage('CART');
+        return;
       }
 
-      setTransactionId(data.transaction_id);
-      setShopOrders(data.shop_orders ?? []);
+      setTransactionId(result.transactionId);
+      setShopOrders(result.shopOrders);
 
       // Clear the cart immediately — the transaction is created, items are committed.
       clearCart();
       
       // Open the Flutterwave-hosted payment page in a new tab so the polling
       // screen can remain active in this tab.
-      if (data.payment_link && data.payment_link !== '#') {
-        window.open(data.payment_link, '_blank');
+      if (result.paymentLink && result.paymentLink !== '#') {
+        window.open(result.paymentLink, '_blank');
       }
 
       setStage('PROCESSING');
-    } catch (err: any) {
-      console.error('[Checkout] checkout-init error:', err);
-      const isNetworkError = err.message?.toLowerCase().includes('fetch') || !navigator.onLine;
-      setErrorMsg(isNetworkError ? 'Network error or timeout. Please check your connection and try again.' : (err.message ?? 'Something went wrong. Please try again.'));
+    } catch (err) {
       setStage('ERROR');
     }
   };
@@ -459,7 +393,7 @@ export function Checkout() {
                     <h3 className="font-semibold text-slate-900">Recipient Details</h3>
                     <div className="space-y-3">
                       <div>
-                        <Label htmlFor="recipientName" className="text-xs text-slate-500 mb-1.5 block">Name</Label>
+                        <Label htmlFor="recipientName" className="text-xs text-slate-500 mb-1.5 block">Recipient Name</Label>
                         <Input
                           id="recipientName"
                           placeholder="e.g. Jane Doe"
@@ -469,7 +403,7 @@ export function Checkout() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="recipientPhone" className="text-xs text-slate-500 mb-1.5 block">Your Phone (for payment)</Label>
+                        <Label htmlFor="recipientPhone" className="text-xs text-slate-500 mb-1.5 block">Recipient Phone (for gift delivery)</Label>
                         <PhoneInput
                           id="recipientPhone"
                           placeholder="e.g. 97 123 4567"
@@ -488,6 +422,23 @@ export function Checkout() {
                           rows={2}
                         />
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Billing Details */}
+                  <div className="rounded-2xl bg-white border border-slate-100 px-5 py-5 space-y-4">
+                    <h3 className="font-semibold text-slate-900">Billing Details</h3>
+                    <div>
+                      <Label htmlFor="senderPhone" className="text-xs text-slate-500 mb-1.5 block">Your Phone (for payment)</Label>
+                      <PhoneInput
+                        id="senderPhone"
+                        placeholder="e.g. 97 123 4567"
+                        value={senderPhone}
+                        onChange={(val) => setSenderPhone(val)}
+                      />
+                      <p className="text-[10px] text-slate-400 mt-1.5 leading-relaxed">
+                        Flutterwave will trigger MTN/Airtel mobile money billing prompts on this line.
+                      </p>
                     </div>
                   </div>
 

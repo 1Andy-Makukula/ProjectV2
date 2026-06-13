@@ -71,8 +71,8 @@ function validatePayload(raw: Record<string, unknown>): FulfillVoucherPayload {
     throw new Error("claim_code is required and must be a non-empty string.");
   }
   const code = claim_code.trim().toUpperCase();
-  if (!/^[A-Z0-9]{8}$/.test(code)) {
-    throw new Error("claim_code must be exactly 8 uppercase alphanumeric characters.");
+  if (!/^(?:[A-Z0-9]{8}|[A-Z0-9]{4}-[A-Z0-9]{6})$/.test(code)) {
+    throw new Error("claim_code must be either 8 uppercase alphanumeric characters or in namespace format (e.g. BNDL-XXXXXX).");
   }
 
   if (!Array.isArray(present_item_ids)) {

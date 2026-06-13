@@ -19,19 +19,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '../../components/ui/alert-dialog';
-import { supabase } from '../../../lib/supabaseClient';
-import { uploadItemImage } from '../../../utils/uploadImage';
 import { validateImageFile } from '../../../lib/uploadValidation';
-import { toCents } from '../../../utils/currency';
 import { toast } from 'sonner';
-
-interface ItemFormData {
-  name: string;
-  description: string;
-  price: string;
-  image_url: string;
-  is_available: boolean;
-}
+import { useAdminItemForm } from '../../hooks/useAdminItemForm';
 
 export function AdminItemForm() {
   const navigate = useNavigate();
@@ -40,69 +30,32 @@ export function AdminItemForm() {
   const { profile } = useAuth();
   const isMerchant = profile?.role === 'merchant';
 
-  const [formData, setFormData] = useState<ItemFormData>({
-    name: '',
-    description: '',
-    price: '',
-    image_url: '',
-    is_available: true,
+  const {
+    formData,
+    setFormData,
+    actualShopId,
+    loading,
+    uploading,
+    saveItem,
+    deleteItem,
+  } = useAdminItemForm({
+    shopId,
+    itemId,
+    isMerchant,
+    merchantUserId: profile?.id,
   });
+
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
-  const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [actualShopId, setActualShopId] = useState<string>('');
 
+  // Sync previews with loaded data
   useEffect(() => {
-    if (isEditing) {
-      loadItem();
-    } else if (isMerchant && profile?.id) {
-      // Fetch the merchant's assigned shop automatically
-      const fetchMerchantShop = async () => {
-        const { data } = await supabase
-          .from('merchant_shops')
-          .select('shop_id')
-          .eq('user_id', profile.id)
-          .single();
-        if (data) {
-          setActualShopId(data.shop_id);
-        }
-      };
-      fetchMerchantShop();
-    } else if (shopId) {
-      setActualShopId(shopId);
+    if (formData.image_url) {
+      setImagePreview(formData.image_url);
+    } else {
+      setImagePreview('');
     }
-  }, [itemId, shopId, isMerchant, profile?.id]);
-
-  const loadItem = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('items')
-        .select('*')
-        .eq('id', itemId)
-        .single();
-
-      if (error) throw error;
-
-      setActualShopId(data.shop_id);
-      setFormData({
-        name: data.name || '',
-        description: data.description || '',
-        price: data.price_zmw != null ? String(data.price_zmw / 100) : '',
-        image_url: data.image_url || '',
-        is_available: data.is_available ?? true,
-      });
-      setImagePreview(data.image_url || '');
-    } catch (error: any) {
-      console.error('Error loading item:', error);
-      toast.error('Failed to load item data');
-      if (isMerchant) {
-        navigate('/merchant');
-      } else {
-        navigate('/admin/shops');
-      }
-    }
-  };
+  }, [formData.image_url]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -122,119 +75,26 @@ export function AdminItemForm() {
     }
   };
 
-  const uploadImage = async (): Promise<string> => {
-    if (!imageFile) return formData.image_url;
-    if (!actualShopId) {
-      throw new Error('Shop context is required before uploading an image.');
-    }
-
-    setUploading(true);
-    try {
-      const { publicUrl } = await uploadItemImage(imageFile, actualShopId);
-      return publicUrl;
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Upload failed';
-      console.error('Error uploading image:', message);
-      toast.error(message);
-      throw error;
-    } finally {
-      setUploading(false);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!formData.name || !formData.price) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-
-    const priceValue = parseFloat(formData.price);
-    if (isNaN(priceValue) || priceValue <= 0) {
-      toast.error('Please enter a valid price');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // Upload image if selected
-      let imageUrl = formData.image_url;
-      if (imageFile) {
-        imageUrl = await uploadImage();
-      }
-
-      const itemData = {
-        shop_id: actualShopId,
-        name: formData.name,
-        description: formData.description,
-        price_zmw: toCents(priceValue), // Store as ngwee (cents)
-        image_url: imageUrl,
-        is_available: formData.is_available,
-      };
-
-      if (isEditing) {
-        const { error } = await supabase
-          .from('items')
-          .update(itemData)
-          .eq('id', itemId);
-
-        if (error) throw error;
-        toast.success('Item updated successfully');
-      } else {
-        const { error } = await supabase
-          .from('items')
-          .insert([itemData]);
-
-        if (error) throw error;
-        toast.success('Item created successfully');
-      }
-
+    const success = await saveItem(imageFile);
+    if (success) {
       if (isMerchant) {
         navigate('/merchant');
       } else {
         navigate(`/admin/shops/${actualShopId}/items`);
       }
-    } catch (error: any) {
-      console.error('Error saving item:', error);
-      toast.error('Failed to save item');
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!itemId) return;
-
-    setLoading(true);
-    try {
-      // Option 1: App-level cleanup of orphaned images
-      // (For a robust Option 2 later: Use a PostgreSQL Trigger + pg_net Edge Function)
-      if (formData.image_url) {
-        const filePath = formData.image_url.split('/public/storefront-assets/')[1];
-        if (filePath) {
-          // Attempt to delete from bucket (fails silently if permissions lacking)
-          await supabase.storage.from('storefront-assets').remove([filePath]).catch(console.error);
-        }
-      }
-
-      const { error } = await supabase
-        .from('items')
-        .delete()
-        .eq('id', itemId);
-
-      if (error) throw error;
-
-      toast.success('Item deleted successfully');
+    const success = await deleteItem();
+    if (success) {
       if (isMerchant) {
         navigate('/merchant');
       } else {
         navigate(`/admin/shops/${actualShopId}/items`);
       }
-    } catch (error: any) {
-      console.error('Error deleting item:', error);
-      toast.error('Failed to delete item');
-      setLoading(false);
     }
   };
 

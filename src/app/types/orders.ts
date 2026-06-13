@@ -71,3 +71,30 @@ export interface ShopOrder {
   subtotal: number;
   claim_status: string;
 }
+
+export interface Stats {
+  totalOrders: number;
+  totalValue: number;
+  ordersThisWeek: number;
+  valueThisWeek: number;
+  totalCommission: number;
+  commissionThisWeek: number;
+  totalShops: number;
+  totalUsers: number;
+  fulfilledOrders: number;
+  pendingOrders: number;
+  expiredOrders: number;
+}
+
+export interface RecentOrder {
+  id: string;
+  code: string;
+  item_name: string;
+  shop_name: string;
+  sender_name: string;
+  recipient_name: string;
+  amount: number;
+  status: string;
+  created_at: string;
+}
+

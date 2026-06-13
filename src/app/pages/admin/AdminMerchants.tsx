@@ -30,27 +30,6 @@ import {
 import { Badge } from '../../components/ui/badge';
 import { PageShell, PageBody } from '../../components/layout/PageShell';
 import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
-import { supabase } from '../../../lib/supabaseClient';
-import { callServer } from '../../../utils/server';
-import { toast } from 'sonner';
-
-interface Merchant {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  created_at: string;
-  shop_id?: string;
-  shop_name?: string;
-}
-
-interface Shop {
-  id: string;
-  name: string;
-}
-
-type EditTab = 'profile' | 'shop' | 'security';
-
 import { useAdminMerchants } from '../../hooks/useAdminMerchants';
 
 interface Merchant {
@@ -78,6 +57,7 @@ export function AdminMerchants() {
     saveProfile: saveMerchantProfile,
     saveShopAssignment: saveMerchantShopAssignment,
     setNewPassword: saveMerchantNewPassword,
+    sendPasswordReset,
     deleteMerchant,
   } = useAdminMerchants();
 

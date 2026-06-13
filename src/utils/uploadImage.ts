@@ -151,3 +151,15 @@ export async function uploadPublicAsset(
 
   return publicUrl;
 }
+
+/**
+ * Deletes a public storefront asset from storage given its public URL.
+ */
+export async function deleteStorefrontAsset(url: string, bucketName = 'storefront-assets'): Promise<void> {
+  if (!url) return;
+  const filePath = url.split(`/public/${bucketName}/`)[1];
+  if (filePath) {
+    const { error } = await supabase.storage.from(bucketName).remove([filePath]);
+    if (error) throw error;
+  }
+}

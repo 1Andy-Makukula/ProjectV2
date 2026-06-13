@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { Shop } from '../types/shops';
 import { toast } from 'sonner';
+import { parseAuthError } from '../../utils/errorParser';
 
 export function useAdminShops() {
   const [shops, setShops] = useState<Shop[]>([]);
@@ -37,7 +38,7 @@ export function useAdminShops() {
       setShops(shopsWithCounts);
     } catch (error: any) {
       console.error('Error loading shops:', error);
-      toast.error('Failed to load shops');
+      toast.error(parseAuthError(error));
     } finally {
       setLoading(false);
     }
@@ -56,7 +57,7 @@ export function useAdminShops() {
       await loadShops();
     } catch (error: any) {
       console.error('Error toggling shop status:', error);
-      toast.error('Failed to update shop status');
+      toast.error(parseAuthError(error));
     }
   }, [loadShops]);
 

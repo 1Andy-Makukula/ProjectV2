@@ -207,7 +207,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return json(req, { error: "Unauthorized access to transaction." }, 403);
     }
 
-    if (txn.status === "SUCCESSFUL") {
+    if (txn.status === "SUCCESS" || txn.status === "SUCCESSFUL") {
       return json(req, { error: "Transaction is already completed." }, 400);
     }
 

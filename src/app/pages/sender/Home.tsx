@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
-import { supabase } from '../../../lib/supabaseClient';
+import { useHome } from '../../hooks/useHome';
 import { Button } from '../../components/ui/button';
 import { Skeleton } from '../../components/ui/skeleton';
 import {
@@ -21,42 +21,8 @@ import { motion, AnimatePresence } from 'motion/react';
 // Types
 // ---------------------------------------------------------------------------
 
-interface Banner {
-  id: string;
-  image_url: string;
-  title: string;
-}
-
-interface Shop {
-  id: string;
-  name: string;
-  description: string | null;
-  location: string | null;
-  image_url: string | null;
-  itemCount: number;
-}
 
 const SLIDE_DURATION_MS = 5000;
-const FALLBACK_BANNERS: Banner[] = [
-  {
-    id: 'fallback-1',
-    image_url:
-      'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&w=1400&q=80',
-    title: 'Send a gift that actually means something.',
-  },
-  {
-    id: 'fallback-2',
-    image_url:
-      'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&w=1400&q=80',
-    title: 'Discover local shops crafting unforgettable moments.',
-  },
-  {
-    id: 'fallback-3',
-    image_url:
-      'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&w=1400&q=80',
-    title: 'Every order tells a story worth sharing.',
-  },
-];
 
 // ---------------------------------------------------------------------------
 // Skeleton sub-components
@@ -127,87 +93,19 @@ export function Home() {
   const { user, profile } = useAuth();
 
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<any[]>([]);
-
-  const [banners, setBanners] = useState<Banner[]>([]);
-  const [bannersLoading, setBannersLoading] = useState(true);
-  const [shops, setShops] = useState<Shop[]>([]);
-  const [shopsLoading, setShopsLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const shopsSectionRef = useRef<HTMLDivElement>(null);
 
-  // Gate all data fetches on authenticated profile
-  useEffect(() => {
-    if (!profile?.id) return;
-    fetchBanners();
-    fetchShops();
-
-    const fetchNotifications = async () => {
-      // V2 Schema: Query transactions joined with shop_orders
-      const { data } = await supabase
-        .from('transactions')
-        .select(`
-          transaction_id,
-          created_at,
-          shop_orders!inner (
-            shop_order_id,
-            claim_code,
-            recipient_name,
-            fulfilled_at,
-            shop:shop_id (name),
-            order_items (
-              item:item_id (name)
-            )
-          )
-        `)
-        .eq('buyer_id', user?.id || profile.id)
-        .in('shop_orders.claim_status', ['FULFILLED', 'PARTIAL_FULFILLMENT'])
-        .order('created_at', { ascending: false })
-        .limit(20);
-      
-      if (data) {
-        // Flatten to match legacy UI expectation
-        const formatted = data.flatMap((tx: any) => 
-          tx.shop_orders.map((so: any) => ({
-            id: so.shop_order_id,
-            code: so.claim_code,
-            recipient_name: so.recipient_name,
-            fulfilled_at: so.fulfilled_at || tx.created_at,
-            item: { name: so.order_items?.[0]?.item?.name || 'Gift' },
-            shop: { name: so.shop?.name || 'Shop' }
-          }))
-        );
-        
-        setNotifications(formatted);
-      }
-    };
-
-    fetchNotifications();
-
-    // Notify and Re-fetch Pattern (User Approved)
-    const channel = supabase.channel('realtime-sender-notifications')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'transactions',
-        filter: `buyer_id=eq.${user?.id || profile.id}`
-      }, () => {
-        fetchNotifications();
-      })
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'transaction_events',
-        filter: `event_type=eq.CLAIM_VERIFIED`
-      }, () => {
-        // Catch fulfillments
-        fetchNotifications();
-      }).subscribe();
-
-    return () => { supabase.removeChannel(channel); }
-  }, [profile?.id, user?.id]);
+  const {
+    campaigns: banners,
+    shops,
+    notifications,
+    bannersLoading,
+    shopsLoading,
+    isSigningOut,
+    handleLogout,
+  } = useHome();
 
   useEffect(() => {
     if (currentSlide < banners.length) return;
@@ -223,88 +121,6 @@ export function Home() {
     );
     return () => clearInterval(timer);
   }, [banners.length]);
-
-  const fetchBanners = async () => {
-    if (!profile?.id) return;
-
-    setBannersLoading(true);
-
-    try {
-      const { data, error } = await supabase
-        .from('marketing_campaigns')
-        .select('id, image_url, title')
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
-
-      if (!error && data && data.length > 0) {
-        setBanners(data);
-        return;
-      }
-
-      setBanners(FALLBACK_BANNERS);
-    } catch (err) {
-      console.error('[Home] fetchBanners error:', err);
-      setBanners(FALLBACK_BANNERS);
-    } finally {
-      setBannersLoading(false);
-    }
-  };
-
-  const fetchShops = async () => {
-    if (!profile?.id) return;
-
-    setShopsLoading(true);
-
-    try {
-      const { data, error } = await supabase
-        .from('shops')
-        .select(`
-          id,
-          name,
-          description,
-          location,
-          image_url,
-          items:items(count)
-        `)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      const shopsWithCounts = (data ?? []).map((shop: any) => ({
-        ...shop,
-        itemCount: shop.items?.[0]?.count ?? 0,
-      }));
-
-      setShops(shopsWithCounts);
-    } catch (err) {
-      console.error('[Home] fetchShops error:', err);
-      setShops([]);
-    } finally {
-      setShopsLoading(false);
-    }
-  };
-
-  const handleLogout = async (e: React.MouseEvent) => {
-    e.preventDefault(); // 1. STOPS the annoying page refresh!
-    
-    try {
-      if (typeof setIsSigningOut === 'function') setIsSigningOut(true);
-      // 2. Tell the data center to destroy the token
-      await supabase.auth.signOut(); 
-      
-      // 3. Clear any leftover zombie data in the browser
-      localStorage.clear(); 
-      sessionStorage.clear();
-      
-      // 4. Safely redirect to the login page
-      navigate('/login', { replace: true }); 
-    } catch (error) {
-      console.error('Logout failed:', error);
-    } finally {
-      if (typeof setIsSigningOut === 'function') setIsSigningOut(false);
-    }
-  };
 
   const scrollToShops = () => {
     shopsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });

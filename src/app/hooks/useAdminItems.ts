@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { Shop, Item } from '../types/shops';
 import { toast } from 'sonner';
+import { parseAuthError } from '../../utils/errorParser';
 
 export function useAdminItems(activeShopId?: string) {
   const [shop, setShop] = useState<Pick<Shop, 'id' | 'name'> | null>(null);
@@ -9,7 +10,10 @@ export function useAdminItems(activeShopId?: string) {
   const [loading, setLoading] = useState(true);
 
   const loadShopAndItems = useCallback(async () => {
-    if (!activeShopId) return;
+    if (!activeShopId) {
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
 
@@ -34,7 +38,7 @@ export function useAdminItems(activeShopId?: string) {
       setItems(itemsData || []);
     } catch (error: any) {
       console.error('Error loading shop and items:', error);
-      toast.error('Failed to load items');
+      toast.error(parseAuthError(error));
     } finally {
       setLoading(false);
     }
@@ -46,7 +50,7 @@ export function useAdminItems(activeShopId?: string) {
         .from('items')
         .update({ is_available: !currentStatus })
         .eq('id', itemId);
-        
+
       if (merchantShopId) {
         query = query.eq('shop_id', merchantShopId);
       }
@@ -59,7 +63,7 @@ export function useAdminItems(activeShopId?: string) {
       await loadShopAndItems();
     } catch (error: any) {
       console.error('Error toggling item availability:', error);
-      toast.error('Failed to update item availability');
+      toast.error(parseAuthError(error));
     }
   }, [loadShopAndItems]);
 

@@ -283,95 +283,6 @@ async function writeTransactionEvent(
   );
 }
 
-// ---------------------------------------------------------------------------
-// Step 4 — Voucher payout_status promotion
-// ---------------------------------------------------------------------------
-
-/**
- * Updates the V2 Escrow tables to indicate that funds have arrived,
- * but ONLY after verifying the paid amount against the authoritative ledger.
- *
- * @returns `true` when a row was updated; `false` when no matching row was found or fraud detected.
- */
-async function promoteVoucherPayoutStatus(
-  supabase: ReturnType<typeof getAdminClient>,
-  transactionId: string,
-  flutterwaveTransactionId: number,
-  flwRef: string,
-  paidAmount: number,
-  paidCurrency: string,
-): Promise<boolean> {
-  // Step 1: Zero-Trust Ledger Verification
-  const { data: txn, error: lookupErr } = await supabase
-    .from("transactions")
-    .select("total_amount, status")
-    .eq("transaction_id", transactionId)
-    .single();
-
-  if (lookupErr || !txn) {
-    console.error(`[flutterwave-webhook] Transaction lookup FAILED for transaction_id='${transactionId}':`, lookupErr?.message);
-    return false;
-  }
-
-  if (txn.status !== "GATEWAY_PROCESSING") {
-    console.warn(`[flutterwave-webhook] Transaction '${transactionId}' is already in status '${txn.status}'. Ignoring.`);
-    return false;
-  }
-
-  const paidAmountNgwee = Math.round(paidAmount * 100);
-  if (paidAmountNgwee < txn.total_amount || paidCurrency !== "ZMW") {
-    console.error(
-      `[flutterwave-webhook] FRAUD ALERT: Partial payment or currency mismatch detected for transaction_id='${transactionId}'! ` +
-      `Expected: ${txn.total_amount} Ngwee. Received: ${paidAmountNgwee} Ngwee (from ${paidAmount} ${paidCurrency}). ` +
-      `Escrow remains locked in PENDING_PAYMENT.`
-    );
-    return false;
-  }
-
-  // Step 2: Update the parent transaction
-  const { data: updatedTransactions, error: txError } = await supabase
-    .from("transactions")
-    .update({
-      status: "SUCCESSFUL",
-    })
-    .eq("transaction_id", transactionId)
-    .eq("status", "GATEWAY_PROCESSING")
-    .select("transaction_id");
-
-  if (txError) {
-    console.error(
-      `[flutterwave-webhook] Transaction status update FAILED for transaction_id='${transactionId}':`,
-      txError.message,
-    );
-    return false;
-  }
-
-  const txRowsAffected = updatedTransactions?.length ?? 0;
-  if (txRowsAffected === 0) {
-    return false;
-  }
-
-  // Step 3: Update all child shop_orders to PENDING (redeemable)
-  const { error: orderError } = await supabase
-    .from("shop_orders")
-    .update({
-      claim_status: "PENDING",
-    })
-    .eq("transaction_id", transactionId)
-    .eq("claim_status", "PENDING_PAYMENT");
-
-  if (orderError) {
-    console.error(
-      `[flutterwave-webhook] Shop orders update FAILED for transaction_id='${transactionId}':`,
-      orderError.message,
-    );
-  }
-
-  console.log(
-    `[flutterwave-webhook] Transaction promoted | transaction_id=${transactionId} | flw_txn_id=${flutterwaveTransactionId}`,
-  );
-  return true;
-}
 
 // ---------------------------------------------------------------------------
 // Core handler
@@ -509,7 +420,8 @@ async function handleFlutterwaveWebhook(req: Request): Promise<Response> {
           if (bundles && bundles.length > 0) {
             console.log(`[flutterwave-webhook] Found ${bundles.length} bundle(s) to notify.`);
             for (const bundle of bundles) {
-              const shopName = bundle.shop?.name || "KithLy Partner Shop";
+              const shopObj = Array.isArray(bundle.shop) ? bundle.shop[0] : bundle.shop;
+              const shopName = (shopObj as any)?.name || "KithLy Partner Shop";
               console.log(
                 `[flutterwave-webhook] Dispatching notification invocation | claim_code=${bundle.claim_code} | recipient=${bundle.recipient_name}`
               );
@@ -557,7 +469,7 @@ async function handleFlutterwaveWebhook(req: Request): Promise<Response> {
     // Non-successful or non-charge events: ledger row is already written above.
     // Log for observability but take no further action.
     console.log(
-      `[flutterwave-webhook] Non-actionable event | event=${eventType} | status=${data.status} | voucher_id=${voucherId}. ` +
+      `[flutterwave-webhook] Non-actionable event | event=${eventType} | status=${data.status} | voucher_id=${resolvedTransactionId}. ` +
         "Ledger written. No state change applied.",
     );
   }

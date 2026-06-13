@@ -4,6 +4,7 @@ import { callServer } from '../../utils/server';
 import { Order } from '../types/orders';
 import { deriveStatus } from '../../utils/orderStatus';
 import { toast } from 'sonner';
+import { parseAuthError } from '../../utils/errorParser';
 
 export function useAdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -74,7 +75,7 @@ export function useAdminOrders() {
       setOrders(formattedOrders);
     } catch (error: any) {
       console.error('Error loading orders:', error);
-      toast.error('Failed to load orders');
+      toast.error(parseAuthError(error));
     } finally {
       setLoading(false);
     }
@@ -95,10 +96,11 @@ export function useAdminOrders() {
         if (txError) throw txError;
 
         if (order.shop_order_id) {
-          await supabase
+          const { error: soError } = await supabase
             .from('shop_orders')
             .update({ claim_status: 'CANCELLED' })
             .eq('transaction_id', order.transaction_id);
+          if (soError) throw soError;
         }
       }
 
@@ -107,7 +109,7 @@ export function useAdminOrders() {
       return true;
     } catch (error: any) {
       console.error('Error updating order:', error);
-      toast.error(error.message || 'Failed to update order');
+      toast.error(parseAuthError(error));
       return false;
     } finally {
       setActionOrderId(null);

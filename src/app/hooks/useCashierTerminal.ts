@@ -125,6 +125,7 @@ export function useCashierTerminal(shopId: string, onApproved?: (result: Approve
       if (!session?.access_token) {
         toast.error('Session expired', { description: 'Please log in again and retry.' });
         setStatus('IDLE');
+        isSubmittingRef.current = false;
         return;
       }
 

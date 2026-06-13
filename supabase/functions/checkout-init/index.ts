@@ -32,6 +32,7 @@ interface CheckoutInitPayload {
   recipient_phone?: string;
   message?: string;
   transaction_id?: string;
+  sender_phone?: string;
 }
 
 /**
@@ -194,6 +195,7 @@ function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
   const recipient_name  = typeof raw.recipient_name  === "string" ? raw.recipient_name.trim()  || undefined : undefined;
   const recipient_phone = typeof raw.recipient_phone === "string" ? raw.recipient_phone.trim() || undefined : undefined;
   const message         = typeof raw.message         === "string" ? raw.message.trim()         || undefined : undefined;
+  const sender_phone    = typeof raw.sender_phone    === "string" ? raw.sender_phone.trim()    || undefined : undefined;
 
   return {
     cart_items,
@@ -201,6 +203,7 @@ function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
     recipient_name,
     recipient_phone,
     message,
+    sender_phone,
   };
 }
 
@@ -498,7 +501,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     return json(req, { error: message }, 400);
   }
 
-  const { cart_items, origin_type, recipient_name, recipient_phone, message } = payload;
+  const { cart_items, origin_type, recipient_name, recipient_phone, message, sender_phone } = payload;
 
   // --- 3. Build admin client ---
   let adminClient: ReturnType<typeof getAdminClient>;
@@ -536,7 +539,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
       return json(req, { error: "Unauthorized access to transaction." }, 403);
     }
 
-    if (txn.status === "SUCCESSFUL") {
+    if (txn.status === "SUCCESS" || txn.status === "SUCCESSFUL") {
       return json(req, { error: "Transaction is already completed." }, 400);
     }
 
@@ -681,7 +684,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
       transactionId,
       secureGrandTotal,
       caller.email ?? "customer@kithly.com",
-      caller.phone ?? "",
+      sender_phone || caller.phone || "",
       recipient_phone,
     );
 

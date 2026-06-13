@@ -1,63 +1,13 @@
-import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { supabase } from '../../../lib/supabaseClient';
 import { formatCurrency } from '../../../utils/currency';
 import { Button } from '../../components/ui/button';
 import { Printer, ArrowLeft, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { usePrintableReceipt } from '../../hooks/usePrintableReceipt';
 
 export function PrintableReceipt() {
   const { transactionId } = useParams<{ transactionId: string }>();
   const navigate = useNavigate();
-  const [transaction, setTransaction] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchTransactionDetails = async () => {
-      if (!transactionId) return;
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('transactions')
-          .select(`
-            transaction_id,
-            buyer_id,
-            total_amount,
-            status,
-            gateway_tx_ref,
-            created_at,
-            buyer:buyer_id (name, email),
-            shop_orders (
-              shop_order_id,
-              claim_code,
-              claim_status,
-              subtotal,
-              recipient_name,
-              recipient_phone,
-              shop:shop_id (name, location),
-              order_items (
-                order_item_id,
-                allocated_price,
-                fulfillment_status,
-                items:item_id (name)
-              )
-            )
-          `)
-          .eq('transaction_id', transactionId)
-          .single();
-
-        if (error) throw error;
-        setTransaction(data);
-      } catch (err) {
-        console.error('[PrintableReceipt] fetch error:', err);
-        toast.error('Failed to load transaction details.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTransactionDetails();
-  }, [transactionId]);
+  const { transaction, loading } = usePrintableReceipt(transactionId);
 
   if (loading) {
     return (

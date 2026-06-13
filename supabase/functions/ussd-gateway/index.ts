@@ -58,7 +58,7 @@ function ussdResponse(message: string, status = 200): Response {
  */
 function extractClaimCode(text: string): string | null {
   const normalisedText = text.trim().toUpperCase();
-  const match = normalisedText.match(/([A-Z0-9]{8})#?$/);
+  const match = normalisedText.match(/([A-Z0-9]{8}|[A-Z0-9]{4}-[A-Z0-9]{6})#?$/);
   return match ? match[1] : null;
 }
 

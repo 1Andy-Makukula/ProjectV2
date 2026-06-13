@@ -143,7 +143,7 @@ async function handleInitializePayment(payload: Record<string, any>): Promise<Re
       .single();
 
     if (!fetchError && existingTxn) {
-      if (existingTxn.status === "SUCCESSFUL") {
+      if (existingTxn.status === "SUCCESS" || existingTxn.status === "SUCCESSFUL") {
         console.log(`[server] Transaction ${txRef} is already SUCCESSFUL.`);
         return json({ success: true, alreadyPaid: true });
       }
@@ -492,7 +492,7 @@ async function handleVerifyPayment(payload: Record<string, any>): Promise<Respon
       return json({ error: "Transaction not found" }, 404);
     }
 
-    if (txn.status === "SUCCESSFUL") {
+    if (txn.status === "SUCCESS" || txn.status === "SUCCESSFUL") {
       return json({ success: true }); // Idempotent
     }
 
