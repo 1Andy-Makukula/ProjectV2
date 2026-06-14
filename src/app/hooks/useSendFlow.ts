@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../utils/auth/AuthContext';
 import { validateAndFormatPhone } from '../../utils/phone';
@@ -49,6 +49,7 @@ export interface CheckoutInitResponse {
 
 export function useSendFlow(itemId: string | undefined) {
   const { profile } = useAuth();
+  const isSubmittingRef = useRef(false);
 
   const [item, setItem] = useState<Item | null>(null);
   const [shop, setShop] = useState<Shop | null>(null);
@@ -134,7 +135,13 @@ export function useSendFlow(itemId: string | undefined) {
   };
 
   const handlePay = async () => {
+    // Synchronous double-click guard
+    if (isSubmittingRef.current) return;
+
     if (!validateForm() || !item || !shop) return;
+
+    // Lock the execution gate
+    isSubmittingRef.current = true;
 
     const { formatted: formattedRecipient } = validateAndFormatPhone(formData.recipientPhone);
     const { formatted: formattedSender } = validateAndFormatPhone(senderPhone);
@@ -142,6 +149,7 @@ export function useSendFlow(itemId: string | undefined) {
     if (!navigator.onLine) {
       setErrorMsg('No internet connection. Please check your network.');
       setStage('ERROR');
+      isSubmittingRef.current = false; // Unlock
       return;
     }
 
@@ -183,12 +191,15 @@ export function useSendFlow(itemId: string | undefined) {
       }
 
       setStage('PROCESSING');
+      // Intentionally left locked during polling
     } catch (err: any) {
       console.error('[useSendFlow] checkout-init error:', err);
       const isNetworkError = err.message?.toLowerCase().includes('fetch') || !navigator.onLine;
       const parsed = parseAuthError(err);
       setErrorMsg(isNetworkError ? 'Network error or timeout. Please check your connection and try again.' : parsed.message);
       setStage('ERROR');
+      
+      isSubmittingRef.current = false; // Unlock for retry
     }
   };
 
@@ -197,6 +208,7 @@ export function useSendFlow(itemId: string | undefined) {
     setTransactionId(null);
     setShopOrders([]);
     setErrorMsg(null);
+    isSubmittingRef.current = false; // Ensure the gate is unlocked on reset
   }, []);
 
   return {

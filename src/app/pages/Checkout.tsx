@@ -9,7 +9,7 @@
  *   ERROR     → Inline error with retry
  */
 
-import { useState, useEffect, memo, useCallback } from 'react';
+import { useState, useEffect, memo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, Trash2, Shield, ArrowLeft, Gift } from 'lucide-react';
@@ -218,6 +218,9 @@ export function Checkout() {
     handleCheckout,
   } = useCheckout();
 
+  // Execution Guard: Synchronously tracks if a payment request is in flight
+  const isSubmittingRef = useRef(false);
+
   useEffect(() => {
     if (profile?.phone && !senderPhone) {
       setSenderPhone(profile.phone);
@@ -231,6 +234,12 @@ export function Checkout() {
   // ---------- handlers --------------------------------------------------
 
   const handlePay = async () => {
+    // 1. Instantly block duplicate rapid-fire clicks
+    if (isSubmittingRef.current) return;
+
+    // 2. Lock the execution gate
+    isSubmittingRef.current = true;
+
     // Immediately shift UI to the compliance screen — don't wait for the API.
     setStage('SECURING');
 
@@ -245,6 +254,7 @@ export function Checkout() {
 
       if (!result) {
         setStage('CART');
+        isSubmittingRef.current = false; // Unlock if aborted
         return;
       }
 
@@ -261,12 +271,18 @@ export function Checkout() {
       }
 
       setStage('PROCESSING');
+      // Do not unlock here: we are transitioning to the polling screen, 
+      // the user should not be able to interact with the pay button anymore.
     } catch (err) {
       setStage('ERROR');
+      isSubmittingRef.current = false; // Unlock so they can try again
     }
   };
 
   const handleComplete = () => {
+    setStage('CART');
+    setTransactionId(null);
+    setShopOrders([]);
     navigate('/orders');
   };
 

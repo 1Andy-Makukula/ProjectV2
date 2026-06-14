@@ -218,7 +218,7 @@ function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
 async function authenticateCaller(
   req: Request,
   adminClient: ReturnType<typeof getAdminClient>,
-): Promise<{ id: string; email?: string; phone?: string } | Response> {
+): Promise<{ id: string; email?: string; phone?: string; user_metadata?: Record<string, any> } | Response> {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return json(req, { error: "A valid Authorization Bearer token is required." }, 401);
@@ -415,6 +415,7 @@ async function generateFlutterwaveLink(
   totalAmount: number,
   buyerEmail: string,
   buyerPhone: string,
+  requestOrigin: string,
   recipientPhone?: string,
 ): Promise<string> {
   const secretKey = Deno.env.get("FLUTTERWAVE_SECRET_KEY");
@@ -424,7 +425,7 @@ async function generateFlutterwaveLink(
     );
   }
 
-  const appUrl = (Deno.env.get("APP_URL") ?? "https://project-h48n1.vercel.app").replace(/\/$/, "");
+  const appUrl = requestOrigin.replace(/\/$/, "");
 
   // Use the recipient's phone as a fallback for the buyer's phone if the buyer doesn't have one on their account
   const finalPhone = buyerPhone || recipientPhone || "";
@@ -503,6 +504,36 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
 
   const { cart_items, origin_type, recipient_name, recipient_phone, message, sender_phone } = payload;
 
+  // --- 2.5. Resolve requestOrigin dynamically ---
+  const originHeader = req.headers.get("Origin") || req.headers.get("Referer");
+  let requestOrigin = "https://project-h48n1.vercel.app"; // default fallback
+  
+  if (originHeader) {
+    try {
+      const url = new URL(originHeader);
+      const isLocalhost = url.hostname === "localhost" || url.hostname === "127.0.0.1";
+      const isVercel = url.hostname === "project-h48n1.vercel.app";
+      if (isLocalhost || isVercel) {
+        requestOrigin = url.origin;
+      } else {
+        const envAppUrl = Deno.env.get("APP_URL");
+        if (envAppUrl) {
+          requestOrigin = envAppUrl;
+        }
+      }
+    } catch {
+      const envAppUrl = Deno.env.get("APP_URL");
+      if (envAppUrl) {
+        requestOrigin = envAppUrl;
+      }
+    }
+  } else {
+    const envAppUrl = Deno.env.get("APP_URL");
+    if (envAppUrl) {
+      requestOrigin = envAppUrl;
+    }
+  }
+
   // --- 3. Build admin client ---
   let adminClient: ReturnType<typeof getAdminClient>;
   try {
@@ -525,7 +556,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     // 1. Fetch transaction and verify it exists and belongs to the buyer
     const { data: txn, error: txnError } = await adminClient
       .from("transactions")
-      .select("transaction_id, total_amount, status, buyer_id")
+      .select("transaction_id, total_amount, status, buyer_id, sender_phone")
       .eq("transaction_id", payload.transaction_id)
       .single();
 
@@ -571,7 +602,8 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
       payload.transaction_id,
       txn.total_amount,
       caller.email ?? "customer@kithly.com",
-      caller.phone ?? "",
+      txn.sender_phone || caller.phone || "",
+      requestOrigin,
       recipientPhone
     );
 
@@ -664,6 +696,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
         p_recipient_name: recipient_name ?? caller.user_metadata?.name ?? caller.email ?? "Gift Recipient",
         p_recipient_phone: recipient_phone ?? caller.phone ?? "0000000000",
         p_message: message ?? "",
+        p_sender_phone: sender_phone || null,
       },
     );
 
@@ -685,6 +718,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
       secureGrandTotal,
       caller.email ?? "customer@kithly.com",
       sender_phone || caller.phone || "",
+      requestOrigin,
       recipient_phone,
     );
 

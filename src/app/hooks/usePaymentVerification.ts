@@ -23,6 +23,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -33,12 +34,11 @@ const POLL_INTERVAL_MS = 3_000 as const;
 
 /**
  * Maximum number of poll attempts before the hook gives up and returns TIMEOUT.
- * 100 attempts × 3 000 ms = 300 000 ms (5 minutes).
+ * 20 attempts × 3 000 ms = 60 000 ms (60 seconds).
  */
-const MAX_ATTEMPTS = 100 as const;
+const MAX_ATTEMPTS = 20 as const;
 
-/** Terminal status written by the Flutterwave webhook handler. */
-const PAID_STATUS = 'SUCCESS' as const;
+// ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
 // Types
@@ -71,10 +71,6 @@ export type PaymentVerificationStatus =
   | 'TIMEOUT'
   | 'ERROR';
 
-interface TransactionStatusRow {
-  transaction_id: string;
-  status: string;
-}
 
 /** Arguments accepted by the hook. */
 export interface UsePaymentVerificationOptions {
@@ -151,6 +147,12 @@ export function usePaymentVerification({
   const intervalIdRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   /**
+   * We store the Supabase Realtime channel in a ref to allow clean up
+   * without triggering extra renders.
+   */
+  const channelRef = useRef<RealtimeChannel | null>(null);
+
+  /**
    * Attempt counter in a ref as well — read inside the interval callback
    * where stale closure state would otherwise cause incorrect TIMEOUT logic.
    */
@@ -173,11 +175,15 @@ export function usePaymentVerification({
    */
   const isMountedRef = useRef<boolean>(true);
 
-  /** Tears down the active interval and resets the ref to null. */
-  const clearActiveInterval = useCallback(() => {
+  /** Tears down both the active polling interval and the realtime subscription. */
+  const cleanUpResources = useCallback(() => {
     if (intervalIdRef.current !== null) {
       clearInterval(intervalIdRef.current);
       intervalIdRef.current = null;
+    }
+    if (channelRef.current !== null) {
+      supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
     }
   }, []);
 
@@ -209,7 +215,7 @@ export function usePaymentVerification({
     // --- TIMEOUT CHECK (before the async query) ---
     // If we've already hit the max, stop now instead of firing one more query.
     if (thisAttempt > maxAttempts) {
-      clearActiveInterval();
+      cleanUpResources();
       if (isMountedRef.current) {
         setStatus('TIMEOUT');
       }
@@ -220,17 +226,13 @@ export function usePaymentVerification({
     }
 
     console.log(
-      `[usePaymentVerification] Poll tick ${thisAttempt}/${maxAttempts} for voucher '${currentVoucherId}'`,
+      `[usePaymentVerification] Poll tick ${thisAttempt}/${maxAttempts} (fallback) for voucher '${currentVoucherId}'`,
     );
 
     // --- DATABASE QUERY ---
     try {
-      const { data: txnRow, error: queryError } = await supabase
-        .from('transactions')
-        .select('transaction_id, status')
-        .eq('transaction_id', currentVoucherId)
-        .eq('status', PAID_STATUS)
-        .maybeSingle<TransactionStatusRow>();
+      const { data: statusValue, error: queryError } = await supabase
+        .rpc('get_transaction_status', { p_transaction_id: currentVoucherId });
 
       // Guard: the component may have unmounted while the query was in flight.
       if (!isMountedRef.current) {
@@ -239,7 +241,7 @@ export function usePaymentVerification({
 
       // --- ERROR BRANCH ---
       if (queryError) {
-        clearActiveInterval();
+        cleanUpResources();
         setStatus('ERROR');
         console.error(
           `[usePaymentVerification] Supabase query error on attempt ${thisAttempt}:`,
@@ -250,10 +252,10 @@ export function usePaymentVerification({
       }
 
       // --- SUCCESS BRANCH ---
-      if (txnRow !== null) {
-        clearActiveInterval();
+      if (statusValue === 'SUCCESS' || statusValue === 'SUCCESSFUL') {
+        cleanUpResources();
         console.log(
-          `[usePaymentVerification] SUCCESS: transaction ${txnRow.transaction_id} is SUCCESSFUL on attempt ${thisAttempt}.`,
+          `[usePaymentVerification] SUCCESS: transaction ${currentVoucherId} status is '${statusValue}' on attempt ${thisAttempt}.`,
         );
         // Fire the callback before updating state so the parent can start its
         // own transition logic (e.g. navigation) before this component re-renders.
@@ -264,7 +266,7 @@ export function usePaymentVerification({
 
       // --- NOT YET FOUND — check if this was the final allowed attempt ---
       if (thisAttempt >= maxAttempts) {
-        clearActiveInterval();
+        cleanUpResources();
         setStatus('TIMEOUT');
         console.warn(
           `[usePaymentVerification] TIMEOUT: final attempt ${thisAttempt} exhausted for voucher '${currentVoucherId}'.`,
@@ -272,7 +274,7 @@ export function usePaymentVerification({
       }
       // Otherwise: interval continues; next tick will call poll() again.
     } catch (err) {
-      clearActiveInterval();
+      cleanUpResources();
       if (isMountedRef.current) {
         setStatus('ERROR');
       }
@@ -281,24 +283,24 @@ export function usePaymentVerification({
         err,
       );
     }
-  }, [clearActiveInterval, intervalMs, maxAttempts]);
+  }, [cleanUpResources, intervalMs, maxAttempts]);
 
   /**
    * reset — allows the consuming component to restart the polling cycle
    * without unmounting, for "Try Again" recovery flows.
    */
   const reset = useCallback(() => {
-    clearActiveInterval();
+    cleanUpResources();
     attemptCountRef.current = 0;
     setAttemptCount(0);
     setStatus(voucherId ? 'POLLING' : 'IDLE');
     // The main useEffect below will re-arm the interval when status becomes
     // POLLING — we don't start it here directly to keep a single source of
     // truth for interval management.
-  }, [clearActiveInterval, voucherId]);
+  }, [cleanUpResources, voucherId]);
 
   // ---------------------------------------------------------------------------
-  // Main effect — arms and cleans up the polling interval
+  // Main effect — subscribes to Realtime updates and starts the fallback timer
   // ---------------------------------------------------------------------------
 
   useEffect(() => {
@@ -327,6 +329,36 @@ export function usePaymentVerification({
     // the first check — especially useful when the webhook is fast.
     poll(voucherId);
 
+    // Subscribe to Supabase Realtime channel for instant notification
+    const channel = supabase
+      .channel(`payment_verification:${voucherId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'transactions',
+          filter: `transaction_id=eq.${voucherId}`,
+        },
+        (payload) => {
+          if (!isMountedRef.current) return;
+          console.log(`[usePaymentVerification] Realtime update received:`, payload);
+          if (payload.new && (payload.new.status === 'SUCCESS' || payload.new.status === 'SUCCESSFUL')) {
+            console.log(
+              `[usePaymentVerification] SUCCESS: Realtime status updated to SUCCESS/SUCCESSFUL.`,
+            );
+            cleanUpResources();
+            onSuccessRef.current?.();
+            setStatus('SUCCESS');
+          }
+        },
+      )
+      .subscribe((subStatus) => {
+        console.log(`[usePaymentVerification] Realtime subscription status: ${subStatus}`);
+      });
+
+    channelRef.current = channel;
+
     // Arm the recurring interval for subsequent ticks.
     intervalIdRef.current = setInterval(() => {
       poll(voucherId);
@@ -336,7 +368,7 @@ export function usePaymentVerification({
     // enters a terminal state (via the dependency array below).
     return () => {
       isMountedRef.current = false;
-      clearActiveInterval();
+      cleanUpResources();
     };
 
   // We intentionally exclude `status` from the dependency array here.
@@ -346,7 +378,7 @@ export function usePaymentVerification({
   // the SUCCESS/TIMEOUT/ERROR cases correctly without needing status in deps.
   //
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [voucherId, poll, clearActiveInterval, intervalMs]);
+  }, [voucherId, poll, cleanUpResources, intervalMs]);
 
   return { status, attemptCount, reset };
 }

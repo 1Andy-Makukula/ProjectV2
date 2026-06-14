@@ -485,7 +485,12 @@ export function PaymentProcessingScreen({
   onComplete,
 }: PaymentProcessingScreenProps) {
 
-  const { status, attemptCount, reset } = usePaymentVerification({ voucherId: transactionId });
+  const MAX_POLL_ATTEMPTS = 20;
+
+  const { status, attemptCount, reset } = usePaymentVerification({
+    voucherId: transactionId,
+    maxAttempts: MAX_POLL_ATTEMPTS,
+  });
 
   const continueButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -507,7 +512,7 @@ export function PaymentProcessingScreen({
         ? 'Payment verification timed out. Please check your messages or try again.'
         : status === 'ERROR'
           ? 'A connection error occurred. Please try again.'
-          : `Verifying payment. Attempt ${attemptCount} of 20.`;
+          : `Verifying payment. Attempt ${attemptCount} of ${MAX_POLL_ATTEMPTS}.`;
 
   return (
     <div
@@ -546,7 +551,7 @@ export function PaymentProcessingScreen({
             <PollingView
               key="polling"
               attemptCount={attemptCount}
-              maxAttempts={20}
+              maxAttempts={MAX_POLL_ATTEMPTS}
             />
           )}
 

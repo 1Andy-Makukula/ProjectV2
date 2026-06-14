@@ -11,13 +11,6 @@ import { PaymentProcessingScreen } from '../../components/checkout/PaymentProces
 import { formatZMW } from '../../utils/formatters';
 import { useSendFlow } from '../../hooks/useSendFlow';
 
-interface ShopOrderResult {
-  shop_order_id: string;
-  claim_code: string;
-  shop_id: string;
-  subtotal: number;
-}
-
 const fadeUp: any = {
   hidden:  { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const } },
@@ -42,6 +35,7 @@ export function SendFlow() {
     senderPhone,
     setSenderPhone,
     handlePay,
+    resetFlow,
     profile,
   } = useSendFlow(itemId);
 
@@ -94,7 +88,10 @@ export function SendFlow() {
         shopOrders={shopOrders}
         recipientName={formData.recipientName}
         senderName={profile?.name ?? ''}
-        onComplete={() => navigate('/orders')}
+        onComplete={() => {
+          resetFlow();
+          navigate('/orders');
+        }}
       />
     );
   }

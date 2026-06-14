@@ -193,7 +193,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     // 1. Fetch transaction and verify it exists and belongs to the buyer
     const { data: txn, error: txnError } = await adminClient
       .from("transactions")
-      .select("transaction_id, total_amount, status, buyer_id")
+      .select("transaction_id, total_amount, status, buyer_id, sender_phone")
       .eq("transaction_id", transaction_id)
       .single();
 
@@ -257,7 +257,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       newTxRef,
       txn.total_amount,
       caller.email ?? "customer@kithly.com",
-      caller.phone ?? "",
+      txn.sender_phone || caller.phone || "",
       recipientPhone
     );
 

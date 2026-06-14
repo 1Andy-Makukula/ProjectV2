@@ -78,6 +78,11 @@ export function useAdminShopForm(shopId?: string) {
       return false;
     }
 
+    if (!user?.id) {
+      toast.error('Session expired. Please log in again.');
+      return false;
+    }
+
     setLoading(true);
     try {
       setUploading(true);
@@ -94,6 +99,7 @@ export function useAdminShopForm(shopId?: string) {
         payout_method: formData.payout_method,
         payout_details: formData.payout_details,
         is_active: formData.is_active,
+        owner_id: user.id,
       };
 
       if (isEditing && shopId) {
