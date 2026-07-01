@@ -5,6 +5,7 @@ import { validateAndFormatPhone } from '../../utils/phone';
 import { parseAuthError } from '../../utils/errorParser';
 import { toast } from 'sonner';
 import { getFlatCartPayload } from '../../utils/sendFlowStore';
+import { useCart } from './useCart';
 
 export interface ShopOrderResult {
   shop_order_id: string;
@@ -16,37 +17,33 @@ export interface ShopOrderResult {
 export interface CheckoutInitResponse {
   success: boolean;
   transaction_id: string;
+  total_amount: number;
+  paymentLink?: string;
   shop_orders: ShopOrderResult[];
-  payment_link: string;
 }
 
 export function useCheckout() {
-  const { user } = useAuth();
+  const { profile } = useAuth();
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const fetchWalletBalance = useCallback(async () => {
-    if (!user?.id) return;
-    try {
+  // Fetch wallet balance
+  useEffect(() => {
+    if (!profile?.id) return;
+    const fetchWallet = async () => {
       const { data, error } = await supabase
         .from('kithly_wallets')
         .select('balance')
-        .eq('user_id', user.id)
+        .eq('user_id', profile.id)
         .maybeSingle();
 
-      if (error) throw error;
-      setWalletBalance(data?.balance ?? 0);
-    } catch (err) {
-      console.error('[useCheckout] Error fetching wallet balance:', err);
-    }
-  }, [user?.id]);
-
-  useEffect(() => {
-    if (user?.id) {
-      fetchWalletBalance();
-    }
-  }, [user?.id, fetchWalletBalance]);
+      if (!error && data) {
+        setWalletBalance(data.balance);
+      }
+    };
+    fetchWallet();
+  }, [profile?.id]);
 
   const handleCheckout = useCallback(async (params: {
     items: any[];
@@ -88,6 +85,10 @@ export function useCheckout() {
     setErrorMsg(null);
 
     try {
+      const { applyCredits, getTotalAmount } = useCart.getState();
+      const totalAmount = getTotalAmount();
+      const creditsToApply = applyCredits ? Math.min(walletBalance, totalAmount) : 0;
+
       const payload = getFlatCartPayload(items, {
         name: recipientName.trim(),
         phone: formattedRecipient.trim(),
@@ -96,7 +97,14 @@ export function useCheckout() {
 
       const { data, error } = await supabase.functions.invoke<CheckoutInitResponse>(
         'checkout-init',
-        { body: { ...payload, origin_type: 'LOCAL', sender_phone: formattedSender } },
+        {
+          body: {
+            ...payload,
+            origin_type: 'LOCAL',
+            sender_phone: formattedSender,
+            credits_to_apply: creditsToApply,
+          }
+        },
       );
 
       if (error) {
@@ -112,7 +120,7 @@ export function useCheckout() {
       return {
         transactionId: data.transaction_id,
         shopOrders: data.shop_orders ?? [],
-        paymentLink: data.payment_link
+        paymentLink: data.payment_link || (data as any).paymentLink || null
       };
     } catch (err: any) {
       console.error('[useCheckout] checkout-init error:', err);

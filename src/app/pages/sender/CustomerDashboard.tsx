@@ -205,7 +205,7 @@ export function CustomerDashboard() {
               id="dashboard-back"
               variant="ghost"
               size="icon"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/')}
               className="shrink-0"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -431,15 +431,48 @@ export function CustomerDashboard() {
 
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div className="flex items-start gap-4">
-                          <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-gray-100 flex items-center justify-center">
-                            {order.item_image_url ? (
-                              <img
-                                src={order.item_image_url}
-                                alt={order.item_name || 'Gift'}
-                                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                              />
+                          <div className="relative h-16 w-16 shrink-0 flex-none">
+                            {order.item_images && order.item_images.length > 0 ? (
+                              order.item_images.slice(0, 3).map((imgUrl: string, idx: number) => {
+                                const offsetLeft = idx * 6; // overlap offset
+                                const offsetTop = idx * 2;
+                                const isLast = idx === 2 || idx === order.item_images.length - 1;
+                                const hasMore = order.item_images.length > 3;
+
+                                return (
+                                  <div
+                                    key={idx}
+                                    style={{
+                                      transform: `translate(${offsetLeft}px, ${offsetTop}px)`,
+                                      zIndex: 10 - idx,
+                                    }}
+                                    className="absolute inset-y-0 left-0 h-13 w-13 overflow-hidden rounded-xl bg-slate-100 border border-white shadow-sm flex items-center justify-center transition-transform group-hover:scale-102"
+                                  >
+                                    <img
+                                      src={imgUrl}
+                                      alt="Gift"
+                                      className="h-full w-full object-cover"
+                                    />
+                                    {isLast && hasMore && (
+                                      <div className="absolute inset-0 bg-slate-900/60 flex items-center justify-center">
+                                        <span className="text-white text-[10px] font-semibold">+{order.item_images.length - 3}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })
+                            ) : order.item_image_url ? (
+                              <div className="h-16 w-16 overflow-hidden rounded-xl bg-slate-100 border border-gray-100 flex items-center justify-center">
+                                <img
+                                  src={order.item_image_url}
+                                  alt={order.item_name || 'Gift'}
+                                  className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                />
+                              </div>
                             ) : (
-                              <Gift className="h-6 w-6 text-slate-300" />
+                              <div className="h-16 w-16 rounded-xl bg-slate-100 border border-gray-100 flex items-center justify-center">
+                                <Gift className="h-6 w-6 text-slate-300" />
+                              </div>
                             )}
                           </div>
                           <div className="space-y-1">

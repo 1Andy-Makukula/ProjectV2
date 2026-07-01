@@ -17,7 +17,7 @@ interface AuthContextType {
   loading: boolean;
   /** True when the profile row could not be fetched (e.g. RLS denial). */
   profileError: boolean;
-  signUp: (email: string, password: string, name: string, phone: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, name: string, phone: string, location?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, name: string, phone: string) => {
+  const signUp = async (email: string, password: string, name: string, phone: string, location?: string) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -90,6 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           data: {
             name,
             phone,
+            location,
           },
         },
       });

@@ -1,114 +1,100 @@
 // KithLy Search Bar
-
-import { useState, useEffect } from 'react';
-import { Search, X, Loader2 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useState, useRef, useEffect } from 'react';
+import { Search, Loader2, X } from 'lucide-react';
+import { useSearch } from '../../hooks/useSearch';
 import { useNavigate } from 'react-router';
-import { supabase } from '../../../lib/supabaseClient';
-
-interface SearchResult {
-  id: string;
-  title: string;
-  shopName: string;
-}
+import { formatZMW } from '../../utils/formatters';
+import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 export function SearchBar() {
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const { results, isSearching } = useSearch(query);
   const navigate = useNavigate();
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [loading, setLoading] = useState(false);
-
+  // Close the dropdown if the user clicks outside of it
   useEffect(() => {
-    if (!query.trim()) {
-      setResults([]);
-      return;
-    }
-
-    const fetchSearchResults = async () => {
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('items')
-          .select('id, name, shops(name)')
-          .ilike('name', `%${query}%`)
-          .eq('is_available', true)
-          .limit(5);
-
-        if (error) throw error;
-        
-        setResults(
-          (data || []).map((item: any) => ({
-            id: item.id,
-            title: item.name,
-            shopName: item.shops?.name || 'Unknown Shop',
-          }))
-        );
-      } catch (err) {
-        console.error('Search error:', err);
-      } finally {
-        setLoading(false);
+    function handleClickOutside(event: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setIsFocused(false);
       }
-    };
-
-    const debounceTimer = setTimeout(() => {
-      fetchSearchResults();
-    }, 300);
-
-    return () => clearTimeout(debounceTimer);
-  }, [query]);
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <div className="relative w-full max-w-xl">
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+    <div ref={wrapperRef} className="relative w-full max-w-md z-50">
+      {/* The Input Field */}
+      <div className="relative flex items-center w-full h-10 rounded-full focus-within:shadow-lg bg-gray-100/80 backdrop-blur-md overflow-hidden transition-all">
+        <div className="grid place-items-center h-full w-12 text-gray-400">
+          {isSearching ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+        </div>
+
         <input
+          className="peer h-full w-full outline-none text-sm text-gray-700 bg-transparent pr-2"
           type="text"
+          id="search"
+          placeholder="Search KithLy..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsFocused(true)}
-          onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-          placeholder="Search gifts..."
-          className="w-full pl-11 pr-10 py-2.5 bg-gray-50 border border-border rounded-full font-light text-sm focus:outline-none focus:border-[#F97316] focus:bg-white transition-all"
+          autoComplete="off"
         />
+
+        {/* Clear Button */}
         {query && (
-          <button
+          <button 
             onClick={() => setQuery('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 rounded-full transition-colors"
+            className="grid place-items-center h-full w-12 text-gray-400 hover:text-gray-600"
           >
-            {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <X className="w-3 h-3" strokeWidth={1.5} />}
+            <X className="w-4 h-4" />
           </button>
         )}
       </div>
 
-      <AnimatePresence>
-        {isFocused && results.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="absolute top-full mt-2 w-full bg-white rounded-2xl border border-border shadow-lg overflow-hidden z-50"
-          >
-            {results.map((product) => (
-              <button
-                key={product.id}
-                onClick={() => {
-                  navigate(`/product/${product.id}`);
-                  setQuery('');
-                }}
-                className="w-full px-4 py-3 hover:bg-gray-50 transition-colors text-left flex items-center gap-3"
-              >
-                <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" strokeWidth={1.5} />
-                <div className="flex-1 min-w-0">
-                  <p className="font-light text-sm text-black truncate">{product.title}</p>
-                  <p className="text-xs font-light text-muted-foreground">{product.shopName}</p>
-                </div>
-              </button>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* The Dropdown Results Panel */}
+      {isFocused && query.trim().length > 0 && (
+        <div className="absolute top-12 left-0 w-full bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-100 overflow-hidden max-h-96 overflow-y-auto">
+          {results.length === 0 && !isSearching ? (
+            <div className="p-4 text-center text-gray-500 text-sm">
+              No results found for "{query}"
+            </div>
+          ) : (
+            <ul className="flex flex-col">
+              {results.map((item) => (
+                <li 
+                  key={item.id}
+                  onClick={() => {
+                    navigate(`/product/${item.id}`);
+                    setIsFocused(false);
+                    setQuery('');
+                  }}
+                  className="flex items-center gap-4 p-3 hover:bg-orange-50 cursor-pointer transition-colors border-b border-gray-50 last:border-0"
+                >
+                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                    <ImageWithFallback
+                      src={item.image_url || ''} 
+                      alt={item.name || item.title || ''} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex flex-col flex-1">
+                    <span className="text-sm font-semibold text-gray-900 line-clamp-1">
+                      {item.name || item.title || ''}
+                    </span>
+                    <span className="text-xs text-gray-500">@ {item.shopName}</span>
+                  </div>
+                  <span className="text-sm font-semibold text-orange-600 shrink-0">
+                    {formatZMW(item.price_zmw)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
+import { supabase } from '../../../lib/supabaseClient';
+import { PricingTransparencyWidget } from '../../components/shared/PricingTransparencyWidget';
 import { ArrowLeft, Upload, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -47,6 +49,27 @@ export function AdminItemForm() {
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [exchangeRate, setExchangeRate] = useState<number>(26.00);
+
+  // Fetch exchange rate on mount
+  useEffect(() => {
+    const fetchExchangeRate = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('platform_settings')
+          .select('current_usd_zmw_rate')
+          .single();
+
+        if (error) throw error;
+        if (data?.current_usd_zmw_rate) {
+          setExchangeRate(Number(data.current_usd_zmw_rate));
+        }
+      } catch (err) {
+        console.error('Failed to fetch exchange rate:', err);
+      }
+    };
+    fetchExchangeRate();
+  }, []);
 
   // Sync previews with loaded data
   useEffect(() => {
@@ -189,6 +212,12 @@ export function AdminItemForm() {
                     Display: ZMW {parseFloat(formData.price || '0').toFixed(2)}
                   </p>
                 )}
+                <div className="pt-2">
+                  <PricingTransparencyWidget
+                    inputPriceZMW={parseFloat(formData.price || '0')}
+                    liveExchangeRate={exchangeRate}
+                  />
+                </div>
               </div>
 
               {/* Image Upload */}

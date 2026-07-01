@@ -187,7 +187,7 @@ export function useSendFlow(itemId: string | undefined) {
       setShopOrders(data.shop_orders ?? []);
 
       if (data.payment_link && data.payment_link !== '#') {
-        window.open(data.payment_link, '_blank');
+        window.location.href = data.payment_link;
       }
 
       setStage('PROCESSING');
@@ -196,7 +196,7 @@ export function useSendFlow(itemId: string | undefined) {
       console.error('[useSendFlow] checkout-init error:', err);
       const isNetworkError = err.message?.toLowerCase().includes('fetch') || !navigator.onLine;
       const parsed = parseAuthError(err);
-      setErrorMsg(isNetworkError ? 'Network error or timeout. Please check your connection and try again.' : parsed.message);
+      setErrorMsg(isNetworkError ? 'Network error or timeout. Please check your connection and try again.' : parsed);
       setStage('ERROR');
       
       isSubmittingRef.current = false; // Unlock for retry

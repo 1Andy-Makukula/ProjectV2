@@ -88,8 +88,9 @@ export function useAdminMerchants() {
     }
     setCreating(true);
     try {
-      await callServer('/merchants', {
+      await callServer('', {
         body: {
+          action: 'create_merchant',
           name: form.name,
           email: form.email,
           password: form.password,
@@ -144,7 +145,7 @@ export function useAdminMerchants() {
       if (shopId && shopId !== 'unassigned') {
         const { error } = await supabase
           .from('merchant_shops')
-          .upsert({ user_id: merchantId, shop_id: shopId }, { onConflict: 'user_id' });
+          .insert({ user_id: merchantId, shop_id: shopId });
         if (error) throw error;
       }
 

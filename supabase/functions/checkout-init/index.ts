@@ -196,6 +196,7 @@ function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
   const recipient_phone = typeof raw.recipient_phone === "string" ? raw.recipient_phone.trim() || undefined : undefined;
   const message         = typeof raw.message         === "string" ? raw.message.trim()         || undefined : undefined;
   const sender_phone    = typeof raw.sender_phone    === "string" ? raw.sender_phone.trim()    || undefined : undefined;
+  const credits_to_apply = typeof raw.credits_to_apply === "number" ? raw.credits_to_apply : 0;
 
   return {
     cart_items,
@@ -204,6 +205,7 @@ function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
     recipient_phone,
     message,
     sender_phone,
+    credits_to_apply,
   };
 }
 
@@ -502,7 +504,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     return json(req, { error: message }, 400);
   }
 
-  const { cart_items, origin_type, recipient_name, recipient_phone, message, sender_phone } = payload;
+  const { cart_items, origin_type, recipient_name, recipient_phone, message, sender_phone, credits_to_apply } = payload;
 
   // --- 2.5. Resolve requestOrigin dynamically ---
   const originHeader = req.headers.get("Origin") || req.headers.get("Referer");
@@ -697,6 +699,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
         p_recipient_phone: recipient_phone ?? caller.phone ?? "0000000000",
         p_message: message ?? "",
         p_sender_phone: sender_phone || null,
+        p_credits_to_apply: credits_to_apply,
       },
     );
 
@@ -707,20 +710,26 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
 
     const transactionId = checkoutResult.transaction_id as string;
     const shopOrders = checkoutResult.shop_orders as ShopOrderResult[];
+    const totalAmount = checkoutResult.total_amount as number; // Net payable in ngwee
 
     console.log(
-      `[checkout-init] Atomic checkout complete | transaction_id=${transactionId} | shop_orders=${shopOrders.length} | total=${checkoutResult.total_amount}`,
+      `[checkout-init] Atomic checkout complete | transaction_id=${transactionId} | shop_orders=${shopOrders.length} | total=${totalAmount}`,
     );
 
     // --- 8. Generate Flutterwave payment link (Step D) ---
-    const paymentLink = await generateFlutterwaveLink(
-      transactionId,
-      secureGrandTotal,
-      caller.email ?? "customer@kithly.com",
-      sender_phone || caller.phone || "",
-      requestOrigin,
-      recipient_phone,
-    );
+    let paymentLink = "#";
+    if (totalAmount > 0) {
+      paymentLink = await generateFlutterwaveLink(
+        transactionId,
+        totalAmount,
+        caller.email ?? "customer@kithly.com",
+        sender_phone || caller.phone || "",
+        requestOrigin,
+        recipient_phone,
+      );
+    } else {
+      console.log(`[checkout-init] Order fully paid by credits. Skipping Flutterwave generation.`);
+    }
 
     // --- 9. Respond to frontend ---
     return json(req, {

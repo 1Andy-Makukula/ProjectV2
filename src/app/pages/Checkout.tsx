@@ -264,10 +264,9 @@ export function Checkout() {
       // Clear the cart immediately — the transaction is created, items are committed.
       clearCart();
       
-      // Open the Flutterwave-hosted payment page in a new tab so the polling
-      // screen can remain active in this tab.
+      // Redirect the current tab to the Flutterwave payment link.
       if (result.paymentLink && result.paymentLink !== '#') {
-        window.open(result.paymentLink, '_blank');
+        window.location.href = result.paymentLink;
       }
 
       setStage('PROCESSING');
@@ -499,7 +498,7 @@ export function Checkout() {
                       onClick={handlePay}
                       className="w-full h-14 text-base font-semibold rounded-2xl bg-gradient-to-r from-[#F97316] to-[#FB923C] hover:from-[#ea6c0a] hover:to-[#f58220] text-white shadow-lg shadow-orange-200 border-0"
                     >
-                      Pay {formatCurrency(finalPayable, 'ZMW')}
+                      {finalPayable === 0 ? 'Pay with Credits' : `Pay ${formatCurrency(finalPayable, 'ZMW')}`}
                     </Button>
                   </motion.div>
                 </>

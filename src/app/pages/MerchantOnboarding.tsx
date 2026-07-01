@@ -23,6 +23,13 @@ export function MerchantOnboarding() {
   // Form fields
   const [businessName, setBusinessName] = useState('');
   const [location, setLocation] = useState('');
+  const [physicalAddress, setPhysicalAddress] = useState('');
+
+  // Storage files / paths
+  const [nrcPath, setNrcPath] = useState('');
+  const [pacraPath, setPacraPath] = useState('');
+  const [uploadingNrc, setUploadingNrc] = useState(false);
+  const [uploadingPacra, setUploadingPacra] = useState(false);
 
   // UI state
   const [loading, setLoading] = useState(false);
@@ -49,6 +56,37 @@ export function MerchantOnboarding() {
     checkSession();
   }, [navigate]);
 
+  // ── Document Uploader Helper ──────────────────────────────────────────────
+  const handleFileUpload = async (file: File, docType: 'nrc' | 'pacra') => {
+    if (!userId) return;
+    const setUploading = docType === 'nrc' ? setUploadingNrc : setUploadingPacra;
+    const setPath = docType === 'nrc' ? setNrcPath : setPacraPath;
+
+    setUploading(true);
+    setErrorMsg('');
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${docType}-${Date.now()}.${fileExt}`;
+      const filePath = `${userId}/${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from('merchant-documents')
+        .upload(filePath, file, {
+          upsert: true
+        });
+
+      if (error) throw error;
+      setPath(data.path);
+      toast.success(`${docType.toUpperCase()} document uploaded successfully.`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(`Failed to upload ${docType.toUpperCase()}: ${err.message}`);
+      setErrorMsg(`Failed to upload ${docType.toUpperCase()}: ${err.message}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   // ── Form submission: three-step Supabase transaction ──────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +98,15 @@ export function MerchantOnboarding() {
       return;
     }
     if (!location.trim()) {
-      setErrorMsg('Location is required.');
+      setErrorMsg('Location/City is required.');
+      return;
+    }
+    if (!physicalAddress.trim()) {
+      setErrorMsg('Physical address is required.');
+      return;
+    }
+    if (!nrcPath) {
+      setErrorMsg('NRC document upload is required.');
       return;
     }
     if (!userId) {
@@ -75,6 +121,9 @@ export function MerchantOnboarding() {
       const { data: result, error: rpcError } = await supabase.rpc('register_merchant_shop', {
         p_shop_name: businessName.trim(),
         p_location: location.trim(),
+        p_physical_address: physicalAddress.trim(),
+        p_nrc_url: nrcPath,
+        p_pacra_url: pacraPath || null,
       });
 
       if (rpcError) throw rpcError;
@@ -185,7 +234,7 @@ export function MerchantOnboarding() {
                 {/* Location */}
                 <div className="space-y-2">
                   <Label htmlFor="location" className="text-sm font-medium text-slate-700">
-                    Location <span className="text-red-500">*</span>
+                    Location/City <span className="text-red-500">*</span>
                   </Label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -205,13 +254,80 @@ export function MerchantOnboarding() {
                   </p>
                 </div>
 
+                {/* Physical Address */}
+                <div className="space-y-2">
+                  <Label htmlFor="physicalAddress" className="text-sm font-medium text-slate-700">
+                    Physical Address <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="physicalAddress"
+                    type="text"
+                    value={physicalAddress}
+                    onChange={(e) => setPhysicalAddress(e.target.value)}
+                    placeholder="e.g., Plot 1234, Great East Road"
+                    className="h-11 rounded-xl border-slate-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                    disabled={loading}
+                    required
+                  />
+                  <p className="text-xs text-slate-400 font-light">
+                    Enter the detailed physical address of your shop.
+                  </p>
+                </div>
+
+                {/* NRC File Upload */}
+                <div className="space-y-2">
+                  <Label htmlFor="nrcFile" className="text-sm font-medium text-slate-700">
+                    National Registration Card (NRC) <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="nrcFile"
+                    type="file"
+                    accept="image/*,application/pdf"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileUpload(file, 'nrc');
+                    }}
+                    className="h-11 rounded-xl border-slate-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-primary hover:file:bg-orange-100"
+                    disabled={loading || uploadingNrc}
+                    required
+                  />
+                  {uploadingNrc && <p className="text-xs text-primary animate-pulse">Uploading NRC document...</p>}
+                  {nrcPath && <p className="text-xs text-green-600 font-medium">✓ NRC uploaded successfully: {nrcPath.split('/').pop()}</p>}
+                  <p className="text-xs text-slate-400 font-light">
+                    Upload a scan or clear photo of your NRC (PDF or Image).
+                  </p>
+                </div>
+
+                {/* PACRA File Upload */}
+                <div className="space-y-2">
+                  <Label htmlFor="pacraFile" className="text-sm font-medium text-slate-700">
+                    PACRA Certificate (Optional)
+                  </Label>
+                  <Input
+                    id="pacraFile"
+                    type="file"
+                    accept="image/*,application/pdf"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileUpload(file, 'pacra');
+                    }}
+                    className="h-11 rounded-xl border-slate-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-primary hover:file:bg-orange-100"
+                    disabled={loading || uploadingPacra}
+                  />
+                  {uploadingPacra && <p className="text-xs text-primary animate-pulse">Uploading PACRA document...</p>}
+                  {pacraPath && <p className="text-xs text-green-600 font-medium">✓ PACRA uploaded successfully: {pacraPath.split('/').pop()}</p>}
+                  <p className="text-xs text-slate-400 font-light">
+                    Upload your PACRA business registration certificate (PDF or Image).
+                  </p>
+                </div>
+
                 {/* Submit */}
                 <div className="pt-2">
                   <Button
                     id="submit-merchant-onboarding"
                     type="submit"
-                    disabled={loading}
-                    className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-primary to-primary-light hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-sm group"
+                    disabled={loading || uploadingNrc || uploadingPacra || !nrcPath || !businessName.trim() || !location.trim() || !physicalAddress.trim()}
+                    className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-primary to-primary-light hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-sm group disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
                   >
                     {loading ? (
                       <span className="flex items-center gap-2">

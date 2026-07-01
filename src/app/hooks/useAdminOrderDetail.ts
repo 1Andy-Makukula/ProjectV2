@@ -25,7 +25,6 @@ export function useAdminOrderDetail(orderId?: string) {
           gateway_tx_ref,
           origin_type,
           created_at,
-          updated_at,
           buyer_id,
           buyer:buyer_id (name, email, phone),
           shop_orders (
@@ -35,7 +34,7 @@ export function useAdminOrderDetail(orderId?: string) {
             recipient_name,
             recipient_phone,
             message,
-            updated_at,
+            created_at,
             shop:shop_id (id, name, location, address),
             order_items (
               item:item_id (id, name, description, image_url, price_zmw)
@@ -60,7 +59,7 @@ export function useAdminOrderDetail(orderId?: string) {
         gateway_tx_ref: txn.gateway_tx_ref,
         origin_type: txn.origin_type,
         created_at: txn.created_at,
-        updated_at: txn.updated_at,
+        updated_at: null,
 
         shop_order_id: firstShopOrder?.shop_order_id ?? null,
         claim_code: firstShopOrder?.claim_code ?? null,
@@ -68,7 +67,7 @@ export function useAdminOrderDetail(orderId?: string) {
         recipient_name: firstShopOrder?.recipient_name ?? null,
         recipient_phone: firstShopOrder?.recipient_phone ?? null,
         message: firstShopOrder?.message ?? null,
-        shop_order_updated_at: firstShopOrder?.updated_at ?? null,
+        shop_order_updated_at: firstShopOrder?.created_at ?? null,
 
         item_id: firstItem?.id ?? null,
         item_name: firstItem?.name ?? null,

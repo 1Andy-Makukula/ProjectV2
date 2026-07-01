@@ -34,6 +34,7 @@ export function useAdminDashboard() {
           status,
           total_amount,
           created_at,
+          origin_type,
           buyer:buyer_id (name),
           shop_orders (
             shop_order_id,
@@ -70,13 +71,23 @@ export function useAdminDashboard() {
 
       const ordersThisWeek = transactions?.filter((t: any) => new Date(t.created_at) >= weekAgo) || [];
 
+      const totalComm = transactions?.reduce((sum: number, t: any) => {
+        const rate = t.origin_type === 'INTERNATIONAL' ? 0.04 : 0.02;
+        return sum + (t.total_amount || 0) * rate;
+      }, 0) || 0;
+
+      const commThisWeek = ordersThisWeek.reduce((sum: number, t: any) => {
+        const rate = t.origin_type === 'INTERNATIONAL' ? 0.04 : 0.02;
+        return sum + (t.total_amount || 0) * rate;
+      }, 0) || 0;
+
       setStats({
         totalOrders: transactions?.length || 0,
         totalValue: transactions?.reduce((sum: number, t: any) => sum + (t.total_amount || 0), 0) || 0,
         ordersThisWeek: ordersThisWeek.length,
         valueThisWeek: ordersThisWeek.reduce((sum: number, t: any) => sum + (t.total_amount || 0), 0),
-        totalCommission: (transactions?.reduce((sum: number, t: any) => sum + (t.total_amount || 0), 0) || 0) * 0.05,
-        commissionThisWeek: (ordersThisWeek.reduce((sum: number, t: any) => sum + (t.total_amount || 0), 0)) * 0.05,
+        totalCommission: totalComm,
+        commissionThisWeek: commThisWeek,
         totalShops: shopsCount || 0,
         totalUsers: usersCount || 0,
         fulfilledOrders: transactions?.filter((t: any) => t.shop_orders?.some((so: any) => so.claim_status === 'REDEEMED' || so.claim_status === 'FULFILLED')).length || 0,

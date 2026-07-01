@@ -39,7 +39,7 @@ export function useCustomerDashboard() {
       setFloatingItems((data as any) || []);
     } catch (err: any) {
       console.error('[useCustomerDashboard] fetchFloatingItems error:', err);
-      toast.error(parseAuthError(err).message);
+      toast.error(parseAuthError(err));
       setFloatingItems([]);
     } finally {
       setLoadingFloating(false);
@@ -85,7 +85,7 @@ export function useCustomerDashboard() {
       setReceivedGifts(data || []);
     } catch (err: any) {
       console.error('[useCustomerDashboard] fetchReceivedGifts error:', err);
-      toast.error(parseAuthError(err).message);
+      toast.error(parseAuthError(err));
       setReceivedGifts([]);
     } finally {
       setLoadingReceived(false);
@@ -139,8 +139,16 @@ export function useCustomerDashboard() {
         }
 
         const firstShopOrder = txn.shop_orders?.[0];
-        const firstItem = firstShopOrder?.order_items?.[0]?.item;
         const shop = firstShopOrder?.shop;
+
+        const itemsList = txn.shop_orders?.flatMap((so: any) => 
+          so.order_items?.map((oi: any) => ({
+            name: oi.item?.name,
+            image_url: oi.item?.image_url
+          })) ?? []
+        ) ?? [];
+
+        const images = itemsList.map((item: any) => item.image_url).filter(Boolean);
 
         return {
           transaction_id: txn.transaction_id,
@@ -153,8 +161,10 @@ export function useCustomerDashboard() {
           claim_status: firstShopOrder?.claim_status ?? null,
           recipient_name: firstShopOrder?.recipient_name ?? null,
           shop_name: shop?.name ?? null,
-          item_name: firstItem?.name ?? null,
-          item_image_url: firstItem?.image_url ?? null,
+          item_name: itemsList.map((item: any) => item.name).join(', ') || null,
+          item_images: images,
+          item_count: itemsList.length,
+          item_image_url: itemsList[0]?.image_url ?? null,
         };
       });
 
@@ -164,7 +174,7 @@ export function useCustomerDashboard() {
       setShopsSupported(uniqueShops.size);
     } catch (err: any) {
       console.error('[useCustomerDashboard] fetchOrdersAndMetrics error:', err);
-      toast.error(parseAuthError(err).message);
+      toast.error(parseAuthError(err));
       setTotalGenerosity(0);
       setGiftsDelivered(0);
       setShopsSupported(0);
@@ -202,12 +212,12 @@ export function useCustomerDashboard() {
       }
 
       toast.success('Opening payment gateway...');
-      window.open(data.payment_link, '_blank');
+      window.location.href = data.payment_link;
       
       await fetchOrdersAndMetrics();
     } catch (err: any) {
       console.error('[useCustomerDashboard] resume payment error:', err);
-      toast.error(parseAuthError(err).message);
+      toast.error(parseAuthError(err));
     } finally {
       setResumingPaymentId(null);
     }
@@ -233,7 +243,7 @@ export function useCustomerDashboard() {
       window.dispatchEvent(new Event('wallet-update'));
     } catch (err: any) {
       console.error('[useCustomerDashboard] handleConvert error:', err);
-      toast.error(parseAuthError(err).message);
+      toast.error(parseAuthError(err));
     } finally {
       setConvertingItemId(null);
     }

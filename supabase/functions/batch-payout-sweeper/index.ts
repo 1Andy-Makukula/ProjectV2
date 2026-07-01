@@ -104,6 +104,9 @@ Deno.serve(async (req: Request): Promise<Response> => {
           name,
           payout_method,
           payout_details
+        ),
+        transactions:transaction_id (
+          origin_type
         )
       `)
       .eq("claim_status", "FULFILLED")
@@ -129,6 +132,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       shop: NonNullable<OrderWithShop["shop"]>;
       orders: OrderWithShop[];
       grossAmountNgwee: number;
+      platformFeeNgwee: number;
     }>();
 
     for (const order of (pendingOrders as unknown as OrderWithShop[])) {
@@ -142,12 +146,17 @@ Deno.serve(async (req: Request): Promise<Response> => {
         batch = {
           shop: order.shop,
           orders: [],
-          grossAmountNgwee: 0
+          grossAmountNgwee: 0,
+          platformFeeNgwee: 0
         };
         batches.set(shopId, batch);
       }
       batch.orders.push(order);
       batch.grossAmountNgwee += order.subtotal;
+
+      const originType = (order as any).transactions?.origin_type ?? "LOCAL";
+      const feeRate = originType === "INTERNATIONAL" ? 0.10 : 0.08;
+      batch.platformFeeNgwee += Math.round(order.subtotal * feeRate);
     }
 
     const results = [];
@@ -155,7 +164,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     // 4. Process each batch
     for (const batch of batches.values()) {
-      const { shop, orders, grossAmountNgwee } = batch;
+      const { shop, orders, grossAmountNgwee, platformFeeNgwee } = batch;
 
       if (!shop.payout_method || !shop.payout_details?.trim()) {
         console.error(`[batch-payout-sweeper] Shop '${shop.name}' (${shop.id}) is missing payout method or details.`);
@@ -168,8 +177,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
         continue;
       }
 
-      // Calculate platform fee and merchant share (5% / 95%) in Ngwee
-      const platformFeeNgwee = Math.round(grossAmountNgwee * 0.05);
+      // Calculate platform fee and merchant share in Ngwee
       const merchantAmountNgwee = grossAmountNgwee - platformFeeNgwee;
       const transferAmountZMW = merchantAmountNgwee / 100;
 
@@ -252,24 +260,29 @@ Deno.serve(async (req: Request): Promise<Response> => {
         }
 
         // 6. Record PAYOUT_BATCHED events in transaction_events
-        const events = orders.map(order => ({
-          transaction_id: order.transaction_id,
-          shop_order_id: order.shop_order_id,
-          event_type: "PAYOUT_BATCHED",
-          payload: {
-            action: "bulk_merchant_payout",
-            provider: "flutterwave",
-            transfer_id: transferId,
-            transfer_reference: reference,
-            transfer_status: "SUCCESSFUL",
-            shop_id: shop.id,
-            payout_method: shop.payout_method,
-            gross_amount_ngwee: order.subtotal,
-            platform_fee_ngwee: Math.round(order.subtotal * 0.05),
-            merchant_amount_ngwee: order.subtotal - Math.round(order.subtotal * 0.05),
-            settled_at: new Date().toISOString()
-          }
-        }));
+        const events = orders.map(order => {
+          const originType = (order as any).transactions?.origin_type ?? "LOCAL";
+          const feeRate = originType === "INTERNATIONAL" ? 0.10 : 0.08;
+          const orderFee = Math.round(order.subtotal * feeRate);
+          return {
+            transaction_id: order.transaction_id,
+            shop_order_id: order.shop_order_id,
+            event_type: "PAYOUT_BATCHED",
+            payload: {
+              action: "bulk_merchant_payout",
+              provider: "flutterwave",
+              transfer_id: transferId,
+              transfer_reference: reference,
+              transfer_status: "SUCCESSFUL",
+              shop_id: shop.id,
+              payout_method: shop.payout_method,
+              gross_amount_ngwee: order.subtotal,
+              platform_fee_ngwee: orderFee,
+              merchant_amount_ngwee: order.subtotal - orderFee,
+              settled_at: new Date().toISOString()
+            }
+          };
+        });
 
         const { error: eventErr } = await supabase
           .from("transaction_events")

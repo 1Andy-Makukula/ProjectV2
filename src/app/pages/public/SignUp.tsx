@@ -32,6 +32,7 @@ export function SignUp() {
     name: '',
     email: '',
     phone: '+260',
+    location: '',
     password: '',
     confirmPassword: '',
   });
@@ -49,7 +50,7 @@ export function SignUp() {
     e.preventDefault();
     setErrorMsg('');
 
-    if (!formData.name || !formData.email || !formData.phone || !formData.password) {
+    if (!formData.name || !formData.email || !formData.phone || !formData.password || !formData.location.trim()) {
       const msg = 'All fields are required.';
       setErrorMsg(msg);
       toast.error(msg);
@@ -92,7 +93,8 @@ export function SignUp() {
       formData.email,
       formData.password,
       formData.name,
-      formattedPhone
+      formattedPhone,
+      formData.location.trim()
     );
 
     setLoading(false);
@@ -235,6 +237,22 @@ export function SignUp() {
                     onChange={handlePhoneChange}
                   />
                 </div>
+              </div>
+
+              {/* Location/City */}
+              <div>
+                <Label htmlFor="location" className="text-sm font-medium text-gray-700">
+                  Location / City
+                </Label>
+                <Input
+                  id="location"
+                  type="text"
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  className="mt-1 rounded-xl h-12"
+                  placeholder="e.g. Lusaka, Kitwe"
+                  required
+                />
               </div>
 
               {/* Password */}

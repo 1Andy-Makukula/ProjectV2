@@ -29,14 +29,8 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 // Constants
 // ---------------------------------------------------------------------------
 
-/** Milliseconds between each poll tick. */
-const POLL_INTERVAL_MS = 3_000 as const;
-
-/**
- * Maximum number of poll attempts before the hook gives up and returns TIMEOUT.
- * 20 attempts × 3 000 ms = 60 000 ms (60 seconds).
- */
-const MAX_ATTEMPTS = 20 as const;
+const POLLING_INTERVAL_MS = 3000; // 3 seconds
+const MAX_POLLING_ATTEMPTS = 30;  // 90 seconds total
 
 // ---------------------------------------------------------------------------
 
@@ -94,13 +88,13 @@ export interface UsePaymentVerificationOptions {
 
   /**
    * Optional override for the polling interval in milliseconds.
-   * Defaults to POLL_INTERVAL_MS (3 000 ms). Exposed primarily for testing.
+   * Defaults to POLLING_INTERVAL_MS (3 000 ms). Exposed primarily for testing.
    */
   intervalMs?: number;
 
   /**
    * Optional override for the maximum number of polling attempts.
-   * Defaults to MAX_ATTEMPTS (20). Exposed primarily for testing.
+   * Defaults to MAX_POLLING_ATTEMPTS (30). Exposed primarily for testing.
    */
   maxAttempts?: number;
 }
@@ -131,8 +125,8 @@ export interface UsePaymentVerificationResult {
 export function usePaymentVerification({
   voucherId,
   onSuccess,
-  intervalMs = POLL_INTERVAL_MS,
-  maxAttempts = MAX_ATTEMPTS,
+  intervalMs = POLLING_INTERVAL_MS,
+  maxAttempts = MAX_POLLING_ATTEMPTS,
 }: UsePaymentVerificationOptions): UsePaymentVerificationResult {
 
   const [status, setStatus] = useState<PaymentVerificationStatus>('IDLE');
