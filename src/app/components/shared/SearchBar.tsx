@@ -67,7 +67,7 @@ export function SearchBar() {
                 <li 
                   key={item.id}
                   onClick={() => {
-                    navigate(`/product/${item.id}`);
+                    navigate(`/send/${item.id}`);
                     setIsFocused(false);
                     setQuery('');
                   }}

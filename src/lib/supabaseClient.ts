@@ -30,6 +30,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 /**
  * The Supabase project ID, derived from the URL.
  * Used anywhere a raw project reference is needed (e.g. Edge Function URLs).
- * Example: "ghwrvqsoelpcoqdodrzu"
+ * Example: "mbjbrdhpjgfhhycijodz"
  */
 export const projectId = supabaseUrl.replace('https://', '').split('.')[0];

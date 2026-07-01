@@ -100,13 +100,18 @@ export function useMerchantDashboard(profileId?: string) {
       const weekFulfilled = weekOrders?.length || 0;
       const weekValue = weekOrders?.reduce((sum: number, o: any) => sum + (o.subtotal || 0), 0) || 0;
 
-      const { data: ledgerData } = await supabase
-        .from('payout_ledger')
-        .select('credit_amount')
-        .eq('shop_id', currentShopId)
-        .neq('status', 'SETTLED');
-
-      const availableBalance = ledgerData?.reduce((sum: number, row: any) => sum + (row.credit_amount || 0), 0) || 0;
+      let availableBalance = 0;
+      if (profileId) {
+        const { data: walletData, error: walletError } = await supabase
+          .from('kithly_wallets')
+          .select('balance')
+          .eq('user_id', profileId)
+          .maybeSingle();
+        
+        if (!walletError && walletData) {
+          availableBalance = walletData.balance;
+        }
+      }
 
       setAnalytics((prev) => ({
         ...prev,
@@ -119,7 +124,7 @@ export function useMerchantDashboard(profileId?: string) {
     } catch (error) {
       console.error('Error syncing dashboard:', error);
     }
-  }, []);
+  }, [profileId]);
 
   const fetchLedger = useCallback(async (currentShopId: string) => {
     setLedgerLoading(true);

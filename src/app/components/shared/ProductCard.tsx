@@ -186,7 +186,7 @@ export function ProductCard({ product, onClick }: ProductCardProps) {
     if (onClick) {
       onClick();
     } else {
-      navigate(`/product/${product.id}`);
+      navigate(`/send/${product.id}`);
     }
   };
 

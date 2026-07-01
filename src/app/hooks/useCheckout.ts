@@ -28,22 +28,23 @@ export function useCheckout() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const fetchWalletBalance = useCallback(async () => {
+    if (!profile?.id) return;
+    const { data, error } = await supabase
+      .from('kithly_wallets')
+      .select('balance')
+      .eq('user_id', profile.id)
+      .maybeSingle();
+
+    if (!error && data) {
+      setWalletBalance(data.balance);
+    }
+  }, [profile?.id]);
+
   // Fetch wallet balance
   useEffect(() => {
-    if (!profile?.id) return;
-    const fetchWallet = async () => {
-      const { data, error } = await supabase
-        .from('kithly_wallets')
-        .select('balance')
-        .eq('user_id', profile.id)
-        .maybeSingle();
-
-      if (!error && data) {
-        setWalletBalance(data.balance);
-      }
-    };
-    fetchWallet();
-  }, [profile?.id]);
+    fetchWalletBalance();
+  }, [fetchWalletBalance]);
 
   const handleCheckout = useCallback(async (params: {
     items: any[];
