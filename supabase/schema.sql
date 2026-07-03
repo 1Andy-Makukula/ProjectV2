@@ -1233,8 +1233,8 @@ CREATE OR REPLACE FUNCTION "public"."trigger_daily_payout_sweeper"() RETURNS "vo
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
 DECLARE
-  edge_function_url text := 'https://mbjbrdhpjgfhhycijodz.supabase.co/functions/v1/batch-payout-sweeper';
-  service_role_key text := 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1iamJyZGhwamdmaGh5Y2lqb2R6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTM0Nzk1NSwiZXhwIjoyMDk0OTIzOTU1fQ.SjgLTTbUOFzPQuAjZNW6IQhCbzsqUMVEyKvBAFBlieM'; -- Used to bypass RLS for background workers
+  edge_function_url text := 'https://<YOUR_PROJECT_ID>.supabase.co/functions/v1/batch-payout-sweeper';
+  service_role_key text := '<YOUR_SUPABASE_SERVICE_ROLE_KEY>'; -- Used to bypass RLS for background workers
   request_id bigint;
 BEGIN
   -- Shoot the internal network payload to start the payout Edge Function
