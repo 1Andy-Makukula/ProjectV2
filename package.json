@@ -86,7 +86,7 @@
     "hono": "^4.12.18",
     "supabase": "^2.98.2",
     "tailwindcss": "4.1.12",
-    "vite": "6.3.5",
+    "vite": "6.4.3",
     "vitest": "^3.2.4"
   },
   "peerDependencies": {
@@ -103,7 +103,7 @@
   },
   "pnpm": {
     "overrides": {
-      "vite": "6.3.5"
+      "vite": "6.4.3"
     }
   },
   "packageManager": "pnpm@11.2.2"
