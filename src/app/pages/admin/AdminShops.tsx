@@ -34,9 +34,9 @@ export function AdminShops() {
   const pendingShops = filteredShops.filter(shop => shop.verification_status === 'pending');
   const nonPendingShops = filteredShops.filter(shop => shop.verification_status !== 'pending');
 
-  const handleViewDocument = async (docPath: string) => {
+  const handleViewDocument = async (docPath: string | null | undefined) => {
     if (!docPath) {
-      toast.error('Document path is empty.');
+      toast.error('No document was uploaded for this shop.');
       return;
     }
     try {
@@ -160,7 +160,11 @@ export function AdminShops() {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-semibold text-base text-slate-900 leading-tight">{shop.name}</h3>
-                        <p className="text-[10px] text-slate-400 mt-1">Submitted on {new Date(shop.created_at).toLocaleDateString()}</p>
+                        <p className="text-[10px] text-slate-400 mt-1">
+                          {shop.created_at
+                            ? `Submitted on ${new Date(shop.created_at).toLocaleDateString()}`
+                            : 'Submission date unavailable'}
+                        </p>
                       </div>
                       <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 text-[10px] py-0 px-2">Pending Review</Badge>
                     </div>

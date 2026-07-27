@@ -6,8 +6,33 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { toast } from 'sonner';
-import { Store, MapPin, ArrowRight, ShieldAlert } from 'lucide-react';
+import { Store, MapPin, ArrowRight, ShieldAlert, Check, Package, ConciergeBell } from 'lucide-react';
 import { motion } from 'motion/react';
+
+// What the shop intends to sell. This decides which item types the merchant is
+// offered when they start building a catalogue.
+const OFFERING_CHOICES = [
+  {
+    value: 'products' as const,
+    label: 'Products',
+    description: 'Physical goods collected from your shop.',
+    icon: Package,
+  },
+  {
+    value: 'services' as const,
+    label: 'Services',
+    description: 'Work you carry out for the recipient.',
+    icon: ConciergeBell,
+  },
+  {
+    value: 'both' as const,
+    label: 'Both',
+    description: 'You sell goods and provide services.',
+    icon: Store,
+  },
+];
+
+type Offering = (typeof OFFERING_CHOICES)[number]['value'];
 
 // ---------------------------------------------------------------------------
 // MerchantOnboarding
@@ -24,6 +49,7 @@ export function MerchantOnboarding() {
   const [businessName, setBusinessName] = useState('');
   const [location, setLocation] = useState('');
   const [physicalAddress, setPhysicalAddress] = useState('');
+  const [offering, setOffering] = useState<Offering>('products');
 
   // Storage files / paths
   const [nrcPath, setNrcPath] = useState('');
@@ -124,6 +150,8 @@ export function MerchantOnboarding() {
         p_physical_address: physicalAddress.trim(),
         p_nrc_url: nrcPath,
         p_pacra_url: pacraPath || null,
+        p_offers_products: offering === 'products' || offering === 'both',
+        p_offers_services: offering === 'services' || offering === 'both',
       });
 
       if (rpcError) throw rpcError;
@@ -254,6 +282,46 @@ export function MerchantOnboarding() {
                   </p>
                 </div>
 
+                {/* What the shop offers */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-slate-700">
+                    What do you offer? <span className="text-red-500">*</span>
+                  </Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {OFFERING_CHOICES.map((choice) => {
+                      const Icon = choice.icon;
+                      const selected = offering === choice.value;
+                      return (
+                        <button
+                          key={choice.value}
+                          type="button"
+                          aria-pressed={selected}
+                          disabled={loading}
+                          onClick={() => setOffering(choice.value)}
+                          className={`flex flex-col items-start gap-1.5 rounded-xl border p-4 text-left
+                                      transition-all duration-200 active:scale-[0.99]
+                                      disabled:opacity-50 disabled:cursor-not-allowed
+                                      ${selected
+                                        ? 'border-primary bg-orange-50 shadow-sm'
+                                        : 'border-slate-200 hover:border-slate-300'}`}
+                        >
+                          <Icon
+                            className={`w-4 h-4 ${selected ? 'text-primary' : 'text-slate-400'}`}
+                            strokeWidth={1.75}
+                          />
+                          <span className="text-sm font-medium text-slate-900">{choice.label}</span>
+                          <span className="text-xs font-light leading-snug text-slate-500">
+                            {choice.description}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-slate-400 font-light">
+                    This decides what you can list. You can change it later from your shop settings.
+                  </p>
+                </div>
+
                 {/* Physical Address */}
                 <div className="space-y-2">
                   <Label htmlFor="physicalAddress" className="text-sm font-medium text-slate-700">
@@ -292,7 +360,12 @@ export function MerchantOnboarding() {
                     required
                   />
                   {uploadingNrc && <p className="text-xs text-primary animate-pulse">Uploading NRC document...</p>}
-                  {nrcPath && <p className="text-xs text-green-600 font-medium">✓ NRC uploaded successfully: {nrcPath.split('/').pop()}</p>}
+                  {nrcPath && (
+                    <p className="flex items-center gap-1.5 text-xs text-green-600 font-medium">
+                      <Check className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} />
+                      NRC uploaded: {nrcPath.split('/').pop()}
+                    </p>
+                  )}
                   <p className="text-xs text-slate-400 font-light">
                     Upload a scan or clear photo of your NRC (PDF or Image).
                   </p>
@@ -315,7 +388,12 @@ export function MerchantOnboarding() {
                     disabled={loading || uploadingPacra}
                   />
                   {uploadingPacra && <p className="text-xs text-primary animate-pulse">Uploading PACRA document...</p>}
-                  {pacraPath && <p className="text-xs text-green-600 font-medium">✓ PACRA uploaded successfully: {pacraPath.split('/').pop()}</p>}
+                  {pacraPath && (
+                    <p className="flex items-center gap-1.5 text-xs text-green-600 font-medium">
+                      <Check className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} />
+                      PACRA uploaded: {pacraPath.split('/').pop()}
+                    </p>
+                  )}
                   <p className="text-xs text-slate-400 font-light">
                     Upload your PACRA business registration certificate (PDF or Image).
                   </p>

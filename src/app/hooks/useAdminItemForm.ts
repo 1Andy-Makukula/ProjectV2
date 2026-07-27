@@ -36,6 +36,12 @@ export interface CategoryOption {
   name: string;
 }
 
+/** What the owning shop declared at onboarding. */
+export interface ShopOfferings {
+  offers_products: boolean;
+  offers_services: boolean;
+}
+
 const EMPTY_FORM: ItemFormData = {
   name: '',
   description: '',
@@ -86,6 +92,12 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
 
   const [formData, setFormData] = useState<ItemFormData>(EMPTY_FORM);
   const [categories, setCategories] = useState<CategoryOption[]>([]);
+  // Permissive until the shop's own answer loads, so a slow or failed lookup
+  // never hides an option the merchant is entitled to.
+  const [shopOfferings, setShopOfferings] = useState<ShopOfferings>({
+    offers_products: true,
+    offers_services: true,
+  });
   const [actualShopId, setActualShopId] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -181,6 +193,39 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
   useEffect(() => {
     loadCategories();
   }, [loadCategories]);
+
+  const loadShopOfferings = useCallback(
+    async (shopIdToLoad: string) => {
+      try {
+        const { data, error } = await supabase
+          .from('shops')
+          .select('offers_products, offers_services')
+          .eq('id', shopIdToLoad)
+          .single();
+
+        if (error) throw error;
+
+        const offerings: ShopOfferings = {
+          offers_products: data.offers_products ?? true,
+          offers_services: data.offers_services ?? false,
+        };
+        setShopOfferings(offerings);
+
+        // A services-only shop should start a new listing as a service rather
+        // than making the merchant switch away from a default they can't use.
+        if (!isEditing && !offerings.offers_products && offerings.offers_services) {
+          setFormData((prev) => ({ ...prev, item_type: 'service' }));
+        }
+      } catch (err) {
+        console.error('Error loading shop offerings:', err);
+      }
+    },
+    [isEditing],
+  );
+
+  useEffect(() => {
+    if (actualShopId) loadShopOfferings(actualShopId);
+  }, [actualShopId, loadShopOfferings]);
 
   const saveItem = useCallback(async (imageFile: File | null) => {
     if (!formData.name || !formData.price) {
@@ -334,6 +379,7 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
     formData,
     setFormData,
     categories,
+    shopOfferings,
     actualShopId,
     loading,
     uploading,

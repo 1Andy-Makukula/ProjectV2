@@ -56,6 +56,7 @@ export function AdminItemForm() {
     formData,
     setFormData,
     categories,
+    shopOfferings,
     actualShopId,
     loading,
     uploading,
@@ -162,6 +163,15 @@ export function AdminItemForm() {
 
   const isServiceItem = formData.item_type === 'service';
 
+  // Only offer what the shop said it does at onboarding — but never hide the
+  // type an existing item already is, or it could not be edited.
+  const availableItemTypes = ITEM_TYPES.filter(
+    (option) =>
+      option.value === formData.item_type ||
+      (option.value === 'product' && shopOfferings.offers_products) ||
+      (option.value === 'service' && shopOfferings.offers_services),
+  );
+
   const selectedLocation = FULFILLMENT_LOCATIONS.find(
     (location) => location.value === formData.fulfillment_location,
   );
@@ -217,11 +227,27 @@ export function AdminItemForm() {
               <CardTitle className="font-light">Item Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Item Type */}
+              {/* Item Type — a shop that only does one thing gets told, not asked */}
+              {availableItemTypes.length === 1 ? (
+                <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/50 p-4">
+                  {availableItemTypes[0].value === 'service' ? (
+                    <ConciergeBell className="h-4 w-4 shrink-0 text-primary" strokeWidth={1.75} />
+                  ) : (
+                    <Package className="h-4 w-4 shrink-0 text-primary" strokeWidth={1.75} />
+                  )}
+                  <div>
+                    <p className="text-sm font-medium">Listing a {availableItemTypes[0].label.toLowerCase()}</p>
+                    <p className="text-xs font-light text-muted-foreground">
+                      Your shop is set up for {availableItemTypes[0].label.toLowerCase()}s only.
+                      Change this in your shop settings to list the other kind.
+                    </p>
+                  </div>
+                </div>
+              ) : (
               <div className="space-y-2">
                 <Label>What are you listing?</Label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {ITEM_TYPES.map((option) => {
+                  {availableItemTypes.map((option) => {
                     const Icon = option.value === 'service' ? ConciergeBell : Package;
                     const selected = formData.item_type === option.value;
                     return (
@@ -249,6 +275,7 @@ export function AdminItemForm() {
                   })}
                 </div>
               </div>
+              )}
 
               {/* Name */}
               <div className="space-y-2">
