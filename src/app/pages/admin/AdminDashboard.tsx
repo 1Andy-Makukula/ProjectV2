@@ -195,6 +195,16 @@ export function AdminDashboard() {
                 onClick={() => navigate('/admin/merchants')}
               />
               <QuickLink
+                title="Experiences"
+                description="Curate multi-shop offerings"
+                onClick={() => navigate('/admin/experiences')}
+              />
+              <QuickLink
+                title="Messages"
+                description="Talk to shops and customers"
+                onClick={() => navigate('/admin/messages')}
+              />
+              <QuickLink
                 title="Add New Shop"
                 description="Create a new shop"
                 onClick={() => navigate('/admin/shops/new')}

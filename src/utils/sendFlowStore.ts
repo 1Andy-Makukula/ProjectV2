@@ -83,9 +83,16 @@ interface SendFlowState {
    * clock: a booking months out must not lapse on a purchase-date timer.
    */
   targetExecutionDate: string | null;
+  /**
+   * Set when the cart was filled from a curated experience. Checkout passes it
+   * through so every resulting order records its provenance and inherits the
+   * experience's shared deadline.
+   */
+  experienceId: string | null;
   setItem: (item: Item) => void;
   setRecipient: (recipient: RecipientDetails) => void;
   setTargetExecutionDate: (date: string | null) => void;
+  setExperience: (experienceId: string | null) => void;
   reset: () => void;
 }
 
@@ -93,8 +100,11 @@ export const useSendFlowStore = create<SendFlowState>((set) => ({
   item: null,
   recipient: null,
   targetExecutionDate: null,
+  experienceId: null,
   setItem: (item) => set({ item }),
   setRecipient: (recipient) => set({ recipient }),
   setTargetExecutionDate: (targetExecutionDate) => set({ targetExecutionDate }),
-  reset: () => set({ item: null, recipient: null, targetExecutionDate: null }),
+  setExperience: (experienceId) => set({ experienceId }),
+  reset: () =>
+    set({ item: null, recipient: null, targetExecutionDate: null, experienceId: null }),
 }));

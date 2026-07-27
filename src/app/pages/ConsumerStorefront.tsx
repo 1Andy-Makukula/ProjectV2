@@ -18,8 +18,10 @@ import {
 import { Skeleton } from '../components/ui/skeleton';
 import { ShopCard } from '../components/shared/ShopCard';
 import { StorefrontProductCard } from '../components/shared/StorefrontProductCard';
+import { ExperienceCard } from '../components/shared/ExperienceCard';
 import { Header } from '../components/layout/Header';
 import { useCart, toProduct } from '../hooks/useCart';
+import { useExperiences } from '../hooks/useExperiences';
 import { isService, requiresConversation, type ItemType } from '../types/items';
 import { toast } from 'sonner';
 
@@ -139,6 +141,7 @@ export function ConsumerStorefront() {
 
   const [data, setData] = useState<StorefrontData | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
+  const { experiences, loading: experiencesLoading } = useExperiences({ limit: 6 });
   const [slide, setSlide] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -462,6 +465,55 @@ export function ConsumerStorefront() {
             </div>
           )}
         </section>
+
+        {/* ── Curated Experiences ───────────── */}
+        {(experiencesLoading || experiences.length > 0) && (
+          <section>
+            <div className="flex items-end justify-between mb-8">
+              <div>
+                <p className="text-xs font-bold tracking-widest uppercase text-primary mb-1">
+                  Curated by KithLy
+                </p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                  Experiences
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Several shops, one gift, one deadline.
+                </p>
+              </div>
+            </div>
+
+            {experiencesLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="rounded-2xl border border-slate-200 overflow-hidden bg-white">
+                    <Skeleton className="w-full aspect-[4/3]" />
+                    <div className="p-4 space-y-2">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-1/3" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                {experiences.map((experience, i) => (
+                  <motion.div
+                    key={experience.id}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: i * 0.06 }}
+                  >
+                    <ExperienceCard
+                      experience={experience}
+                      onOpen={() => navigate(`/experience/${experience.slug}`)}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
 
         {/* ── Merchant Directory ────────────── */}
         <section>

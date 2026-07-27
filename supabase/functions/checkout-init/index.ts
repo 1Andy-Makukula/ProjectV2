@@ -40,6 +40,8 @@ interface CheckoutInitPayload {
    * the voucher's expiry clock to that date rather than to the purchase.
    */
   target_execution_date?: string | null;
+  /** Set when the cart was filled from a curated experience. */
+  experience_id?: string | null;
 }
 
 /**
@@ -211,6 +213,11 @@ function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
       ? raw.target_execution_date
       : null;
 
+  const experience_id =
+    typeof raw.experience_id === "string" && raw.experience_id.trim()
+      ? raw.experience_id
+      : null;
+
   return {
     cart_items,
     origin_type: origin_type as "LOCAL" | "INTERNATIONAL",
@@ -220,6 +227,7 @@ function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
     sender_phone,
     credits_to_apply,
     target_execution_date,
+    experience_id,
   };
 }
 
@@ -518,7 +526,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     return json(req, { error: message }, 400);
   }
 
-  const { cart_items, origin_type, recipient_name, recipient_phone, message, sender_phone, credits_to_apply, target_execution_date } = payload;
+  const { cart_items, origin_type, recipient_name, recipient_phone, message, sender_phone, credits_to_apply, target_execution_date, experience_id } = payload;
 
   // --- 2.5. Resolve requestOrigin dynamically ---
   const originHeader = req.headers.get("Origin") || req.headers.get("Referer");
@@ -715,6 +723,9 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
         p_sender_phone: sender_phone || null,
         p_credits_to_apply: credits_to_apply,
         p_target_execution_date: target_execution_date,
+        // The shared deadline is read from the experience server-side, so a
+        // client cannot extend it by sending its own date.
+        p_experience_id: experience_id,
       },
     );
 

@@ -36,6 +36,8 @@ const ShopDirectory = lazyPage(() => import('./pages/ShopDirectory'), 'ShopDirec
 const ShopDetail = lazyPage(() => import('./pages/sender/ShopDetail'), 'ShopDetail');
 const ItemDetail = lazyPage(() => import('./pages/sender/ItemDetail'), 'ItemDetail');
 const Messages = lazyPage(() => import('./pages/Messages'), 'Messages');
+const ExperienceDetail = lazyPage(() => import('./pages/sender/ExperienceDetail'), 'ExperienceDetail');
+const AdminExperiences = lazyPage(() => import('./pages/admin/AdminExperiences'), 'AdminExperiences');
 const SendFlow = lazyPage(() => import('./pages/sender/SendFlow'), 'SendFlow');
 const CustomerDashboard = lazyPage(() => import('./pages/sender/CustomerDashboard'), 'CustomerDashboard');
 const OrderDetail = lazyPage(() => import('./pages/sender/OrderDetail'), 'OrderDetail');
@@ -121,6 +123,7 @@ export const router = createBrowserRouter([
       { path: 'merchant-agreement', element: <Lazy><MerchantAgreement /></Lazy> },
       { path: 'shops', element: <Lazy><ShopDirectory /></Lazy> },
       { path: 'item/:itemId', element: <Lazy><ItemDetail /></Lazy> },
+      { path: 'experience/:slug', element: <Lazy><ExperienceDetail /></Lazy> },
 
 
       {
@@ -326,6 +329,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['admin']}>
             <Lazy><AdminItemForm /></Lazy>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/experiences',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><AdminExperiences /></Lazy>
           </ProtectedRoute>
         ),
       },

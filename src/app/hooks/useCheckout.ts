@@ -119,6 +119,8 @@ export function useCheckout() {
             // Present when this checkout came from an accepted quotation for
             // work booked on a specific date.
             target_execution_date: useSendFlowStore.getState().targetExecutionDate,
+            // Present when the cart was filled from a curated experience.
+            experience_id: useSendFlowStore.getState().experienceId,
           }
         },
       );
