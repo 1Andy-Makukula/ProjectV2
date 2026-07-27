@@ -35,6 +35,8 @@ export function useSearch(query: string) {
           `)
           .ilike('name', `%${query}%`)
           .eq('is_available', true)
+          // A quote belongs to the conversation it came from, not to search.
+          .eq('is_quote_only', false)
           .limit(20); // Prevent massive payloads
 
         if (searchError) throw searchError;

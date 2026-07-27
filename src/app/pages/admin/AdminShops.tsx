@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
-import { Plus, Edit, Search, MapPin, Store, FileText, Check, X } from 'lucide-react';
+import { Plus, Edit, Search, MapPin, Store, FileText, Check, X, MessageSquare } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -33,6 +33,21 @@ export function AdminShops() {
 
   const pendingShops = filteredShops.filter(shop => shop.verification_status === 'pending');
   const nonPendingShops = filteredShops.filter(shop => shop.verification_status !== 'pending');
+
+  /** Opens a KithLy thread with the shop. Messages appear as from the platform. */
+  const handleMessageShop = async (shopId: string, shopName: string) => {
+    try {
+      const { data, error } = await supabase.rpc('admin_start_conversation', {
+        p_buyer_id: null,
+        p_shop_id: shopId,
+        p_subject: shopName,
+      });
+      if (error) throw error;
+      navigate(`/admin/messages?c=${data}`);
+    } catch (err: any) {
+      toast.error(err.message ?? 'Could not open a conversation');
+    }
+  };
 
   const handleViewDocument = async (docPath: string | null | undefined) => {
     if (!docPath) {
@@ -218,6 +233,17 @@ export function AdminShops() {
                       )}
                     </div>
                   </div>
+
+                  {/* Reach the applicant before deciding */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleMessageShop(shop.id, shop.name)}
+                    className="w-full text-[11px] py-1 h-7.5 border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center justify-center gap-1.5"
+                  >
+                    <MessageSquare className="size-3" />
+                    Message this shop
+                  </Button>
 
                   {/* Approve/Reject Actions */}
                   <div className="flex gap-2 pt-3 border-t border-slate-100">

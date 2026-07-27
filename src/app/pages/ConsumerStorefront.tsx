@@ -182,6 +182,7 @@ export function ConsumerStorefront() {
                 'allow_custom_quote, is_discounted, original_price_zmw, shop:shops(id, name)',
             )
             .eq('is_available', true)
+            .eq('is_quote_only', false)
             .order('created_at', { ascending: false })
             .limit(8),
         ]);

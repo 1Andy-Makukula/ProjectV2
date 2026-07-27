@@ -2,6 +2,7 @@
 // the cart: booked services, custom-quote work, and discounted or wholesale
 // listings whose terms need stating before the buyer commits.
 
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { motion } from 'motion/react';
 import {
@@ -21,6 +22,8 @@ import { Button } from '../../components/ui/button';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { useCart, toProduct } from '../../hooks/useCart';
 import { useItemDetail } from '../../hooks/useItemDetail';
+import { supabase } from '../../../lib/supabaseClient';
+import { parseAuthError } from '../../../utils/errorParser';
 import { toast } from 'sonner';
 import {
   FULFILLMENT_LOCATION_LABELS,
@@ -63,6 +66,7 @@ export function ItemDetail() {
   const { profile } = useAuth();
   const { item, loading } = useItemDetail(itemId);
   const { addToCart, setCartSliderOpen } = useCart();
+  const [startingChat, setStartingChat] = useState(false);
 
   if (loading) {
     return (
@@ -93,6 +97,30 @@ export function ItemDetail() {
   const basis = expiryBasis(item);
 
   const handleGift = () => navigate(profile ? `/send/${item.id}` : '/signup');
+
+  /** Opens (or rejoins) the thread with this shop about this item. */
+  const handleAskForQuote = async () => {
+    if (!profile) {
+      navigate('/signup');
+      return;
+    }
+    if (!item.shop?.id) return;
+
+    setStartingChat(true);
+    try {
+      const { data, error } = await supabase.rpc('start_conversation', {
+        p_shop_id: item.shop.id,
+        p_item_id: item.id,
+        p_subject: item.name,
+      });
+      if (error) throw error;
+      navigate(`/messages?c=${data}`);
+    } catch (err: any) {
+      toast.error(parseAuthError(err));
+    } finally {
+      setStartingChat(false);
+    }
+  };
 
   const handleAddToCart = () => {
     if (!profile) {
@@ -206,10 +234,30 @@ export function ItemDetail() {
 
             {/* ── CTAs ────────────────────────────────────────────── */}
             <div className="mt-6 flex flex-col gap-2 sm:flex-row">
-              <Button onClick={handleGift} className="w-full sm:flex-1">
-                {item.requires_scheduling ? 'Book this' : 'Gift this'}
-              </Button>
-              {!mustOpenDetail && (
+              {/* Quote-first work has no settled price yet, so the conversation
+                  is the primary action rather than a purchase. */}
+              {item.allow_custom_quote ? (
+                <Button
+                  onClick={handleAskForQuote}
+                  disabled={startingChat}
+                  className="flex w-full items-center justify-center gap-2 sm:flex-1"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  {startingChat ? 'Opening…' : 'Request a quote'}
+                </Button>
+              ) : (
+                <Button onClick={handleGift} className="w-full sm:flex-1">
+                  {item.requires_scheduling ? 'Book this' : 'Gift this'}
+                </Button>
+              )}
+
+              {item.allow_custom_quote && (
+                <Button variant="outline" onClick={handleGift} className="w-full sm:flex-1">
+                  {item.requires_scheduling ? 'Book at listed price' : 'Buy at listed price'}
+                </Button>
+              )}
+
+              {!mustOpenDetail && !item.allow_custom_quote && (
                 <Button
                   variant="outline"
                   onClick={handleAddToCart}
@@ -220,6 +268,17 @@ export function ItemDetail() {
                 </Button>
               )}
             </div>
+
+            {!item.allow_custom_quote && item.shop?.id && (
+              <button
+                onClick={handleAskForQuote}
+                disabled={startingChat}
+                className="mt-3 flex items-center gap-1.5 self-start text-xs font-medium text-slate-500 transition-colors hover:text-slate-900 disabled:opacity-50"
+              >
+                <MessageSquare className="h-3.5 w-3.5" strokeWidth={2} />
+                Message the shop about this
+              </button>
+            )}
 
             {item.requires_scheduling && (
               <p className="mt-3 text-xs font-light leading-relaxed text-slate-500">
@@ -266,8 +325,8 @@ export function ItemDetail() {
 
             {item.allow_custom_quote && (
               <DetailRow icon={MessageSquare} label="Custom work">
-                This shop takes custom requests — ask them for a tailored quote instead of
-                buying at the listed price.
+                This shop takes custom requests. Ask for a tailored quote instead of buying at
+                the listed price.
               </DetailRow>
             )}
           </div>

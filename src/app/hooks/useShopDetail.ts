@@ -43,6 +43,7 @@ export function useShopDetail(shopId: string | undefined) {
             .from('items')
             .select('*')
             .eq('shop_id', shopId)
+            .eq('is_quote_only', false)
             .order('created_at', { ascending: false })
         ]);
 

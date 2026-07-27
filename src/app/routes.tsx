@@ -35,6 +35,7 @@ const ShopDirectory = lazyPage(() => import('./pages/ShopDirectory'), 'ShopDirec
 
 const ShopDetail = lazyPage(() => import('./pages/sender/ShopDetail'), 'ShopDetail');
 const ItemDetail = lazyPage(() => import('./pages/sender/ItemDetail'), 'ItemDetail');
+const Messages = lazyPage(() => import('./pages/Messages'), 'Messages');
 const SendFlow = lazyPage(() => import('./pages/sender/SendFlow'), 'SendFlow');
 const CustomerDashboard = lazyPage(() => import('./pages/sender/CustomerDashboard'), 'CustomerDashboard');
 const OrderDetail = lazyPage(() => import('./pages/sender/OrderDetail'), 'OrderDetail');
@@ -176,6 +177,33 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['sender', 'merchant', 'admin']}>
             <Lazy><Settings /></Lazy>
+          </ProtectedRoute>
+        ),
+      },
+
+      // One messages surface per role. The page reads the signed-in role and
+      // renders the same components; row-level security scopes the threads.
+      {
+        path: 'messages',
+        element: (
+          <ProtectedRoute allowedRoles={['sender', 'merchant', 'admin']}>
+            <Lazy><Messages /></Lazy>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'merchant/messages',
+        element: (
+          <ProtectedRoute allowedRoles={['merchant']}>
+            <Lazy><Messages /></Lazy>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/messages',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><Messages /></Lazy>
           </ProtectedRoute>
         ),
       },

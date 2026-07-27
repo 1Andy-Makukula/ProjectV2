@@ -25,6 +25,7 @@ export function useWeeklyPicks() {
           .from('items')
           .select('id, name, image_url, is_weekly_pick, shop:shops(name)')
           .eq('is_available', true)
+          .eq('is_quote_only', false)
           .order('name');
 
         if (error) {

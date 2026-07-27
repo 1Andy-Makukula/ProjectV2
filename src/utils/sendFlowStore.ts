@@ -77,15 +77,24 @@ interface Item {
 interface SendFlowState {
   item: Item | null;
   recipient: RecipientDetails | null;
+  /**
+   * The date agreed for a booked service, carried from an accepted quotation
+   * through to checkout, which writes it onto the order. It anchors the expiry
+   * clock: a booking months out must not lapse on a purchase-date timer.
+   */
+  targetExecutionDate: string | null;
   setItem: (item: Item) => void;
   setRecipient: (recipient: RecipientDetails) => void;
+  setTargetExecutionDate: (date: string | null) => void;
   reset: () => void;
 }
 
 export const useSendFlowStore = create<SendFlowState>((set) => ({
   item: null,
   recipient: null,
+  targetExecutionDate: null,
   setItem: (item) => set({ item }),
   setRecipient: (recipient) => set({ recipient }),
-  reset: () => set({ item: null, recipient: null }),
+  setTargetExecutionDate: (targetExecutionDate) => set({ targetExecutionDate }),
+  reset: () => set({ item: null, recipient: null, targetExecutionDate: null }),
 }));

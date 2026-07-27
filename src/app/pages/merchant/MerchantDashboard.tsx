@@ -4,8 +4,9 @@ import { useAuth } from '../../../utils/auth/AuthContext';
 import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { formatCurrency } from '../../../utils/currency';
-import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles } from 'lucide-react';
+import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles, MessageSquare } from 'lucide-react';
 import { motion } from 'motion/react';
+import { NotificationBell } from '../../components/shared/NotificationBell';
 import { AdminItems } from '../admin/AdminItems';
 import { SettlementDashboard } from '../../components/merchant/SettlementDashboard';
 
@@ -108,6 +109,10 @@ export function MerchantDashboard() {
               Redeem Gift
             </Button>
             <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" onClick={() => navigate('/merchant/messages')} aria-label="Messages">
+                <MessageSquare className="w-5 h-5" />
+              </Button>
+              <NotificationBell />
               <Button variant="ghost" size="icon" onClick={() => navigate('/support')}>
                 <HelpCircle className="w-5 h-5" />
               </Button>

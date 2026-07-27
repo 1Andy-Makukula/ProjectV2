@@ -4,7 +4,7 @@ import { useAuth } from '../../utils/auth/AuthContext';
 import { validateAndFormatPhone } from '../../utils/phone';
 import { parseAuthError } from '../../utils/errorParser';
 import { toast } from 'sonner';
-import { getFlatCartPayload } from '../../utils/sendFlowStore';
+import { getFlatCartPayload, useSendFlowStore } from '../../utils/sendFlowStore';
 import { useCart } from './useCart';
 import { usePlatformPricing } from './usePlatformPricing';
 import { grossPayableFor, CHECKOUT_ORIGIN } from '../../utils/pricing';
@@ -116,6 +116,9 @@ export function useCheckout() {
             origin_type: 'LOCAL',
             sender_phone: formattedSender,
             credits_to_apply: creditsToApply,
+            // Present when this checkout came from an accepted quotation for
+            // work booked on a specific date.
+            target_execution_date: useSendFlowStore.getState().targetExecutionDate,
           }
         },
       );
