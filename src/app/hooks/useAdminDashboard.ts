@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { toast } from 'sonner';
 import { Stats, RecentOrder } from '../types/orders';
 import { parseAuthError } from '../../utils/errorParser';
+import { MERCHANT_FEE_PERCENT } from '../../utils/pricing';
 
 export function useAdminDashboard() {
   const [stats, setStats] = useState<Stats>({
@@ -33,6 +34,8 @@ export function useAdminDashboard() {
           transaction_id,
           status,
           total_amount,
+          platform_fee,
+          items_subtotal,
           created_at,
           origin_type,
           buyer:buyer_id (name),
@@ -71,15 +74,18 @@ export function useAdminDashboard() {
 
       const ordersThisWeek = transactions?.filter((t: any) => new Date(t.created_at) >= weekAgo) || [];
 
-      const totalComm = transactions?.reduce((sum: number, t: any) => {
-        const rate = t.origin_type === 'INTERNATIONAL' ? 0.04 : 0.02;
-        return sum + (t.total_amount || 0) * rate;
-      }, 0) || 0;
+      // Gross platform take: the fee the buyer paid on top, plus the flat cut
+      // taken from the merchant's settlement. Both are recorded on the
+      // transaction, so this reads real figures rather than estimating a rate.
+      // It is gross — the gateway's own cost is not deducted here.
+      const grossTake = (t: any) => {
+        const buyerFee = t.platform_fee || 0;
+        const basket = t.items_subtotal ?? t.total_amount ?? 0;
+        return buyerFee + basket * (MERCHANT_FEE_PERCENT / 100);
+      };
 
-      const commThisWeek = ordersThisWeek.reduce((sum: number, t: any) => {
-        const rate = t.origin_type === 'INTERNATIONAL' ? 0.04 : 0.02;
-        return sum + (t.total_amount || 0) * rate;
-      }, 0) || 0;
+      const totalComm = transactions?.reduce((sum: number, t: any) => sum + grossTake(t), 0) || 0;
+      const commThisWeek = ordersThisWeek.reduce((sum: number, t: any) => sum + grossTake(t), 0) || 0;
 
       setStats({
         totalOrders: transactions?.length || 0,

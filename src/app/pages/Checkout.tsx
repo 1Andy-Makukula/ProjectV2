@@ -25,6 +25,8 @@ import { Label } from '../components/ui/label';
 import { formatCurrency } from '../../utils/currency';
 import { PhoneInput } from '../components/shared/PhoneInput';
 import { useCheckout, ShopOrderResult } from '../hooks/useCheckout';
+import { usePlatformPricing } from '../hooks/usePlatformPricing';
+import { feePercentFor, serviceFeeFor, CHECKOUT_ORIGIN } from '../../utils/pricing';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -202,6 +204,7 @@ export function Checkout() {
   const { items, removeFromCart, clearCart, getTotalAmount, applyCredits } = useCart();
   const { recipient } = useSendFlowStore();
   const { profile } = useAuth();
+  const { rates } = usePlatformPricing();
 
   const [stage, setStage] = useState<CheckoutStage>('CART');
   const [transactionId, setTransactionId] = useState<string | null>(null);
@@ -228,8 +231,12 @@ export function Checkout() {
   }, [profile, senderPhone]);
 
   const totalAmount = getTotalAmount();
-  const creditsToApply = applyCredits ? Math.min(walletBalance, totalAmount) : 0;
-  const finalPayable = totalAmount - creditsToApply;
+  // The server adds the same fee at checkout, so it has to be visible here —
+  // the buyer must never be charged more than this screen showed them.
+  const serviceFee = serviceFeeFor(totalAmount, CHECKOUT_ORIGIN, rates);
+  const grossPayable = totalAmount + serviceFee;
+  const creditsToApply = applyCredits ? Math.min(walletBalance, grossPayable) : 0;
+  const finalPayable = grossPayable - creditsToApply;
 
   // ---------- handlers --------------------------------------------------
 
@@ -465,6 +472,19 @@ export function Checkout() {
                         {formatCurrency(totalAmount, 'ZMW')}
                       </span>
                     </div>
+                    {serviceFee > 0 && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-slate-500 font-medium">
+                          Service fee
+                          <span className="ml-1 text-xs font-normal text-slate-400">
+                            ({feePercentFor(CHECKOUT_ORIGIN, rates)}%)
+                          </span>
+                        </span>
+                        <span className="font-semibold text-slate-800">
+                          {formatCurrency(serviceFee, 'ZMW')}
+                        </span>
+                      </div>
+                    )}
                     {applyCredits && creditsToApply > 0 && (
                       <div className="flex items-center justify-between text-sm text-orange-600 font-medium">
                         <span>Credits applied</span>

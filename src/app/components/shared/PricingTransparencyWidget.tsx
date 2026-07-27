@@ -1,21 +1,35 @@
-import React from 'react';
 import { ShieldCheck } from 'lucide-react';
+import { usePlatformPricing } from '../../hooks/usePlatformPricing';
 
 interface PricingTransparencyWidgetProps {
   inputPriceZMW: number;
   liveExchangeRate: number;
+  /** Percentage deducted from the merchant's settlement. */
+  merchantFeePercent?: number;
 }
 
-export function PricingTransparencyWidget({ inputPriceZMW, liveExchangeRate }: PricingTransparencyWidgetProps) {
+/**
+ * Shows a merchant what a listed price means for everyone involved.
+ *
+ * The buyer pays a service fee on top of the asking price and the merchant
+ * gives up a flat percentage of it. Both sides are stated because a merchant
+ * setting a price needs to know what the customer will actually be quoted.
+ */
+export function PricingTransparencyWidget({
+  inputPriceZMW,
+  liveExchangeRate,
+  merchantFeePercent = 2,
+}: PricingTransparencyWidgetProps) {
+  const { rates } = usePlatformPricing();
+
   const priceZMW = isNaN(inputPriceZMW) || inputPriceZMW < 0 ? 0 : inputPriceZMW;
-  const exchangeRate = isNaN(liveExchangeRate) || liveExchangeRate <= 0 ? 26.00 : liveExchangeRate;
+  const exchangeRate = isNaN(liveExchangeRate) || liveExchangeRate <= 0 ? 26.0 : liveExchangeRate;
 
-  // Diaspora Pays: Convert to USD and add 3% gateway markup
-  const diasporaUSD = (priceZMW / exchangeRate) * 1.03;
+  const localBuyerPays = priceZMW * (1 + rates.local / 100);
+  const diasporaBuyerPaysUSD = (priceZMW * (1 + rates.international / 100)) / exchangeRate;
 
-  // Merchant Receives: Subtract 8% local fee or 10% diaspora fee
-  const merchantLocalZMW = priceZMW * 0.92;
-  const merchantDiasporaZMW = priceZMW * 0.90;
+  // The merchant's share does not depend on where the buyer paid from.
+  const merchantReceives = priceZMW * (1 - merchantFeePercent / 100);
 
   return (
     <div className="bg-slate-50/80 border border-slate-200/60 rounded-2xl p-4 space-y-3.5 shadow-sm">
@@ -24,33 +38,48 @@ export function PricingTransparencyWidget({ inputPriceZMW, liveExchangeRate }: P
           <ShieldCheck className="size-4 text-primary" />
           Pricing Transparency Estimator
         </h4>
-        <span className="text-[10px] text-slate-400 font-light">Rate: 1 USD = {exchangeRate.toFixed(2)} ZMW</span>
+        <span className="text-[10px] text-slate-400 font-light">
+          Rate: 1 USD = {exchangeRate.toFixed(2)} ZMW
+        </span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {/* Local Buyer Pays */}
-        <div className="bg-white border border-slate-100 rounded-xl p-3 flex flex-col justify-between">
-          <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wide">Local Buyer Pays</span>
-          <span className="text-sm font-semibold text-slate-900 mt-1">ZMW {priceZMW.toFixed(2)}</span>
-        </div>
-
-        {/* Diaspora Pays */}
+        {/* Local buyer */}
         <div className="bg-white border border-slate-100 rounded-xl p-3 flex flex-col justify-between">
           <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wide flex items-center gap-1">
-            Diaspora Pays (USD)
-            <span className="text-[9px] text-slate-400 font-normal normal-case">(+3% markup)</span>
+            Local Buyer Pays
+            <span className="text-[9px] text-slate-400 font-normal normal-case">
+              (+{rates.local}% fee)
+            </span>
           </span>
-          <span className="text-sm font-semibold text-primary mt-1">${diasporaUSD.toFixed(2)}</span>
+          <span className="text-sm font-semibold text-slate-900 mt-1">
+            ZMW {localBuyerPays.toFixed(2)}
+          </span>
         </div>
 
-        {/* Merchant Receives */}
+        {/* Diaspora buyer */}
         <div className="bg-white border border-slate-100 rounded-xl p-3 flex flex-col justify-between">
           <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wide flex items-center gap-1">
-            Merchant Receives
-            <span className="text-[9px] text-slate-400 font-normal normal-case">(8% local / 10% diaspora fee)</span>
+            Diaspora Pays
+            <span className="text-[9px] text-slate-400 font-normal normal-case">
+              (+{rates.international}% fee)
+            </span>
+          </span>
+          <span className="text-sm font-semibold text-primary mt-1">
+            ${diasporaBuyerPaysUSD.toFixed(2)}
+          </span>
+        </div>
+
+        {/* Merchant */}
+        <div className="bg-white border border-slate-100 rounded-xl p-3 flex flex-col justify-between">
+          <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wide flex items-center gap-1">
+            You Receive
+            <span className="text-[9px] text-slate-400 font-normal normal-case">
+              (−{merchantFeePercent}%)
+            </span>
           </span>
           <span className="text-sm font-semibold text-emerald-600 mt-1">
-            ZMW {merchantLocalZMW.toFixed(2)} / ZMW {merchantDiasporaZMW.toFixed(2)}
+            ZMW {merchantReceives.toFixed(2)}
           </span>
         </div>
       </div>

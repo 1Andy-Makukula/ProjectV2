@@ -374,6 +374,7 @@ export type Database = {
           claim_code: string
           claim_status: string
           created_at: string | null
+          disputed_at: string | null
           fulfilled_at: string | null
           message: string | null
           payout_status: string
@@ -384,7 +385,9 @@ export type Database = {
           shop_id: string
           shop_order_id: string
           subtotal: number
+          target_execution_date: string | null
           transaction_id: string
+          upfront_paid: number
         }
         Insert: {
           claim_code: string
@@ -524,7 +527,9 @@ export type Database = {
           created_at: string | null
           currency: string
           gateway_tx_ref: string | null
+          items_subtotal: number | null
           origin_type: string | null
+          platform_fee: number
           sender_phone: string | null
           status: string
           total_amount: number
@@ -535,7 +540,9 @@ export type Database = {
           created_at?: string | null
           currency?: string
           gateway_tx_ref?: string | null
+          items_subtotal?: number | null
           origin_type?: string | null
+          platform_fee?: number
           sender_phone?: string | null
           status?: string
           total_amount: number
@@ -546,7 +553,9 @@ export type Database = {
           created_at?: string | null
           currency?: string
           gateway_tx_ref?: string | null
+          items_subtotal?: number | null
           origin_type?: string | null
+          platform_fee?: number
           sender_phone?: string | null
           status?: string
           total_amount?: number
