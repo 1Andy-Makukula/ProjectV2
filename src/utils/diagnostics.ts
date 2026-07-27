@@ -46,7 +46,7 @@ export async function runAntigravityDiagnostics() {
     console.log('%c[Layer 2: Transactional Logic] Pinging Edge Function...', 'color: #9CA3AF;');
     const startPing = performance.now();
     try {
-      const { data: edgeData, error: edgeError } = await supabase.functions.invoke('server', { method: 'GET' });
+      const { data: edgeData, error: edgeError } = await supabase.functions.invoke('health', { method: 'GET' });
       const ttfb = performance.now() - startPing;
       
       if (!edgeError && edgeData?.status === 'ok') {

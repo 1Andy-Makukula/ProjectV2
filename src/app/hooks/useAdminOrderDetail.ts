@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { callServer } from '../../utils/server';
+import { invokeFunction } from '../../utils/edgeFunction';
 import { OrderDetail } from '../types/orders';
 import { deriveStatus } from '../../utils/orderStatus';
 import { toast } from 'sonner';
@@ -103,7 +103,9 @@ export function useAdminOrderDetail(orderId?: string) {
     setUpdating(true);
     try {
       if (newStatus === 'paid') {
-        await callServer(`/orders/${order.transaction_id}/confirm-payment`);
+        await invokeFunction('admin-confirm-payment', {
+          transaction_id: order.transaction_id,
+        });
       } else if (newStatus === 'fulfilled') {
         if (!order.shop_order_id) throw new Error('No shop order found');
 

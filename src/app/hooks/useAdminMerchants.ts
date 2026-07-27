@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { callServer } from '../../utils/server';
+import { invokeFunction } from '../../utils/edgeFunction';
 import { toast } from 'sonner';
 
 export interface Merchant {
@@ -88,14 +88,11 @@ export function useAdminMerchants() {
     }
     setCreating(true);
     try {
-      await callServer('', {
-        body: {
-          action: 'create_merchant',
-          name: form.name,
-          email: form.email,
-          password: form.password,
-          shopId: form.shopId,
-        },
+      await invokeFunction('create-merchant', {
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        shopId: form.shopId,
       });
       toast.success('Merchant account created');
       toast.info(`Temporary password: ${form.password}`, { duration: 10000 });
@@ -179,8 +176,9 @@ export function useAdminMerchants() {
     }
     setSaving(true);
     try {
-      await callServer('/admin-reset-password', {
-        body: { userId: merchantId, newPassword: password },
+      await invokeFunction('admin-set-password', {
+        userId: merchantId,
+        newPassword: password,
       });
       toast.success('Password updated');
       return true;

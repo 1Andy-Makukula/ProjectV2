@@ -178,9 +178,8 @@ export function useMerchantDashboard(profileId?: string) {
     if (!shopId || withdrawing || analytics.availableBalance <= 0) return false;
     setWithdrawing(true);
     try {
-      const { error } = await supabase.functions.invoke('server', {
+      const { error } = await supabase.functions.invoke('request-withdrawal', {
         body: {
-          action: 'request_withdrawal',
           shopId,
           amount: analytics.availableBalance,
         },

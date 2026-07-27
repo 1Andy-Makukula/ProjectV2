@@ -165,8 +165,8 @@ function usePaymentConfirmation(transactionId: string | null, txRef: string | nu
     setPollingStatus('polling');
 
     try {
-      const { data, error } = await supabase.functions.invoke('server', {
-        body: { action: 'verify_payment', txRef },
+      const { data, error } = await supabase.functions.invoke('verify-payment', {
+        body: { txRef },
       });
 
       if (error) throw error;
