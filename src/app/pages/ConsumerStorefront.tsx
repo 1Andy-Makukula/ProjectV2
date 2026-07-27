@@ -20,6 +20,7 @@ import { ShopCard } from '../components/shared/ShopCard';
 import { StorefrontProductCard } from '../components/shared/StorefrontProductCard';
 import { Header } from '../components/layout/Header';
 import { useCart, toProduct } from '../hooks/useCart';
+import { isService, requiresConversation, type ItemType } from '../types/items';
 import { toast } from 'sonner';
 
 // ─────────────────────────────────────────────
@@ -51,6 +52,11 @@ interface WeeklyItem {
   price_zmw: number;
   image_url: string | null;
   shop: { id: string; name: string } | null;
+  item_type?: ItemType | null;
+  requires_scheduling?: boolean | null;
+  allow_custom_quote?: boolean | null;
+  is_discounted?: boolean | null;
+  original_price_zmw?: number | null;
 }
 
 interface StorefrontData {
@@ -171,7 +177,10 @@ export function ConsumerStorefront() {
           // "Weekly picks" — most recent available items across all shops
           supabase
             .from('items')
-            .select('id, name, description, price_zmw, image_url, shop:shops(id, name)')
+            .select(
+              'id, name, description, price_zmw, image_url, item_type, requires_scheduling, ' +
+                'allow_custom_quote, is_discounted, original_price_zmw, shop:shops(id, name)',
+            )
             .eq('is_available', true)
             .order('created_at', { ascending: false })
             .limit(8),
@@ -216,6 +225,11 @@ export function ConsumerStorefront() {
           image_url: i.image_url ?? null,
           shop: i.shop ?? null,
           is_weekly_pick: false,
+          item_type: i.item_type ?? 'product',
+          requires_scheduling: i.requires_scheduling ?? false,
+          allow_custom_quote: i.allow_custom_quote ?? false,
+          is_discounted: i.is_discounted ?? false,
+          original_price_zmw: i.original_price_zmw ?? null,
         }));
 
         setData({ campaigns, shops, weeklyPicks });
@@ -430,7 +444,11 @@ export function ConsumerStorefront() {
                 >
                   <StorefrontProductCard
                     item={item}
-                    onGift={() => navigate(profile ? `/send/${item.id}` : '/signup')}
+                    onGift={() =>
+                      isService(item) || requiresConversation(item)
+                        ? navigate(`/item/${item.id}`)
+                        : navigate(profile ? `/send/${item.id}` : '/signup')
+                    }
                     onAddToCart={profile ? () => {
                       const { addToCart, setCartSliderOpen } = useCart.getState();
                       addToCart(toProduct({ ...item, shop_id: item.shop?.id ?? '' }));

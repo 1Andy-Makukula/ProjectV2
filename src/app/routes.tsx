@@ -34,6 +34,7 @@ const MerchantAgreement = lazyPage(() => import('./pages/MerchantAgreement'), 'M
 const ShopDirectory = lazyPage(() => import('./pages/ShopDirectory'), 'ShopDirectory');
 
 const ShopDetail = lazyPage(() => import('./pages/sender/ShopDetail'), 'ShopDetail');
+const ItemDetail = lazyPage(() => import('./pages/sender/ItemDetail'), 'ItemDetail');
 const SendFlow = lazyPage(() => import('./pages/sender/SendFlow'), 'SendFlow');
 const CustomerDashboard = lazyPage(() => import('./pages/sender/CustomerDashboard'), 'CustomerDashboard');
 const OrderDetail = lazyPage(() => import('./pages/sender/OrderDetail'), 'OrderDetail');
@@ -118,6 +119,7 @@ export const router = createBrowserRouter([
       { path: 'support', element: <Lazy><Support /></Lazy> },
       { path: 'merchant-agreement', element: <Lazy><MerchantAgreement /></Lazy> },
       { path: 'shops', element: <Lazy><ShopDirectory /></Lazy> },
+      { path: 'item/:itemId', element: <Lazy><ItemDetail /></Lazy> },
 
 
       {

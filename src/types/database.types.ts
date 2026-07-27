@@ -64,46 +64,82 @@ export type Database = {
       }
       items: {
         Row: {
+          allow_custom_quote: boolean
           category_id: string | null
           created_at: string | null
           currency: string | null
           description: string | null
+          fulfillment_location: string | null
+          has_expiry: boolean
           id: string
           image_url: string | null
           is_available: boolean | null
+          is_discounted: boolean
           is_weekly_pick: boolean | null
+          is_wholesale: boolean
+          item_type: string
+          lead_time_days: number | null
+          minimum_order_quantity: number
           name: string
+          original_price_zmw: number | null
           price_zmw: number
           promo_badge_text: string | null
+          requires_scheduling: boolean
           shop_id: string
+          valid_for_days: number | null
+          wholesale_price_zmw: number | null
         }
         Insert: {
+          allow_custom_quote?: boolean
           category_id?: string | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          fulfillment_location?: string | null
+          has_expiry?: boolean
           id?: string
           image_url?: string | null
           is_available?: boolean | null
+          is_discounted?: boolean
           is_weekly_pick?: boolean | null
+          is_wholesale?: boolean
+          item_type?: string
+          lead_time_days?: number | null
+          minimum_order_quantity?: number
           name: string
+          original_price_zmw?: number | null
           price_zmw: number
           promo_badge_text?: string | null
+          requires_scheduling?: boolean
           shop_id: string
+          valid_for_days?: number | null
+          wholesale_price_zmw?: number | null
         }
         Update: {
+          allow_custom_quote?: boolean
           category_id?: string | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          fulfillment_location?: string | null
+          has_expiry?: boolean
           id?: string
           image_url?: string | null
           is_available?: boolean | null
+          is_discounted?: boolean
           is_weekly_pick?: boolean | null
+          is_wholesale?: boolean
+          item_type?: string
+          lead_time_days?: number | null
+          minimum_order_quantity?: number
           name?: string
+          original_price_zmw?: number | null
           price_zmw?: number
           promo_badge_text?: string | null
+          requires_scheduling?: boolean
           shop_id?: string
+          valid_for_days?: number | null
+          wholesale_price_zmw?: number | null
         }
         Relationships: [
           {
