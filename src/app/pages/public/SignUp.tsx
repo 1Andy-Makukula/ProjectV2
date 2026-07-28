@@ -170,7 +170,7 @@ export function SignUp() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent mb-1">
+            <h1 className="text-4xl font-bold kl-gradient-brand bg-clip-text text-transparent mb-1">
               KithLy
             </h1>
           </div>
@@ -314,7 +314,7 @@ export function SignUp() {
               {/* Submit */}
               <Button
                 type="submit"
-                className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-primary to-primary-light hover:opacity-90 transition-all shadow-md hover:shadow-lg mt-2"
+                className="w-full h-12 text-base rounded-xl kl-gradient-brand hover:opacity-90 transition-all shadow-md hover:shadow-lg mt-2"
                 disabled={loading}
               >
                 {loading ? (

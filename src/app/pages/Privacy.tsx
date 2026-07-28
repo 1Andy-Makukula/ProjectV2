@@ -16,7 +16,7 @@ function Section({ icon: Icon, title, children }: SectionProps) {
     <section className="space-y-3">
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
-          <Icon className="w-5 h-5 text-[#F97316]" strokeWidth={1.5} />
+          <Icon className="w-5 h-5 text-primary" strokeWidth={1.5} />
         </div>
         <h2 className="text-xl font-semibold text-black">{title}</h2>
       </div>
@@ -34,7 +34,7 @@ export function Privacy() {
 
         {/* Hero */}
         <div className="text-center mb-12">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center shadow-md">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl kl-gradient-brand-br flex items-center justify-center shadow-md">
             <Shield className="w-8 h-8 text-white" strokeWidth={1.5} />
           </div>
           <h1 className="text-3xl font-light text-black mb-2">Privacy Policy</h1>
@@ -44,7 +44,7 @@ export function Privacy() {
         <div className="bg-white rounded-[1.5rem] p-8 md:p-12 border border-border space-y-10">
 
           {/* Intro */}
-          <p className="font-light text-muted-foreground leading-relaxed border-l-4 border-[#F97316] pl-4">
+          <p className="font-light text-muted-foreground leading-relaxed border-l-4 border-primary pl-4">
             KithLy ("we", "our", "us") is committed to protecting your personal information. This policy explains
             exactly what data we collect, why we collect it, who we share it with, and how long we keep it.
           </p>
@@ -140,7 +140,7 @@ export function Privacy() {
                     <p className="font-semibold text-black text-sm">{p.name}</p>
                     <p className="text-sm">{p.role}</p>
                   </div>
-                  <a href={p.link} target="_blank" rel="noopener noreferrer" className="text-xs text-[#F97316] whitespace-nowrap hover:underline">
+                  <a href={p.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary whitespace-nowrap hover:underline">
                     Privacy Policy ↗
                   </a>
                 </div>
@@ -168,13 +168,13 @@ export function Privacy() {
           <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm font-light text-muted-foreground">
               Also see our{' '}
-              <Link to="/terms" className="text-[#F97316] hover:underline">Terms of Service</Link>{' '}
+              <Link to="/terms" className="text-primary hover:underline">Terms of Service</Link>{' '}
               or contact{' '}
-              <a href="mailto:privacy@kithly.zm" className="text-[#F97316] hover:underline">privacy@kithly.zm</a>.
+              <a href="mailto:privacy@kithly.zm" className="text-primary hover:underline">privacy@kithly.zm</a>.
             </p>
             <Link
               to="/support"
-              className="text-sm font-medium text-[#F97316] hover:underline whitespace-nowrap"
+              className="text-sm font-medium text-primary hover:underline whitespace-nowrap"
             >
               Visit Support Centre →
             </Link>

@@ -340,7 +340,7 @@ export function AdminMerchants() {
           <div className="w-full max-w-md bg-white shadow-2xl flex flex-col h-full overflow-y-auto">
 
             {/* Panel header */}
-            <div className="bg-gradient-to-r from-primary to-primary/90 text-white px-6 py-5">
+            <div className="kl-gradient-brand text-white px-6 py-5">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-light">Edit Merchant</h2>

@@ -221,7 +221,7 @@ export function Home() {
             <div>
               <Button
                 onClick={scrollToShops}
-                className="bg-gradient-to-r from-primary to-primary-light text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:opacity-90 transition-opacity flex items-center gap-2"
+                className="kl-gradient-brand text-white font-semibold px-6 py-2 rounded-full shadow-lg hover:opacity-90 transition-opacity flex items-center gap-2"
               >
                 Start Gifting
                 <ChevronDown className="w-4 h-4" />

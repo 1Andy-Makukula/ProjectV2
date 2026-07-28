@@ -56,7 +56,7 @@ export function Support() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 md:px-6 py-8 max-w-5xl">
         <div className="text-center mb-12">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl kl-gradient-brand-br flex items-center justify-center">
             <HelpCircle className="w-8 h-8 text-white" strokeWidth={1.5} />
           </div>
           <h1 className="text-3xl font-light text-black mb-2">Help & Support</h1>
@@ -87,7 +87,7 @@ export function Support() {
                     <span className="font-light text-black">{faq.q}</span>
                     <motion.div
                       animate={{ rotate: openFaq === idx ? 180 : 0 }}
-                      className="text-[#F97316]"
+                      className="text-primary"
                     >
                       ▼
                     </motion.div>
@@ -117,14 +117,14 @@ export function Support() {
                     value={ticketSubject}
                     onChange={(e) => setTicketSubject(e.target.value)}
                     placeholder="e.g. KL-12345678"
-                    className="w-full px-4 py-3 border border-border rounded-full font-light focus:outline-none focus:border-[#F97316]"
+                    className="w-full px-4 py-3 border border-border rounded-full font-light focus:outline-none focus:border-primary"
                     required
                   />
                 </div>
                 <div>
                   <label className="text-sm font-light text-muted-foreground mb-2 block">Reason for Dispute</label>
                   <select
-                    className="w-full px-4 py-3 border border-border rounded-full font-light focus:outline-none focus:border-[#F97316] bg-white"
+                    className="w-full px-4 py-3 border border-border rounded-full font-light focus:outline-none focus:border-primary bg-white"
                     required
                   >
                     <option value="">Select a reason...</option>
@@ -141,7 +141,7 @@ export function Support() {
                     onChange={(e) => setTicketMessage(e.target.value)}
                     placeholder="Describe your issue in detail..."
                     rows={4}
-                    className="w-full px-4 py-3 border border-border rounded-2xl font-light focus:outline-none focus:border-[#F97316] resize-none"
+                    className="w-full px-4 py-3 border border-border rounded-2xl font-light focus:outline-none focus:border-primary resize-none"
                     required
                   />
                 </div>
@@ -149,7 +149,7 @@ export function Support() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="w-full py-4 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white rounded-full font-light shadow-lg"
+                  className="w-full py-4 kl-gradient-brand text-white rounded-full font-light shadow-lg"
                 >
                   Submit Dispute
                 </motion.button>
@@ -168,14 +168,14 @@ export function Support() {
                     value={trackingCode}
                     onChange={(e) => setTrackingCode(e.target.value.toUpperCase())}
                     placeholder="KL-ABC123"
-                    className="w-full px-4 py-3 border border-border rounded-full font-light font-mono focus:outline-none focus:border-[#F97316]"
+                    className="w-full px-4 py-3 border border-border rounded-full font-light font-mono focus:outline-none focus:border-primary"
                   />
                 </div>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={handleTrackOrder}
-                  className="w-full py-4 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white rounded-full font-light shadow-lg"
+                  className="w-full py-4 kl-gradient-brand text-white rounded-full font-light shadow-lg"
                 >
                   Track Order
                 </motion.button>
@@ -187,17 +187,17 @@ export function Support() {
         {/* Contact Info */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12">
           <div className="bg-white rounded-[1rem] p-6 border border-border text-center">
-            <Mail className="w-6 h-6 mx-auto mb-3 text-[#F97316]" strokeWidth={1.5} />
+            <Mail className="w-6 h-6 mx-auto mb-3 text-primary" strokeWidth={1.5} />
             <p className="text-sm font-light text-black mb-1">Email</p>
             <p className="text-xs font-light text-muted-foreground">support@kithly.zm</p>
           </div>
           <div className="bg-white rounded-[1rem] p-6 border border-border text-center">
-            <Phone className="w-6 h-6 mx-auto mb-3 text-[#F97316]" strokeWidth={1.5} />
+            <Phone className="w-6 h-6 mx-auto mb-3 text-primary" strokeWidth={1.5} />
             <p className="text-sm font-light text-black mb-1">Phone</p>
             <p className="text-xs font-light text-muted-foreground">+260 977 000 000</p>
           </div>
           <div className="bg-white rounded-[1rem] p-6 border border-border text-center">
-            <MessageCircle className="w-6 h-6 mx-auto mb-3 text-[#F97316]" strokeWidth={1.5} />
+            <MessageCircle className="w-6 h-6 mx-auto mb-3 text-primary" strokeWidth={1.5} />
             <p className="text-sm font-light text-black mb-1">WhatsApp</p>
             <p className="text-xs font-light text-muted-foreground">+260 977 000 000</p>
           </div>

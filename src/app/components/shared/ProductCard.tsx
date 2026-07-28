@@ -263,7 +263,7 @@ export function ProductCard({ product, onClick }: ProductCardProps) {
             className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center hover:scale-110 transition-transform shadow-sm"
           >
             <Heart
-              className={`w-4 h-4 ${inWishlist ? 'fill-[#F97316] text-[#F97316]' : 'text-gray-400'}`}
+              className={`w-4 h-4 ${inWishlist ? 'fill-primary text-primary' : 'text-gray-400'}`}
               strokeWidth={1.5}
             />
           </button>

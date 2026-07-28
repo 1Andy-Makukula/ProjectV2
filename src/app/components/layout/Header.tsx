@@ -121,10 +121,12 @@ export function Header({
               to="/"
               className="flex items-center gap-2 group"
             >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center">
+              {/* The mark carries the active mode's tint on the storefront, and
+                  the fixed brand gradient everywhere else. */}
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isHomePage ? 'kl-gradient-mode-br' : 'kl-gradient-brand-br'}`}>
                 <Gift className="w-5 h-5 text-white" strokeWidth={1.5} />
               </div>
-              <span className="text-xl font-light tracking-tight text-black group-hover:bg-gradient-to-r group-hover:from-[#F97316] group-hover:to-[#FB923C] group-hover:bg-clip-text group-hover:text-transparent transition-all">
+              <span className="text-xl font-light tracking-tight text-black group-hover:kl-gradient-brand-text transition-all">
                 KithLy
               </span>
             </Link>
@@ -194,7 +196,7 @@ export function Header({
                 aria-label="Shopping cart"
               >
                 <ShoppingCart className="w-5 h-5" strokeWidth={1.5} />
-                <Badge className="absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white text-xs">
+                <Badge className="absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 kl-gradient-brand text-white text-xs">
                   {cartItemCount}
                 </Badge>
               </motion.button>
@@ -230,7 +232,7 @@ export function Header({
                 to="/settings"
                 className="hidden md:flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full kl-gradient-brand-br flex items-center justify-center">
                   <span className="text-white text-sm font-light">
                     {(user?.user_metadata?.full_name || profile?.name)?.charAt(0) || 'U'}
                   </span>
@@ -242,7 +244,7 @@ export function Header({
             ) : (
               <Link
                 to="/login"
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white rounded-full font-light transition-transform hover:scale-105 active:scale-95 text-sm"
+                className="flex items-center gap-2 px-4 py-2 kl-gradient-brand text-white rounded-full font-light transition-transform hover:scale-105 active:scale-95 text-sm"
               >
                 <User className="w-4 h-4" strokeWidth={1.5} />
                 <span className="hidden md:inline">Sign In</span>
@@ -269,7 +271,7 @@ export function Header({
           <div className="p-5 border-b border-slate-100" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1.25rem)' }}>
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-full kl-gradient-brand-br flex items-center justify-center shrink-0">
                   <span className="text-white text-base font-medium">
                     {(user?.user_metadata?.full_name || profile?.name)?.charAt(0) || 'U'}
                   </span>
@@ -284,7 +286,7 @@ export function Header({
             ) : (
               <Link
                 to="/login"
-                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white rounded-xl font-medium text-sm w-full justify-center"
+                className="flex items-center gap-2 px-4 py-2.5 kl-gradient-brand text-white rounded-xl font-medium text-sm w-full justify-center"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <User className="w-4 h-4" strokeWidth={1.5} />

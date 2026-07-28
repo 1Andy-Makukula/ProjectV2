@@ -303,7 +303,7 @@ export function SendFlow() {
               >
                 <Button
                   onClick={handlePay}
-                  className="w-full h-14 text-base font-semibold rounded-2xl bg-gradient-to-r from-[#F97316] to-[#FB923C] hover:from-[#ea6c0a] hover:to-[#f58220] text-white shadow-lg shadow-orange-200 border-0"
+                  className="w-full h-14 text-base font-semibold rounded-2xl kl-gradient-brand hover:from-[#ea6c0a] hover:to-[#f58220] text-white shadow-lg shadow-orange-200 border-0"
                 >
                   Pay {formatZMW(item.price_zmw)}
                 </Button>
@@ -342,7 +342,7 @@ function SecuringEscrowView() {
           />
           {/* Core shield */}
           <motion.div
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#F97316] to-[#FB923C] shadow-lg shadow-orange-200"
+            className="flex h-12 w-12 items-center justify-center rounded-full kl-gradient-brand-br shadow-lg shadow-orange-200"
             animate={{ scale: [1, 0.95, 1] }}
             transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.15 }}
           >

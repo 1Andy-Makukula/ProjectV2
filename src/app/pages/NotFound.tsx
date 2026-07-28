@@ -16,7 +16,7 @@ export function NotFound() {
       >
         <MapPin className="w-20 h-20 mx-auto mb-6 text-muted-foreground" strokeWidth={1.5} />
         
-        <h1 className="text-6xl font-light bg-gradient-to-r from-[#F97316] to-[#FB923C] bg-clip-text text-transparent mb-4">
+        <h1 className="text-6xl font-light kl-gradient-brand bg-clip-text text-transparent mb-4">
           404
         </h1>
         
@@ -32,7 +32,7 @@ export function NotFound() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => navigate('/')}
-          className="px-8 py-3 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white rounded-full font-light shadow-lg hover:shadow-xl transition-all"
+          className="px-8 py-3 kl-gradient-brand text-white rounded-full font-light shadow-lg hover:shadow-xl transition-all"
         >
           Back to Home
         </motion.button>

@@ -123,7 +123,7 @@ export function Settings() {
             >
               <ArrowLeft className="w-5 h-5 text-slate-700" />
             </Button>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent tracking-tight">
+            <h1 className="text-2xl font-bold kl-gradient-brand bg-clip-text text-transparent tracking-tight">
               Settings
             </h1>
           </div>
@@ -190,7 +190,7 @@ export function Settings() {
               <Button
                 onClick={handleSaveProfile}
                 disabled={!hasChanges || loading}
-                className="w-full bg-gradient-to-r from-primary to-primary-light hover:opacity-90 active:scale-[0.98] transition-all duration-200 rounded-xl shadow-sm"
+                className="w-full kl-gradient-brand hover:opacity-90 active:scale-[0.98] transition-all duration-200 rounded-xl shadow-sm"
               >
                 {loading ? (
                   <>
@@ -286,7 +286,7 @@ export function Settings() {
               <Link to="/become-merchant">
                 <Button
                   id="register-business-btn"
-                  className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-primary to-primary-light hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-sm"
+                  className="w-full h-12 text-base rounded-xl kl-gradient-brand hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-sm"
                 >
                   <Store className="w-4 h-4 mr-2" />
                   Register Your Business
@@ -332,7 +332,7 @@ export function Settings() {
         >
           <Separator className="mb-6" />
           <div className="space-y-1">
-            <p className="text-xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">
+            <p className="text-xl font-bold kl-gradient-brand bg-clip-text text-transparent">
               KithLy
             </p>
             <p className="text-xs text-muted-foreground">Version 1.0.0</p>

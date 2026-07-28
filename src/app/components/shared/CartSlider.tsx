@@ -275,7 +275,7 @@ export function CartSlider() {
 
               <div className="flex items-center justify-between text-sm pt-2 border-t border-slate-100/80 mt-1">
                 <span className="text-slate-800 font-bold">Total payable</span>
-                <span className="text-lg font-bold bg-gradient-to-r from-[#F97316] to-[#1E3A8A] bg-clip-text text-transparent">
+                <span className="text-lg font-bold kl-gradient-brand-text">
                   {formatCurrency(finalPayable, 'ZMW')}
                 </span>
               </div>
@@ -284,7 +284,7 @@ export function CartSlider() {
             {/* CTA */}
             <button
               onClick={handleCheckout}
-              className="w-full rounded-xl bg-gradient-to-r from-[#F97316] to-[#1E3A8A] py-3.5 text-sm font-semibold text-white shadow-md hover:opacity-90 active:scale-[0.98] transition-all mt-2"
+              className="w-full rounded-xl kl-gradient-brand py-3.5 text-sm font-semibold text-white shadow-md hover:opacity-90 active:scale-[0.98] transition-all mt-2"
             >
               Proceed to Checkout
             </button>

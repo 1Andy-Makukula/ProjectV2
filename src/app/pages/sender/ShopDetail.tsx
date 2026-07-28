@@ -191,7 +191,7 @@ export function ShopDetail() {
                               size="sm"
                               onClick={() => navigate(`/item/${item.id}`)}
                               disabled={!item.is_available}
-                              className="bg-gradient-to-r from-primary to-primary-light"
+                              className="kl-gradient-brand"
                             >
                               <ConciergeBell className="w-4 h-4 mr-1" />
                               {item.requires_scheduling ? 'Book' : 'View'}
@@ -216,7 +216,7 @@ export function ShopDetail() {
                                 size="sm"
                                 onClick={() => navigate(`/send/${item.id}`)}
                                 disabled={!item.is_available}
-                                className="bg-gradient-to-r from-primary to-primary-light"
+                                className="kl-gradient-brand"
                               >
                                 <Gift className="w-4 h-4 mr-1" />
                                 Gift

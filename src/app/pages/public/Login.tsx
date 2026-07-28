@@ -129,7 +129,7 @@ export function Login() {
         <div className="w-full max-w-md bg-white/70 backdrop-blur-md border border-slate-200/60 p-8 sm:p-10 rounded-3xl shadow-sm">
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent mb-1">
+            <h1 className="text-4xl font-bold kl-gradient-brand bg-clip-text text-transparent mb-1">
               KithLy
             </h1>
           </div>
@@ -220,7 +220,7 @@ export function Login() {
                   <Button
                     type="button"
                     onClick={handleForgotPassword}
-                    className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-primary to-primary-light hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-sm"
+                    className="w-full h-12 text-base rounded-xl kl-gradient-brand hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-sm"
                   >
                     Send Reset Link
                   </Button>
@@ -236,7 +236,7 @@ export function Login() {
               ) : (
                 <Button
                   type="submit"
-                  className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-primary to-primary-light hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-sm"
+                  className="w-full h-12 text-base rounded-xl kl-gradient-brand hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-sm"
                   disabled={loading}
                 >
                   {loading ? (

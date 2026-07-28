@@ -183,7 +183,7 @@ export function MerchantOnboarding() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] flex flex-col">
       {/* Page header */}
-      <div className="bg-gradient-to-r from-primary to-primary-light text-white shadow-sm">
+      <div className="kl-gradient-brand text-white shadow-sm">
         <div className="container mx-auto px-6 py-8 max-w-2xl">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -405,7 +405,7 @@ export function MerchantOnboarding() {
                     id="submit-merchant-onboarding"
                     type="submit"
                     disabled={loading || uploadingNrc || uploadingPacra || !nrcPath || !businessName.trim() || !location.trim() || !physicalAddress.trim()}
-                    className="w-full h-12 text-base rounded-xl bg-gradient-to-r from-primary to-primary-light hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-sm group disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
+                    className="w-full h-12 text-base rounded-xl kl-gradient-brand hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-sm group disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
                   >
                     {loading ? (
                       <span className="flex items-center gap-2">

@@ -31,7 +31,7 @@ export function BackToTop() {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
           onClick={scrollToTop}
-          className="fixed bottom-8 right-8 z-50 p-3 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white rounded-full shadow-lg hover:shadow-xl transition-shadow"
+          className="fixed bottom-8 right-8 z-50 p-3 kl-gradient-brand text-white rounded-full shadow-lg hover:shadow-xl transition-shadow"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
         >

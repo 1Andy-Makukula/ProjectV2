@@ -1,3 +1,4 @@
+import { celebrationColors } from '../../../utils/brandColors';
 /**
  * PaymentProcessingScreen
  *
@@ -82,7 +83,7 @@ const fadeIn = {
  * The two origin points simulate a stereo pop from the bottom corners.
  */
 function launchConfetti(): void {
-  const brandColors = ['#F97316', '#FB923C', '#FDBA74', '#FED7AA', '#ffffff'];
+  const brandColors = celebrationColors();
 
   const sharedOptions: confetti.Options = {
     particleCount: 80,

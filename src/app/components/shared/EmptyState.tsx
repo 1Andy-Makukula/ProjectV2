@@ -32,7 +32,7 @@ export function EmptyState({ icon: Icon, title, description, action }: EmptyStat
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={action.onClick}
-          className="px-6 py-3 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white rounded-full font-light shadow-lg"
+          className="px-6 py-3 kl-gradient-brand text-white rounded-full font-light shadow-lg"
         >
           {action.label}
         </motion.button>

@@ -103,7 +103,7 @@ export function MerchantDashboard() {
           <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
             <Button
               onClick={() => navigate('/merchant/fulfill')}
-              className="bg-gradient-to-r from-primary to-primary-light flex-1 sm:flex-none"
+              className="kl-gradient-brand flex-1 sm:flex-none"
             >
               <QrCode className="w-4 h-4 mr-2" />
               Redeem Gift
@@ -342,7 +342,7 @@ export function MerchantDashboard() {
                         <Button
                           onClick={() => handleFulfillOrder(order.id)}
                           size="sm"
-                          className="bg-gradient-to-r from-primary to-primary-light"
+                          className="kl-gradient-brand"
                         >
                           Fulfill This Order
                         </Button>

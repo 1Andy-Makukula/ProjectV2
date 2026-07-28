@@ -16,7 +16,7 @@ function Section({ icon: Icon, title, children }: SectionProps) {
     <section className="space-y-3">
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
-          <Icon className="w-5 h-5 text-[#F97316]" strokeWidth={1.5} />
+          <Icon className="w-5 h-5 text-primary" strokeWidth={1.5} />
         </div>
         <h2 className="text-xl font-semibold text-black">{title}</h2>
       </div>
@@ -34,7 +34,7 @@ export function Terms() {
 
         {/* Hero */}
         <div className="text-center mb-12">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center shadow-md">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl kl-gradient-brand-br flex items-center justify-center shadow-md">
             <FileText className="w-8 h-8 text-white" strokeWidth={1.5} />
           </div>
           <h1 className="text-3xl font-light text-black mb-2">Terms of Service</h1>
@@ -44,7 +44,7 @@ export function Terms() {
         <div className="bg-white rounded-[1.5rem] p-8 md:p-12 border border-border space-y-10">
 
           {/* Intro */}
-          <p className="font-light text-muted-foreground leading-relaxed border-l-4 border-[#F97316] pl-4">
+          <p className="font-light text-muted-foreground leading-relaxed border-l-4 border-primary pl-4">
             By creating an account or making a purchase on KithLy, you agree to these Terms of Service.
             Please read them carefully. If you do not agree, do not use our platform.
           </p>
@@ -143,13 +143,13 @@ export function Terms() {
           <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm font-light text-muted-foreground">
               Questions? Read our{' '}
-              <Link to="/privacy" className="text-[#F97316] hover:underline">Privacy Policy</Link>{' '}
+              <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>{' '}
               or contact{' '}
-              <a href="mailto:support@kithly.zm" className="text-[#F97316] hover:underline">support@kithly.zm</a>.
+              <a href="mailto:support@kithly.zm" className="text-primary hover:underline">support@kithly.zm</a>.
             </p>
             <Link
               to="/support"
-              className="text-sm font-medium text-[#F97316] hover:underline whitespace-nowrap"
+              className="text-sm font-medium text-primary hover:underline whitespace-nowrap"
             >
               Visit Support Centre →
             </Link>
