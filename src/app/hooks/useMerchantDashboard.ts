@@ -186,7 +186,7 @@ export function useMerchantDashboard(profileId?: string) {
       });
       if (error) throw error;
       setAnalytics((prev) => ({ ...prev, availableBalance: 0 }));
-      toast.success('Withdrawal request submitted! KithLy will process it within 1-2 business days.');
+      toast.success('Withdrawal requested. It will be sent to your payout account shortly.');
       return true;
     } catch (err: any) {
       console.error('[Withdraw] Failed:', err);

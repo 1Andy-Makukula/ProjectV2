@@ -77,8 +77,8 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     return jsonWithCors(req, {
       success: true,
-      message: "Withdrawal request submitted. KithLy will process it within 1-2 business days.",
-      ledgerId: data,
+      message: "Withdrawal requested. It will be sent to your payout account shortly.",
+      withdrawalId: data,
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Internal server error";

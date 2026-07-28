@@ -1,3 +1,28 @@
+/**
+ * batch-payout-sweeper
+ *
+ * Pays out merchant withdrawal requests over Flutterwave transfers.
+ *
+ * This function previously read `shop_orders` where payout_status was
+ * 'PENDING_BATCH' — a value nothing in the codebase ever set, so it never
+ * transferred anything. It also deducted 8% or 10% from the merchant, which was
+ * the old pricing model; the merchant now gives up 2% and the buyer pays the
+ * rest, so recomputing fees here would underpay every shop.
+ *
+ * It now works the withdrawal queue instead. That is both correct and safer:
+ *
+ *   - No double payment. `request_withdrawal_atomic` already debited the
+ *     merchant's wallet, so a transfer fulfils an existing debit rather than
+ *     creating a second payment on top of the settled balance.
+ *   - No arithmetic. A withdrawal is exactly the amount the merchant asked for;
+ *     fees were applied at settlement and are long since accounted for.
+ *   - No double dispatch. `claim_withdrawal_batch` claims rows with SKIP
+ *     LOCKED, so two overlapping runs cannot wire the same money twice.
+ *
+ * A failed transfer reverses the wallet debit through `fail_withdrawal`.
+ * Leaving it debited would take the merchant's money and deliver nothing.
+ */
+
 import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
 
 const corsHeaders: HeadersInit = {
@@ -7,20 +32,13 @@ const corsHeaders: HeadersInit = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
-interface OrderWithShop {
-  shop_order_id: string;
-  transaction_id: string;
+interface ClaimedWithdrawal {
+  withdrawal_id: string;
   shop_id: string;
-  subtotal: number;
-  claim_code: string;
-  recipient_name: string;
-  recipient_phone: string;
-  shop: {
-    id: string;
-    name: string;
-    payout_method: string | null;
-    payout_details: string | null;
-  } | null;
+  shop_name: string;
+  amount: number;
+  payout_method: string | null;
+  payout_details: string | null;
 }
 
 function json(data: unknown, status = 200): Response {
@@ -41,12 +59,26 @@ function getAdminClient() {
   }
 
   return createClient(url, serviceRoleKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-    },
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
+}
+
+/** Maps a stored payout method to the code Flutterwave expects. */
+function resolveBankCode(payoutMethod: string): string {
+  const method = payoutMethod.toLowerCase().trim();
+  if (method.includes("airtel")) return "ATL";
+  if (method.includes("mtn")) return "MTN";
+  if (method.includes("zamtel")) return "ZMT";
+  return payoutMethod;
+}
+
+/** Mobile money numbers are normalised to 260XXXXXXXXX. */
+function normaliseAccount(bankCode: string, rawDetails: string): string {
+  const account = rawDetails.trim();
+  if (!["ATL", "MTN", "ZMT"].includes(bankCode)) return account;
+
+  const digits = account.replace(/\D/g, "");
+  return digits.length >= 9 ? `260${digits.slice(-9)}` : account;
 }
 
 Deno.serve(async (req: Request): Promise<Response> => {
@@ -55,17 +87,19 @@ Deno.serve(async (req: Request): Promise<Response> => {
   }
 
   if (req.method === "GET") {
-    return json({ status: "ok", service: "batch-payout-sweeper-v2" });
+    return json({ status: "ok", service: "batch-payout-sweeper" });
   }
 
   if (req.method !== "POST") {
     return json({ error: `Method '${req.method}' is not allowed. Use POST.` }, 405);
   }
 
-  // 1. Authorization Check
   const authHeader = req.headers.get("Authorization");
-  const incomingSecret = req.headers.get("x-sweeper-secret") || (authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null);
-  const expectedSecret = Deno.env.get("BATCH_PAYOUT_SWEEPER_SECRET") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const incomingSecret =
+    req.headers.get("x-sweeper-secret") ||
+    (authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null);
+  const expectedSecret =
+    Deno.env.get("BATCH_PAYOUT_SWEEPER_SECRET") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
   if (expectedSecret && incomingSecret !== expectedSecret) {
     console.error("[batch-payout-sweeper] Unauthorized payout sweep request.");
@@ -76,8 +110,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   try {
     supabase = getAdminClient();
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error(msg);
+    console.error(err instanceof Error ? err.message : String(err));
     return json({ error: "Server configuration error." }, 500);
   }
 
@@ -88,244 +121,138 @@ Deno.serve(async (req: Request): Promise<Response> => {
   }
 
   try {
-    // 2. Query due shop orders (FULFILLED and PENDING_BATCH)
-    const { data: pendingOrders, error: fetchError } = await supabase
-      .from("shop_orders")
-      .select(`
-        shop_order_id,
-        transaction_id,
-        shop_id,
-        subtotal,
-        claim_code,
-        recipient_name,
-        recipient_phone,
-        shop:shop_id (
-          id,
-          name,
-          payout_method,
-          payout_details
-        ),
-        transactions:transaction_id (
-          origin_type
-        )
-      `)
-      .eq("claim_status", "FULFILLED")
-      .eq("payout_status", "PENDING_BATCH");
+    const { data: claimed, error: claimError } = await supabase.rpc("claim_withdrawal_batch", {
+      p_limit: 25,
+    });
 
-    if (fetchError) {
-      console.error("[batch-payout-sweeper] Failed to fetch shop orders:", fetchError.message);
-      return json({ error: "Failed to fetch pending payouts." }, 500);
+    if (claimError) {
+      console.error("[batch-payout-sweeper] Failed to claim withdrawals:", claimError.message);
+      return json({ error: "Failed to claim withdrawals." }, 500);
     }
 
-    if (!pendingOrders || pendingOrders.length === 0) {
-      console.log("[batch-payout-sweeper] No shop orders found in FULFILLED + PENDING_BATCH state.");
-      return json({
-        success: true,
-        processed_shops: 0,
-        settled_orders_count: 0,
-        results: []
-      });
+    const withdrawals = (claimed ?? []) as ClaimedWithdrawal[];
+
+    if (withdrawals.length === 0) {
+      return json({ success: true, claimed: 0, paid: 0, failed: 0, results: [] });
     }
 
-    // 3. Group by Shop ID
-    const batches = new Map<string, {
-      shop: NonNullable<OrderWithShop["shop"]>;
-      orders: OrderWithShop[];
-      grossAmountNgwee: number;
-      platformFeeNgwee: number;
-    }>();
+    const results: Array<Record<string, unknown>> = [];
+    let paid = 0;
+    let failed = 0;
 
-    for (const order of (pendingOrders as unknown as OrderWithShop[])) {
-      if (!order.shop) {
-        console.warn(`[batch-payout-sweeper] Order ${order.shop_order_id} has no associated shop details.`);
-        continue;
-      }
-      const shopId = order.shop_id;
-      let batch = batches.get(shopId);
-      if (!batch) {
-        batch = {
-          shop: order.shop,
-          orders: [],
-          grossAmountNgwee: 0,
-          platformFeeNgwee: 0
-        };
-        batches.set(shopId, batch);
-      }
-      batch.orders.push(order);
-      batch.grossAmountNgwee += order.subtotal;
-
-      const originType = (order as any).transactions?.origin_type ?? "LOCAL";
-      const feeRate = originType === "INTERNATIONAL" ? 0.10 : 0.08;
-      batch.platformFeeNgwee += Math.round(order.subtotal * feeRate);
-    }
-
-    const results = [];
-    let settledOrdersCount = 0;
-
-    // 4. Process each batch
-    for (const batch of batches.values()) {
-      const { shop, orders, grossAmountNgwee, platformFeeNgwee } = batch;
-
-      if (!shop.payout_method || !shop.payout_details?.trim()) {
-        console.error(`[batch-payout-sweeper] Shop '${shop.name}' (${shop.id}) is missing payout method or details.`);
+    for (const w of withdrawals) {
+      // A shop with no payout destination cannot be paid; reverse it rather
+      // than leaving the request stuck in processing forever.
+      if (!w.payout_method || !w.payout_details?.trim()) {
+        await supabase.rpc("fail_withdrawal", {
+          p_withdrawal_id: w.withdrawal_id,
+          p_reason: "No payout method or account details on file for this shop.",
+        });
+        failed += 1;
         results.push({
-          shop_id: shop.id,
-          shop_name: shop.name,
+          withdrawal_id: w.withdrawal_id,
+          shop_name: w.shop_name,
           status: "FAILED",
-          message: "Shop missing payout_method or payout_details."
+          message: "Missing payout details.",
         });
         continue;
       }
 
-      // Calculate platform fee and merchant share in Ngwee
-      const merchantAmountNgwee = grossAmountNgwee - platformFeeNgwee;
-      const transferAmountZMW = merchantAmountNgwee / 100;
-
-      if (transferAmountZMW <= 0) {
-        console.warn(`[batch-payout-sweeper] Shop '${shop.name}' has non-positive payout amount: ${transferAmountZMW} ZMW.`);
-        results.push({
-          shop_id: shop.id,
-          shop_name: shop.name,
-          status: "SKIPPED",
-          message: "Payout amount is zero or negative."
-        });
-        continue;
-      }
-
-      // Map payout method to Flutterwave bank codes
-      let accountBank = "";
-      const method = shop.payout_method.toLowerCase().trim();
-      if (method.includes("airtel")) {
-        accountBank = "ATL";
-      } else if (method.includes("mtn")) {
-        accountBank = "MTN";
-      } else if (method.includes("zamtel")) {
-        accountBank = "ZMT";
-      } else {
-        accountBank = shop.payout_method;
-      }
-
-      // Sanitize mobile/bank account numbers
-      let accountNumber = shop.payout_details.trim();
-      if (["ATL", "MTN", "ZMT"].includes(accountBank)) {
-        const digitsOnly = accountNumber.replace(/\D/g, "");
-        if (digitsOnly.length >= 9) {
-          accountNumber = `260${digitsOnly.slice(-9)}`;
-        }
-      }
-
-      const reference = `kithly-batch-payout-${shop.id}-${Date.now()}`;
+      const bankCode = resolveBankCode(w.payout_method);
+      const accountNumber = normaliseAccount(bankCode, w.payout_details);
+      const amountZmw = w.amount / 100;
+      const reference = `kithly-withdrawal-${w.withdrawal_id}`;
 
       try {
-        console.log(`[batch-payout-sweeper] Initiating Flutterwave transfer: shop='${shop.name}', amount=${transferAmountZMW} ZMW, bank='${accountBank}', ref='${reference}'`);
+        console.log(
+          `[batch-payout-sweeper] Transfer: shop='${w.shop_name}' amount=${amountZmw} ZMW bank='${bankCode}' ref='${reference}'`,
+        );
 
-        // Execute live fetch to Flutterwave Transfers API
         const flwResponse = await fetch("https://api.flutterwave.com/v3/transfers", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${flutterwaveSecretKey}`
+            Authorization: `Bearer ${flutterwaveSecretKey}`,
           },
           body: JSON.stringify({
-            account_bank: accountBank,
+            account_bank: bankCode,
             account_number: accountNumber,
-            amount: transferAmountZMW,
+            amount: amountZmw,
             currency: "ZMW",
-            narration: `KithLy Payout Batch - ${shop.name}`,
-            reference: reference
-          })
+            narration: `KithLy payout - ${w.shop_name}`,
+            // Derived from the withdrawal id, so a retry of the same withdrawal
+            // is recognisable to Flutterwave rather than looking like new work.
+            reference,
+          }),
         });
 
         const flwResult = await flwResponse.json();
 
         if (!flwResponse.ok || flwResult.status !== "success") {
-          const errMsg = flwResult.message ?? JSON.stringify(flwResult);
-          throw new Error(`Flutterwave API error: ${errMsg}`);
+          throw new Error(flwResult.message ?? JSON.stringify(flwResult));
         }
 
-        const transferId = String(flwResult.data?.id ?? "");
-        const shopOrderIds = orders.map(o => o.shop_order_id);
-
-        // 5. Update shop orders to SETTLED
-        const { error: updateErr } = await supabase
-          .from("shop_orders")
-          .update({
-            payout_status: "SETTLED",
-            settled: true
-          })
-          .in("shop_order_id", shopOrderIds);
-
-        if (updateErr) {
-          throw new Error(`Failed to update shop_orders in database: ${updateErr.message}`);
-        }
-
-        // 6. Record PAYOUT_BATCHED events in transaction_events
-        const events = orders.map(order => {
-          const originType = (order as any).transactions?.origin_type ?? "LOCAL";
-          const feeRate = originType === "INTERNATIONAL" ? 0.10 : 0.08;
-          const orderFee = Math.round(order.subtotal * feeRate);
-          return {
-            transaction_id: order.transaction_id,
-            shop_order_id: order.shop_order_id,
-            event_type: "PAYOUT_BATCHED",
-            payload: {
-              action: "bulk_merchant_payout",
-              provider: "flutterwave",
-              transfer_id: transferId,
-              transfer_reference: reference,
-              transfer_status: "SUCCESSFUL",
-              shop_id: shop.id,
-              payout_method: shop.payout_method,
-              gross_amount_ngwee: order.subtotal,
-              platform_fee_ngwee: orderFee,
-              merchant_amount_ngwee: order.subtotal - orderFee,
-              settled_at: new Date().toISOString()
-            }
-          };
+        const { error: completeError } = await supabase.rpc("complete_withdrawal", {
+          p_withdrawal_id: w.withdrawal_id,
+          p_transfer_id: String(flwResult.data?.id ?? ""),
+          p_reference: reference,
         });
 
-        const { error: eventErr } = await supabase
-          .from("transaction_events")
-          .insert(events);
-
-        if (eventErr) {
-          console.error(`[batch-payout-sweeper] Warning: Failed to write audit transaction_events: ${eventErr.message}`);
+        if (completeError) {
+          // The money has left. Do not reverse — flag it loudly for a human,
+          // because reversing here would credit a balance that was genuinely
+          // paid out.
+          console.error(
+            `[batch-payout-sweeper] TRANSFER SENT BUT NOT RECORDED for withdrawal ${w.withdrawal_id}: ${completeError.message}`,
+          );
+          results.push({
+            withdrawal_id: w.withdrawal_id,
+            shop_name: w.shop_name,
+            status: "NEEDS_RECONCILIATION",
+            transfer_reference: reference,
+            message: completeError.message,
+          });
+          continue;
         }
 
-        settledOrdersCount += orders.length;
+        paid += 1;
         results.push({
-          shop_id: shop.id,
-          shop_name: shop.name,
-          status: "SUCCESS",
-          amount: transferAmountZMW,
-          transfer_id: transferId,
-          orders_count: orders.length
+          withdrawal_id: w.withdrawal_id,
+          shop_name: w.shop_name,
+          status: "PAID",
+          amount: amountZmw,
+          transfer_id: String(flwResult.data?.id ?? ""),
+        });
+      } catch (transferErr: unknown) {
+        const message =
+          transferErr instanceof Error ? transferErr.message : String(transferErr);
+        console.error(`[batch-payout-sweeper] Transfer failed for '${w.shop_name}':`, message);
+
+        await supabase.rpc("fail_withdrawal", {
+          p_withdrawal_id: w.withdrawal_id,
+          p_reason: message.slice(0, 300),
         });
 
-      } catch (shopErr: unknown) {
-        const msg = shopErr instanceof Error ? shopErr.message : String(shopErr);
-        console.error(`[batch-payout-sweeper] Payout failed for shop '${shop.name}':`, msg);
+        failed += 1;
         results.push({
-          shop_id: shop.id,
-          shop_name: shop.name,
+          withdrawal_id: w.withdrawal_id,
+          shop_name: w.shop_name,
           status: "FAILED",
-          message: msg
+          message,
         });
       }
     }
 
-    const processedShopsCount = results.filter(r => r.status === "SUCCESS").length;
-
     return json({
-      success: results.every(r => r.status !== "FAILED"),
-      processed_shops: processedShopsCount,
-      settled_orders_count: settledOrdersCount,
-      results
+      success: true,
+      claimed: withdrawals.length,
+      paid,
+      failed,
+      results,
     });
-
   } catch (unhandled: unknown) {
-    const msg = unhandled instanceof Error ? unhandled.message : String(unhandled);
-    console.error("[batch-payout-sweeper] Unhandled exception:", msg);
+    const message = unhandled instanceof Error ? unhandled.message : String(unhandled);
+    console.error("[batch-payout-sweeper] Unhandled exception:", message);
     return json({ error: "Internal server error." }, 500);
   }
 });
