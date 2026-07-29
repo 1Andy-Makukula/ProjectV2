@@ -178,16 +178,15 @@ export function useMerchantDashboard(profileId?: string) {
     if (!shopId || withdrawing || analytics.availableBalance <= 0) return false;
     setWithdrawing(true);
     try {
-      const { error } = await supabase.functions.invoke('server', {
+      const { error } = await supabase.functions.invoke('request-withdrawal', {
         body: {
-          action: 'request_withdrawal',
           shopId,
           amount: analytics.availableBalance,
         },
       });
       if (error) throw error;
       setAnalytics((prev) => ({ ...prev, availableBalance: 0 }));
-      toast.success('Withdrawal request submitted! KithLy will process it within 1-2 business days.');
+      toast.success('Withdrawal requested. It will be sent to your payout account shortly.');
       return true;
     } catch (err: any) {
       console.error('[Withdraw] Failed:', err);

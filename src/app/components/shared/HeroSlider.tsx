@@ -80,7 +80,7 @@ export function HeroSlider({ slides, autoPlayInterval = 5000 }: HeroSliderProps)
                 transition={{ delay: 0.4 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="mt-6 px-8 py-3 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white rounded-full font-light shadow-lg hover:shadow-xl transition-shadow"
+                className="mt-6 px-8 py-3 kl-gradient-brand text-white rounded-full font-light shadow-lg hover:shadow-xl transition-shadow"
               >
                 {currentSlide.cta_text}
               </motion.button>

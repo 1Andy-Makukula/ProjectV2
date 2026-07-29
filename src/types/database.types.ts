@@ -64,46 +64,82 @@ export type Database = {
       }
       items: {
         Row: {
+          allow_custom_quote: boolean
           category_id: string | null
           created_at: string | null
           currency: string | null
           description: string | null
+          fulfillment_location: string | null
+          has_expiry: boolean
           id: string
           image_url: string | null
           is_available: boolean | null
+          is_discounted: boolean
           is_weekly_pick: boolean | null
+          is_wholesale: boolean
+          item_type: string
+          lead_time_days: number | null
+          minimum_order_quantity: number
           name: string
+          original_price_zmw: number | null
           price_zmw: number
           promo_badge_text: string | null
+          requires_scheduling: boolean
           shop_id: string
+          valid_for_days: number | null
+          wholesale_price_zmw: number | null
         }
         Insert: {
+          allow_custom_quote?: boolean
           category_id?: string | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          fulfillment_location?: string | null
+          has_expiry?: boolean
           id?: string
           image_url?: string | null
           is_available?: boolean | null
+          is_discounted?: boolean
           is_weekly_pick?: boolean | null
+          is_wholesale?: boolean
+          item_type?: string
+          lead_time_days?: number | null
+          minimum_order_quantity?: number
           name: string
+          original_price_zmw?: number | null
           price_zmw: number
           promo_badge_text?: string | null
+          requires_scheduling?: boolean
           shop_id: string
+          valid_for_days?: number | null
+          wholesale_price_zmw?: number | null
         }
         Update: {
+          allow_custom_quote?: boolean
           category_id?: string | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          fulfillment_location?: string | null
+          has_expiry?: boolean
           id?: string
           image_url?: string | null
           is_available?: boolean | null
+          is_discounted?: boolean
           is_weekly_pick?: boolean | null
+          is_wholesale?: boolean
+          item_type?: string
+          lead_time_days?: number | null
+          minimum_order_quantity?: number
           name?: string
+          original_price_zmw?: number | null
           price_zmw?: number
           promo_badge_text?: string | null
+          requires_scheduling?: boolean
           shop_id?: string
+          valid_for_days?: number | null
+          wholesale_price_zmw?: number | null
         }
         Relationships: [
           {
@@ -338,6 +374,7 @@ export type Database = {
           claim_code: string
           claim_status: string
           created_at: string | null
+          disputed_at: string | null
           fulfilled_at: string | null
           message: string | null
           payout_status: string
@@ -348,7 +385,9 @@ export type Database = {
           shop_id: string
           shop_order_id: string
           subtotal: number
+          target_execution_date: string | null
           transaction_id: string
+          upfront_paid: number
         }
         Insert: {
           claim_code: string
@@ -412,6 +451,8 @@ export type Database = {
           logo_url: string | null
           name: string
           owner_id: string
+          payout_account_name: string | null
+          payout_bank_name: string | null
           payout_details: string | null
           payout_method: string | null
         }
@@ -427,6 +468,8 @@ export type Database = {
           logo_url?: string | null
           name: string
           owner_id: string
+          payout_account_name?: string | null
+          payout_bank_name?: string | null
           payout_details?: string | null
           payout_method?: string | null
         }
@@ -442,6 +485,8 @@ export type Database = {
           logo_url?: string | null
           name?: string
           owner_id?: string
+          payout_account_name?: string | null
+          payout_bank_name?: string | null
           payout_details?: string | null
           payout_method?: string | null
         }
@@ -488,7 +533,9 @@ export type Database = {
           created_at: string | null
           currency: string
           gateway_tx_ref: string | null
+          items_subtotal: number | null
           origin_type: string | null
+          platform_fee: number
           sender_phone: string | null
           status: string
           total_amount: number
@@ -499,7 +546,9 @@ export type Database = {
           created_at?: string | null
           currency?: string
           gateway_tx_ref?: string | null
+          items_subtotal?: number | null
           origin_type?: string | null
+          platform_fee?: number
           sender_phone?: string | null
           status?: string
           total_amount: number
@@ -510,7 +559,9 @@ export type Database = {
           created_at?: string | null
           currency?: string
           gateway_tx_ref?: string | null
+          items_subtotal?: number | null
           origin_type?: string | null
+          platform_fee?: number
           sender_phone?: string | null
           status?: string
           total_amount?: number

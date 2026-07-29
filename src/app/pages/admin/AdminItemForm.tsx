@@ -3,13 +3,33 @@ import { useNavigate, useParams } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { supabase } from '../../../lib/supabaseClient';
 import { PricingTransparencyWidget } from '../../components/shared/PricingTransparencyWidget';
-import { ArrowLeft, Upload, Trash2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  Upload,
+  Trash2,
+  Package,
+  ConciergeBell,
+  CalendarClock,
+  Timer,
+  Tag,
+  Layers,
+  MessageSquare,
+  Info,
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { Label } from '../../components/ui/label';
 import { Switch } from '../../components/ui/switch';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/ui/select';
+import { FULFILLMENT_LOCATIONS, ITEM_TYPES, type ItemType } from '../../types/items';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,6 +55,8 @@ export function AdminItemForm() {
   const {
     formData,
     setFormData,
+    categories,
+    shopOfferings,
     actualShopId,
     loading,
     uploading,
@@ -121,6 +143,47 @@ export function AdminItemForm() {
     }
   };
 
+  /**
+   * Switching back to a product clears the service-only answers so the form
+   * never shows scheduling settings that the save step would discard anyway.
+   */
+  const handleItemTypeChange = (item_type: ItemType) => {
+    if (item_type === 'product') {
+      setFormData({
+        ...formData,
+        item_type,
+        requires_scheduling: false,
+        lead_time_days: '',
+        fulfillment_location: '',
+      });
+      return;
+    }
+    setFormData({ ...formData, item_type });
+  };
+
+  const isServiceItem = formData.item_type === 'service';
+
+  // Only offer what the shop said it does at onboarding — but never hide the
+  // type an existing item already is, or it could not be edited.
+  const availableItemTypes = ITEM_TYPES.filter(
+    (option) =>
+      option.value === formData.item_type ||
+      (option.value === 'product' && shopOfferings.offers_products) ||
+      (option.value === 'service' && shopOfferings.offers_services),
+  );
+
+  const selectedLocation = FULFILLMENT_LOCATIONS.find(
+    (location) => location.value === formData.fulfillment_location,
+  );
+
+  const discountPreview = (() => {
+    const original = parseFloat(formData.original_price);
+    const current = parseFloat(formData.price);
+    if (!formData.is_discounted || isNaN(original) || isNaN(current)) return null;
+    if (original <= current || original <= 0) return null;
+    return Math.round(((original - current) / original) * 100);
+  })();
+
   const handleCancel = () => {
     if (isMerchant) {
       navigate('/merchant');
@@ -134,7 +197,7 @@ export function AdminItemForm() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-primary/90 text-white">
+      <div className="kl-gradient-brand text-white">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-4">
             <Button
@@ -164,6 +227,56 @@ export function AdminItemForm() {
               <CardTitle className="font-light">Item Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Item Type — a shop that only does one thing gets told, not asked */}
+              {availableItemTypes.length === 1 ? (
+                <div className="flex items-center gap-3 rounded-xl border border-border bg-muted/50 p-4">
+                  {availableItemTypes[0].value === 'service' ? (
+                    <ConciergeBell className="h-4 w-4 shrink-0 text-primary" strokeWidth={1.75} />
+                  ) : (
+                    <Package className="h-4 w-4 shrink-0 text-primary" strokeWidth={1.75} />
+                  )}
+                  <div>
+                    <p className="text-sm font-medium">Listing a {availableItemTypes[0].label.toLowerCase()}</p>
+                    <p className="text-xs font-light text-muted-foreground">
+                      Your shop is set up for {availableItemTypes[0].label.toLowerCase()}s only.
+                      Change this in your shop settings to list the other kind.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+              <div className="space-y-2">
+                <Label>What are you listing?</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {availableItemTypes.map((option) => {
+                    const Icon = option.value === 'service' ? ConciergeBell : Package;
+                    const selected = formData.item_type === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        aria-pressed={selected}
+                        onClick={() => handleItemTypeChange(option.value)}
+                        className={`flex flex-col items-start gap-1.5 rounded-xl border p-4 text-left
+                                    transition-all duration-200 active:scale-[0.99]
+                                    ${selected
+                                      ? 'border-primary bg-primary-tint shadow-sm'
+                                      : 'border-border hover:border-border-dark'}`}
+                      >
+                        <Icon
+                          className={`h-4 w-4 ${selected ? 'text-primary' : 'text-muted-foreground'}`}
+                          strokeWidth={1.75}
+                        />
+                        <span className="text-sm font-medium">{option.label}</span>
+                        <span className="text-xs font-light leading-snug text-muted-foreground">
+                          {option.description}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              )}
+
               {/* Name */}
               <div className="space-y-2">
                 <Label htmlFor="name">Item Name *</Label>
@@ -186,6 +299,32 @@ export function AdminItemForm() {
                   placeholder="Enter item description"
                   rows={3}
                 />
+              </div>
+
+              {/* Category */}
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Select
+                  value={formData.category_id || 'none'}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, category_id: value === 'none' ? '' : value })
+                  }
+                >
+                  <SelectTrigger id="category">
+                    <SelectValue placeholder="Uncategorised" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Uncategorised</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs font-light text-muted-foreground">
+                  Categories drive where this appears in browse and search.
+                </p>
               </div>
 
               {/* Price */}
@@ -259,6 +398,301 @@ export function AdminItemForm() {
                   id="is_available"
                   checked={formData.is_available}
                   onCheckedChange={(checked) => setFormData({ ...formData, is_available: checked })}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* ── Service details ─────────────────────────────────────────── */}
+          {isServiceItem && (
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="font-light flex items-center gap-2">
+                  <CalendarClock className="h-4 w-4 text-primary" strokeWidth={1.75} />
+                  Service Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Scheduling */}
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <Label htmlFor="requires_scheduling">Needs a booked date</Label>
+                    <p className="text-sm text-muted-foreground font-light">
+                      The recipient agrees a date with you before you carry out the work.
+                    </p>
+                  </div>
+                  <Switch
+                    id="requires_scheduling"
+                    checked={formData.requires_scheduling}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, requires_scheduling: checked })
+                    }
+                  />
+                </div>
+
+                {formData.requires_scheduling && (
+                  <div className="space-y-2">
+                    <Label htmlFor="lead_time_days">Notice required (days)</Label>
+                    <Input
+                      id="lead_time_days"
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={formData.lead_time_days}
+                      onChange={(e) =>
+                        setFormData({ ...formData, lead_time_days: e.target.value })
+                      }
+                      placeholder="e.g. 3"
+                    />
+                    <p className="text-xs font-light text-muted-foreground">
+                      The soonest a booking can be made, counted from the day it is requested.
+                      Leave blank if you can take same-day work.
+                    </p>
+                  </div>
+                )}
+
+                {/* Where it happens */}
+                <div className="space-y-2">
+                  <Label htmlFor="fulfillment_location">Where it happens</Label>
+                  <Select
+                    value={formData.fulfillment_location || 'unset'}
+                    onValueChange={(value) =>
+                      setFormData({
+                        ...formData,
+                        fulfillment_location:
+                          value === 'unset'
+                            ? ''
+                            : (value as typeof formData.fulfillment_location),
+                      })
+                    }
+                  >
+                    <SelectTrigger id="fulfillment_location">
+                      <SelectValue placeholder="Not specified" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unset">Not specified</SelectItem>
+                      {FULFILLMENT_LOCATIONS.map((location) => (
+                        <SelectItem key={location.value} value={location.value}>
+                          {location.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedLocation && (
+                    <p className="text-xs font-light text-muted-foreground">
+                      {selectedLocation.description}
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* ── Voucher validity ────────────────────────────────────────── */}
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="font-light flex items-center gap-2">
+                <Timer className="h-4 w-4 text-primary" strokeWidth={1.75} />
+                Voucher Validity
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <Label htmlFor="has_expiry">Voucher expires</Label>
+                  <p className="text-sm text-muted-foreground font-light">
+                    Turn this off for gifts that should stay claimable indefinitely.
+                  </p>
+                </div>
+                <Switch
+                  id="has_expiry"
+                  checked={formData.has_expiry}
+                  onCheckedChange={(checked) => setFormData({ ...formData, has_expiry: checked })}
+                />
+              </div>
+
+              {formData.has_expiry && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="valid_for_days">Valid for (days)</Label>
+                    <Input
+                      id="valid_for_days"
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={formData.valid_for_days}
+                      onChange={(e) =>
+                        setFormData({ ...formData, valid_for_days: e.target.value })
+                      }
+                      placeholder="Platform default"
+                    />
+                    <p className="text-xs font-light text-muted-foreground">
+                      Leave blank to use the platform default.
+                    </p>
+                  </div>
+
+                  {/* Which clock applies — the distinction that matters most */}
+                  <div className="flex gap-3 rounded-xl border border-border bg-muted/50 p-4">
+                    <Info
+                      className="h-4 w-4 shrink-0 text-muted-foreground mt-0.5"
+                      strokeWidth={1.75}
+                    />
+                    <p className="text-xs font-light leading-relaxed text-muted-foreground">
+                      {formData.requires_scheduling ? (
+                        <>
+                          Counted from the <span className="font-medium text-foreground">agreed
+                          date</span>, not the purchase. A booking made months ahead stays valid
+                          right through to the day it happens.
+                        </>
+                      ) : (
+                        <>
+                          Counted from the{' '}
+                          <span className="font-medium text-foreground">purchase date</span>, since
+                          nothing is booked in advance.
+                        </>
+                      )}
+                    </p>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* ── Pricing options ─────────────────────────────────────────── */}
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="font-light flex items-center gap-2">
+                <Tag className="h-4 w-4 text-primary" strokeWidth={1.75} />
+                Pricing Options
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Discount */}
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <Label htmlFor="is_discounted">On discount</Label>
+                  <p className="text-sm text-muted-foreground font-light">
+                    Shows the old price struck through next to the new one.
+                  </p>
+                </div>
+                <Switch
+                  id="is_discounted"
+                  checked={formData.is_discounted}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, is_discounted: checked })
+                  }
+                />
+              </div>
+
+              {formData.is_discounted && (
+                <div className="space-y-2">
+                  <Label htmlFor="original_price">Original price (ZMW)</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                      ZMW
+                    </span>
+                    <Input
+                      id="original_price"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.original_price}
+                      onChange={(e) =>
+                        setFormData({ ...formData, original_price: e.target.value })
+                      }
+                      placeholder="0.00"
+                      className="pl-14"
+                    />
+                  </div>
+                  {discountPreview !== null && (
+                    <p className="text-xs font-medium text-success">
+                      {discountPreview}% off the original price
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div className="h-px bg-border" />
+
+              {/* Wholesale */}
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <Label htmlFor="is_wholesale" className="flex items-center gap-2">
+                    <Layers className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.75} />
+                    Offer a wholesale rate
+                  </Label>
+                  <p className="text-sm text-muted-foreground font-light">
+                    A lower per-unit price once the buyer orders enough.
+                  </p>
+                </div>
+                <Switch
+                  id="is_wholesale"
+                  checked={formData.is_wholesale}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, is_wholesale: checked })
+                  }
+                />
+              </div>
+
+              {formData.is_wholesale && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="wholesale_price">Wholesale price per unit (ZMW)</Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        ZMW
+                      </span>
+                      <Input
+                        id="wholesale_price"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={formData.wholesale_price}
+                        onChange={(e) =>
+                          setFormData({ ...formData, wholesale_price: e.target.value })
+                        }
+                        placeholder="0.00"
+                        className="pl-14"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="minimum_order_quantity">Minimum units</Label>
+                    <Input
+                      id="minimum_order_quantity"
+                      type="number"
+                      min="2"
+                      step="1"
+                      value={formData.minimum_order_quantity}
+                      onChange={(e) =>
+                        setFormData({ ...formData, minimum_order_quantity: e.target.value })
+                      }
+                      placeholder="e.g. 10"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="h-px bg-border" />
+
+              {/* Custom quote */}
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <Label htmlFor="allow_custom_quote" className="flex items-center gap-2">
+                    <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.75} />
+                    Accept custom quote requests
+                  </Label>
+                  <p className="text-sm text-muted-foreground font-light">
+                    Buyers can describe what they need and you reply with a price, instead of
+                    buying at the listed one.
+                  </p>
+                </div>
+                <Switch
+                  id="allow_custom_quote"
+                  checked={formData.allow_custom_quote}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, allow_custom_quote: checked })
+                  }
                 />
               </div>
             </CardContent>

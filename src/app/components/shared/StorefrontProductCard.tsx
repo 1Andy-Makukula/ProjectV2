@@ -2,20 +2,15 @@
 // Usage: <StorefrontProductCard item={item} onGift={() => navigate(`/send/${item.id}`)} />
 // Named StorefrontProductCard to avoid conflict with the existing ProductCard.tsx
 
-import { Package, Shield, ShoppingCart } from 'lucide-react';
+import { Package, Shield, ShoppingCart, ConciergeBell, CalendarClock } from 'lucide-react';
+import {
+  discountPercentage,
+  isService,
+  requiresConversation,
+  type CatalogItem,
+} from '../../types/items';
 
-export interface StorefrontItem {
-  id: string;
-  name: string;
-  description?: string | null;
-  /** Price in whole ZMW (price_zmw column) */
-  price_zmw: number;
-  image_url?: string | null;
-  is_weekly_pick?: boolean;
-  /** Optional free-form badge text e.g. "Sale" or "New" */
-  promo_badge_text?: string | null;
-  shop?: { id: string; name: string } | null;
-}
+export type StorefrontItem = CatalogItem;
 
 interface StorefrontProductCardProps {
   item: StorefrontItem;
@@ -24,9 +19,32 @@ interface StorefrontProductCardProps {
   onAddToCart?: () => void;
 }
 
+function formatZmw(ngwee: number | null | undefined): string {
+  return ngwee != null ? (ngwee / 100).toFixed(2) : '—';
+}
+
 export function StorefrontProductCard({ item, onGift, onView, onAddToCart }: StorefrontProductCardProps) {
+  const service = isService(item);
+
+  // Services carry terms — where the work happens, how far ahead to book, what
+  // the validity is measured from — that a one-tap add-to-cart would hide. They
+  // always go through the detail view, as does anything needing a quote first.
+  const mustOpenDetail = service || requiresConversation(item);
+  const showAddToCart = Boolean(onAddToCart) && !mustOpenDetail;
+
   const handle = onGift ?? onView;
   const badge = item.is_weekly_pick ? 'Top Pick' : (item.promo_badge_text ?? null);
+  const discount = discountPercentage(item);
+
+  const primaryLabel = item.requires_scheduling
+    ? 'Book'
+    : item.allow_custom_quote
+      ? 'Get a quote'
+      : mustOpenDetail
+        ? 'View details'
+        : onGift
+          ? 'Gift This'
+          : 'View';
 
   return (
     <article
@@ -47,20 +65,38 @@ export function StorefrontProductCard({ item, onGift, onView, onAddToCart }: Sto
           /* Gradient placeholder — no image */
           <div className="w-full h-full bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100
                           flex items-center justify-center">
-            <Package className="h-10 w-10 text-slate-200" strokeWidth={1} />
+            {service ? (
+              <ConciergeBell className="h-10 w-10 text-slate-200" strokeWidth={1} />
+            ) : (
+              <Package className="h-10 w-10 text-slate-200" strokeWidth={1} />
+            )}
           </div>
         )}
 
-        {/* Merchandising badge — top-right corner */}
-        {badge && (
+        {/* Discount / merchandising badge — top-right corner */}
+        {(discount !== null || badge) && (
           <div className="absolute top-2.5 right-2.5">
             <span
-              className="inline-block rounded-full px-2.5 py-0.5
-                         text-[10px] font-bold uppercase tracking-wider
-                         border border-orange-200 bg-white/90 backdrop-blur-sm text-orange-600
-                         shadow-sm"
+              className={`inline-block rounded-full px-2.5 py-0.5
+                          text-[10px] font-bold uppercase tracking-wider
+                          backdrop-blur-sm shadow-sm border
+                          ${discount !== null
+                            ? 'border-transparent bg-orange-600 text-white'
+                            : 'border-orange-200 bg-white/90 text-orange-600'}`}
             >
-              {badge}
+              {discount !== null ? `${discount}% off` : badge}
+            </span>
+          </div>
+        )}
+
+        {/* Service marker — top-left, so it never collides with the badge */}
+        {service && (
+          <div className="absolute top-2.5 left-2.5 flex items-center gap-1
+                          rounded-full bg-white/90 backdrop-blur-sm border border-slate-100
+                          px-2 py-0.5 shadow-sm">
+            <ConciergeBell className="h-2.5 w-2.5 text-slate-500 shrink-0" strokeWidth={2} />
+            <span className="text-[9px] font-bold uppercase tracking-wide text-slate-600">
+              Service
             </span>
           </div>
         )}
@@ -98,13 +134,30 @@ export function StorefrontProductCard({ item, onGift, onView, onAddToCart }: Sto
         )}
 
         {/* Price */}
-        <p className="mt-1 text-sm font-semibold text-slate-900">
-          ZMW {item.price_zmw != null ? (item.price_zmw / 100).toFixed(2) : '—'}
-        </p>
+        <div className="mt-1 flex items-baseline gap-2">
+          <p className="text-sm font-semibold text-slate-900">
+            ZMW {formatZmw(item.price_zmw)}
+          </p>
+          {discount !== null && (
+            <p className="text-[11px] text-slate-400 line-through">
+              ZMW {formatZmw(item.original_price_zmw)}
+            </p>
+          )}
+        </div>
+
+        {/* Scheduling note — sets the expectation before they tap through */}
+        {item.requires_scheduling && (
+          <p className="mt-0.5 flex items-center gap-1 text-[10px] font-medium text-slate-500">
+            <CalendarClock className="h-3 w-3 shrink-0" strokeWidth={2} />
+            {item.lead_time_days
+              ? `Book ${item.lead_time_days} day${item.lead_time_days === 1 ? '' : 's'} ahead`
+              : 'Date arranged with the shop'}
+          </p>
+        )}
 
         {/* CTA Buttons */}
         <div className="mt-3 flex gap-2">
-          {onAddToCart && (
+          {showAddToCart && onAddToCart && (
             <button
               onClick={e => { e.stopPropagation(); onAddToCart(); }}
               className="flex-1 flex items-center justify-center gap-1 rounded-xl border border-orange-200 py-2 text-xs font-semibold
@@ -123,9 +176,9 @@ export function StorefrontProductCard({ item, onGift, onView, onAddToCart }: Sto
                          text-slate-700 tracking-wide uppercase
                          hover:border-slate-900 hover:bg-slate-900 hover:text-white
                          active:scale-[0.98] transition-all duration-200
-                         ${onAddToCart ? '' : 'w-full'}`}
+                         ${showAddToCart ? '' : 'w-full'}`}
             >
-              {onGift ? 'Gift This' : 'View'}
+              {primaryLabel}
             </button>
           )}
         </div>

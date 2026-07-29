@@ -369,7 +369,7 @@ export function OrderDashboard() {
               <ArrowLeft className="h-5 w-5 text-slate-700" />
             </Button>
             <div>
-              <h1 className="bg-gradient-to-r from-primary to-primary-light bg-clip-text text-xl font-bold text-transparent tracking-tight">
+              <h1 className="kl-gradient-brand bg-clip-text text-xl font-bold text-transparent tracking-tight">
                 Order History
               </h1>
               <p className="text-xs text-slate-500 font-medium">
@@ -444,7 +444,7 @@ export function OrderDashboard() {
                 <Button
                   id="order-dashboard-browse"
                   onClick={() => navigate('/dashboard')}
-                  className="bg-gradient-to-r from-primary to-primary-light shadow-md"
+                  className="kl-gradient-brand shadow-md"
                 >
                   <Store className="mr-2 h-4 w-4" />
                   Browse Shops
@@ -547,7 +547,7 @@ export function OrderDashboard() {
                         </TableCell>
 
                         <TableCell className="text-right">
-                          <span className="bg-gradient-to-r from-primary to-primary-light bg-clip-text text-sm font-semibold text-transparent">
+                          <span className="kl-gradient-brand bg-clip-text text-sm font-semibold text-transparent">
                             {formatCurrency(order.total_amount, 'ZMW')}
                           </span>
                         </TableCell>

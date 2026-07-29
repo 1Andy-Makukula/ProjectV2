@@ -35,7 +35,7 @@ export function HorizontalProductRibbon({
         {onViewAll && (
           <button
             onClick={onViewAll}
-            className="flex items-center gap-1 text-sm font-light text-[#F97316] hover:gap-2 transition-all"
+            className="flex items-center gap-1 text-sm font-light text-primary hover:gap-2 transition-all"
           >
             View All
             <ChevronRight className="w-4 h-4" strokeWidth={1.5} />

@@ -7,6 +7,7 @@ import { formatCurrency } from '../../../utils/currency';
 import { getGiftPageUrl } from '../../../utils/whatsapp';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
+import { celebrationColors } from '../../../utils/brandColors';
 import {
   CheckCircle2,
   Copy,
@@ -165,8 +166,8 @@ function usePaymentConfirmation(transactionId: string | null, txRef: string | nu
     setPollingStatus('polling');
 
     try {
-      const { data, error } = await supabase.functions.invoke('server', {
-        body: { action: 'verify_payment', txRef },
+      const { data, error } = await supabase.functions.invoke('verify-payment', {
+        body: { txRef },
       });
 
       if (error) throw error;
@@ -211,7 +212,7 @@ function PollingView({ attempt, max }: { attempt: number; max: number }) {
           transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
         />
         <motion.span
-          className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-primary-light shadow-md"
+          className="h-10 w-10 rounded-full kl-gradient-brand-br shadow-md"
           animate={{ scale: [1, 0.9, 1] }}
           transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.15 }}
         />
@@ -562,7 +563,7 @@ export function Confirmation() {
   // Fire confetti when payment is confirmed
   useEffect(() => {
     if (pollingStatus === 'confirmed') {
-      const brandColors = ['#F97316', '#FB923C', '#FDBA74', '#FED7AA', '#ffffff'];
+      const brandColors = celebrationColors();
       const opts: confetti.Options = {
         particleCount: 80, spread: 80, startVelocity: 45,
         decay: 0.92, gravity: 1.1, ticks: 200,

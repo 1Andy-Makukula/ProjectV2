@@ -1,8 +1,7 @@
 // KithLy Header - Global Navigation (Mobile-First Responsive)
 
 import { useState, useEffect } from 'react';
-import { ShoppingCart, User, Menu, Gift, Bell, HelpCircle, Home, LayoutDashboard, Settings, LogOut } from 'lucide-react';
-import { toast } from 'sonner';
+import { ShoppingCart, User, Menu, Gift, MessageSquare, HelpCircle, Home, LayoutDashboard, Settings, LogOut } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link, useLocation } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
@@ -10,6 +9,7 @@ import { useCart } from '../../hooks/useCart';
 import { supabase } from '../../../lib/supabaseClient';
 import { Badge } from '../ui/badge';
 import { SearchBar } from '../shared/SearchBar';
+import { NotificationBell } from '../shared/NotificationBell';
 import { formatCurrency } from '../../../utils/currency';
 import {
   Sheet,
@@ -47,10 +47,7 @@ export function Header({
     : profile?.role === 'merchant' ? 'Merchant Hub'
     : 'Dashboard';
 
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [balance, setBalance] = useState<number | null>(null);
 
   const fetchWalletBalance = async () => {
@@ -101,80 +98,6 @@ export function Header({
     };
   }, [isAuthenticated, user?.id]);
 
-  useEffect(() => {
-    if (!isAuthenticated || !user?.id) return;
-
-    const fetchNotifications = async () => {
-      // V2 Schema: Query transactions joined with shop_orders
-      const { data } = await supabase
-        .from('transactions')
-        .select(`
-          transaction_id,
-          created_at,
-          shop_orders!inner (
-            shop_order_id,
-            claim_code,
-            recipient_name,
-            fulfilled_at,
-            shop:shop_id (name),
-            order_items (
-              item:item_id (name)
-            )
-          )
-        `)
-        .eq('buyer_id', user.id)
-        .in('shop_orders.claim_status', ['FULFILLED', 'PARTIAL_FULFILLMENT'])
-        .order('created_at', { ascending: false })
-        .limit(20);
-
-      if (data) {
-        // Flatten to match legacy UI expectation
-        const formatted = data.flatMap((tx: any) => 
-          tx.shop_orders.map((so: any) => ({
-            id: so.shop_order_id,
-            code: so.claim_code,
-            recipient_name: so.recipient_name,
-            fulfilled_at: so.fulfilled_at || tx.created_at,
-            item: { name: so.order_items?.[0]?.item?.name || 'Gift' },
-            shop: { name: so.shop?.name || 'Shop' }
-          }))
-        );
-        
-        // Check if we have new notifications by comparing lengths (simple heuristic)
-        if (notifications.length > 0 && formatted.length > notifications.length) {
-          toast.success(`🎉 Gift collected! Your recipient just picked up their item.`);
-          setUnreadCount(prev => prev + 1);
-        }
-        
-        setNotifications(formatted);
-      }
-    };
-
-    fetchNotifications();
-
-    // Notify and Re-fetch Pattern (User Approved)
-    const channel = supabase.channel('header-notifications')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'transactions',
-        filter: `buyer_id=eq.${user.id}`
-      }, () => {
-        fetchNotifications();
-      })
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'transaction_events',
-        filter: `event_type=eq.CLAIM_VERIFIED`
-      }, () => {
-        // Catch fulfillments (no buyer_id filter available on this table, but fetch is safe)
-        fetchNotifications();
-      }).subscribe();
-
-    return () => { supabase.removeChannel(channel); }
-  }, [isAuthenticated, user?.id]);
-
   // Close mobile menu on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -198,10 +121,12 @@ export function Header({
               to="/"
               className="flex items-center gap-2 group"
             >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center">
+              {/* The mark carries the active mode's tint on the storefront, and
+                  the fixed brand gradient everywhere else. */}
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isHomePage ? 'kl-gradient-mode-br' : 'kl-gradient-brand-br'}`}>
                 <Gift className="w-5 h-5 text-white" strokeWidth={1.5} />
               </div>
-              <span className="text-xl font-light tracking-tight text-black group-hover:bg-gradient-to-r group-hover:from-[#F97316] group-hover:to-[#FB923C] group-hover:bg-clip-text group-hover:text-transparent transition-all">
+              <span className="text-xl font-light tracking-tight text-black group-hover:kl-gradient-brand-text transition-all">
                 KithLy
               </span>
             </Link>
@@ -234,17 +159,22 @@ export function Header({
               </Link>
             )}
 
-            {/* Notification Bell — desktop only */}
+            {/* Messages — desktop only */}
             {isAuthenticated && (
-              <button
-                onClick={() => { setIsNotificationsOpen(true); setUnreadCount(0); }}
-                className="hidden md:flex relative p-2 text-gray-500 hover:text-gray-700 transition-colors"
+              <Link
+                to="/messages"
+                className="hidden md:flex p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                aria-label="Messages"
               >
-                <Bell className="w-5 h-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" />
-                )}
-              </button>
+                <MessageSquare className="w-5 h-5" strokeWidth={1.5} />
+              </Link>
+            )}
+
+            {/* Notifications — desktop only */}
+            {isAuthenticated && (
+              <div className="hidden md:flex">
+                <NotificationBell />
+              </div>
             )}
 
             {/* Support — desktop only */}
@@ -266,23 +196,26 @@ export function Header({
                 aria-label="Shopping cart"
               >
                 <ShoppingCart className="w-5 h-5" strokeWidth={1.5} />
-                <Badge className="absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white text-xs">
+                <Badge className="absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 kl-gradient-brand text-white text-xs">
                   {cartItemCount}
                 </Badge>
               </motion.button>
             )}
 
-            {/* Mobile: Notification bell with badge */}
+            {/* Mobile: messages and notifications */}
             {isAuthenticated && (
-              <button
-                onClick={() => { setIsNotificationsOpen(true); setUnreadCount(0); }}
-                className="flex md:hidden relative p-2 text-gray-500 hover:text-gray-700 transition-colors"
+              <Link
+                to="/messages"
+                className="flex md:hidden p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                aria-label="Messages"
               >
-                <Bell className="w-5 h-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white" />
-                )}
-              </button>
+                <MessageSquare className="w-5 h-5" strokeWidth={1.5} />
+              </Link>
+            )}
+            {isAuthenticated && (
+              <div className="flex md:hidden">
+                <NotificationBell />
+              </div>
             )}
 
             {/* Wallet Balance Pill — desktop only */}
@@ -299,7 +232,7 @@ export function Header({
                 to="/settings"
                 className="hidden md:flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full kl-gradient-brand-br flex items-center justify-center">
                   <span className="text-white text-sm font-light">
                     {(user?.user_metadata?.full_name || profile?.name)?.charAt(0) || 'U'}
                   </span>
@@ -311,7 +244,7 @@ export function Header({
             ) : (
               <Link
                 to="/login"
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white rounded-full font-light transition-transform hover:scale-105 active:scale-95 text-sm"
+                className="flex items-center gap-2 px-4 py-2 kl-gradient-brand text-white rounded-full font-light transition-transform hover:scale-105 active:scale-95 text-sm"
               >
                 <User className="w-4 h-4" strokeWidth={1.5} />
                 <span className="hidden md:inline">Sign In</span>
@@ -338,7 +271,7 @@ export function Header({
           <div className="p-5 border-b border-slate-100" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1.25rem)' }}>
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-full kl-gradient-brand-br flex items-center justify-center shrink-0">
                   <span className="text-white text-base font-medium">
                     {(user?.user_metadata?.full_name || profile?.name)?.charAt(0) || 'U'}
                   </span>
@@ -353,7 +286,7 @@ export function Header({
             ) : (
               <Link
                 to="/login"
-                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#F97316] to-[#FB923C] text-white rounded-xl font-medium text-sm w-full justify-center"
+                className="flex items-center gap-2 px-4 py-2.5 kl-gradient-brand text-white rounded-xl font-medium text-sm w-full justify-center"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <User className="w-4 h-4" strokeWidth={1.5} />
@@ -406,31 +339,6 @@ export function Header({
         </SheetContent>
       </Sheet>
 
-      {/* ── Notifications Drawer (Sheet) ──────────────────────────── */}
-      <Sheet open={isNotificationsOpen} onOpenChange={setIsNotificationsOpen}>
-        <SheetContent side="right" className="w-[320px] p-0 flex flex-col">
-          <SheetHeader className="p-4 border-b bg-gray-50/80">
-            <SheetTitle className="text-base">Notifications</SheetTitle>
-            <SheetDescription className="sr-only">Recent gift collection activity</SheetDescription>
-          </SheetHeader>
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {notifications.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center mt-10">No recent activity.</p>
-            ) : (
-              notifications.map(notif => (
-                <div key={notif.id} className="p-3 bg-green-50 border border-green-100 rounded-xl">
-                  <p className="text-sm text-green-800">
-                    <strong>{notif.recipient_name}</strong> collected <strong>{notif.item?.name}</strong> from <strong>{notif.shop?.name}</strong>.
-                  </p>
-                  <p className="text-xs text-green-600 mt-1">
-                    {new Date(notif.fulfilled_at).toLocaleDateString()}
-                  </p>
-                </div>
-              ))
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
     </header>
   );
 }

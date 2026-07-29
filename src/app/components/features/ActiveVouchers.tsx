@@ -34,7 +34,7 @@ export function ActiveVouchers({ activeVouchers }: { activeVouchers: any[] }) {
             className="rounded-3xl border-2 border-primary/20 bg-white shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden"
           >
             {/* Header accent */}
-            <div className="h-1.5 bg-gradient-to-r from-primary to-primary-light" />
+            <div className="h-1.5 kl-gradient-brand" />
             <div className="p-6 flex flex-col items-center gap-5">
               <div className="text-center">
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-0.5">
@@ -64,7 +64,7 @@ export function ActiveVouchers({ activeVouchers }: { activeVouchers: any[] }) {
                 </p>
               )}
               <Button
-                className="w-full rounded-xl text-sm font-semibold bg-gradient-to-r from-primary to-primary-light text-white shadow-sm"
+                className="w-full rounded-xl text-sm font-semibold kl-gradient-brand text-white shadow-sm"
                 onClick={() => navigate(`/gift/${order.claim_code}`)}
               >
                 Open Gift Page

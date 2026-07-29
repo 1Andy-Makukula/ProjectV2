@@ -33,6 +33,15 @@ interface CheckoutInitPayload {
   message?: string;
   transaction_id?: string;
   sender_phone?: string;
+  /** Wallet credits the buyer is putting towards this order, in ngwee. */
+  credits_to_apply?: number;
+  /**
+   * Agreed date for booked work, carried from an accepted quotation. It anchors
+   * the voucher's expiry clock to that date rather than to the purchase.
+   */
+  target_execution_date?: string | null;
+  /** Set when the cart was filled from a curated experience. */
+  experience_id?: string | null;
 }
 
 /**
@@ -197,6 +206,17 @@ function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
   const message         = typeof raw.message         === "string" ? raw.message.trim()         || undefined : undefined;
   const sender_phone    = typeof raw.sender_phone    === "string" ? raw.sender_phone.trim()    || undefined : undefined;
   const credits_to_apply = typeof raw.credits_to_apply === "number" ? raw.credits_to_apply : 0;
+  // Set when the buyer is paying for work booked for an agreed date. It anchors
+  // the voucher's expiry clock to that date instead of the purchase.
+  const target_execution_date =
+    typeof raw.target_execution_date === "string" && raw.target_execution_date.trim()
+      ? raw.target_execution_date
+      : null;
+
+  const experience_id =
+    typeof raw.experience_id === "string" && raw.experience_id.trim()
+      ? raw.experience_id
+      : null;
 
   return {
     cart_items,
@@ -206,6 +226,8 @@ function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
     message,
     sender_phone,
     credits_to_apply,
+    target_execution_date,
+    experience_id,
   };
 }
 
@@ -504,7 +526,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     return json(req, { error: message }, 400);
   }
 
-  const { cart_items, origin_type, recipient_name, recipient_phone, message, sender_phone, credits_to_apply } = payload;
+  const { cart_items, origin_type, recipient_name, recipient_phone, message, sender_phone, credits_to_apply, target_execution_date, experience_id } = payload;
 
   // --- 2.5. Resolve requestOrigin dynamically ---
   const originHeader = req.headers.get("Origin") || req.headers.get("Referer");
@@ -700,6 +722,10 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
         p_message: message ?? "",
         p_sender_phone: sender_phone || null,
         p_credits_to_apply: credits_to_apply,
+        p_target_execution_date: target_execution_date,
+        // The shared deadline is read from the experience server-side, so a
+        // client cannot extend it by sending its own date.
+        p_experience_id: experience_id,
       },
     );
 

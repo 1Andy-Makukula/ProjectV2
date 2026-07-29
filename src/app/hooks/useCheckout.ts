@@ -4,8 +4,10 @@ import { useAuth } from '../../utils/auth/AuthContext';
 import { validateAndFormatPhone } from '../../utils/phone';
 import { parseAuthError } from '../../utils/errorParser';
 import { toast } from 'sonner';
-import { getFlatCartPayload } from '../../utils/sendFlowStore';
+import { getFlatCartPayload, useSendFlowStore } from '../../utils/sendFlowStore';
 import { useCart } from './useCart';
+import { usePlatformPricing } from './usePlatformPricing';
+import { grossPayableFor, CHECKOUT_ORIGIN } from '../../utils/pricing';
 
 export interface ShopOrderResult {
   shop_order_id: string;
@@ -18,12 +20,19 @@ export interface CheckoutInitResponse {
   success: boolean;
   transaction_id: string;
   total_amount: number;
+  /** Basket total before the service fee. */
+  items_subtotal?: number;
+  /** Buyer-facing service fee included in total_amount. */
+  platform_fee?: number;
+  /** `checkout-init` returns this key; the camelCase form is a legacy fallback. */
+  payment_link?: string;
   paymentLink?: string;
   shop_orders: ShopOrderResult[];
 }
 
 export function useCheckout() {
   const { profile } = useAuth();
+  const { rates: feeRates } = usePlatformPricing();
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -88,7 +97,10 @@ export function useCheckout() {
     try {
       const { applyCredits, getTotalAmount } = useCart.getState();
       const totalAmount = getTotalAmount();
-      const creditsToApply = applyCredits ? Math.min(walletBalance, totalAmount) : 0;
+      // Credits offset the whole bill, service fee included, so cap against the
+      // gross rather than the basket — otherwise the server rejects the excess.
+      const grossPayable = grossPayableFor(totalAmount, CHECKOUT_ORIGIN, feeRates);
+      const creditsToApply = applyCredits ? Math.min(walletBalance, grossPayable) : 0;
 
       const payload = getFlatCartPayload(items, {
         name: recipientName.trim(),
@@ -104,6 +116,11 @@ export function useCheckout() {
             origin_type: 'LOCAL',
             sender_phone: formattedSender,
             credits_to_apply: creditsToApply,
+            // Present when this checkout came from an accepted quotation for
+            // work booked on a specific date.
+            target_execution_date: useSendFlowStore.getState().targetExecutionDate,
+            // Present when the cart was filled from a curated experience.
+            experience_id: useSendFlowStore.getState().experienceId,
           }
         },
       );
@@ -121,7 +138,7 @@ export function useCheckout() {
       return {
         transactionId: data.transaction_id,
         shopOrders: data.shop_orders ?? [],
-        paymentLink: data.payment_link || (data as any).paymentLink || null
+        paymentLink: data.payment_link || data.paymentLink || null
       };
     } catch (err: any) {
       console.error('[useCheckout] checkout-init error:', err);

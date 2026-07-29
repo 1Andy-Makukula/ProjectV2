@@ -9,8 +9,10 @@
  *     actions={<Button>...</Button>}
  *   />
  */
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, MessageSquare } from 'lucide-react';
+import { useNavigate } from 'react-router';
 import { Button } from '../ui/button';
+import { NotificationBell } from '../shared/NotificationBell';
 import { cn } from '../ui/utils';
 
 interface AdminPageHeaderProps {
@@ -19,6 +21,8 @@ interface AdminPageHeaderProps {
   onBack?: () => void;
   actions?: React.ReactNode;
   className?: string;
+  /** Set false on the messages page itself, where the shortcut is redundant. */
+  showCommunication?: boolean;
 }
 
 export function AdminPageHeader({
@@ -27,11 +31,13 @@ export function AdminPageHeader({
   onBack,
   actions,
   className,
+  showCommunication = true,
 }: AdminPageHeaderProps) {
+  const navigate = useNavigate();
   return (
     <div
       className={cn(
-        'bg-gradient-to-r from-primary to-primary-light text-primary-foreground',
+        'kl-gradient-brand text-primary-foreground',
         className,
       )}
     >
@@ -61,10 +67,24 @@ export function AdminPageHeader({
             </div>
           </div>
 
-          {/* Right: actions */}
-          {actions && (
+          {/* Right: actions, then the shared communication controls */}
+          {(actions || showCommunication) && (
             <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
               {actions}
+              {showCommunication && (
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate('/admin/messages')}
+                    className="text-white/80 hover:text-white hover:bg-white/10"
+                    aria-label="Messages"
+                  >
+                    <MessageSquare className="size-4" />
+                  </Button>
+                  <NotificationBell tone="light" />
+                </div>
+              )}
             </div>
           )}
         </div>

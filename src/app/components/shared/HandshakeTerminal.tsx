@@ -101,7 +101,7 @@ export function HandshakeTerminal({
   return (
     <div className="mx-auto max-w-md space-y-6">
       <div className="space-y-2 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#F97316] to-[#FB923C]">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full kl-gradient-brand-br">
           <Smartphone className="h-8 w-8 text-white" strokeWidth={1.5} />
         </div>
         <h2 className="font-light text-black">
@@ -144,13 +144,13 @@ export function HandshakeTerminal({
             whileTap={{ scale: 0.98 }}
             onClick={handleVerify}
             disabled={code.length !== 8 || isVerifying || isRedeeming}
-            className="w-full rounded-full bg-gradient-to-r from-[#F97316] to-[#FB923C] py-3 font-light text-white shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-full kl-gradient-brand py-3 font-light text-white shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isVerifying ? 'Verifying...' : 'Verify Code'}
           </motion.button>
 
           <div className="rounded-2xl border border-orange-200 bg-orange-50 p-4">
-            <p className="mb-3 text-sm font-medium uppercase tracking-[0.18em] text-[#F97316]">
+            <p className="mb-3 text-sm font-medium uppercase tracking-[0.18em] text-primary">
               Item to Hand Over
             </p>
 

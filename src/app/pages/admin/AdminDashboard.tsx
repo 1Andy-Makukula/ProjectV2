@@ -60,7 +60,7 @@ export function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-primary/90 text-white">
+      <div className="kl-gradient-brand text-white">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
@@ -193,6 +193,16 @@ export function AdminDashboard() {
                 title="Manage Merchants"
                 description="Create merchant accounts"
                 onClick={() => navigate('/admin/merchants')}
+              />
+              <QuickLink
+                title="Experiences"
+                description="Curate multi-shop offerings"
+                onClick={() => navigate('/admin/experiences')}
+              />
+              <QuickLink
+                title="Messages"
+                description="Talk to shops and customers"
+                onClick={() => navigate('/admin/messages')}
               />
               <QuickLink
                 title="Add New Shop"

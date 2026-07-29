@@ -33,6 +33,7 @@ export function AdminShopForm() {
     setFormData,
     loading,
     uploading,
+    bankOptions,
     saveShop,
     deleteShop,
   } = useAdminShopForm(shopId);
@@ -203,19 +204,59 @@ export function AdminShopForm() {
                   <SelectContent>
                     <SelectItem value="airtel">Airtel Money</SelectItem>
                     <SelectItem value="mtn">MTN Money</SelectItem>
+                    <SelectItem value="zamtel">Zamtel Money</SelectItem>
                     <SelectItem value="bank">Bank Account</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
+              {/* Bank Name — only for bank account payouts */}
+              {formData.payout_method === 'bank' && (
+                <div className="space-y-2">
+                  <Label htmlFor="payout_bank_name">Bank Name *</Label>
+                  <Select
+                    value={formData.payout_bank_name}
+                    onValueChange={(value) => setFormData({ ...formData, payout_bank_name: value })}
+                  >
+                    <SelectTrigger id="payout_bank_name">
+                      <SelectValue placeholder="Select a bank" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {bankOptions.map((bank) => (
+                        <SelectItem key={bank.method_key} value={bank.method_key}>
+                          {bank.display_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
               {/* Payout Details */}
               <div className="space-y-2">
-                <Label htmlFor="payout_details">Payout Details</Label>
+                <Label htmlFor="payout_details">
+                  {formData.payout_method === 'bank' ? 'Account Number' : 'Phone Number'}
+                </Label>
                 <Input
                   id="payout_details"
                   value={formData.payout_details}
                   onChange={(e) => setFormData({ ...formData, payout_details: e.target.value })}
-                  placeholder="Enter phone number or account number"
+                  placeholder={
+                    formData.payout_method === 'bank'
+                      ? 'Enter bank account number'
+                      : 'Enter mobile money phone number'
+                  }
+                />
+              </div>
+
+              {/* Account Holder Name */}
+              <div className="space-y-2">
+                <Label htmlFor="payout_account_name">Account Holder Name</Label>
+                <Input
+                  id="payout_account_name"
+                  value={formData.payout_account_name}
+                  onChange={(e) => setFormData({ ...formData, payout_account_name: e.target.value })}
+                  placeholder="Full name on the account, for payout verification"
                 />
               </div>
 

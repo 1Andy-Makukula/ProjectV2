@@ -32,6 +32,8 @@ export function useAdminItems(activeShopId?: string) {
         .from('items')
         .select('*')
         .eq('shop_id', activeShopId)
+        // Quote items belong to a conversation, not the shop's catalogue.
+        .eq('is_quote_only', false)
         .order('created_at', { ascending: false });
 
       if (itemsError) throw itemsError;

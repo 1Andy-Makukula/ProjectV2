@@ -70,7 +70,7 @@ export function AdminOrders() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-primary/90 text-white">
+      <div className="kl-gradient-brand text-white">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-4 mb-4">
             <Button

@@ -1,6 +1,9 @@
 import * as Sentry from "@sentry/react";
 import { createRoot } from "react-dom/client";
 import App from "./app/App.tsx";
+// Importing the store rehydrates the persisted storefront mode and re-applies
+// its data-mode attribute, so the palette is right on first paint.
+import "./app/hooks/useStorefrontMode.ts";
 import "./styles/index.css";
 
 Sentry.init({

@@ -13,7 +13,7 @@ export function About() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: 'spring' }}
-            className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center"
+            className="w-20 h-20 mx-auto mb-6 rounded-2xl kl-gradient-brand-br flex items-center justify-center"
           >
             <Heart className="w-10 h-10 text-white" strokeWidth={1.5} />
           </motion.div>
@@ -46,7 +46,7 @@ export function About() {
             className="bg-white rounded-[1.5rem] p-8 border border-border"
           >
             <div className="w-14 h-14 mb-4 rounded-xl bg-orange-100 flex items-center justify-center">
-              <Lightbulb className="w-7 h-7 text-[#F97316]" strokeWidth={1.5} />
+              <Lightbulb className="w-7 h-7 text-primary" strokeWidth={1.5} />
             </div>
             <h2 className="text-2xl font-light text-black mb-4">Our Mission</h2>
             <p className="font-light text-muted-foreground leading-relaxed">
@@ -94,7 +94,7 @@ export function About() {
                 className="bg-white rounded-[1.5rem] p-6 border border-border text-center"
               >
                 <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-gray-100 flex items-center justify-center">
-                  <value.icon className="w-6 h-6 text-[#F97316]" strokeWidth={1.5} />
+                  <value.icon className="w-6 h-6 text-primary" strokeWidth={1.5} />
                 </div>
                 <h3 className="font-medium text-black mb-2">{value.title}</h3>
                 <p className="text-sm font-light text-muted-foreground">{value.desc}</p>
@@ -104,13 +104,13 @@ export function About() {
         </div>
 
         {/* CTA */}
-        <div className="bg-gradient-to-r from-[#F97316] to-[#FB923C] rounded-[1.5rem] p-12 text-center text-white">
+        <div className="kl-gradient-brand rounded-[1.5rem] p-12 text-center text-white">
           <h2 className="text-3xl font-light mb-4">Join the KithLy Family</h2>
           <p className="font-light mb-8 max-w-2xl mx-auto">
             Whether you're sending gifts or building your business, KithLy is here to help you succeed.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-3 bg-white text-[#F97316] rounded-full font-light hover:shadow-lg transition-shadow">
+            <button className="px-8 py-3 bg-white text-primary rounded-full font-light hover:shadow-lg transition-shadow">
               Start Shopping
             </button>
             <button className="px-8 py-3 border-2 border-white text-white rounded-full font-light hover:bg-white/10 transition-colors">

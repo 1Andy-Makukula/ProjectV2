@@ -1,0 +1,337 @@
+// ItemDetail — the considered view for anything that cannot go straight into
+// the cart: booked services, custom-quote work, and discounted or wholesale
+// listings whose terms need stating before the buyer commits.
+
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router';
+import { motion } from 'motion/react';
+import {
+  ArrowLeft,
+  CalendarClock,
+  ConciergeBell,
+  Layers,
+  MapPin,
+  MessageSquare,
+  Package,
+  Shield,
+  ShoppingCart,
+  Store,
+  Timer,
+} from 'lucide-react';
+import { Button } from '../../components/ui/button';
+import { useAuth } from '../../../utils/auth/AuthContext';
+import { useCart, toProduct } from '../../hooks/useCart';
+import { useItemDetail } from '../../hooks/useItemDetail';
+import { supabase } from '../../../lib/supabaseClient';
+import { parseAuthError } from '../../../utils/errorParser';
+import { toast } from 'sonner';
+import {
+  FULFILLMENT_LOCATION_LABELS,
+  discountPercentage,
+  expiryBasis,
+  isService,
+  requiresConversation,
+} from '../../types/items';
+
+function formatZmw(ngwee: number | null | undefined): string {
+  return ngwee != null ? (ngwee / 100).toFixed(2) : '—';
+}
+
+/** A labelled row inside the terms panel. */
+function DetailRow({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: typeof CalendarClock;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex gap-3">
+      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" strokeWidth={1.75} />
+      <div className="min-w-0">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+          {label}
+        </p>
+        <p className="mt-0.5 text-sm text-slate-700">{children}</p>
+      </div>
+    </div>
+  );
+}
+
+export function ItemDetail() {
+  const { itemId } = useParams<{ itemId: string }>();
+  const navigate = useNavigate();
+  const { profile } = useAuth();
+  const { item, loading } = useItemDetail(itemId);
+  const { addToCart, setCartSliderOpen } = useCart();
+  const [startingChat, setStartingChat] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-primary" />
+      </div>
+    );
+  }
+
+  if (!item) {
+    return (
+      <div className="flex min-h-screen items-center justify-center px-6">
+        <div className="max-w-md text-center">
+          <Package className="mx-auto mb-4 h-10 w-10 text-slate-300" strokeWidth={1} />
+          <h2 className="mb-2 text-2xl font-medium">Item not found</h2>
+          <p className="mb-6 text-muted-foreground">
+            This listing is no longer available, or the link has expired.
+          </p>
+          <Button onClick={() => navigate('/')}>Back to storefront</Button>
+        </div>
+      </div>
+    );
+  }
+
+  const service = isService(item);
+  const mustOpenDetail = requiresConversation(item);
+  const discount = discountPercentage(item);
+  const basis = expiryBasis(item);
+
+  const handleGift = () => navigate(profile ? `/send/${item.id}` : '/signup');
+
+  /** Opens (or rejoins) the thread with this shop about this item. */
+  const handleAskForQuote = async () => {
+    if (!profile) {
+      navigate('/signup');
+      return;
+    }
+    if (!item.shop?.id) return;
+
+    setStartingChat(true);
+    try {
+      const { data, error } = await supabase.rpc('start_conversation', {
+        p_shop_id: item.shop.id,
+        p_item_id: item.id,
+        p_subject: item.name,
+      });
+      if (error) throw error;
+      navigate(`/messages?c=${data}`);
+    } catch (err: any) {
+      toast.error(parseAuthError(err));
+    } finally {
+      setStartingChat(false);
+    }
+  };
+
+  const handleAddToCart = () => {
+    if (!profile) {
+      navigate('/signup');
+      return;
+    }
+    addToCart(toProduct({ ...item, shop_id: item.shop?.id ?? '' }));
+    toast.success(`${item.name} added to cart`);
+    setCartSliderOpen(true);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      {/* Header */}
+      <div className="sticky top-0 z-10 border-b bg-white">
+        <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-4 md:px-6">
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-xl font-semibold">{service ? 'Service' : 'Product'} Details</h1>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-4xl px-4 py-6 md:px-6 md:py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8"
+        >
+          {/* ── Image ─────────────────────────────────────────────── */}
+          <div className="relative aspect-square overflow-hidden rounded-2xl border border-slate-100 bg-white">
+            {item.image_url ? (
+              <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100">
+                {service ? (
+                  <ConciergeBell className="h-14 w-14 text-slate-200" strokeWidth={1} />
+                ) : (
+                  <Package className="h-14 w-14 text-slate-200" strokeWidth={1} />
+                )}
+              </div>
+            )}
+
+            {service && (
+              <div className="absolute left-3 top-3 flex items-center gap-1 rounded-full border border-slate-100 bg-white/90 px-2.5 py-1 shadow-sm backdrop-blur-sm">
+                <ConciergeBell className="h-3 w-3 text-slate-500" strokeWidth={2} />
+                <span className="text-[10px] font-bold uppercase tracking-wide text-slate-600">
+                  Service
+                </span>
+              </div>
+            )}
+
+            {discount !== null && (
+              <div className="absolute right-3 top-3 rounded-full bg-orange-600 px-2.5 py-1 shadow-sm">
+                <span className="text-[10px] font-bold uppercase tracking-wide text-white">
+                  {discount}% off
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* ── Summary ───────────────────────────────────────────── */}
+          <div className="flex flex-col">
+            {item.shop?.name && (
+              <button
+                onClick={() => item.shop?.id && navigate(`/shop/${item.shop.id}`)}
+                className="mb-2 flex items-center gap-1.5 self-start text-[11px] font-semibold uppercase tracking-widest text-slate-400 transition-colors hover:text-slate-700"
+              >
+                <Store className="h-3 w-3" strokeWidth={2} />
+                {item.shop.name}
+              </button>
+            )}
+
+            <h2 className="text-2xl font-semibold tracking-tight text-slate-900">{item.name}</h2>
+
+            {item.description && (
+              <p className="mt-2 text-sm leading-relaxed text-slate-500">{item.description}</p>
+            )}
+
+            {/* Price */}
+            <div className="mt-5 flex items-baseline gap-3">
+              <span className="text-3xl font-light tracking-tight text-slate-900">
+                ZMW {formatZmw(item.price_zmw)}
+              </span>
+              {discount !== null && (
+                <span className="text-sm text-slate-400 line-through">
+                  ZMW {formatZmw(item.original_price_zmw)}
+                </span>
+              )}
+            </div>
+
+            {/* Wholesale */}
+            {item.is_wholesale && item.wholesale_price_zmw != null && (
+              <div className="mt-3 flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-3 py-2">
+                <Layers className="h-3.5 w-3.5 shrink-0 text-orange-500" strokeWidth={2} />
+                <p className="text-xs text-slate-600">
+                  <span className="font-semibold text-slate-900">
+                    ZMW {formatZmw(item.wholesale_price_zmw)}
+                  </span>{' '}
+                  per unit on orders of {item.minimum_order_quantity ?? 2} or more
+                </p>
+              </div>
+            )}
+
+            {/* Escrow reassurance */}
+            <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
+              <Shield className="h-3.5 w-3.5 shrink-0 text-orange-500" strokeWidth={2} />
+              Held in escrow until the recipient confirms collection.
+            </div>
+
+            {/* ── CTAs ────────────────────────────────────────────── */}
+            <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+              {/* Quote-first work has no settled price yet, so the conversation
+                  is the primary action rather than a purchase. */}
+              {item.allow_custom_quote ? (
+                <Button
+                  onClick={handleAskForQuote}
+                  disabled={startingChat}
+                  className="flex w-full items-center justify-center gap-2 sm:flex-1"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  {startingChat ? 'Opening…' : 'Request a quote'}
+                </Button>
+              ) : (
+                <Button onClick={handleGift} className="w-full sm:flex-1">
+                  {item.requires_scheduling ? 'Book this' : 'Gift this'}
+                </Button>
+              )}
+
+              {item.allow_custom_quote && (
+                <Button variant="outline" onClick={handleGift} className="w-full sm:flex-1">
+                  {item.requires_scheduling ? 'Book at listed price' : 'Buy at listed price'}
+                </Button>
+              )}
+
+              {!mustOpenDetail && !item.allow_custom_quote && (
+                <Button
+                  variant="outline"
+                  onClick={handleAddToCart}
+                  className="flex w-full items-center justify-center gap-2 sm:flex-1"
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  Add to cart
+                </Button>
+              )}
+            </div>
+
+            {!item.allow_custom_quote && item.shop?.id && (
+              <button
+                onClick={handleAskForQuote}
+                disabled={startingChat}
+                className="mt-3 flex items-center gap-1.5 self-start text-xs font-medium text-slate-500 transition-colors hover:text-slate-900 disabled:opacity-50"
+              >
+                <MessageSquare className="h-3.5 w-3.5" strokeWidth={2} />
+                Message the shop about this
+              </button>
+            )}
+
+            {item.requires_scheduling && (
+              <p className="mt-3 text-xs font-light leading-relaxed text-slate-500">
+                You pay now and the date is agreed with the shop. Your money stays in escrow
+                until the work is done.
+              </p>
+            )}
+          </div>
+        </motion.div>
+
+        {/* ── Terms panel ─────────────────────────────────────────── */}
+        <div className="mt-8 rounded-2xl border border-slate-100 bg-white p-5 sm:p-6">
+          <h3 className="mb-4 text-[11px] font-bold uppercase tracking-widest text-slate-400">
+            What to expect
+          </h3>
+
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            {item.requires_scheduling && (
+              <DetailRow icon={CalendarClock} label="Scheduling">
+                {item.lead_time_days
+                  ? `Book at least ${item.lead_time_days} day${item.lead_time_days === 1 ? '' : 's'} in advance.`
+                  : 'The date is arranged directly with the shop.'}
+              </DetailRow>
+            )}
+
+            {item.fulfillment_location && (
+              <DetailRow icon={MapPin} label="Where">
+                {FULFILLMENT_LOCATION_LABELS[item.fulfillment_location]}
+                {item.shop?.location ? ` — ${item.shop.location}` : ''}
+              </DetailRow>
+            )}
+
+            <DetailRow icon={Timer} label="Validity">
+              {basis === 'none' && 'No expiry — claim it whenever suits.'}
+              {basis === 'purchase_date' &&
+                (item.valid_for_days
+                  ? `Valid for ${item.valid_for_days} days from purchase.`
+                  : 'Standard validity period applies from purchase.')}
+              {basis === 'execution_date' &&
+                (item.valid_for_days
+                  ? `Valid for ${item.valid_for_days} days around the agreed date.`
+                  : 'Stays valid through to the agreed date.')}
+            </DetailRow>
+
+            {item.allow_custom_quote && (
+              <DetailRow icon={MessageSquare} label="Custom work">
+                This shop takes custom requests. Ask for a tailored quote instead of buying at
+                the listed price.
+              </DetailRow>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

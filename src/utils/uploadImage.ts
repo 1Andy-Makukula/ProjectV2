@@ -107,6 +107,68 @@ export async function uploadItemImage(rawFile: File, shopId: string): Promise<Up
 }
 
 /**
+ * Uploads a chat image attachment via the `upload-chat-image` Edge Function.
+ * Authorisation is conversation participancy (buyer, the shop's merchant, or
+ * an admin), checked server-side against `conversation_role_for`.
+ */
+export async function uploadChatImage(rawFile: File, conversationId: string): Promise<UploadImageResult> {
+  let fileToUpload: File;
+
+  try {
+    const options = {
+      maxSizeMB: 0.3,
+      maxWidthOrHeight: 1080,
+      useWebWorker: true,
+      fileType: 'image/webp' as string
+    };
+    const compressedBlob = await imageCompression(rawFile, options);
+    const webpBlob = await convertToWebP(compressedBlob);
+
+    fileToUpload = new File([webpBlob], rawFile.name.replace(/\.[^/.]+$/, "") + ".webp", {
+      type: 'image/webp',
+      lastModified: Date.now()
+    });
+  } catch (err) {
+    console.error('Image compression or WebP conversion failed, falling back to original:', err);
+    fileToUpload = rawFile;
+  }
+
+  const validation = validateImageFile(fileToUpload);
+  if (!validation.ok) {
+    throw new Error(validation.reason);
+  }
+
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.access_token) {
+    throw new Error('You must be signed in to send images.');
+  }
+
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+  const form = new FormData();
+  form.append('file', fileToUpload);
+  form.append('conversation_id', conversationId);
+
+  const response = await fetch(`${supabaseUrl}/functions/v1/upload-chat-image`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      apikey: import.meta.env.VITE_SUPABASE_ANON_KEY as string,
+    },
+    body: form,
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error ?? 'Image upload failed.');
+  }
+
+  return {
+    publicUrl: payload.publicUrl as string,
+    path: payload.path as string,
+  };
+}
+
+/**
  * Uploads a public storefront asset (e.g. logos, covers, banners)
  * with automatic WebP compression.
  */

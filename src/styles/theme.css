@@ -24,6 +24,18 @@
   --primary-tint: #FEF3EE;        /* page background tints, badge backgrounds */
   --primary-tint-mid: #FCE4D8;    /* stronger tint */
 
+  /* ── Storefront modes ─────────────────────────────────────────────────────
+     The storefront wears a different face depending on what the shopper came
+     for. Only these four tokens change between modes; the brand tokens above
+     stay fixed, so switching mode retints the mode-aware surfaces (header,
+     section headings, mode chips) without repainting every button in the app.
+
+     Defaults are the brand itself — that is the neutral "discover" face. */
+  --mode-from: var(--primary);
+  --mode-to: var(--primary-light);
+  --mode-tint: var(--primary-tint);
+  --mode-accent: var(--primary);
+
   /* Neutrals */
   --secondary: #F4F4F5;
   --secondary-foreground: #0D0D0D;
@@ -84,6 +96,39 @@
   --sidebar-ring: rgba(232,70,10,0.35);
 }
 
+/* ── Mode palettes ───────────────────────────────────────────────────────────
+   Applied by the mode store setting data-mode on <html>. Each is a shift in
+   warmth rather than a different hue family, so the app still reads as one
+   brand while the shopper can feel which section they are in. */
+
+:root[data-mode='gifting'] {
+  --mode-from: #F2724B;   /* peach */
+  --mode-to: #F9A487;
+  --mode-tint: #FEF1EC;
+  --mode-accent: #DC5326;
+}
+
+:root[data-mode='experiences'] {
+  --mode-from: #C82E2E;   /* deep red */
+  --mode-to: #E8563F;
+  --mode-tint: #FDEDEC;
+  --mode-accent: #B32424;
+}
+
+:root[data-mode='services'] {
+  --mode-from: #C97A09;   /* amber */
+  --mode-to: #E8A317;
+  --mode-tint: #FDF5E7;
+  --mode-accent: #A96605;
+}
+
+:root[data-mode='shopping'] {
+  --mode-from: #E8460A;   /* utility orange — the brand at its most direct */
+  --mode-to: #FB7A3C;
+  --mode-tint: #FEF3EE;
+  --mode-accent: #C93A08;
+}
+
 /* Dark mode (kept minimal — same structure) */
 .dark {
   --background: #0D0D0D;
@@ -137,6 +182,10 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-tint: var(--primary-tint);
   --color-primary-tint-mid: var(--primary-tint-mid);
+  --color-mode-from: var(--mode-from);
+  --color-mode-to: var(--mode-to);
+  --color-mode-tint: var(--mode-tint);
+  --color-mode-accent: var(--mode-accent);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -266,6 +315,36 @@
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
     color: var(--primary-foreground);
     padding: 1.25rem 1.5rem;
+  }
+
+  /* ── Brand gradient ──────────────────────────────────────────────────────
+     The single definition. Before this existed the app carried three: a
+     hardcoded #F97316 to #FB923C in twenty files, a token-based primary to
+     primary-light, and an orange-to-navy #F97316 to #1E3A8A in the cart. The
+     first two were not even the same orange. */
+  .kl-gradient-brand {
+    background-image: linear-gradient(to right, var(--primary), var(--primary-light));
+  }
+
+  .kl-gradient-brand-br {
+    background-image: linear-gradient(to bottom right, var(--primary), var(--primary-light));
+  }
+
+  /* Text set in the brand gradient — used for totals and the wordmark. */
+  .kl-gradient-brand-text {
+    background-image: linear-gradient(to right, var(--primary), var(--primary-light));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Mode-aware equivalents: same shapes, retinted by the active storefront mode. */
+  .kl-gradient-mode {
+    background-image: linear-gradient(to right, var(--mode-from), var(--mode-to));
+  }
+
+  .kl-gradient-mode-br {
+    background-image: linear-gradient(to bottom right, var(--mode-from), var(--mode-to));
   }
 
   /* Card with KithLy shadow */

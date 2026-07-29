@@ -57,82 +57,48 @@ export function useAdminShops() {
       await loadShops();
     } catch (error: any) {
       console.error('Error toggling shop status:', error);
-      const parsed = parseAuthError(error);
-      toast.error(typeof parsed === 'string' ? parsed : parsed?.message || 'Error toggling shop status');
+      toast.error(parseAuthError(error));
     }
   }, [loadShops]);
 
-  const approveShop = useCallback(async (shopId: string) => {
-    try {
-      const { error } = await supabase
-        .from('shops')
-        .update({ verification_status: 'approved', is_active: true })
-        .eq('id', shopId);
-
-      if (error) throw error;
-
-      // Get shop details to find owner_id
-      const { data: shop } = await supabase
-        .from('shops')
-        .select('owner_id, name')
-        .eq('id', shopId)
-        .single();
-
-      if (shop) {
-        // Send approval notification
-        await supabase.from('notifications').insert({
-          user_id: shop.owner_id,
-          message: `🎉 Your shop "${shop.name}" KYC verification has been approved! It is now active on the platform.`,
-          type: 'success',
-          is_read: false,
-          reference_id: shopId
+  /**
+   * Approval and rejection both go through `review_merchant_verification`,
+   * which applies the status change, the rejection reason, the reviewer stamp
+   * and the merchant's notification in one transaction. Doing it client-side
+   * left shops approved with nobody notified whenever the second call failed.
+   */
+  const reviewShop = useCallback(
+    async (shopId: string, decision: 'approved' | 'rejected', reason?: string) => {
+      try {
+        const { error } = await supabase.rpc('review_merchant_verification', {
+          p_shop_id: shopId,
+          p_decision: decision,
+          p_rejection_reason: reason ?? null,
         });
+
+        if (error) throw error;
+
+        toast.success(decision === 'approved' ? 'Shop approved' : 'Shop rejected');
+        await loadShops();
+        return true;
+      } catch (error: any) {
+        console.error(`Error recording ${decision} decision:`, error);
+        toast.error(parseAuthError(error));
+        return false;
       }
+    },
+    [loadShops],
+  );
 
-      toast.success('Shop approved successfully');
-      await loadShops();
-    } catch (error: any) {
-      console.error('Error approving shop:', error);
-      const parsed = parseAuthError(error);
-      toast.error(typeof parsed === 'string' ? parsed : parsed?.message || 'Failed to approve shop');
-    }
-  }, [loadShops]);
+  const approveShop = useCallback(
+    (shopId: string) => reviewShop(shopId, 'approved'),
+    [reviewShop],
+  );
 
-  const rejectShop = useCallback(async (shopId: string, reason: string) => {
-    try {
-      const { error } = await supabase
-        .from('shops')
-        .update({ verification_status: 'rejected', rejection_reason: reason, is_active: false })
-        .eq('id', shopId);
-
-      if (error) throw error;
-
-      // Get shop details to find owner_id
-      const { data: shop } = await supabase
-        .from('shops')
-        .select('owner_id, name')
-        .eq('id', shopId)
-        .single();
-
-      if (shop) {
-        // Send rejection notification
-        await supabase.from('notifications').insert({
-          user_id: shop.owner_id,
-          message: `⚠️ Your shop "${shop.name}" KYC verification was rejected. Reason: ${reason}`,
-          type: 'rejection',
-          is_read: false,
-          reference_id: shopId
-        });
-      }
-
-      toast.success('Shop rejected successfully');
-      await loadShops();
-    } catch (error: any) {
-      console.error('Error rejecting shop:', error);
-      const parsed = parseAuthError(error);
-      toast.error(typeof parsed === 'string' ? parsed : parsed?.message || 'Failed to reject shop');
-    }
-  }, [loadShops]);
+  const rejectShop = useCallback(
+    (shopId: string, reason: string) => reviewShop(shopId, 'rejected', reason),
+    [reviewShop],
+  );
 
   useEffect(() => {
     loadShops();

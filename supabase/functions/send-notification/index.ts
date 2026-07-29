@@ -20,9 +20,14 @@ import { getCorsHeaders, jsonWithCors } from "../_shared/cors.ts";
 interface NotificationPayload {
   recipient_name: string;
   recipient_phone: string;
-  sender_name: string;
-  shop_name: string;
-  claim_code: string;
+  // Gift-claim template fields — required unless `message` is provided instead.
+  sender_name?: string;
+  shop_name?: string;
+  claim_code?: string;
+  // Generic override — when set, this is sent verbatim instead of composing
+  // the gift-claim template, so other flows (e.g. expiry reminders) can reuse
+  // this function's Twilio/WhatsApp plumbing without pretending to be a gift.
+  message?: string;
 }
 
 Deno.serve(async (req: Request): Promise<Response> => {
@@ -39,6 +44,23 @@ Deno.serve(async (req: Request): Promise<Response> => {
     );
   }
 
+  // This function used to accept any caller with no check at all — anyone who
+  // found the URL could send arbitrary WhatsApp messages through KithLy's
+  // Twilio account. Every real caller (verify-payment, flutterwave-webhook,
+  // and now the expiry-reminder dispatch) already invokes it with the service
+  // role key, so this costs those callers nothing.
+  const authHeader = req.headers.get("Authorization");
+  const incomingSecret =
+    req.headers.get("x-notify-secret") ||
+    (authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null);
+  const expectedSecret =
+    Deno.env.get("SEND_NOTIFICATION_SECRET") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+  if (expectedSecret && incomingSecret !== expectedSecret) {
+    console.error("[send-notification] Unauthorized notification request.");
+    return jsonWithCors(req, { error: "Unauthorized." }, 401);
+  }
+
   try {
     if (!Deno.env.get('TWILIO_ACCOUNT_SID')) throw new Error('Missing TWILIO_ACCOUNT_SID');
     if (!Deno.env.get('TWILIO_AUTH_TOKEN')) throw new Error('Missing TWILIO_AUTH_TOKEN');
@@ -52,12 +74,26 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return jsonWithCors(req, { error: "Request body must be valid JSON." }, 400);
     }
 
-    const { recipient_name, recipient_phone, sender_name, shop_name, claim_code } = payload;
+    const { recipient_name, recipient_phone, sender_name, shop_name, claim_code, message } = payload;
 
-    if (!recipient_name || !recipient_phone || !sender_name || !shop_name || !claim_code) {
+    if (!recipient_name || !recipient_phone) {
       return jsonWithCors(
         req,
-        { error: "Missing required fields: recipient_name, recipient_phone, sender_name, shop_name, claim_code are all required." },
+        { error: "recipient_name and recipient_phone are required." },
+        400,
+      );
+    }
+
+    const hasClaimTemplate = Boolean(sender_name && shop_name && claim_code);
+    const hasGenericMessage = Boolean(message && message.trim());
+
+    if (!hasClaimTemplate && !hasGenericMessage) {
+      return jsonWithCors(
+        req,
+        {
+          error:
+            "Either sender_name, shop_name and claim_code (gift-claim notification), or message (generic notification), is required.",
+        },
         400,
       );
     }
@@ -91,7 +127,9 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     // 3. Resolve app/production URL and construct message body
     const appUrl = (Deno.env.get("APP_URL") ?? "https://project-h48n1.vercel.app").replace(/\/$/, "");
-    const bodyMessage = `Hi ${recipient_name}! 🎉 ${sender_name} has bought you a gift bundle waiting at ${shop_name}. \n\nYour Master Claim Code is: *${claim_code}*\n\nClick here to unwrap your gift and see your QR code: ${appUrl}/gift/${claim_code} \n\n- Powered by KithLy`;
+    const bodyMessage = hasGenericMessage
+      ? message!.trim()
+      : `Hi ${recipient_name}! ${sender_name} has bought you a gift bundle waiting at ${shop_name}. \n\nYour Master Claim Code is: *${claim_code}*\n\nClick here to unwrap your gift and see your QR code: ${appUrl}/gift/${claim_code} \n\n- Powered by KithLy`;
 
     console.log(`[send-notification] Dispatching WhatsApp notification to: ${formattedPhone}`);
 

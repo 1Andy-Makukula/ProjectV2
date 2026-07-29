@@ -74,7 +74,7 @@ Flutterwave `tx_ref` is set to `transaction_id` (UUID) in `checkout-init`.
 
 | Variable | Used by |
 |----------|---------|
-| `APP_URL` | `checkout-init`, `server` — Flutterwave redirect target |
+| `APP_URL` | `checkout-init`, `checkout-retry` — Flutterwave redirect target |
 | `FLUTTERWAVE_SECRET_KEY` | Payment init / verify |
 | `FLUTTERWAVE_WEBHOOK_SECRET` | Webhook signature |
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | All privileged functions |

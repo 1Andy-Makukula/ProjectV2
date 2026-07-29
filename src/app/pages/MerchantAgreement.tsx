@@ -7,7 +7,7 @@ export function MerchantAgreement() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 md:px-6 py-16 max-w-4xl">
         <div className="text-center mb-12">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#F97316] to-[#FB923C] flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl kl-gradient-brand-br flex items-center justify-center">
             <Handshake className="w-8 h-8 text-white" strokeWidth={1.5} />
           </div>
           <h1 className="text-3xl font-light text-black mb-2">Merchant Agreement</h1>

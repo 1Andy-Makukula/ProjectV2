@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { callServer } from '../../utils/server';
+import { invokeFunction } from '../../utils/edgeFunction';
 import { Order } from '../types/orders';
 import { deriveStatus } from '../../utils/orderStatus';
 import { toast } from 'sonner';
@@ -86,7 +86,9 @@ export function useAdminOrders() {
       setActionOrderId(order.transaction_id);
 
       if (newStatus === 'paid') {
-        await callServer(`/orders/${order.transaction_id}/confirm-payment`);
+        await invokeFunction('admin-confirm-payment', {
+          transaction_id: order.transaction_id,
+        });
       } else {
         const { error: txError } = await supabase
           .from('transactions')

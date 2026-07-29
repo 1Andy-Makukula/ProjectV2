@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { parseAuthError } from '../../utils/errorParser';
 import { toast } from 'sonner';
+import type { CatalogItem } from '../types/items';
 
 export interface Shop {
   id: string;
@@ -13,13 +14,10 @@ export interface Shop {
   cover_image_url: string | null;
 }
 
-export interface Item {
-  id: string;
-  name: string;
-  description: string | null;
-  price_zmw: number;
+// The catalogue fields (service, discount, wholesale) come from CatalogItem so
+// this list stays in step with the rest of the storefront.
+export interface Item extends CatalogItem {
   currency: string;
-  image_url: string | null;
   is_available: boolean;
 }
 
@@ -45,6 +43,7 @@ export function useShopDetail(shopId: string | undefined) {
             .from('items')
             .select('*')
             .eq('shop_id', shopId)
+            .eq('is_quote_only', false)
             .order('created_at', { ascending: false })
         ]);
 
@@ -55,7 +54,7 @@ export function useShopDetail(shopId: string | undefined) {
         setItems(itemsResponse.data || []);
       } catch (error: any) {
         console.error('[useShopDetail] Error fetching shop details:', error);
-        toast.error(parseAuthError(error).message);
+        toast.error(parseAuthError(error));
       } finally {
         setLoading(false);
       }

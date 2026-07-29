@@ -1,11 +1,16 @@
 import { useParams, useNavigate } from 'react-router';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
-import { ArrowLeft, Store, MapPin, ShoppingCart, Gift } from 'lucide-react';
+import { ArrowLeft, Store, MapPin, ShoppingCart, Gift, ConciergeBell } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useCart, toProduct } from '../../hooks/useCart';
 import { useShopDetail } from '../../hooks/useShopDetail';
 import { toast } from 'sonner';
+import { discountPercentage, isService, requiresConversation } from '../../types/items';
+
+/** Services and quote-first listings need their terms shown before purchase. */
+const opensDetail = (item: Parameters<typeof isService>[0] & Parameters<typeof requiresConversation>[0]) =>
+  isService(item) || requiresConversation(item);
 
 export function ShopDetail() {
   const { shopId } = useParams<{ shopId: string }>();
@@ -168,33 +173,56 @@ export function ShopDetail() {
                       </div>
 
                       <div className="flex items-center justify-between">
-                        <span className="text-lg font-bold text-primary">
-                          ZMW {item.price_zmw != null ? (item.price_zmw / 100).toFixed(2) : '—'}
-                        </span>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-lg font-bold text-primary">
+                            ZMW {item.price_zmw != null ? (item.price_zmw / 100).toFixed(2) : '—'}
+                          </span>
+                          {discountPercentage(item) !== null && item.original_price_zmw != null && (
+                            <span className="text-xs text-muted-foreground line-through">
+                              ZMW {(item.original_price_zmw / 100).toFixed(2)}
+                            </span>
+                          )}
+                        </div>
                         <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              addToCart(toProduct(item));
-                              toast.success(`${item.name} added to cart`);
-                              setCartSliderOpen(true);
-                            }}
-                            disabled={!item.is_available}
-                            className="border-orange-200 text-orange-600 hover:bg-orange-50"
-                          >
-                            <ShoppingCart className="w-4 h-4 mr-1" />
-                            Add
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => navigate(`/send/${item.id}`)}
-                            disabled={!item.is_available}
-                            className="bg-gradient-to-r from-primary to-primary-light"
-                          >
-                            <Gift className="w-4 h-4 mr-1" />
-                            Gift
-                          </Button>
+                          {/* Services carry terms the card cannot show, so they
+                              open their detail view rather than the cart. */}
+                          {opensDetail(item) ? (
+                            <Button
+                              size="sm"
+                              onClick={() => navigate(`/item/${item.id}`)}
+                              disabled={!item.is_available}
+                              className="kl-gradient-brand"
+                            >
+                              <ConciergeBell className="w-4 h-4 mr-1" />
+                              {item.requires_scheduling ? 'Book' : 'View'}
+                            </Button>
+                          ) : (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  addToCart(toProduct(item));
+                                  toast.success(`${item.name} added to cart`);
+                                  setCartSliderOpen(true);
+                                }}
+                                disabled={!item.is_available}
+                                className="border-orange-200 text-orange-600 hover:bg-orange-50"
+                              >
+                                <ShoppingCart className="w-4 h-4 mr-1" />
+                                Add
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => navigate(`/send/${item.id}`)}
+                                disabled={!item.is_available}
+                                className="kl-gradient-brand"
+                              >
+                                <Gift className="w-4 h-4 mr-1" />
+                                Gift
+                              </Button>
+                            </>
+                          )}
                         </div>
                       </div>
                     </div>

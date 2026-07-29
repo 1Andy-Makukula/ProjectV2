@@ -211,7 +211,7 @@ export function CustomerDashboard() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">
+              <h1 className="text-xl font-bold kl-gradient-brand bg-clip-text text-transparent">
                 Impact Dashboard
               </h1>
               <p className="text-xs text-muted-foreground">
@@ -333,7 +333,7 @@ export function CustomerDashboard() {
               onClick={() => setActivePanel(panel)}
               className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 min-h-[44px] ${
                 activePanel === panel
-                  ? 'bg-gradient-to-r from-primary to-primary-light text-white shadow-sm'
+                  ? 'kl-gradient-brand text-white shadow-sm'
                   : 'text-slate-500 hover:text-slate-800'
               }`}
             >

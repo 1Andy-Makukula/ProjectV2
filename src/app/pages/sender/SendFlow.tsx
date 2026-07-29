@@ -9,7 +9,9 @@ import { ArrowLeft, Store, Shield } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PaymentProcessingScreen } from '../../components/checkout/PaymentProcessingScreen';
 import { formatZMW } from '../../utils/formatters';
-import { useSendFlow } from '../../hooks/useSendFlow';
+import { useSendFlow, minSchedulableDateTime } from '../../hooks/useSendFlow';
+import { usePlatformPricing } from '../../hooks/usePlatformPricing';
+import { feePercentFor, serviceFeeFor, CHECKOUT_ORIGIN } from '../../../utils/pricing';
 
 const fadeUp: any = {
   hidden:  { opacity: 0, y: 20 },
@@ -34,10 +36,14 @@ export function SendFlow() {
     errorMsg,
     senderPhone,
     setSenderPhone,
+    targetExecutionDate,
+    setTargetExecutionDate,
     handlePay,
     resetFlow,
     profile,
   } = useSendFlow(itemId);
+
+  const { rates } = usePlatformPricing();
 
   const handlePhoneChange = useCallback((value: string) => {
     setFormData(prev => ({ ...prev, recipientPhone: value }));
@@ -97,6 +103,12 @@ export function SendFlow() {
   }
 
   const messageCharsRemaining = 200 - formData.message.length;
+
+  // The server adds the same fee at checkout_init_atomic, so it has to be
+  // visible here — the buyer must never be charged more than this screen
+  // showed them (mirrors Checkout.tsx's fee breakdown).
+  const serviceFee = serviceFeeFor(item.price_zmw, CHECKOUT_ORIGIN, rates);
+  const grossPayable = item.price_zmw + serviceFee;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -227,6 +239,36 @@ export function SendFlow() {
                     </p>
                   </div>
 
+                  {/* Scheduled date — only for bookable services */}
+                  {item.requires_scheduling && (
+                    <div>
+                      <label
+                        htmlFor="targetExecutionDate"
+                        className="block text-sm font-medium mb-2"
+                      >
+                        Preferred Date &amp; Time <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        id="targetExecutionDate"
+                        type="datetime-local"
+                        value={targetExecutionDate}
+                        min={minSchedulableDateTime(item.lead_time_days)}
+                        onChange={(e) => setTargetExecutionDate(e.target.value)}
+                        aria-invalid={!!errors.targetExecutionDate}
+                      />
+                      {errors.targetExecutionDate && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {errors.targetExecutionDate}
+                        </p>
+                      )}
+                      <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                        {item.lead_time_days
+                          ? `This shop needs at least ${item.lead_time_days} day${item.lead_time_days === 1 ? '' : 's'} notice. The shop may follow up to confirm details.`
+                          : 'The shop may follow up to confirm details.'}
+                      </p>
+                    </div>
+                  )}
+
                   {/* Message */}
                   <div>
                     <label
@@ -297,15 +339,44 @@ export function SendFlow() {
                 </CardContent>
               </Card>
 
+              {/* Order total */}
+              <div className="rounded-2xl bg-white border border-slate-100 px-5 py-5 flex flex-col gap-2 shadow-sm">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-slate-500 font-medium">Item price</span>
+                  <span className="font-semibold text-slate-800">
+                    {formatZMW(item.price_zmw)}
+                  </span>
+                </div>
+                {serviceFee > 0 && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-500 font-medium">
+                      Service fee
+                      <span className="ml-1 text-xs font-normal text-slate-400">
+                        ({feePercentFor(CHECKOUT_ORIGIN, rates)}%)
+                      </span>
+                    </span>
+                    <span className="font-semibold text-slate-800">
+                      {formatZMW(serviceFee)}
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between text-sm pt-2.5 border-t border-slate-100 mt-1">
+                  <span className="text-slate-900 font-bold">Total payable</span>
+                  <span className="text-lg font-bold kl-gradient-brand-text">
+                    {formatZMW(grossPayable)}
+                  </span>
+                </div>
+              </div>
+
               {/* Pay Button */}
               <motion.div
                 whileTap={{ scale: 0.98 }}
               >
                 <Button
                   onClick={handlePay}
-                  className="w-full h-14 text-base font-semibold rounded-2xl bg-gradient-to-r from-[#F97316] to-[#FB923C] hover:from-[#ea6c0a] hover:to-[#f58220] text-white shadow-lg shadow-orange-200 border-0"
+                  className="w-full h-14 text-base font-semibold rounded-2xl kl-gradient-brand hover:from-[#ea6c0a] hover:to-[#f58220] text-white shadow-lg shadow-orange-200 border-0"
                 >
-                  Pay {formatZMW(item.price_zmw)}
+                  Pay {formatZMW(grossPayable)}
                 </Button>
               </motion.div>
             </div>
@@ -342,7 +413,7 @@ function SecuringEscrowView() {
           />
           {/* Core shield */}
           <motion.div
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#F97316] to-[#FB923C] shadow-lg shadow-orange-200"
+            className="flex h-12 w-12 items-center justify-center rounded-full kl-gradient-brand-br shadow-lg shadow-orange-200"
             animate={{ scale: [1, 0.95, 1] }}
             transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.15 }}
           >
