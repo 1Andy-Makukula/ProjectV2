@@ -13,6 +13,8 @@ export interface Item {
   image_url: string | null;
   shop_id: string;
   is_available: boolean;
+  requires_scheduling: boolean;
+  lead_time_days: number | null;
 }
 
 export interface Shop {
@@ -47,6 +49,17 @@ export interface CheckoutInitResponse {
   payment_link: string;
 }
 
+/** Earliest bookable datetime-local string, honouring the item's lead time. */
+export function minSchedulableDateTime(leadTimeDays: number | null): string {
+  const min = new Date();
+  min.setDate(min.getDate() + (leadTimeDays ?? 0));
+  min.setSeconds(0, 0);
+  // toISOString() is UTC; datetime-local inputs want local wall-clock time
+  // with no timezone suffix, so build it from local getters instead.
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${min.getFullYear()}-${pad(min.getMonth() + 1)}-${pad(min.getDate())}T${pad(min.getHours())}:${pad(min.getMinutes())}`;
+}
+
 export function useSendFlow(itemId: string | undefined) {
   const { profile } = useAuth();
   const isSubmittingRef = useRef(false);
@@ -61,12 +74,17 @@ export function useSendFlow(itemId: string | undefined) {
     message: '',
   });
 
-  const [errors, setErrors] = useState<Partial<SendFlowFormData & { senderPhone?: string }>>({});
+  const [errors, setErrors] = useState<
+    Partial<SendFlowFormData & { senderPhone?: string; targetExecutionDate?: string }>
+  >({});
   const [stage, setStage] = useState<CheckoutStage>('FORM');
   const [transactionId, setTransactionId] = useState<string | null>(null);
   const [shopOrders, setShopOrders] = useState<ShopOrderResult[]>([]);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [senderPhone, setSenderPhone] = useState(profile?.phone ?? '+260');
+  // datetime-local string (e.g. "2026-08-05T14:00"); only meaningful when
+  // item.requires_scheduling is true.
+  const [targetExecutionDate, setTargetExecutionDate] = useState('');
 
   useEffect(() => {
     if (profile?.phone) {
@@ -102,10 +120,20 @@ export function useSendFlow(itemId: string | undefined) {
   }, [itemId]);
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<SendFlowFormData & { senderPhone?: string }> = {};
+    const newErrors: Partial<SendFlowFormData & { senderPhone?: string; targetExecutionDate?: string }> = {};
 
     if (!formData.recipientName.trim()) {
       newErrors.recipientName = 'Recipient name is required';
+    }
+
+    if (item?.requires_scheduling) {
+      if (!targetExecutionDate) {
+        newErrors.targetExecutionDate = 'Please choose a date and time';
+      } else if (new Date(targetExecutionDate) < new Date(minSchedulableDateTime(item.lead_time_days))) {
+        newErrors.targetExecutionDate = item.lead_time_days
+          ? `This shop needs at least ${item.lead_time_days} ${item.lead_time_days === 1 ? "day's" : "days'"} notice`
+          : 'Please choose a time in the future';
+      }
     }
 
     if (!formData.recipientPhone.trim()) {
@@ -165,7 +193,10 @@ export function useSendFlow(itemId: string | undefined) {
         recipient_name: formData.recipientName.trim(),
         recipient_phone: formattedRecipient,
         message: formData.message.trim(),
-        sender_phone: formattedSender
+        sender_phone: formattedSender,
+        ...(item.requires_scheduling && targetExecutionDate
+          ? { target_execution_date: new Date(targetExecutionDate).toISOString() }
+          : {}),
       };
 
       const { data, error } = await supabase.functions.invoke<CheckoutInitResponse>(
@@ -225,6 +256,8 @@ export function useSendFlow(itemId: string | undefined) {
     errorMsg,
     senderPhone,
     setSenderPhone,
+    targetExecutionDate,
+    setTargetExecutionDate,
     handlePay,
     resetFlow,
     profile,
