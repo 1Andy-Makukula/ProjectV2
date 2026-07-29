@@ -303,7 +303,14 @@ GRANT EXECUTE ON FUNCTION public.checkout_init_atomic(UUID, TEXT, TEXT, JSONB, T
 --
 -- Replaces the blanket 30-day full refund. Items that opted out of expiry are
 -- skipped entirely, and orders already settled or under dispute are left alone.
+--
+-- 20260606000000_expiration_protocol.sql declared this RETURNS VOID; it now
+-- returns a count. CREATE OR REPLACE cannot change a function's return type,
+-- so the old signature has to be dropped first or this migration fails with
+-- 42P13 against any database that ran the earlier one.
 -- ---------------------------------------------------------------------------
+DROP FUNCTION IF EXISTS public.process_expired_vouchers();
+
 CREATE OR REPLACE FUNCTION public.process_expired_vouchers()
 RETURNS integer
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = public
