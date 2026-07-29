@@ -132,19 +132,37 @@ export function useAdminMerchants() {
   const saveShopAssignment = useCallback(async (merchantId: string, shopId: string) => {
     setSaving(true);
     try {
-      // Remove old assignment
-      const { error: deleteError } = await supabase
+      // Remove this merchant's own existing assignment, if any.
+      const { error: deleteOwnError } = await supabase
         .from('merchant_shops')
         .delete()
         .eq('user_id', merchantId);
-      if (deleteError) throw deleteError;
+      if (deleteOwnError) throw deleteOwnError;
 
       if (shopId && shopId !== 'unassigned') {
+        // A shop can only have one assigned merchant: settlement/withdrawal
+        // resolution picks the earliest merchant_shops row for a shop, so a
+        // stale assignment left behind by a previous merchant would make
+        // this new assignment silently not count for money purposes even
+        // though the UI shows it as current.
+        const { error: deleteStaleError } = await supabase
+          .from('merchant_shops')
+          .delete()
+          .eq('shop_id', shopId);
+        if (deleteStaleError) throw deleteStaleError;
+
         const { error } = await supabase
           .from('merchant_shops')
           .insert({ user_id: merchantId, shop_id: shopId });
         if (error) throw error;
       }
+
+      await supabase.rpc('log_admin_action', {
+        p_action: 'merchant.shop_assignment_changed',
+        p_target_type: 'user',
+        p_target_id: merchantId,
+        p_payload: { shop_id: shopId },
+      });
 
       toast.success('Shop assignment updated');
       await loadData();
@@ -202,6 +220,13 @@ export function useAdminMerchants() {
         .update({ role: 'sender' })
         .eq('id', merchantId);
       if (error) throw error;
+
+      await supabase.rpc('log_admin_action', {
+        p_action: 'merchant.access_removed',
+        p_target_type: 'user',
+        p_target_id: merchantId,
+      });
+
       toast.success(`${name} removed as merchant`);
       await loadData();
       return true;

@@ -53,6 +53,12 @@ export function useAdminShops() {
 
       if (error) throw error;
 
+      await supabase.rpc('log_admin_action', {
+        p_action: !currentStatus ? 'shop.activated' : 'shop.deactivated',
+        p_target_type: 'shop',
+        p_target_id: shopId,
+      });
+
       toast.success(`Shop ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
       await loadShops();
     } catch (error: any) {

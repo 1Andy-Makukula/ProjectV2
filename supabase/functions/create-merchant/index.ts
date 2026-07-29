@@ -125,6 +125,17 @@ Deno.serve(async (req: Request): Promise<Response> => {
       console.error(`[${FN}] owner_id backfill failed for shop ${shopId}:`, ownerBackfillError.message);
     }
 
+    const { error: auditError } = await adminClient.rpc("log_admin_action", {
+      p_action: "merchant.create",
+      p_target_type: "user",
+      p_target_id: merchantUserId,
+      p_payload: { shop_id: shopId, email },
+      p_actor_id: admin.id,
+    });
+    if (auditError) {
+      console.error(`[${FN}] Audit log write failed (non-fatal):`, auditError.message);
+    }
+
     console.log(`[${FN}] Admin ${admin.id} created merchant ${merchantUserId} for shop ${shopId}.`);
 
     return jsonWithCors(req, {
