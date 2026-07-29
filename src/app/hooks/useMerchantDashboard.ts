@@ -240,7 +240,7 @@ export function useMerchantDashboard(profileId?: string) {
       .subscribe();
 
     return () => {
-      subscription.unsubscribe();
+      supabase.removeChannel(subscription);
     };
   }, [shopId, fetchOrders, fetchAnalytics, fetchLedger]);
 

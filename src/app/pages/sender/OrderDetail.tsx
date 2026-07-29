@@ -3,7 +3,6 @@ import { useNavigate, useParams } from 'react-router';
 import { motion } from 'motion/react';
 import { supabase } from '../../../lib/supabaseClient';
 import { TelemetryTimeline } from '../../components/shared/TelemetryTimeline';
-import { useAuth } from '../../../utils/auth/AuthContext';
 import { formatCurrency } from '../../../utils/currency';
 import { getGiftPageUrl } from '../../../utils/whatsapp';
 import { Button } from '../../components/ui/button';
@@ -142,7 +141,6 @@ function SkeletonDetail() {
 export function OrderDetail() {
   const { orderId } = useParams<{ orderId: string }>(); // orderId == transaction_id in V2
   const navigate = useNavigate();
-  const { profile } = useAuth();
 
   const [transaction, setTransaction] = useState<TransactionDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -277,8 +275,8 @@ export function OrderDetail() {
       .subscribe();
 
     return () => {
-      subscription.unsubscribe();
-      eventsSub.unsubscribe();
+      supabase.removeChannel(subscription);
+      supabase.removeChannel(eventsSub);
     };
   }, [orderId]);
 
