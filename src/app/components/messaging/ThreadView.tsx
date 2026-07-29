@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, Send, FileText, MessageSquare, Store, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Send, FileText, MessageSquare, Store, ShieldCheck, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useConversation } from '../../hooks/useConversation';
 import { MessageBubble } from './MessageBubble';
 import { QuotationBuilder } from './QuotationBuilder';
@@ -16,11 +17,21 @@ interface ThreadViewProps {
 }
 
 export function ThreadView({ conversationId, viewerRole, onBack }: ThreadViewProps) {
-  const { conversation, messages, loading, sending, userId, sendMessage, refreshQuotation } =
-    useConversation(conversationId);
+  const {
+    conversation,
+    messages,
+    loading,
+    sending,
+    uploadingImage,
+    userId,
+    sendMessage,
+    sendImageMessage,
+    refreshQuotation,
+  } = useConversation(conversationId);
   const [draft, setDraft] = useState('');
   const [builderOpen, setBuilderOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -68,6 +79,17 @@ export function ThreadView({ conversationId, viewerRole, onBack }: ThreadViewPro
     setDraft('');
     const ok = await sendMessage(body);
     if (!ok) setDraft(body);
+  };
+
+  const handleImageSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please choose an image file.');
+      return;
+    }
+    await sendImageMessage(file);
   };
 
   let lastDay = '';
@@ -178,6 +200,27 @@ export function ThreadView({ conversationId, viewerRole, onBack }: ThreadViewPro
       ) : (
         <div className="border-t border-slate-100 bg-white px-4 py-3">
           <div className="flex items-end gap-2">
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageSelected}
+            />
+            <button
+              onClick={() => imageInputRef.current?.click()}
+              disabled={uploadingImage}
+              className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border border-slate-200 text-slate-500
+                         transition-all duration-200 hover:bg-slate-50 active:scale-[0.97]
+                         disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Attach an image"
+            >
+              {uploadingImage ? (
+                <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
+              ) : (
+                <ImageIcon className="h-4 w-4" strokeWidth={2} />
+              )}
+            </button>
             <textarea
               value={draft}
               onChange={(e) => setDraft(e.target.value)}

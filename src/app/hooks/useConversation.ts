@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../utils/auth/AuthContext';
 import { toast } from 'sonner';
 import { parseAuthError } from '../../utils/errorParser';
+import { uploadChatImage } from '../../utils/uploadImage';
 import type { Conversation, Message, Quotation } from '../types/messaging';
 
 const MESSAGE_SELECT = `
@@ -23,6 +24,7 @@ export function useConversation(conversationId?: string) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const userId = profile?.id;
 
   const seen = useRef<Set<string>>(new Set());
@@ -143,6 +145,30 @@ export function useConversation(conversationId?: string) {
     [conversationId],
   );
 
+  const sendImageMessage = useCallback(
+    async (file: File) => {
+      if (!conversationId) return false;
+      setUploadingImage(true);
+      try {
+        const { publicUrl } = await uploadChatImage(file, conversationId);
+        const { error } = await supabase.rpc('send_message', {
+          p_conversation_id: conversationId,
+          p_message_type: 'image',
+          p_image_url: publicUrl,
+        });
+        if (error) throw error;
+        return true;
+      } catch (err: any) {
+        console.error('[useConversation] Failed to send image:', err);
+        toast.error(parseAuthError(err));
+        return false;
+      } finally {
+        setUploadingImage(false);
+      }
+    },
+    [conversationId],
+  );
+
   const refreshQuotation = useCallback((updated: Quotation) => {
     setMessages((prev) =>
       prev.map((m) =>
@@ -156,8 +182,10 @@ export function useConversation(conversationId?: string) {
     messages,
     loading,
     sending,
+    uploadingImage,
     userId,
     sendMessage,
+    sendImageMessage,
     refreshQuotation,
     reload: load,
   };
