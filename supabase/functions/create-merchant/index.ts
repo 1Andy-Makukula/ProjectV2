@@ -112,6 +112,19 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return jsonWithCors(req, { error: "Failed to assign merchant to shop." }, 500);
     }
 
+    // merchant_shops (just written above) is the source of truth money
+    // resolves against (see resolve_shop_merchant_user_id). This backfill is
+    // not fatal if it fails -- it only keeps shops.owner_id, an identity/
+    // display column, in sync with who actually holds the shop.
+    const { error: ownerBackfillError } = await adminClient
+      .from("shops")
+      .update({ owner_id: merchantUserId })
+      .eq("id", shopId);
+
+    if (ownerBackfillError) {
+      console.error(`[${FN}] owner_id backfill failed for shop ${shopId}:`, ownerBackfillError.message);
+    }
+
     console.log(`[${FN}] Admin ${admin.id} created merchant ${merchantUserId} for shop ${shopId}.`);
 
     return jsonWithCors(req, {

@@ -128,6 +128,12 @@ export function useAdminShopForm(shopId?: string) {
       const coverUrl = await uploadPublicAsset(coverImageFile, formData.cover_image_url, 'shop-covers');
       setUploading(false);
 
+      // owner_id is what shop settlement/withdrawals actually pay out
+      // against (see resolve_shop_merchant_user_id) — it must only ever be
+      // set once, when a shop is first created, never touched on an edit.
+      // This payload used to include owner_id: user.id unconditionally,
+      // which meant any admin editing any existing shop silently
+      // reassigned that shop's real financial ownership to themselves.
       const shopPayload = {
         name: formData.name,
         location: formData.location,
@@ -139,7 +145,6 @@ export function useAdminShopForm(shopId?: string) {
         payout_bank_name: formData.payout_method === 'bank' ? formData.payout_bank_name : null,
         payout_account_name: formData.payout_account_name,
         is_active: formData.is_active,
-        owner_id: user.id,
       };
 
       if (isEditing && shopId) {
@@ -153,7 +158,7 @@ export function useAdminShopForm(shopId?: string) {
       } else {
         const { data: newShop, error } = await supabase
           .from('shops')
-          .insert([shopPayload])
+          .insert([{ ...shopPayload, owner_id: user.id }])
           .select('id')
           .single();
 
