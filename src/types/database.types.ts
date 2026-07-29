@@ -451,6 +451,8 @@ export type Database = {
           logo_url: string | null
           name: string
           owner_id: string
+          payout_account_name: string | null
+          payout_bank_name: string | null
           payout_details: string | null
           payout_method: string | null
         }
@@ -466,6 +468,8 @@ export type Database = {
           logo_url?: string | null
           name: string
           owner_id: string
+          payout_account_name?: string | null
+          payout_bank_name?: string | null
           payout_details?: string | null
           payout_method?: string | null
         }
@@ -481,6 +485,8 @@ export type Database = {
           logo_url?: string | null
           name?: string
           owner_id?: string
+          payout_account_name?: string | null
+          payout_bank_name?: string | null
           payout_details?: string | null
           payout_method?: string | null
         }

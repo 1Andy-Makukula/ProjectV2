@@ -10,6 +10,8 @@ export interface Shop {
   item_count?: number;
   payout_method?: string | null;
   payout_details?: any;
+  payout_bank_name?: string | null;
+  payout_account_name?: string | null;
   created_at?: string;
 
   /** What the shop declared at onboarding — gates the item types it can list. */

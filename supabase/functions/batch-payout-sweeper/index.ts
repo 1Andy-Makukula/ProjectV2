@@ -21,6 +21,14 @@
  *
  * A failed transfer reverses the wallet debit through `fail_withdrawal`.
  * Leaving it debited would take the merchant's money and deliver nothing.
+ *
+ *   - No guessed routing codes. `claim_withdrawal_batch` resolves each
+ *     withdrawal's payout method against `payout_bank_codes`, which starts
+ *     every destination — mobile money included — as unverified (see
+ *     20260729000000_payout_bank_verification.sql). This function refuses to
+ *     dispatch a transfer unless that lookup came back verified, and fails
+ *     the withdrawal (refunding the merchant) instead of risking a silent
+ *     misroute on an unconfirmed code.
  */
 
 import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
@@ -39,6 +47,10 @@ interface ClaimedWithdrawal {
   amount: number;
   payout_method: string | null;
   payout_details: string | null;
+  payout_account_name: string | null;
+  bank_category: string | null;
+  flutterwave_code: string | null;
+  is_verified: boolean;
 }
 
 function json(data: unknown, status = 200): Response {
@@ -63,19 +75,10 @@ function getAdminClient() {
   });
 }
 
-/** Maps a stored payout method to the code Flutterwave expects. */
-function resolveBankCode(payoutMethod: string): string {
-  const method = payoutMethod.toLowerCase().trim();
-  if (method.includes("airtel")) return "ATL";
-  if (method.includes("mtn")) return "MTN";
-  if (method.includes("zamtel")) return "ZMT";
-  return payoutMethod;
-}
-
 /** Mobile money numbers are normalised to 260XXXXXXXXX. */
-function normaliseAccount(bankCode: string, rawDetails: string): string {
+function normaliseAccount(category: string | null, rawDetails: string): string {
   const account = rawDetails.trim();
-  if (!["ATL", "MTN", "ZMT"].includes(bankCode)) return account;
+  if (category !== "mobile_money") return account;
 
   const digits = account.replace(/\D/g, "");
   return digits.length >= 9 ? `260${digits.slice(-9)}` : account;
@@ -158,14 +161,38 @@ Deno.serve(async (req: Request): Promise<Response> => {
         continue;
       }
 
-      const bankCode = resolveBankCode(w.payout_method);
-      const accountNumber = normaliseAccount(bankCode, w.payout_details);
+      // claim_withdrawal_batch resolves payout_method/payout_bank_name against
+      // payout_bank_codes. Nothing dispatches on a guessed code: every row in
+      // that table starts unverified (see 20260729000000_payout_bank_verification.sql
+      // for why — Flutterwave's own documented bank-list endpoint does not
+      // cover Zambia, so there was never a way to look these up). A human has
+      // to confirm the real code against a live Flutterwave account and flip
+      // is_verified before this shop can be paid automatically.
+      if (!w.is_verified || !w.flutterwave_code) {
+        const reason = w.bank_category
+          ? `Payout method '${w.payout_method}' is not yet verified for automated transfer. An admin needs to confirm the real Flutterwave routing code before this can be paid out.`
+          : `Payout destination for '${w.payout_method}' is not recognised. Please re-select a payout method and bank in shop settings.`;
+        await supabase.rpc("fail_withdrawal", {
+          p_withdrawal_id: w.withdrawal_id,
+          p_reason: reason,
+        });
+        failed += 1;
+        results.push({
+          withdrawal_id: w.withdrawal_id,
+          shop_name: w.shop_name,
+          status: "NEEDS_VERIFICATION",
+          message: reason,
+        });
+        continue;
+      }
+
+      const accountNumber = normaliseAccount(w.bank_category, w.payout_details);
       const amountZmw = w.amount / 100;
       const reference = `kithly-withdrawal-${w.withdrawal_id}`;
 
       try {
         console.log(
-          `[batch-payout-sweeper] Transfer: shop='${w.shop_name}' amount=${amountZmw} ZMW bank='${bankCode}' ref='${reference}'`,
+          `[batch-payout-sweeper] Transfer: shop='${w.shop_name}' amount=${amountZmw} ZMW bank='${w.flutterwave_code}' ref='${reference}'`,
         );
 
         const flwResponse = await fetch("https://api.flutterwave.com/v3/transfers", {
@@ -175,11 +202,12 @@ Deno.serve(async (req: Request): Promise<Response> => {
             Authorization: `Bearer ${flutterwaveSecretKey}`,
           },
           body: JSON.stringify({
-            account_bank: bankCode,
+            account_bank: w.flutterwave_code,
             account_number: accountNumber,
             amount: amountZmw,
             currency: "ZMW",
             narration: `KithLy payout - ${w.shop_name}`,
+            ...(w.payout_account_name ? { beneficiary_name: w.payout_account_name } : {}),
             // Derived from the withdrawal id, so a retry of the same withdrawal
             // is recognisable to Flutterwave rather than looking like new work.
             reference,
