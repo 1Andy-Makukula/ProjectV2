@@ -65,8 +65,13 @@ export function useNotifications() {
   useEffect(() => {
     if (!userId) return;
 
+    // supabase-js hands back an *existing* channel when the topic matches, and
+    // refuses `.on()` once that channel has subscribed. The header renders this
+    // bell twice (one desktop, one mobile — CSS hides one, React mounts both),
+    // so a shared topic made the second mount throw. A per-subscription suffix
+    // guarantees every mount gets its own channel.
     const channel = supabase
-      .channel(`notifications:${userId}`)
+      .channel(`notifications:${userId}:${crypto.randomUUID()}`)
       .on(
         'postgres_changes',
         {

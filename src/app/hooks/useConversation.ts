@@ -85,8 +85,11 @@ export function useConversation(conversationId?: string) {
   useEffect(() => {
     if (!conversationId) return;
 
+    // Unique per subscription: supabase-js reuses a channel when the topic
+    // matches and then rejects `.on()` on it, so two mounts sharing a topic
+    // would throw.
     const channel = supabase
-      .channel(`conversation:${conversationId}`)
+      .channel(`conversation:${conversationId}:${crypto.randomUUID()}`)
       .on(
         'postgres_changes',
         {
