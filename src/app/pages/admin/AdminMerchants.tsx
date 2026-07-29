@@ -148,8 +148,8 @@ export function AdminMerchants() {
   return (
     <PageShell>
       <AdminPageHeader
-        title="Manage Merchants"
-        subtitle="Create, edit and remove merchant accounts"
+        title="Assisted Merchant Enrollment"
+        subtitle="For onboarding a merchant in person, when self-service sign-up and KYC review isn't practical"
         onBack={() => navigate('/admin')}
         actions={
           <Dialog open={createOpen} onOpenChange={setCreateOpen}>
@@ -164,7 +164,9 @@ export function AdminMerchants() {
                 <DialogHeader>
                   <DialogTitle>Create Merchant Account</DialogTitle>
                   <DialogDescription>
-                    Set up credentials and assign a shop immediately.
+                    For in-person enrollment only. Prefer pointing the merchant to
+                    self-service sign-up when they can do it themselves — this
+                    skips KYC review and requires you to hand them credentials directly.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -475,6 +477,10 @@ export function AdminMerchants() {
                       <Key className="w-4 h-4 text-primary" />
                       Set New Password Directly
                     </div>
+                    <p className="text-xs text-muted-foreground">
+                      For in-person situations where email delivery isn't practical.
+                      Prefer sending a reset email whenever the merchant can receive one.
+                    </p>
                     <div className="flex gap-2">
                       <Input
                         type="text"
