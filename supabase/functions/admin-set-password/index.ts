@@ -95,6 +95,16 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return jsonWithCors(req, { error: updateError.message ?? "Failed to update password." }, 400);
     }
 
+    const { error: auditError } = await adminClient.rpc("log_admin_action", {
+      p_action: "merchant.password_set",
+      p_target_type: "user",
+      p_target_id: userId,
+      p_actor_id: admin.id,
+    });
+    if (auditError) {
+      console.error(`[${FN}] Audit log write failed (non-fatal):`, auditError.message);
+    }
+
     console.log(`[${FN}] Admin ${admin.id} set the password for user ${userId}.`);
 
     return jsonWithCors(req, { success: true });

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { useAuth } from '../../../utils/auth/AuthContext';
 import { Upload, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -26,7 +27,8 @@ import { useAdminShopForm } from '../../hooks/useAdminShopForm';
 export function AdminShopForm() {
   const navigate = useNavigate();
   const { shopId } = useParams();
-  const isEditing = Boolean(shopId);
+  const { profile } = useAuth();
+  const isMerchant = profile?.role === 'merchant';
 
   const {
     formData,
@@ -34,9 +36,10 @@ export function AdminShopForm() {
     loading,
     uploading,
     bankOptions,
+    isEditing,
     saveShop,
     deleteShop,
-  } = useAdminShopForm(shopId);
+  } = useAdminShopForm({ shopId, isMerchant, merchantUserId: profile?.id });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -74,18 +77,22 @@ export function AdminShopForm() {
     }
   };
 
+  // Merchants have no access to /admin/shops at all -- send them back to
+  // their own dashboard instead.
+  const backTarget = isMerchant ? '/merchant' : '/admin/shops';
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const success = await saveShop(imageFile, coverImageFile);
     if (success) {
-      navigate('/admin/shops');
+      navigate(backTarget);
     }
   };
 
   const handleDelete = async () => {
     const success = await deleteShop();
     if (success) {
-      navigate('/admin/shops');
+      navigate(backTarget);
     }
   };
 
@@ -94,7 +101,7 @@ export function AdminShopForm() {
       <AdminPageHeader
         title={isEditing ? 'Edit Shop' : 'Add New Shop'}
         subtitle={isEditing ? 'Update storefront details' : 'Create a new merchant storefront'}
-        onBack={() => navigate('/admin/shops')}
+        onBack={() => navigate(backTarget)}
       />
       <PageBody>
         <form onSubmit={handleSubmit}>
@@ -260,27 +267,32 @@ export function AdminShopForm() {
                 />
               </div>
 
-              {/* Active Toggle */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="is_active">Active Status</Label>
-                  <p className="text-sm text-muted-foreground font-light">
-                    Active shops are visible to customers
-                  </p>
+              {/* Active Toggle — governance field, admin-only. update_shop_profile
+                  doesn't accept it, so a merchant could turn this switch and it
+                  would silently do nothing; hide it instead of showing a
+                  control with no effect. */}
+              {!isMerchant && (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label htmlFor="is_active">Active Status</Label>
+                    <p className="text-sm text-muted-foreground font-light">
+                      Active shops are visible to customers
+                    </p>
+                  </div>
+                  <Switch
+                    id="is_active"
+                    checked={formData.is_active}
+                    onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                  />
                 </div>
-                <Switch
-                  id="is_active"
-                  checked={formData.is_active}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
-                />
-              </div>
+              )}
             </CardContent>
           </Card>
 
           {/* Actions */}
           <div className="flex items-center justify-between mt-6">
             <div>
-              {isEditing && (
+              {isEditing && !isMerchant && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button type="button" variant="destructive">
@@ -308,7 +320,7 @@ export function AdminShopForm() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/admin/shops')}
+                onClick={() => navigate(backTarget)}
                 disabled={loading}
               >
                 Cancel

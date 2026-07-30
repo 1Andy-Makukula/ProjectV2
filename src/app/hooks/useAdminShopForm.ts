@@ -24,9 +24,39 @@ export interface PayoutBankOption {
   category: 'mobile_money' | 'bank';
 }
 
-export function useAdminShopForm(shopId?: string) {
-  const isEditing = Boolean(shopId);
+interface UseAdminShopFormOptions {
+  shopId?: string;
+  isMerchant?: boolean;
+  merchantUserId?: string;
+}
+
+export function useAdminShopForm({ shopId, isMerchant, merchantUserId }: UseAdminShopFormOptions) {
   const { user } = useAuth();
+  // Merchants reach this form at /merchant/shop/edit, which carries no
+  // :shopId param at all -- there is exactly one shop to resolve, via
+  // merchant_shops, mirroring useAdminItemForm's fetchMerchantShop pattern.
+  const [actualShopId, setActualShopId] = useState('');
+  const effectiveShopId = isMerchant ? actualShopId : shopId;
+  const isEditing = Boolean(effectiveShopId);
+
+  const fetchMerchantShop = useCallback(async (userId: string) => {
+    try {
+      const { data } = await supabase
+        .from('merchant_shops')
+        .select('shop_id')
+        .eq('user_id', userId)
+        .single();
+      if (data) setActualShopId(data.shop_id);
+    } catch (err) {
+      console.error('Error resolving merchant shop:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isMerchant && merchantUserId) {
+      fetchMerchantShop(merchantUserId);
+    }
+  }, [isMerchant, merchantUserId, fetchMerchantShop]);
 
   const [formData, setFormData] = useState<ShopFormData>({
     name: '',
@@ -65,13 +95,13 @@ export function useAdminShopForm(shopId?: string) {
   }, []);
 
   const loadShop = useCallback(async () => {
-    if (!shopId) return;
+    if (!effectiveShopId) return;
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from('shops')
         .select('*')
-        .eq('id', shopId)
+        .eq('id', effectiveShopId)
         .single();
 
       if (error) throw error;
@@ -94,7 +124,7 @@ export function useAdminShopForm(shopId?: string) {
     } finally {
       setLoading(false);
     }
-  }, [shopId]);
+  }, [effectiveShopId]);
 
   useEffect(() => {
     if (isEditing) {
@@ -121,6 +151,11 @@ export function useAdminShopForm(shopId?: string) {
       return false;
     }
 
+    if (isMerchant && !effectiveShopId) {
+      toast.error('Could not find your shop. Please refresh and try again.');
+      return false;
+    }
+
     setLoading(true);
     try {
       setUploading(true);
@@ -128,6 +163,35 @@ export function useAdminShopForm(shopId?: string) {
       const coverUrl = await uploadPublicAsset(coverImageFile, formData.cover_image_url, 'shop-covers');
       setUploading(false);
 
+      // Merchants never get RLS access to shops directly (see
+      // 20260729040000_shop_self_service_rpc.sql) -- is_active and every
+      // other governance field stay admin-only by not being parameters this
+      // RPC accepts at all, not by relying on the client to behave.
+      if (isMerchant) {
+        const { error } = await supabase.rpc('update_shop_profile', {
+          p_shop_id: effectiveShopId,
+          p_name: formData.name,
+          p_location: formData.location,
+          p_address: formData.address,
+          p_logo_url: logoUrl,
+          p_cover_image_url: coverUrl,
+          p_payout_method: formData.payout_method,
+          p_payout_details: formData.payout_details,
+          p_payout_bank_name: formData.payout_method === 'bank' ? formData.payout_bank_name : null,
+          p_payout_account_name: formData.payout_account_name,
+        });
+
+        if (error) throw error;
+        toast.success('Shop updated successfully');
+        return true;
+      }
+
+      // owner_id is what shop settlement/withdrawals actually pay out
+      // against (see resolve_shop_merchant_user_id) — it must only ever be
+      // set once, when a shop is first created, never touched on an edit.
+      // This payload used to include owner_id: user.id unconditionally,
+      // which meant any admin editing any existing shop silently
+      // reassigned that shop's real financial ownership to themselves.
       const shopPayload = {
         name: formData.name,
         location: formData.location,
@@ -139,7 +203,6 @@ export function useAdminShopForm(shopId?: string) {
         payout_bank_name: formData.payout_method === 'bank' ? formData.payout_bank_name : null,
         payout_account_name: formData.payout_account_name,
         is_active: formData.is_active,
-        owner_id: user.id,
       };
 
       if (isEditing && shopId) {
@@ -151,24 +214,20 @@ export function useAdminShopForm(shopId?: string) {
         if (error) throw error;
         toast.success('Shop updated successfully');
       } else {
-        const { data: newShop, error } = await supabase
+        // This branch is admin-only now (merchants return via the RPC branch
+        // above and never reach here). It used to also insert the creating
+        // admin into merchant_shops -- which, since resolve_shop_merchant_user_id
+        // picks the earliest merchant_shops row for a shop, meant a shop
+        // admin-created-then-later-staffed via create-merchant would still
+        // resolve to the admin for settlement/withdrawals, defeating that
+        // fix. A freshly admin-created shop has no merchant yet; it stays
+        // that way (safely -- see resolve_shop_merchant_user_id's callers)
+        // until create-merchant or register_merchant_shop assigns one.
+        const { error } = await supabase
           .from('shops')
-          .insert([shopPayload])
-          .select('id')
-          .single();
+          .insert([{ ...shopPayload, owner_id: user.id }]);
 
         if (error) throw error;
-
-        if (user?.id && newShop?.id) {
-          const { error: mappingError } = await supabase
-            .from('merchant_shops')
-            .insert([{ user_id: user.id, shop_id: newShop.id }]);
-
-          if (mappingError) {
-            console.error('Failed to map merchant ownership:', mappingError);
-            toast.error('Shop created, but ownership assignment failed.');
-          }
-        }
 
         toast.success('Shop created successfully');
       }
@@ -181,7 +240,7 @@ export function useAdminShopForm(shopId?: string) {
       setLoading(false);
       setUploading(false);
     }
-  }, [formData, isEditing, shopId, user?.id]);
+  }, [formData, isEditing, isMerchant, effectiveShopId, shopId, user?.id]);
 
   const deleteShop = useCallback(async () => {
     if (!shopId) return false;
@@ -219,6 +278,7 @@ export function useAdminShopForm(shopId?: string) {
     loading,
     uploading,
     bankOptions,
+    isEditing,
     saveShop,
     deleteShop,
   };

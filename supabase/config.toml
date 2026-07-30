@@ -1,0 +1,46 @@
+# Supabase CLI project configuration.
+#
+# This didn't exist before -- the CLI was never linked to this project via a
+# committed config, so every invocation needed ad hoc flags. `project_id`
+# below is a placeholder: it only needs to be real for `supabase link` /
+# `db push` / `functions deploy` (see the CI-hardening plan's Phase 6), never
+# for `supabase start` -- the local ephemeral stack this file's CI job
+# (Phase 2) actually uses, which never touches the real hosted project.
+project_id = "kithly-local"
+
+[db]
+port = 54322
+major_version = 16
+
+[api]
+enabled = true
+port = 54321
+
+[studio]
+enabled = false
+
+[auth]
+enabled = true
+
+[storage]
+enabled = true
+
+[realtime]
+enabled = true
+
+# `supabase functions deploy` defaults every function to verify_jwt = true --
+# it will reject a caller that isn't sending a validly-signed Supabase JWT.
+# These three don't: Flutterwave signs its webhook with its own verif-hash
+# header (flutterwave-webhook/index.ts), the USSD aggregator authenticates
+# with its own shared-secret/HMAC headers (_shared/ussd-auth.ts), and health
+# is an intentionally unauthenticated liveness probe. Without this, the first
+# automated deploy would silently 401 all three at the platform gateway,
+# before the request ever reaches the function's own code.
+[functions.flutterwave-webhook]
+verify_jwt = false
+
+[functions.ussd-gateway]
+verify_jwt = false
+
+[functions.health]
+verify_jwt = false

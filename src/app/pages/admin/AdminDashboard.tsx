@@ -190,8 +190,8 @@ export function AdminDashboard() {
                 onClick={() => navigate('/admin-merch')}
               />
               <QuickLink
-                title="Manage Merchants"
-                description="Create merchant accounts"
+                title="Assisted Merchant Enrollment"
+                description="For onboarding in person, when self-service sign-up isn't practical"
                 onClick={() => navigate('/admin/merchants')}
               />
               <QuickLink
