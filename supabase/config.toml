@@ -1,0 +1,29 @@
+# Supabase CLI project configuration.
+#
+# This didn't exist before -- the CLI was never linked to this project via a
+# committed config, so every invocation needed ad hoc flags. `project_id`
+# below is a placeholder: it only needs to be real for `supabase link` /
+# `db push` / `functions deploy` (see the CI-hardening plan's Phase 6), never
+# for `supabase start` -- the local ephemeral stack this file's CI job
+# (Phase 2) actually uses, which never touches the real hosted project.
+project_id = "kithly-local"
+
+[db]
+port = 54322
+major_version = 16
+
+[api]
+enabled = true
+port = 54321
+
+[studio]
+enabled = false
+
+[auth]
+enabled = true
+
+[storage]
+enabled = true
+
+[realtime]
+enabled = true

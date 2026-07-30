@@ -52,3 +52,38 @@ jobs:
           RUN_INTEGRATION_TESTS: ${{ secrets.SUPABASE_URL != '' && secrets.SUPABASE_SERVICE_ROLE_KEY != '' }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+  db-migrations:
+    # Applies the full migration chain to a fresh, empty local Supabase stack
+    # (Docker, pre-installed on GitHub-hosted runners) on every push and PR --
+    # no secrets needed, since this never touches the real hosted project.
+    # Exists because a migration changing a function's return type without an
+    # explicit DROP FUNCTION first (Postgres error 42P13) once reached a real
+    # `supabase db push` undetected; nothing before this job ever verified the
+    # chain applies cleanly from empty.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.2.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+
+      - name: Start local Supabase stack (applies every migration from empty)
+        run: pnpm exec supabase start
+
+      - name: Structural smoke checks
+        # Supabase's local dev stack's Postgres is always reachable at this
+        # well-known default (matches config.toml's db.port = 54322).
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -f supabase/tests/ci_smoke_checks.sql
+
+      - name: Confirm the chain re-applies cleanly (idempotency)
+        run: pnpm exec supabase db reset
+
+      - name: Stop local Supabase stack
+        if: always()
+        run: pnpm exec supabase stop
