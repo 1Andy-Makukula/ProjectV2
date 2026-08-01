@@ -22,3 +22,8 @@ supabase/.branches/
 .idea/
 .vscode/
 Thumbs.db
+# SQL Dumps and Backups
+data_backup.sql
+kithly_schema.sql
+supabase/clear_shop_data.sql
+*.backup.sql
