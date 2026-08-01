@@ -1,7 +1,7 @@
 // Support & Help Page
 
 import { useState } from 'react';
-import { MessageCircle, HelpCircle, FileText, Mail, Phone } from 'lucide-react';
+import { MessageCircle, HelpCircle, Mail, Phone } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { toast } from 'sonner';

@@ -18,10 +18,12 @@ import { useAuth } from '../../../utils/auth/AuthContext';
 import { supabase } from '../../../lib/supabaseClient';
 import { Switch } from '../ui/switch';
 import { formatCurrency } from '../../../utils/currency';
+import { usePlatformPricing } from '../../hooks/usePlatformPricing';
+import { creditsApplicationFor, feePercentFor, serviceFeeFor, CHECKOUT_ORIGIN } from '../../../utils/pricing';
 
 export function CartSlider() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const {
     items,
     isCartSliderOpen,
@@ -35,6 +37,7 @@ export function CartSlider() {
   } = useCart();
 
   const [walletBalance, setWalletBalance] = useState<number>(0);
+  const { rates } = usePlatformPricing();
 
   const fetchWalletBalance = async () => {
     if (!user?.id) return;
@@ -60,9 +63,15 @@ export function CartSlider() {
 
   const total = getTotalAmount();
   const count = getTotalItems();
-  
-  const creditsToApply = applyCredits ? Math.min(walletBalance, total) : 0;
-  const finalPayable = total - creditsToApply;
+
+  const serviceFee = serviceFeeFor(total, CHECKOUT_ORIGIN, rates);
+  const { creditsToApply, finalPayable } = creditsApplicationFor(
+    total,
+    CHECKOUT_ORIGIN,
+    rates,
+    walletBalance,
+    applyCredits,
+  );
 
   function handleCheckout() {
     setCartSliderOpen(false);
@@ -74,7 +83,7 @@ export function CartSlider() {
     const shopId = item.product.shop_id;
     if (!acc[shopId]) {
       acc[shopId] = {
-        shopName: item.product.shop?.name || item.product.shop?.business_name || 'KithLy Merchant',
+        shopName: item.product.shop?.business_name || 'KithLy Merchant',
         items: [],
         subtotal: 0,
       };
@@ -85,7 +94,7 @@ export function CartSlider() {
   }, {} as Record<string, { shopName: string; items: typeof items; subtotal: number }>);
 
   return (
-    <Sheet open={isCartSliderOpen} onOpenChange={setCartSliderOpen}>
+    <Sheet open={isCartSliderOpen && (!profile || profile.role === 'sender')} onOpenChange={setCartSliderOpen}>
       <SheetContent
         side="right"
         className="flex flex-col w-full sm:max-w-md bg-white/80 backdrop-blur-xl border-l border-white/30 p-0 gap-0"
@@ -263,7 +272,21 @@ export function CartSlider() {
                   {formatCurrency(total, 'ZMW')}
                 </span>
               </div>
-              
+
+              {serviceFee > 0 && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-slate-500 font-medium">
+                    Service fee
+                    <span className="ml-1 text-xs font-normal text-slate-400">
+                      ({feePercentFor(CHECKOUT_ORIGIN, rates)}%)
+                    </span>
+                  </span>
+                  <span className="text-slate-800 font-semibold">
+                    {formatCurrency(serviceFee, 'ZMW')}
+                  </span>
+                </div>
+              )}
+
               {applyCredits && creditsToApply > 0 && (
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-500 font-medium">Credits applied</span>

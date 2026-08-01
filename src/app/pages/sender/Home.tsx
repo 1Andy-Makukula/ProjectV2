@@ -2,8 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { useHome } from '../../hooks/useHome';
+import { formatDate } from '../../../utils/relativeTime';
 import { Button } from '../../components/ui/button';
 import { Skeleton } from '../../components/ui/skeleton';
+import { cn } from '../../components/ui/utils';
 import {
   Settings,
   Store,
@@ -182,7 +184,14 @@ export function Home() {
       {bannersLoading ? (
         <HeroSkeleton />
       ) : banners.length === 0 ? null : (
-        <div className="relative w-full h-72 sm:h-96 overflow-hidden">
+        <div
+          className={cn('relative w-full h-72 sm:h-96 overflow-hidden', activeBanner?.target_route && 'cursor-pointer')}
+          onClick={() => {
+            if (activeBanner?.target_route && activeBanner.target_route !== '/') {
+              navigate(activeBanner.target_route);
+            }
+          }}
+        >
           <AnimatePresence mode="wait">
             {activeBanner && (
               <motion.img
@@ -387,7 +396,7 @@ export function Home() {
                     <strong>{notif.recipient_name}</strong> collected <strong>{notif.item?.name}</strong> from <strong>{notif.shop?.name}</strong>.
                   </p>
                   <p className="text-xs text-green-600 mt-1 mt-1">
-                    {new Date(notif.fulfilled_at).toLocaleDateString()}
+                    {formatDate(notif.fulfilled_at)}
                   </p>
                 </div>
               ))

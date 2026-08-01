@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { getFlatCartPayload, useSendFlowStore } from '../../utils/sendFlowStore';
 import { useCart } from './useCart';
 import { usePlatformPricing } from './usePlatformPricing';
-import { grossPayableFor, CHECKOUT_ORIGIN } from '../../utils/pricing';
+import { creditsApplicationFor, CHECKOUT_ORIGIN } from '../../utils/pricing';
 
 export interface ShopOrderResult {
   shop_order_id: string;
@@ -99,8 +99,13 @@ export function useCheckout() {
       const totalAmount = getTotalAmount();
       // Credits offset the whole bill, service fee included, so cap against the
       // gross rather than the basket — otherwise the server rejects the excess.
-      const grossPayable = grossPayableFor(totalAmount, CHECKOUT_ORIGIN, feeRates);
-      const creditsToApply = applyCredits ? Math.min(walletBalance, grossPayable) : 0;
+      const { creditsToApply } = creditsApplicationFor(
+        totalAmount,
+        CHECKOUT_ORIGIN,
+        feeRates,
+        walletBalance,
+        applyCredits,
+      );
 
       const payload = getFlatCartPayload(items, {
         name: recipientName.trim(),
@@ -150,7 +155,7 @@ export function useCheckout() {
     } finally {
       setIsProcessing(false);
     }
-  }, []);
+  }, [feeRates, walletBalance]);
 
   return {
     walletBalance,

@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router';
 import { useAuth } from '../utils/auth/AuthContext';
+import { PageLoader } from '../app/components/shared/PageLoader';
 import { ReactNode } from 'react';
 
 interface ProtectedRouteProps {
@@ -17,11 +18,7 @@ export function ProtectedRoute({
 
   // 1. Auth context is still initialising — show spinner
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-      </div>
-    );
+    return <PageLoader />;
   }
 
   // 2. Not authenticated → send to login
@@ -36,11 +33,7 @@ export function ProtectedRoute({
     if (profileError) {
       return <Navigate to="/login" replace />;
     }
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-      </div>
-    );
+    return <PageLoader />;
   }
 
   // 4. Authenticated with a profile — enforce role gate

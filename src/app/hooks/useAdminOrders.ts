@@ -5,6 +5,7 @@ import { Order } from '../types/orders';
 import { deriveStatus } from '../../utils/orderStatus';
 import { toast } from 'sonner';
 import { parseAuthError } from '../../utils/errorParser';
+import { formatDate } from '../../utils/relativeTime';
 
 export function useAdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -128,8 +129,8 @@ export function useAdminOrders() {
       order.recipient_name ?? '',
       (order.total_amount).toFixed(2),
       order.status,
-      new Date(order.created_at).toLocaleDateString(),
-      order.fulfilled_at ? new Date(order.fulfilled_at).toLocaleDateString() : 'N/A',
+      formatDate(order.created_at),
+      order.fulfilled_at ? formatDate(order.fulfilled_at) : 'N/A',
     ]);
 
     const csvContent = [

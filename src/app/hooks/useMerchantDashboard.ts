@@ -33,7 +33,20 @@ export interface Analytics {
   availableBalance: number;
 }
 
-export function useMerchantDashboard(profileId?: string) {
+export interface UseMerchantDashboardOptions {
+  /**
+   * Render a specific shop instead of resolving one from the signed-in user's
+   * `merchant_shops` rows. Used by the admin read-only preview, where the
+   * viewer has no merchant assignment of their own.
+   */
+  shopId?: string;
+}
+
+export function useMerchantDashboard(
+  profileId?: string,
+  options?: UseMerchantDashboardOptions,
+) {
+  const previewShopId = options?.shopId;
   const [shopName, setShopName] = useState('');
   const [shopId, setShopId] = useState<string | null>(null);
   const [activeOrders, setActiveOrders] = useState<Order[]>([]);
@@ -49,6 +62,12 @@ export function useMerchantDashboard(profileId?: string) {
   const [withdrawing, setWithdrawing] = useState(false);
   const [ledgerData, setLedgerData] = useState<any[]>([]);
   const [ledgerLoading, setLedgerLoading] = useState(false);
+  /**
+   * Whose wallet backs the "available balance" figure. This is the shop's
+   * owner, which is only the same as the viewer outside preview mode — keying
+   * it off the viewer would show an admin their own balance as the merchant's.
+   */
+  const [walletOwnerId, setWalletOwnerId] = useState<string | null>(null);
 
   const fetchOrders = useCallback(async (currentShopId: string) => {
     try {
@@ -82,7 +101,10 @@ export function useMerchantDashboard(profileId?: string) {
     }
   }, []);
 
-  const fetchAnalytics = useCallback(async (currentShopId: string) => {
+  const fetchAnalytics = useCallback(async (
+    currentShopId: string,
+    currentWalletOwnerId?: string | null,
+  ) => {
     try {
       const { data: ordersData } = await supabase
         .from('shop_orders')
@@ -101,13 +123,13 @@ export function useMerchantDashboard(profileId?: string) {
       const weekValue = weekOrders?.reduce((sum: number, o: any) => sum + (o.subtotal || 0), 0) || 0;
 
       let availableBalance = 0;
-      if (profileId) {
+      if (currentWalletOwnerId) {
         const { data: walletData, error: walletError } = await supabase
           .from('kithly_wallets')
           .select('balance')
-          .eq('user_id', profileId)
+          .eq('user_id', currentWalletOwnerId)
           .maybeSingle();
-        
+
         if (!walletError && walletData) {
           availableBalance = walletData.balance;
         }
@@ -124,7 +146,7 @@ export function useMerchantDashboard(profileId?: string) {
     } catch (error) {
       console.error('Error syncing dashboard:', error);
     }
-  }, [profileId]);
+  }, []);
 
   const fetchLedger = useCallback(async (currentShopId: string) => {
     setLedgerLoading(true);
@@ -144,27 +166,66 @@ export function useMerchantDashboard(profileId?: string) {
   }, []);
 
   const fetchMerchantData = useCallback(async () => {
-    if (!profileId) return;
+    if (!previewShopId && !profileId) return;
 
     try {
       setLoading(true);
-      const { data: merchantShop, error: shopError } = await supabase
-        .from('merchant_shops')
-        .select('shop_id, shop:shops(id, name, location, image_url, payout_details, payout_method)')
-        .eq('user_id', profileId)
-        .single();
 
-      if (shopError) throw shopError;
+      let currentShopId: string;
+      let shop: any;
+      let currentWalletOwnerId: string | null;
 
-      const shop = merchantShop.shop as any;
-      const currentShopId = merchantShop.shop_id;
+      if (previewShopId) {
+        // Preview: the viewer has no merchant_shops row, so read the shop
+        // directly and bill the balance to its owner rather than the viewer.
+        const { data: shopRow, error: shopError } = await supabase
+          .from('shops')
+          .select('id, name, location, image_url, payout_details, payout_method, owner_id')
+          .eq('id', previewShopId)
+          .maybeSingle();
+
+        if (shopError) throw shopError;
+
+        if (!shopRow) {
+          setShopId(null);
+          setShopName('Shop not found');
+          setWalletOwnerId(null);
+          return;
+        }
+
+        shop = shopRow;
+        currentShopId = shopRow.id;
+        currentWalletOwnerId = (shopRow as any).owner_id ?? null;
+      } else {
+        const { data: merchantShop, error: shopError } = await supabase
+          .from('merchant_shops')
+          .select('shop_id, shop:shops(id, name, location, image_url, payout_details, payout_method)')
+          .eq('user_id', profileId)
+          .order('created_at', { ascending: true })
+          .limit(1)
+          .maybeSingle();
+
+        if (shopError) throw shopError;
+
+        if (!merchantShop) {
+          setShopId(null);
+          setShopName('Your Shop');
+          setWalletOwnerId(null);
+          return;
+        }
+
+        shop = merchantShop.shop as any;
+        currentShopId = merchantShop.shop_id;
+        currentWalletOwnerId = profileId ?? null;
+      }
 
       setShopId(currentShopId);
       setShopName(shop?.name ?? 'Your Shop');
+      setWalletOwnerId(currentWalletOwnerId);
 
       await Promise.all([
         fetchOrders(currentShopId),
-        fetchAnalytics(currentShopId),
+        fetchAnalytics(currentShopId, currentWalletOwnerId),
         fetchLedger(currentShopId),
       ]);
     } catch (error) {
@@ -172,7 +233,7 @@ export function useMerchantDashboard(profileId?: string) {
     } finally {
       setLoading(false);
     }
-  }, [profileId, fetchOrders, fetchAnalytics, fetchLedger]);
+  }, [profileId, previewShopId, fetchOrders, fetchAnalytics, fetchLedger]);
 
   const handleWithdrawRequest = useCallback(async () => {
     if (!shopId || withdrawing || analytics.availableBalance <= 0) return false;
@@ -198,10 +259,10 @@ export function useMerchantDashboard(profileId?: string) {
   }, [shopId, withdrawing, analytics.availableBalance]);
 
   useEffect(() => {
-    if (profileId) {
+    if (profileId || previewShopId) {
       fetchMerchantData();
     }
-  }, [profileId, fetchMerchantData]);
+  }, [profileId, previewShopId, fetchMerchantData]);
 
   // Realtime subscription
   useEffect(() => {
@@ -219,7 +280,7 @@ export function useMerchantDashboard(profileId?: string) {
         },
         () => {
           fetchOrders(shopId);
-          fetchAnalytics(shopId);
+          fetchAnalytics(shopId, walletOwnerId);
           fetchLedger(shopId);
         }
       )
@@ -233,7 +294,7 @@ export function useMerchantDashboard(profileId?: string) {
         },
         () => {
           fetchOrders(shopId);
-          fetchAnalytics(shopId);
+          fetchAnalytics(shopId, walletOwnerId);
           fetchLedger(shopId);
         }
       )
@@ -242,7 +303,7 @@ export function useMerchantDashboard(profileId?: string) {
     return () => {
       supabase.removeChannel(subscription);
     };
-  }, [shopId, fetchOrders, fetchAnalytics, fetchLedger]);
+  }, [shopId, walletOwnerId, fetchOrders, fetchAnalytics, fetchLedger]);
 
   return {
     shopName,

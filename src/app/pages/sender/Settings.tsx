@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
-import { supabase } from '../../../lib/supabaseClient';
 import { validateAndFormatPhone } from '../../../utils/phone';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -9,14 +8,14 @@ import { Label } from '../../components/ui/label';
 import { PhoneInput } from '../../components/shared/PhoneInput';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Separator } from '../../components/ui/separator';
-import { ArrowLeft, User, Mail, Phone, Lock, LogOut, Check, AlertCircle, Store, ArrowRight } from 'lucide-react';
+import { ArrowLeft, User, Mail, Lock, LogOut, Check, AlertCircle, Store, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { parseAuthError } from '../../../utils/errorParser';
 
 export function Settings() {
   const navigate = useNavigate();
-  const { profile, updateProfile, signOut, resetPassword } = useAuth();
+  const { profile, updateProfile, resetPassword, signOut } = useAuth();
   const [loading, setLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
 
@@ -92,18 +91,10 @@ export function Settings() {
   };
 
   const handleLogout = async (e: React.MouseEvent) => {
-    e.preventDefault(); // 1. STOPS the annoying page refresh!
-    
+    e.preventDefault();
+
     try {
-      // 2. Tell the data center to destroy the token
-      await supabase.auth.signOut(); 
-      
-      // 3. Clear any leftover zombie data in the browser
-      localStorage.clear(); 
-      sessionStorage.clear();
-      
-      // 4. Safely redirect to the login page
-      navigate('/login', { replace: true }); 
+      await signOut();
     } catch (error) {
       console.error('Logout failed:', error);
     }

@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, Search, Download, Package } from 'lucide-react';
+import { Search, Download, Package } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Badge } from '../../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { PageShell, PageBody } from '../../components/layout/PageShell';
+import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
 import { formatCurrency } from '../../../utils/currency';
+import { formatDate } from '../../../utils/relativeTime';
 import { useAdminOrders } from '../../hooks/useAdminOrders';
 import { STATUS_COLORS, STATUS_LABELS } from '../../../utils/orderStatus';
 import { Order, StatusFilter } from '../../types/orders';
@@ -68,48 +71,36 @@ export function AdminOrders() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
-      {/* Header */}
-      <div className="kl-gradient-brand text-white">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-4 mb-4">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/admin')}
-              className="text-white hover:bg-white/10"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-light">Manage Orders</h1>
-              <p className="text-sm opacity-90 font-light">View and manage all platform orders</p>
-            </div>
-          </div>
+    <PageShell>
+      <AdminPageHeader
+        title="Manage Orders"
+        subtitle="View and manage all platform orders"
+        onBack={() => navigate('/admin')}
+        actions={
+          <Button
+            onClick={handleExport}
+            className="bg-white text-primary hover:bg-white/90 h-8"
+            disabled={filteredOrders.length === 0}
+          >
+            <Download className="size-3.5" />
+            Export CSV
+          </Button>
+        }
+      />
 
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <Input
-                placeholder="Search by code, sender, recipient..."
-                value={searchQuery}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/60"
-              />
-            </div>
-            <Button
-              onClick={handleExport}
-              className="bg-white text-primary hover:bg-white/90"
-              disabled={filteredOrders.length === 0}
-            >
-              <Download className="w-5 h-5" />
-              Export CSV
-            </Button>
-          </div>
+      <PageBody>
+        {/* Search sits on the page rather than inside the gradient bar, where
+            white-on-brand input text was hard to read. */}
+        <div className="relative mb-6">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search by code, sender, recipient, item or shop…"
+            value={searchQuery}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+            className="h-10 pl-9"
+          />
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="container mx-auto px-4 py-8">
         <Tabs value={statusFilter} onValueChange={(value: string) => setStatusFilter(value as StatusFilter)}>
           <TabsList className="grid w-full grid-cols-6 mb-6">
             <TabsTrigger value="all" className="font-light">
@@ -140,38 +131,48 @@ export function AdminOrders() {
             </CardHeader>
             <CardContent>
               {loading ? (
-                <div className="text-center py-8 text-muted-foreground">Loading orders...</div>
+                <div className="py-12 text-center text-sm text-muted-foreground">Loading orders…</div>
               ) : filteredOrders.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  {searchQuery ? 'No orders found matching your search' : 'No orders yet'}
+                <div className="flex flex-col items-center px-6 py-16 text-center">
+                  <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-primary-tint">
+                    <Package className="size-6 text-primary" strokeWidth={1.5} />
+                  </div>
+                  <h3 className="text-base font-medium tracking-tight">
+                    {searchQuery ? 'No matching orders' : 'No orders yet'}
+                  </h3>
+                  <p className="mt-1 max-w-xs text-sm font-light text-muted-foreground">
+                    {searchQuery
+                      ? 'Try a different code, name, item or shop.'
+                      : 'Orders appear here as soon as customers start checking out.'}
+                  </p>
                 </div>
               ) : (
               <div>
                 {/* Desktop View */}
                 <div className="hidden md:block overflow-x-auto">
-                  <Table>
+                  <Table className="kl-table">
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="font-light">Code</TableHead>
-                        <TableHead className="font-light">Product</TableHead>
-                        <TableHead className="font-light">Shop</TableHead>
-                        <TableHead className="font-light">Sender</TableHead>
-                        <TableHead className="font-light">Recipient</TableHead>
-                        <TableHead className="font-light">Amount</TableHead>
-                        <TableHead className="font-light">Status</TableHead>
-                        <TableHead className="font-light">Created</TableHead>
-                        <TableHead className="font-light">Fulfilled</TableHead>
-                        <TableHead className="font-light text-right">Actions</TableHead>
+                        <TableHead>Code</TableHead>
+                        <TableHead>Product</TableHead>
+                        <TableHead>Shop</TableHead>
+                        <TableHead>Sender</TableHead>
+                        <TableHead>Recipient</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Created</TableHead>
+                        <TableHead>Fulfilled</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {filteredOrders.map((order) => (
                         <TableRow
                           key={order.transaction_id}
-                          className="cursor-pointer hover:bg-orange-50"
+                          className="cursor-pointer"
                           onClick={() => navigate(`/admin/orders/${order.transaction_id}`)}
                         >
-                          <TableCell className="font-mono font-light">
+                          <TableCell className="font-mono text-primary">
                             {order.claim_code ?? '—'}
                           </TableCell>
                           <TableCell className="font-light">
@@ -202,12 +203,10 @@ export function AdminOrders() {
                             </Badge>
                           </TableCell>
                           <TableCell className="font-light">
-                            {new Date(order.created_at).toLocaleDateString()}
+                            {formatDate(order.created_at)}
                           </TableCell>
                           <TableCell className="font-light">
-                            {order.fulfilled_at
-                              ? new Date(order.fulfilled_at).toLocaleDateString()
-                              : '-'}
+                            {order.fulfilled_at ? formatDate(order.fulfilled_at) : '-'}
                           </TableCell>
                           <TableCell>
                             <div className="flex justify-end gap-2">
@@ -300,12 +299,12 @@ export function AdminOrders() {
                         </div>
                         <div>
                           <span className="text-slate-400">Created: </span>
-                          <span className="text-slate-800">{new Date(order.created_at).toLocaleDateString()}</span>
+                          <span className="text-slate-800">{formatDate(order.created_at)}</span>
                         </div>
                         {order.fulfilled_at && (
                           <div className="col-span-2">
                             <span className="text-slate-400">Fulfilled: </span>
-                            <span className="text-slate-800">{new Date(order.fulfilled_at).toLocaleDateString()}</span>
+                            <span className="text-slate-800">{formatDate(order.fulfilled_at)}</span>
                           </div>
                         )}
                       </div>
@@ -346,7 +345,7 @@ export function AdminOrders() {
             </CardContent>
           </Card>
         </Tabs>
-      </div>
-    </div>
+      </PageBody>
+    </PageShell>
   );
 }

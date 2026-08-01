@@ -13,6 +13,7 @@ import {
   TableHeader, TableRow,
 } from '../../components/ui/table';
 import { PhoneInput } from '../../components/shared/PhoneInput';
+import { formatDate } from '../../../utils/relativeTime';
 import {
   Select, SelectContent, SelectItem,
   SelectTrigger, SelectValue,
@@ -244,12 +245,20 @@ export function AdminMerchants() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="text-center py-10 text-muted-foreground">Loading merchants…</div>
+              <div className="py-12 text-center text-sm text-muted-foreground">Loading merchants…</div>
             ) : merchants.length === 0 ? (
-              <div className="text-center py-10 text-muted-foreground">No merchant accounts yet.</div>
+              <div className="flex flex-col items-center px-6 py-16 text-center">
+                <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-primary-tint">
+                  <User className="size-6 text-primary" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-base font-medium tracking-tight">No merchant accounts yet</h3>
+                <p className="mt-1 max-w-xs text-sm font-light text-muted-foreground">
+                  Enrol a merchant here when signing them up in person.
+                </p>
+              </div>
             ) : (
               <div className="overflow-x-auto">
-                <Table>
+                <Table className="kl-table">
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
@@ -272,10 +281,12 @@ export function AdminMerchants() {
                           )}
                         </TableCell>
                         <TableCell className="font-light text-muted-foreground text-sm">
-                          {new Date(m.created_at).toLocaleDateString()}
+                          {formatDate(m.created_at)}
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {/* Previously opacity-0 until hover, which made these
+                              unreachable on touch. Muted-but-present instead. */}
+                          <div className="flex items-center justify-end gap-1 opacity-60 transition-opacity group-hover:opacity-100">
                             {/* Edit */}
                             <Button variant="ghost" size="sm"
                               onClick={() => openEdit(m)}

@@ -14,6 +14,7 @@ import { ChevronLeft, ChevronRight, Shield, Store, ArrowRight, Package } from 'l
 
 import { useAuth } from '../../utils/auth/AuthContext';
 import { Skeleton } from '../components/ui/skeleton';
+import { cn } from '../components/ui/utils';
 import { ShopCard } from '../components/shared/ShopCard';
 import { ExperienceCard } from '../components/shared/ExperienceCard';
 import { Header } from '../components/layout/Header';
@@ -247,7 +248,12 @@ export function ConsumerStorefront() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.98 }}
                     transition={{ duration: 0.65, ease: 'easeInOut' }}
-                    className="absolute inset-0"
+                    className={cn('absolute inset-0', activeCampaign.target_route && activeCampaign.target_route !== '/' && 'cursor-pointer')}
+                    onClick={() => {
+                      if (activeCampaign.target_route && activeCampaign.target_route !== '/') {
+                        navigate(activeCampaign.target_route);
+                      }
+                    }}
                   >
                     <img
                       src={activeCampaign.image_url}

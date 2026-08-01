@@ -7,6 +7,7 @@ export interface Banner {
   id: string;
   title: string;
   image_url: string;
+  target_route: string;
   is_active: boolean;
   sort_order: number;
 }
@@ -16,6 +17,7 @@ export function useBannerManager() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [title, setTitle] = useState('');
+  const [targetRoute, setTargetRoute] = useState('');
   const [sortOrder, setSortOrder] = useState('0');
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState('');
@@ -24,7 +26,7 @@ export function useBannerManager() {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('banners')
+        .from('marketing_campaigns')
         .select('*')
         .order('sort_order');
       if (error) throw error;
@@ -50,15 +52,17 @@ export function useBannerManager() {
     setSaving(true);
     try {
       const url = await uploadPublicAsset(file, '', 'banners');
-      const { error } = await supabase.from('banners').insert({
+      const { error } = await supabase.from('marketing_campaigns').insert({
         title: title.trim(),
         image_url: url,
+        target_route: targetRoute.trim() || '/',
         is_active: true,
         sort_order: parseInt(sortOrder, 10) || 0,
       });
       if (error) throw error;
       toast.success('Banner added');
       setTitle('');
+      setTargetRoute('');
       setSortOrder('0');
       setFile(null);
       setPreview('');
@@ -73,7 +77,7 @@ export function useBannerManager() {
   const toggleActive = async (b: Banner) => {
     try {
       const { error } = await supabase
-        .from('banners')
+        .from('marketing_campaigns')
         .update({ is_active: !b.is_active })
         .eq('id', b.id);
       if (error) throw error;
@@ -86,7 +90,7 @@ export function useBannerManager() {
   const deleteBanner = async (id: string) => {
     if (!confirm('Delete this banner?')) return;
     try {
-      const { error } = await supabase.from('banners').delete().eq('id', id);
+      const { error } = await supabase.from('marketing_campaigns').delete().eq('id', id);
       if (error) throw error;
       setBanners(prev => prev.filter(x => x.id !== id));
       toast.success('Deleted');
@@ -101,6 +105,8 @@ export function useBannerManager() {
     saving,
     title,
     setTitle,
+    targetRoute,
+    setTargetRoute,
     sortOrder,
     setSortOrder,
     file,

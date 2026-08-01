@@ -278,10 +278,7 @@ export function useCustomerDashboard() {
     };
   }, [profile?.id, user?.id, profile?.phone, loadAllData]);
 
-  // Alias transactions to orders, and activeOrders to receivedGifts to match requested schema exactly
   return {
-    transactions: orders,
-    activeOrders: receivedGifts,
     orders,
     loadingOrders,
     floatingItems,

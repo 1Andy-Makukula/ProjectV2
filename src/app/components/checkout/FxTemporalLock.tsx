@@ -19,7 +19,7 @@ import { cn } from '../ui/utils';
 // ---------------------------------------------------------------------------
 
 /** Total session duration in milliseconds (10 minutes). */
-const SESSION_DURATION_MS = 10 * 60 * 1_000 as const;
+const SESSION_DURATION_MS = 10 * 60 * 1_000;
 
 /**
  * Interval tick rate in milliseconds.
@@ -30,13 +30,13 @@ const SESSION_DURATION_MS = 10 * 60 * 1_000 as const;
  * the real wall clock (which `setInterval` alone cannot guarantee due to
  * timer coalescing and tab-backgrounding throttling).
  */
-const TICK_RATE_MS = 250 as const;
+const TICK_RATE_MS = 250;
 
 /**
  * Urgency threshold in milliseconds. Below this value the component
  * switches to the urgent visual treatment (red accent, faster animation).
  */
-const URGENCY_THRESHOLD_MS = 60 * 1_000 as const; // Last 60 seconds
+const URGENCY_THRESHOLD_MS = 60 * 1_000; // Last 60 seconds
 
 // ---------------------------------------------------------------------------
 // Types
@@ -141,7 +141,7 @@ function computeDashOffset(remainingMs: number, circumference: number): number {
 // ---------------------------------------------------------------------------
 
 /** Radius of the SVG progress ring (in SVG user units). */
-const RING_RADIUS = 42 as const;
+const RING_RADIUS = 42;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS; // ≈ 263.9 px
 
 /**

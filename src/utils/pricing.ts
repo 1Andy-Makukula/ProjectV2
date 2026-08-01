@@ -57,3 +57,26 @@ export function grossPayableFor(
 ): number {
   return subtotalNgwee + serviceFeeFor(subtotalNgwee, origin, rates);
 }
+
+export interface CreditsApplication {
+  creditsToApply: number;
+  finalPayable: number;
+}
+
+/**
+ * The one place "how much wallet credit gets applied" is computed. Credits
+ * are capped against the gross payable (basket + fee), matching
+ * `checkout_init_atomic` server-side — capping against the basket alone
+ * understates how much can be applied and disagrees with what's charged.
+ */
+export function creditsApplicationFor(
+  subtotalNgwee: number,
+  origin: OriginType,
+  rates: PlatformFeeRates,
+  walletBalance: number,
+  applyCredits: boolean,
+): CreditsApplication {
+  const grossPayable = grossPayableFor(subtotalNgwee, origin, rates);
+  const creditsToApply = applyCredits ? Math.min(Math.max(walletBalance, 0), grossPayable) : 0;
+  return { creditsToApply, finalPayable: grossPayable - creditsToApply };
+}

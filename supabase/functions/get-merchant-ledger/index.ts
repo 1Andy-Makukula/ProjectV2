@@ -70,8 +70,22 @@ async function verifyMerchantIdentity(
   if (assignmentError) {
     return json(req, { error: "Failed to verify shop authorisation." }, 500);
   }
+
   if (!assignment) {
-    return json(req, { error: "Forbidden." }, 403);
+    // Admins may read any shop's settlement ledger — the support console's
+    // read-only merchant preview depends on it. This widening is READ-ONLY:
+    // this function only ever SELECTs and maps rows, and admins already hold
+    // equivalent read access to shop_orders directly via RLS. It is not a
+    // write path and must never become one.
+    const { data: profile, error: profileError } = await adminClient
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profileError || profile?.role !== "admin") {
+      return json(req, { error: "Forbidden." }, 403);
+    }
   }
 
   return { user };

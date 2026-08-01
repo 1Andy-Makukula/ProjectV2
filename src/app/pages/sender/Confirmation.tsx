@@ -54,6 +54,8 @@ interface TransactionConfirm {
   transaction_id: string;
   buyer_id: string;
   total_amount: number;
+  items_subtotal: number | null;
+  platform_fee: number | null;
   status: string;         // GATEWAY_PROCESSING | SUCCESSFUL | FAILED
   gateway_tx_ref: string | null;
   created_at: string;
@@ -80,6 +82,8 @@ function usePaymentConfirmation(transactionId: string | null, txRef: string | nu
         transaction_id,
         buyer_id,
         total_amount,
+        items_subtotal,
+        platform_fee,
         status,
         gateway_tx_ref,
         created_at,
@@ -247,6 +251,9 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
     toast.success(`${label} copied`);
   };
 
+  const creditsApplied =
+    (transaction.items_subtotal ?? 0) + (transaction.platform_fee ?? 0) - transaction.total_amount;
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.97 }}
@@ -273,6 +280,11 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
           </span>{' '}
           is held in escrow. Share the claim code with your recipient.
         </p>
+        {creditsApplied > 0 && (
+          <p className="mt-1.5 text-xs font-medium text-orange-600">
+            Includes {formatCurrency(creditsApplied, 'ZMW')} in wallet credits applied
+          </p>
+        )}
       </div>
 
       {transaction.shop_orders.map((shopOrder, idx) => {

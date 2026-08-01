@@ -6,10 +6,10 @@
  * Includes Checklist UI for partial fulfillment.
  */
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Scanner } from '@yudiel/react-qr-scanner';
-import { QrCode, Keyboard, Camera, CameraOff, Package, Printer } from 'lucide-react';
+import { QrCode, Keyboard, Camera, CameraOff, Printer } from 'lucide-react';
 import {
   InputOTP,
   InputOTPGroup,
@@ -21,7 +21,6 @@ import { Switch } from '../ui/switch';
 import { cn } from '../ui/utils';
 import {
   useCashierTerminal,
-  TerminalStatus,
   InputMode,
   BundleData,
   ApprovedResult,
@@ -40,8 +39,8 @@ const CLAIM_CODE_LENGTH = 8 as const;
 
 const panelVariants = {
   hidden:  { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } },
-  exit:    { opacity: 0, y: -12, transition: { duration: 0.2, ease: 'easeIn' } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+  exit:    { opacity: 0, y: -12, transition: { duration: 0.2, ease: 'easeIn' as const } },
 };
 
 // ---------------------------------------------------------------------------
@@ -64,7 +63,7 @@ function ProcessingView({ message, subMessage }: { message: string; subMessage: 
           animate={{ scale: [1, 1.1, 1], opacity: [0.7, 0.2, 0.7] }}
           transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut', delay: 0.2 }}
         />
-        <span className="h-5 w-5 rounded-full bg-gradient-to-br from-orange-500 to-blue-800" />
+        <span className="h-5 w-5 rounded-full kl-gradient-brand-br" />
       </div>
       <div className="flex flex-col items-center gap-2 text-center">
         <p className="text-lg font-medium text-slate-900">{message}</p>
@@ -138,7 +137,7 @@ function ChecklistView({ bundle, onProcess, onCancel }: { bundle: BundleData; on
 
       <div className="flex w-full flex-col gap-3 mt-2">
         <Button
-          className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-blue-800 py-5 min-h-[48px] text-sm font-medium tracking-wide text-white hover:opacity-90"
+          className="w-full rounded-xl kl-gradient-brand py-5 min-h-[48px] text-sm font-medium tracking-wide text-white hover:opacity-90"
           onClick={handleProcess}
           disabled={presentCount === 0 && bundle.order_items.length > 0}
         >
@@ -218,7 +217,7 @@ function ApprovedView({ result, transactionId, onReset }: { result: ApprovedResu
 
       <motion.div className="w-full" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
         <Button
-          className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-blue-800 py-5 min-h-[48px] text-sm font-medium tracking-wide text-white hover:opacity-90"
+          className="w-full rounded-xl kl-gradient-brand py-5 min-h-[48px] text-sm font-medium tracking-wide text-white hover:opacity-90"
           onClick={onReset}
         >
           Verify next code
@@ -266,7 +265,7 @@ function RejectedView({ result, onReset }: { result: RejectedResult; onReset: ()
         initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
       >
         <Button
-          className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-blue-800 py-5 min-h-[48px] text-sm font-medium tracking-wide text-white hover:opacity-90"
+          className="w-full rounded-xl kl-gradient-brand py-5 min-h-[48px] text-sm font-medium tracking-wide text-white hover:opacity-90"
           onClick={onReset}
         >
           Try another code
@@ -296,7 +295,7 @@ function ModeToggle({ mode, onChange }: { mode: InputMode; onChange: (m: InputMo
             className={cn(
               'flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 min-h-[48px] text-sm font-medium transition-all',
               active
-                ? 'bg-gradient-to-r from-orange-500 to-blue-800 text-white shadow-sm'
+                ? 'kl-gradient-brand text-white shadow-sm'
                 : 'text-slate-500 hover:text-slate-700',
             )}
           >
@@ -316,7 +315,7 @@ function ModeToggle({ mode, onChange }: { mode: InputMode; onChange: (m: InputMo
 
 const SCANNER_STYLES = {
   container: { width: '100%', aspectRatio: '1 / 1' },
-  video: { objectFit: 'cover', width: '100%', height: '100%' }
+  video: { objectFit: 'cover' as const, width: '100%', height: '100%' }
 };
 
 const SCANNER_COMPONENTS = {
@@ -343,7 +342,7 @@ function QRScanView({ onDetected }: { onDetected: (code: string) => void }) {
   return (
     <div className="w-full max-w-sm mx-auto overflow-hidden rounded-2xl border border-orange-200 shadow-lg shadow-orange-100/60">
       {/* Active indicator strip */}
-      <div className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-blue-800 px-4 py-2">
+      <div className="flex items-center gap-2 kl-gradient-brand px-4 py-2">
         <Camera className="h-3.5 w-3.5 text-white" strokeWidth={1.5} />
         <span className="text-[11px] font-semibold uppercase tracking-widest text-white">Camera Active</span>
         <span className="ml-auto flex h-2 w-2 rounded-full bg-white animate-pulse" />
@@ -456,7 +455,7 @@ function IdleView({
               className={cn(
                 'w-full rounded-xl py-5 min-h-[48px] text-sm font-medium tracking-wide',
                 isComplete && !isDisabled
-                  ? 'bg-gradient-to-r from-orange-500 to-blue-800 text-white hover:opacity-90'
+                  ? 'kl-gradient-brand text-white hover:opacity-90'
                   : 'cursor-not-allowed bg-slate-100 text-slate-400',
               )}
               disabled={!isComplete || isDisabled}
@@ -536,7 +535,7 @@ export function CashierVerificationTerminal({ shopId, onApproved }: CashierVerif
         <motion.div className="mb-10 flex items-center justify-between"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
         >
-          <span className="bg-gradient-to-r from-orange-500 to-blue-800 bg-clip-text text-xs font-semibold uppercase tracking-[0.25em] text-transparent">
+          <span className="kl-gradient-brand-text text-xs font-semibold uppercase tracking-[0.25em] text-transparent">
             KithLy
           </span>
           <span className="text-xs text-slate-400">Merchant Terminal</span>

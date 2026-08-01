@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import { Bell, CheckCircle, X, ExternalLink, Gift, Send, ArrowRight, CheckCheck, Clock } from 'lucide-react';
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuth } from '../../../utils/auth/AuthContext';
+import { relativeTime, absoluteTime } from '../../../utils/relativeTime';
 import { Button } from '../ui/button';
 
 export interface AppNotification {
@@ -32,29 +33,6 @@ function useNow(active: boolean) {
     return () => clearInterval(id);
   }, [active]);
   return now;
-}
-
-function relativeTime(iso: string, now: number): string {
-  const diffMs = now - new Date(iso).getTime();
-  const diffS  = diffMs / 1_000;
-  const diffM  = diffMs / 60_000;
-  const diffH  = diffMs / 3_600_000;
-  const diffD  = diffMs / 86_400_000;
-
-  if (diffS < 10)  return 'Just now';
-  if (diffM < 1)   return `${Math.floor(diffS)}s ago`;
-  if (diffM < 60)  return `${Math.floor(diffM)}m ago`;
-  if (diffH < 24)  return `${Math.floor(diffH)}h ago`;
-  if (diffD < 7)   return `${Math.floor(diffD)}d ago`;
-  return new Date(iso).toLocaleDateString();
-}
-
-function absoluteTime(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleString('en-US', {
-    month: 'short', day: 'numeric',
-    hour: 'numeric', minute: '2-digit', hour12: true,
-  });
 }
 
 // ---------------------------------------------------------------------------

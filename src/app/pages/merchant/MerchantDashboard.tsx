@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { formatCurrency } from '../../../utils/currency';
-import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles, MessageSquare } from 'lucide-react';
+import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles, MessageSquare, Wallet } from 'lucide-react';
 import { motion } from 'motion/react';
 import { NotificationBell } from '../../components/shared/NotificationBell';
+import { StatCard, SectionHeading } from '../../components/shared/StatCard';
 import { AdminItems } from '../admin/AdminItems';
 import { SettlementDashboard } from '../../components/merchant/SettlementDashboard';
 
@@ -48,7 +49,18 @@ function aggregateOrderItems(orderItems?: OrderItem[]) {
 // Main component
 // ---------------------------------------------------------------------------
 
-export function MerchantDashboard() {
+export interface MerchantDashboardProps {
+  /**
+   * Render someone else's shop with every write control suppressed. Used by
+   * the admin support preview — the viewer is still themselves, never the
+   * merchant, so nothing here may mutate.
+   */
+  readOnly?: boolean;
+  /** Shop to render in readOnly mode. Ignored for a merchant's own dashboard. */
+  previewShopId?: string;
+}
+
+export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantDashboardProps = {}) {
   const navigate = useNavigate();
   const { profile, signOut } = useAuth();
 
@@ -63,7 +75,7 @@ export function MerchantDashboard() {
     ledgerData,
     ledgerLoading,
     handleWithdrawRequest,
-  } = useMerchantDashboard(profile?.id);
+  } = useMerchantDashboard(profile?.id, previewShopId ? { shopId: previewShopId } : undefined);
 
   // Sheet drawer state
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -74,9 +86,6 @@ export function MerchantDashboard() {
 
     try {
       await signOut();
-      localStorage.clear();
-      sessionStorage.clear();
-      navigate('/login', { replace: true });
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -98,76 +107,103 @@ export function MerchantDashboard() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-xl font-semibold">{shopName}</h1>
-            <p className="text-sm text-muted-foreground">Merchant Dashboard</p>
+            <p className="text-sm text-muted-foreground">
+              {readOnly ? 'Viewing as merchant — read only' : 'Merchant Dashboard'}
+            </p>
           </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-            <Button
-              onClick={() => navigate('/merchant/fulfill')}
-              className="kl-gradient-brand flex-1 sm:flex-none"
-            >
-              <QrCode className="w-4 h-4 mr-2" />
-              Redeem Gift
+          {readOnly ? (
+            <Button variant="outline" onClick={() => navigate('/admin/shops')}>
+              Exit preview
             </Button>
-            <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" onClick={() => navigate('/merchant/messages')} aria-label="Messages">
-                <MessageSquare className="w-5 h-5" />
+          ) : (
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+              <Button
+                onClick={() => navigate('/merchant/fulfill')}
+                className="kl-gradient-brand flex-1 sm:flex-none"
+              >
+                <QrCode className="w-4 h-4 mr-2" />
+                Redeem Gift
               </Button>
-              <NotificationBell />
-              <Button variant="ghost" size="icon" onClick={() => navigate('/support')}>
-                <HelpCircle className="w-5 h-5" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={handleLogout}>
-                <LogOut className="w-5 h-5" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="icon" onClick={() => navigate('/merchant/messages')} aria-label="Messages">
+                  <MessageSquare className="w-5 h-5" />
+                </Button>
+                <NotificationBell />
+                <Button variant="ghost" size="icon" onClick={() => navigate('/support')}>
+                  <HelpCircle className="w-5 h-5" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={handleLogout}>
+                  <LogOut className="w-5 h-5" />
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-8">
 
-        {/* Analytics Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: 'Total Fulfilled', value: analytics.totalFulfilled, icon: Package, isCurrency: false },
-            { label: 'Total Value', value: analytics.totalValue, icon: TrendingUp, isCurrency: true },
-            { label: 'This Week', value: analytics.weekFulfilled, icon: Package, isCurrency: false },
-            { label: 'Available for Withdrawal', value: analytics.availableBalance, icon: TrendingUp, isCurrency: true },
-          ].map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-white p-6 rounded-xl shadow-sm"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
-                  <stat.icon className="w-5 h-5 text-primary" />
-                </div>
-                {stat.label === 'Available for Withdrawal' && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleWithdrawRequest}
-                    disabled={withdrawing || analytics.availableBalance <= 0}
-                    className="h-7 text-xs border-primary text-primary hover:bg-orange-50"
-                  >
-                    {withdrawing ? 'Requesting...' : 'Withdraw'}
-                  </Button>
-                )}
-              </div>
-              <p className="text-2xl font-bold">
-                <AnimatedMetric value={stat.value} isCurrency={stat.isCurrency} />
-              </p>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
-            </motion.div>
-          ))}
+        {/* ── Trading figures ──────────────────────────────────────────── */}
+        <SectionHeading
+          title="Your shop"
+          description="Everything handed over, and what is cleared to withdraw."
+        />
+        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            label="Total Fulfilled"
+            value={analytics.totalFulfilled}
+            animate
+            icon={Package}
+            sub={`${analytics.weekFulfilled.toLocaleString()} in the last 7 days`}
+          />
+          <StatCard
+            label="Total Value"
+            value={analytics.totalValue}
+            animate
+            isCurrency
+            icon={TrendingUp}
+          />
+          {/* weekValue is calculated by useMerchantDashboard but was never shown
+              until now — the week card used to display only the count. */}
+          <StatCard
+            label="This Week"
+            value={analytics.weekFulfilled}
+            animate
+            icon={Package}
+            sub={`${formatCurrency(analytics.weekValue)} handed over`}
+            live={analytics.weekFulfilled > 0}
+          />
+          <div className="relative">
+            <StatCard
+              label="Available for Withdrawal"
+              value={analytics.availableBalance}
+              animate
+              isCurrency
+              icon={Wallet}
+              sub={
+                analytics.availableBalance > 0
+                  ? 'Cleared and ready to pay out'
+                  : 'Nothing cleared yet'
+              }
+            />
+            {!readOnly && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleWithdrawRequest}
+                disabled={withdrawing || analytics.availableBalance <= 0}
+                className="absolute right-4 bottom-4 h-7 border-primary text-xs text-primary hover:bg-primary-tint"
+              >
+                {withdrawing ? 'Requesting…' : 'Withdraw'}
+              </Button>
+            )}
+          </div>
         </div>
 
-        {/* Quick Actions Grid */}
-        <div className="mb-8">
+        {/* Quick Actions Grid — hidden in preview: every entry navigates into a
+            merchant-only route, which would eject the admin out of the preview. */}
+        <div className={cn('mb-8', readOnly && 'hidden')}>
           <h2 className="text-lg font-semibold text-slate-900 mb-4">Shop Management</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
@@ -234,20 +270,43 @@ export function MerchantDashboard() {
         {/* Tabs — Active Orders | Fulfilled | Inventory */}
         <Tabs defaultValue="active" className="space-y-6">
           <TabsList className="flex overflow-x-auto w-full max-w-2xl md:grid md:grid-cols-4 h-auto md:h-9 gap-1 md:gap-0 p-1 md:p-[3px] justify-start scrollbar-none">
-            <TabsTrigger value="active">Active Orders</TabsTrigger>
-            <TabsTrigger value="fulfilled">Fulfilled</TabsTrigger>
-            <TabsTrigger value="ledger">Settlements</TabsTrigger>
+            <TabsTrigger value="active">
+              Active Orders
+              {activeOrders.length > 0 && (
+                <span className="ml-1.5 rounded-full bg-primary-tint px-1.5 py-0.5 text-[0.6875rem] font-medium text-primary">
+                  {activeOrders.length}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="fulfilled">
+              Fulfilled
+              {fulfilledOrders.length > 0 && (
+                <span className="ml-1.5 rounded-full bg-secondary px-1.5 py-0.5 text-[0.6875rem] font-medium text-muted-foreground">
+                  {fulfilledOrders.length}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="ledger">
+              Settlements
+              {ledgerData.length > 0 && (
+                <span className="ml-1.5 rounded-full bg-primary-tint px-1.5 py-0.5 text-[0.6875rem] font-medium text-primary">
+                  {ledgerData.length}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="inventory">Inventory</TabsTrigger>
           </TabsList>
 
           {/* Active Orders */}
           <TabsContent value="active" className="space-y-4">
             {activeOrders.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-xl border">
-                <Package className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-medium mb-2">No Active Orders</h3>
-                <p className="text-muted-foreground">
-                  New paid orders will appear here automatically
+              <div className="kl-card flex flex-col items-center px-6 py-16 text-center">
+                <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-primary-tint">
+                  <Package className="size-6 text-primary" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-base font-medium tracking-tight">Nothing waiting to be handed over</h3>
+                <p className="mt-1 max-w-xs text-sm font-light text-muted-foreground">
+                  Paid orders land here the moment a customer checks out — no refresh needed.
                 </p>
               </div>
             ) : (
@@ -314,17 +373,19 @@ export function MerchantDashboard() {
                             )}
                           </h3>
                           <p className="text-sm text-muted-foreground">
-                            For: {order.recipient_name}
+                            For <span className="font-medium text-foreground">{order.recipient_name}</span>
                           </p>
                         </div>
                       </div>
-                      <div className="text-left sm:text-right shrink-0">
-                        <p className="text-2xl font-bold text-primary">REF-{order.id.split('-')[0].toUpperCase()}</p>
-                        <p className="text-xs text-muted-foreground">Order Reference</p>
+                      <div className="shrink-0 text-left sm:text-right">
+                        <p className="kl-stat__label">Reference</p>
+                        <p className="mt-0.5 font-mono text-sm font-medium tracking-tight text-primary">
+                          REF-{order.id.split('-')[0].toUpperCase()}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                      <p className="text-sm text-muted-foreground">
+                    <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-3 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-xs font-light text-muted-foreground">
                         {order.paid_at &&
                           `Paid ${new Date(order.paid_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}`}
                       </p>
@@ -339,13 +400,15 @@ export function MerchantDashboard() {
                         >
                           View Order
                         </Button>
-                        <Button
-                          onClick={() => handleFulfillOrder(order.id)}
-                          size="sm"
-                          className="kl-gradient-brand"
-                        >
-                          Fulfill This Order
-                        </Button>
+                        {!readOnly && (
+                          <Button
+                            onClick={() => navigate('/merchant/fulfill')}
+                            size="sm"
+                            className="kl-gradient-brand"
+                          >
+                            Fulfill This Order
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -357,9 +420,14 @@ export function MerchantDashboard() {
           {/* Fulfilled */}
           <TabsContent value="fulfilled" className="space-y-4">
             {fulfilledOrders.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-xl border">
-                <Package className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground">No fulfilled orders yet</p>
+              <div className="kl-card flex flex-col items-center px-6 py-16 text-center">
+                <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-secondary">
+                  <Package className="size-6 text-muted-foreground" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-base font-medium tracking-tight">No completed handovers yet</h3>
+                <p className="mt-1 max-w-xs text-sm font-light text-muted-foreground">
+                  Once you redeem a gift code, the order moves here with its settlement record.
+                </p>
               </div>
             ) : (
               fulfilledOrders.map((order) => {
@@ -464,7 +532,7 @@ export function MerchantDashboard() {
           <TabsContent value="inventory" className="space-y-4">
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
               {shopId ? (
-                <AdminItems merchantShopId={shopId} baseRoute="/merchant" />
+                <AdminItems merchantShopId={shopId} baseRoute="/merchant" readOnly={readOnly} />
               ) : (
                 <div className="p-12 text-center text-muted-foreground">Loading inventory...</div>
               )}
@@ -604,39 +672,5 @@ export function MerchantDashboard() {
   );
 }
 
-// ---------------------------------------------------------------------------
-// AnimatedMetric — unchanged from original
-// ---------------------------------------------------------------------------
-
-function AnimatedMetric({
-  value,
-  isCurrency,
-}: {
-  value: number;
-  isCurrency: boolean;
-}) {
-  const [displayValue, setDisplayValue] = useState(0);
-
-  useEffect(() => {
-    let frameId = 0;
-    const duration = 900;
-    const startTime = performance.now();
-
-    const tick = (now: number) => {
-      const progress = Math.min((now - startTime) / duration, 1);
-      const easedProgress = 1 - Math.pow(1 - progress, 3);
-      setDisplayValue(Math.round(value * easedProgress));
-
-      if (progress < 1) {
-        frameId = window.requestAnimationFrame(tick);
-      }
-    };
-
-    setDisplayValue(0);
-    frameId = window.requestAnimationFrame(tick);
-
-    return () => window.cancelAnimationFrame(frameId);
-  }, [value]);
-
-  return isCurrency ? formatCurrency(displayValue) : displayValue.toLocaleString();
-}
+// AnimatedMetric now lives in components/shared/AnimatedMetric.tsx so the admin
+// dashboard can use the same count-up.

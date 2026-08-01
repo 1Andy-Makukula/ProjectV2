@@ -47,9 +47,11 @@ const MerchantDashboard = lazyPage(() => import('./pages/merchant/MerchantDashbo
 const MerchantFulfill = lazyPage(() => import('./pages/merchant/MerchantFulfill'), 'MerchantFulfill');
 const AdminDashboard = lazyPage(() => import('./pages/admin/AdminDashboard'), 'AdminDashboard');
 const AdminMerchandising = lazyPage(() => import('./pages/admin/AdminMerchandising'), 'AdminMerchandising');
+const AdminNotifications = lazyPage(() => import('./pages/admin/AdminNotifications'), 'AdminNotifications');
 const AdminShops = lazyPage(() => import('./pages/admin/AdminShops'), 'AdminShops');
 const AdminShopForm = lazyPage(() => import('./pages/admin/AdminShopForm'), 'AdminShopForm');
 const AdminItems = lazyPage(() => import('./pages/admin/AdminItems'), 'AdminItems');
+const AdminMerchantPreview = lazyPage(() => import('./pages/admin/AdminMerchantPreview'), 'AdminMerchantPreview');
 const AdminItemForm = lazyPage(() => import('./pages/admin/AdminItemForm'), 'AdminItemForm');
 const AdminMerchants = lazyPage(() => import('./pages/admin/AdminMerchants'), 'AdminMerchants');
 const AdminOrders = lazyPage(() => import('./pages/admin/AdminOrders'), 'AdminOrders');
@@ -107,7 +109,7 @@ export const router = createBrowserRouter([
       {
         path: 'dashboard',
         element: (
-          <ProtectedRoute allowedRoles={['sender', 'merchant', 'admin']}>
+          <ProtectedRoute allowedRoles={['sender']}>
             <Lazy><CustomerDashboard /></Lazy>
           </ProtectedRoute>
         ),
@@ -269,10 +271,18 @@ export const router = createBrowserRouter([
       },
 
       {
-        path: 'admin-merch',
+        path: 'admin/merchandising',
         element: (
           <ProtectedRoute allowedRoles={['admin']}>
             <Lazy><AdminMerchandising /></Lazy>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/notifications',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><AdminNotifications /></Lazy>
           </ProtectedRoute>
         ),
       },
@@ -313,6 +323,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['admin']}>
             <Lazy><AdminItems /></Lazy>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/shops/:shopId/preview',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><AdminMerchantPreview /></Lazy>
           </ProtectedRoute>
         ),
       },

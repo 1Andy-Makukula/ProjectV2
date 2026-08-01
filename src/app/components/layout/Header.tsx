@@ -26,9 +26,9 @@ interface HeaderProps {
 }
 
 export function Header({
-  onMenuClick,
-  onProfileClick,
-  onLogoClick,
+  onMenuClick: _onMenuClick,
+  onProfileClick: _onProfileClick,
+  onLogoClick: _onLogoClick,
 }: HeaderProps) {
   const { user, profile, signOut } = useAuth();
   const isAuthenticated = !!user;

@@ -1,14 +1,8 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
 import {
   ShoppingBag,
   TrendingUp,
-  Store,
-  Users,
-  CheckCircle,
-  Clock,
-  XCircle,
   LogOut,
   ArrowRight,
   Download,
@@ -19,11 +13,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
+import { PageShell, PageBody } from '../../components/layout/PageShell';
+import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
+import { StatCard, StatStrip, SectionHeading } from '../../components/shared/StatCard';
 import { useAdminDashboard } from '../../hooks/useAdminDashboard';
 import { RecentOrder } from '../../types/orders';
 import { STATUS_COLORS, STATUS_LABELS } from '../../../utils/orderStatus';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { formatCurrency } from '../../../utils/currency';
+import { formatDate } from '../../../utils/relativeTime';
 import { toast } from 'sonner';
 
 export function AdminDashboard() {
@@ -43,9 +41,6 @@ export function AdminDashboard() {
 
     try {
       await signOut();
-      localStorage.clear();
-      sessionStorage.clear();
-      navigate('/login', { replace: true });
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -58,113 +53,85 @@ export function AdminDashboard() {
     STATUS_LABELS[status] ?? status.split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
-      {/* Header */}
-      <div className="kl-gradient-brand text-white">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-3xl font-light mb-1">Admin Dashboard</h1>
-                <Activity 
-                  className="w-5 h-5 text-white/40 hover:text-white cursor-pointer transition-colors" 
-                  onClick={() => toast.success('Antigravity Diagnostic Engine Online')} 
-                />
-              </div>
-              <p className="text-sm opacity-90 font-light">KithLy Platform Management</p>
-            </div>
-            <Button
-              variant="outline"
-              onClick={handleLogout}
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </Button>
-          </div>
-          <div className="mt-4">
+    <PageShell>
+      <AdminPageHeader
+        title="Admin Dashboard"
+        subtitle="KithLy Platform Management"
+        actions={
+          <>
             <Button
               onClick={handleExportAllData}
-              className="bg-white text-primary hover:bg-white/90"
+              className="bg-white text-primary hover:bg-white/90 h-8"
               disabled={exporting}
             >
-              <Download className="w-4 h-4" />
-              {exporting ? 'Exporting...' : 'Export All Data to CSV'}
+              <Download className="size-3.5" />
+              {exporting ? 'Exporting…' : 'Export CSV'}
             </Button>
-          </div>
-        </div>
-      </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleLogout}
+              className="text-white/80 hover:text-white hover:bg-white/10"
+              aria-label="Log out"
+            >
+              <LogOut className="size-4" />
+            </Button>
+            <Activity
+              className="size-4 text-white/30 hover:text-white cursor-pointer transition-colors"
+              onClick={() => toast.success('Antigravity Diagnostic Engine Online')}
+            />
+          </>
+        }
+      />
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <PageBody>
+        {/* ── Headline figures ─────────────────────────────────────────── */}
+        <SectionHeading
+          title="Platform"
+          description="Gross volume and take across every shop, all time."
+        />
+        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <StatCard
-            title="Total Orders"
+            label="Total Value"
+            value={stats.totalValue}
+            animate
+            isCurrency
+            icon={TrendingUp}
+            sub={`${formatCurrency(stats.valueThisWeek)} this week`}
+          />
+          <StatCard
+            label="Platform Revenue"
+            value={stats.totalCommission}
+            animate
+            isCurrency
+            icon={Percent}
+            sub={`${formatCurrency(stats.commissionThisWeek)} this week`}
+          />
+          <StatCard
+            label="Total Orders"
             value={stats.totalOrders}
+            animate
             icon={ShoppingBag}
-            gradient="from-blue-500 to-blue-600"
-          />
-          <StatCard
-            title="Total Value"
-            value={formatCurrency(stats.totalValue)}
-            icon={TrendingUp}
-            gradient="from-green-500 to-green-600"
-          />
-          <StatCard
-            title="Orders This Week"
-            value={stats.ordersThisWeek}
-            icon={ShoppingBag}
-            gradient="from-purple-500 to-purple-600"
-          />
-          <StatCard
-            title="Value This Week"
-            value={formatCurrency(stats.valueThisWeek)}
-            icon={TrendingUp}
-            gradient="from-indigo-500 to-indigo-600"
-          />
-          <StatCard
-            title="Total KithLy Revenue (5%)"
-            value={formatCurrency(stats.totalCommission)}
-            icon={Percent}
-            gradient="from-amber-500 to-amber-600"
-          />
-          <StatCard
-            title="Revenue This Week (5%)"
-            value={formatCurrency(stats.commissionThisWeek)}
-            icon={Percent}
-            gradient="from-yellow-500 to-yellow-600"
-          />
-          <StatCard
-            title="Total Shops"
-            value={stats.totalShops}
-            icon={Store}
-            gradient="from-orange-500 to-orange-600"
-          />
-          <StatCard
-            title="Total Users"
-            value={stats.totalUsers}
-            icon={Users}
-            gradient="from-pink-500 to-pink-600"
-          />
-          <StatCard
-            title="Fulfilled Orders"
-            value={stats.fulfilledOrders}
-            icon={CheckCircle}
-            gradient="from-green-500 to-green-600"
-          />
-          <StatCard
-            title="Pending Orders"
-            value={stats.pendingOrders}
-            icon={Clock}
-            gradient="from-yellow-500 to-yellow-600"
-          />
-          <StatCard
-            title="Expired Orders"
-            value={stats.expiredOrders}
-            icon={XCircle}
-            gradient="from-red-500 to-red-600"
+            sub={`${stats.ordersThisWeek.toLocaleString()} this week`}
           />
         </div>
+
+        {/* ── Operational counts ───────────────────────────────────────── */}
+        <SectionHeading
+          title="Operations"
+          description="Where orders currently sit, and how big the network is."
+        />
+        <StatStrip
+          className="mb-8"
+          entries={[
+            { label: 'Fulfilled', value: stats.fulfilledOrders.toLocaleString(), tone: 'success' },
+            { label: 'Pending', value: stats.pendingOrders.toLocaleString(), live: stats.pendingOrders > 0 },
+            { label: 'Expired', value: stats.expiredOrders.toLocaleString(), tone: 'muted' },
+            { label: 'Orders / wk', value: stats.ordersThisWeek.toLocaleString() },
+            { label: 'Shops', value: stats.totalShops.toLocaleString() },
+            { label: 'Users', value: stats.totalUsers.toLocaleString() },
+          ]}
+        />
 
         {/* Quick Links */}
         <Card className="mb-8">
@@ -187,7 +154,12 @@ export function AdminDashboard() {
               <QuickLink
                 title="Merchandising"
                 description="Ads, Banners & Top Picks"
-                onClick={() => navigate('/admin-merch')}
+                onClick={() => navigate('/admin/merchandising')}
+              />
+              <QuickLink
+                title="Notifications"
+                description="Broadcast an announcement to users"
+                onClick={() => navigate('/admin/notifications')}
               />
               <QuickLink
                 title="Assisted Merchant Enrollment"
@@ -228,39 +200,39 @@ export function AdminDashboard() {
               <div>
                 {/* Desktop View */}
                 <div className="hidden md:block overflow-x-auto">
-                  <Table>
+                  <Table className="kl-table">
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="font-light">Code</TableHead>
-                        <TableHead className="font-light">Item</TableHead>
-                        <TableHead className="font-light">Shop</TableHead>
-                        <TableHead className="font-light">Sender</TableHead>
-                        <TableHead className="font-light">Recipient</TableHead>
-                        <TableHead className="font-light">Amount</TableHead>
-                        <TableHead className="font-light">Status</TableHead>
-                        <TableHead className="font-light">Date</TableHead>
+                        <TableHead>Code</TableHead>
+                        <TableHead>Item</TableHead>
+                        <TableHead>Shop</TableHead>
+                        <TableHead>Sender</TableHead>
+                        <TableHead>Recipient</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Date</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {recentOrders.map((order: RecentOrder) => (
                         <TableRow
                           key={order.id}
-                          className="cursor-pointer hover:bg-orange-50"
+                          className="cursor-pointer"
                           onClick={() => navigate(`/admin/orders/${order.id}`)}
                         >
-                          <TableCell className="font-mono font-light">{order.code}</TableCell>
-                          <TableCell className="font-light">{order.item_name}</TableCell>
+                          <TableCell className="font-mono text-primary">{order.code}</TableCell>
+                          <TableCell className="font-medium text-foreground">{order.item_name}</TableCell>
                           <TableCell className="font-light">{order.shop_name}</TableCell>
                           <TableCell className="font-light">{order.sender_name}</TableCell>
                           <TableCell className="font-light">{order.recipient_name}</TableCell>
-                          <TableCell className="font-light">{formatCurrency(order.amount)}</TableCell>
+                          <TableCell className="font-medium tabular-nums">{formatCurrency(order.amount)}</TableCell>
                           <TableCell>
                             <Badge className={`font-light ${getStatusColor(order.status)}`}>
                               {getStatusLabel(order.status)}
                             </Badge>
                           </TableCell>
                           <TableCell className="font-light">
-                            {new Date(order.created_at).toLocaleDateString()}
+                            {formatDate(order.created_at)}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -309,7 +281,7 @@ export function AdminDashboard() {
                         </div>
                         <div>
                           <span className="text-slate-400">Date: </span>
-                          <span className="text-slate-800">{new Date(order.created_at).toLocaleDateString()}</span>
+                          <span className="text-slate-800">{formatDate(order.created_at)}</span>
                         </div>
                       </div>
                     </div>
@@ -319,30 +291,8 @@ export function AdminDashboard() {
             )}
           </CardContent>
         </Card>
-      </div>
-    </div>
-  );
-}
-
-// Stat Card Component
-function StatCard({ title, value, icon: Icon, gradient }: any) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.2 }}
-    >
-      <Card className="overflow-hidden">
-        <CardContent className="p-6">
-          <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-4`}>
-            <Icon className="w-6 h-6 text-white" strokeWidth={1.5} />
-          </div>
-          <h3 className="text-sm font-light text-muted-foreground mb-1">{title}</h3>
-          <p className="text-2xl font-medium text-black">{value}</p>
-        </CardContent>
-      </Card>
-    </motion.div>
+      </PageBody>
+    </PageShell>
   );
 }
 

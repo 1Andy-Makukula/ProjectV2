@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
-import { Plus, Edit, Search, MapPin, Store, FileText, Check, X, MessageSquare } from 'lucide-react';
+import { Plus, Edit, Search, MapPin, Store, FileText, Check, X, MessageSquare, Eye } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -10,6 +10,8 @@ import { Switch } from '../../components/ui/switch';
 import { PageShell, PageBody } from '../../components/layout/PageShell';
 import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
 import { useAdminShops } from '../../hooks/useAdminShops';
+import { cn } from '../../components/ui/utils';
+import { formatDate } from '../../../utils/relativeTime';
 import { supabase } from '../../../lib/supabaseClient';
 import { toast } from 'sonner';
 
@@ -100,28 +102,35 @@ export function AdminShops() {
       />
       <PageBody>
         {/* Navigation Tabs */}
-        <div className="flex border-b border-slate-200 mb-6">
+        <div className="mb-6 flex border-b border-[var(--border)]">
           <button
             onClick={() => setActiveTab('all')}
-            className={`py-2.5 px-4 text-sm font-medium border-b-2 transition-colors ${
+            className={cn(
+              'border-b-2 px-4 py-2.5 text-sm font-medium transition-colors',
               activeTab === 'all'
                 ? 'border-primary text-primary'
-                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-            }`}
+                : 'border-transparent text-muted-foreground hover:border-[var(--border-dark)] hover:text-foreground',
+            )}
           >
-            All Shops ({nonPendingShops.length})
+            All Shops
+            <span className="ml-1.5 text-xs font-light text-muted-foreground">
+              {nonPendingShops.length}
+            </span>
           </button>
           <button
             onClick={() => setActiveTab('pending')}
-            className={`py-2.5 px-4 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
+            className={cn(
+              'flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors',
               activeTab === 'pending'
                 ? 'border-primary text-primary'
-                : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
-            }`}
+                : 'border-transparent text-muted-foreground hover:border-[var(--border-dark)] hover:text-foreground',
+            )}
           >
+            {/* A shop waiting on review is work sitting still — make it tick. */}
+            {pendingShops.length > 0 && <span className="kl-dot kl-dot--live" aria-hidden />}
             Pending Verifications
             {pendingShops.length > 0 && (
-              <span className="bg-primary text-white text-xs px-2 py-0.5 rounded-full font-bold">
+              <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">
                 {pendingShops.length}
               </span>
             )}
@@ -132,19 +141,25 @@ export function AdminShops() {
           <div className="text-center py-12 text-sm text-muted-foreground">Loading shops…</div>
         ) : activeTab === 'all' ? (
           nonPendingShops.length === 0 ? (
-            <Card>
-              <CardContent className="text-center py-12">
-                <p className="text-sm text-muted-foreground mb-4">
-                  {searchQuery ? 'No shops match your search' : 'No shops yet'}
-                </p>
-                {!searchQuery && (
-                  <Button onClick={() => navigate('/admin/shops/new')}>
-                    <Plus className="size-3.5" />
-                    Add Your First Shop
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+            <div className="kl-card flex flex-col items-center px-6 py-16 text-center">
+              <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-primary-tint">
+                <Store className="size-6 text-primary" strokeWidth={1.5} />
+              </div>
+              <h3 className="text-base font-medium tracking-tight">
+                {searchQuery ? 'No matching shops' : 'No shops yet'}
+              </h3>
+              <p className="mt-1 mb-5 max-w-xs text-sm font-light text-muted-foreground">
+                {searchQuery
+                  ? 'Try a different name or location.'
+                  : 'Add a storefront to start listing items on the platform.'}
+              </p>
+              {!searchQuery && (
+                <Button onClick={() => navigate('/admin/shops/new')}>
+                  <Plus className="size-3.5" />
+                  Add Your First Shop
+                </Button>
+              )}
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {nonPendingShops.map((shop) => (
@@ -154,6 +169,7 @@ export function AdminShops() {
                   onEdit={() => navigate(`/admin/shops/${shop.id}/edit`)}
                   onToggleActive={() => toggleShopActive(shop.id, shop.is_active)}
                   onClick={() => navigate(`/admin/shops/${shop.id}/items`)}
+                  onPreview={() => navigate(`/admin/shops/${shop.id}/preview`)}
                 />
               ))}
             </div>
@@ -177,7 +193,7 @@ export function AdminShops() {
                         <h3 className="font-semibold text-base text-slate-900 leading-tight">{shop.name}</h3>
                         <p className="text-[10px] text-slate-400 mt-1">
                           {shop.created_at
-                            ? `Submitted on ${new Date(shop.created_at).toLocaleDateString()}`
+                            ? `Submitted on ${formatDate(shop.created_at)}`
                             : 'Submission date unavailable'}
                         </p>
                       </div>
@@ -327,7 +343,7 @@ export function AdminShops() {
 }
 
 // Shop Card Component
-function ShopCard({ shop, onEdit, onToggleActive, onClick }: any) {
+function ShopCard({ shop, onEdit, onToggleActive, onClick, onPreview }: any) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -388,6 +404,19 @@ function ShopCard({ shop, onEdit, onToggleActive, onClick }: any) {
             >
               <Edit className="size-3.5 mr-1" />
               Edit
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onPreview();
+              }}
+              className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+              title="Open this merchant's dashboard read-only"
+            >
+              <Eye className="size-3.5 mr-1" />
+              View as
             </Button>
             <Button
               variant="ghost"

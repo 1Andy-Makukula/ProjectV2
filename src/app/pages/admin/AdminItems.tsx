@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from 'react-router';
 import { motion } from 'motion/react';
-import { Plus, Edit } from 'lucide-react';
+import { Plus, Edit, Package } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -12,9 +12,19 @@ import { useAdminItems } from '../../hooks/useAdminItems';
 interface AdminItemsProps {
   merchantShopId?: string;
   baseRoute?: string;
+  /**
+   * Suppress every write control (add, edit, availability toggle). Used by the
+   * admin's read-only merchant preview, where the viewer's own admin RLS would
+   * otherwise let these writes actually succeed against someone else's shop.
+   */
+  readOnly?: boolean;
 }
 
-export function AdminItems({ merchantShopId, baseRoute = '/admin' }: AdminItemsProps) {
+export function AdminItems({
+  merchantShopId,
+  baseRoute = '/admin',
+  readOnly = false,
+}: AdminItemsProps) {
   const navigate = useNavigate();
   const { shopId: paramShopId } = useParams();
   const activeShopId = merchantShopId || paramShopId;
@@ -31,36 +41,47 @@ export function AdminItems({ merchantShopId, baseRoute = '/admin' }: AdminItemsP
           subtitle="Manage items for this storefront"
           onBack={() => navigate('/admin/shops')}
           actions={
-            <Button
-              onClick={() => navigate(`${baseRoute}/shops/${activeShopId}/items/new`)}
-              className="bg-white text-primary hover:bg-white/90 h-8"
-            >
-              <Plus className="size-3.5" />
-              Add Item
-            </Button>
+            readOnly ? undefined : (
+              <Button
+                onClick={() => navigate(`${baseRoute}/shops/${activeShopId}/items/new`)}
+                className="bg-white text-primary hover:bg-white/90 h-8"
+              >
+                <Plus className="size-3.5" />
+                Add Item
+              </Button>
+            )
           }
         />
       )}
 
       <PageBody contained={!isMerchantMode}>
         {loading ? (
-          <div className="text-center py-12 text-sm text-muted-foreground">Loading items…</div>
+          <div className="py-12 text-center text-sm text-muted-foreground">Loading items…</div>
         ) : items.length === 0 ? (
-          <Card>
-            <CardContent className="text-center py-12">
-              <p className="text-sm text-muted-foreground mb-4">No items yet</p>
+          <div className="kl-card flex flex-col items-center px-6 py-16 text-center">
+            <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-primary-tint">
+              <Package className="size-6 text-primary" strokeWidth={1.5} />
+            </div>
+            <h3 className="text-base font-medium tracking-tight">No items yet</h3>
+            <p className="mt-1 mb-5 max-w-xs text-sm font-light text-muted-foreground">
+              {readOnly
+                ? 'This shop has not listed anything yet.'
+                : 'List your first product to start receiving gift orders.'}
+            </p>
+            {!readOnly && (
               <Button onClick={() => navigate(baseRoute === '/merchant' ? `${baseRoute}/items/new` : `${baseRoute}/shops/${activeShopId}/items/new`)}>
                 <Plus className="size-3.5" />
                 Add Your First Item
               </Button>
-            </CardContent>
-          </Card>
+            )}
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {items.map((item) => (
               <ItemCard
                 key={item.id}
                 item={item}
+                readOnly={readOnly}
                 onEdit={() => navigate(`${baseRoute}/items/${item.id}/edit`)}
                 onToggleAvailability={() => toggleItemAvailability(item.id, item.is_available)}
               />
@@ -73,7 +94,7 @@ export function AdminItems({ merchantShopId, baseRoute = '/admin' }: AdminItemsP
 }
 
 // Item Card Component
-function ItemCard({ item, onEdit, onToggleAvailability }: any) {
+function ItemCard({ item, onEdit, onToggleAvailability, readOnly = false }: any) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -99,29 +120,32 @@ function ItemCard({ item, onEdit, onToggleAvailability }: any) {
 
         {/* Content */}
         <CardContent className="pt-3">
-          <h3 className="font-medium text-sm tracking-tight mb-1">{item.name}</h3>
+          <h3 className="mb-1 text-sm font-medium tracking-tight">{item.name}</h3>
           {item.description && (
-            <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{item.description}</p>
+            <p className="mb-2 line-clamp-2 text-xs font-light text-muted-foreground">{item.description}</p>
           )}
-          <div className="text-base font-medium text-primary mb-3">
-            ZMW {item.price_zmw != null ? (item.price_zmw / 100).toFixed(2) : '—'}
+          <div className="mb-3 text-lg font-light tracking-[-0.04em] text-foreground tabular-nums">
+            <span className="mr-1 text-xs font-medium tracking-normal text-muted-foreground">ZMW</span>
+            {item.price_zmw != null ? (item.price_zmw / 100).toFixed(2) : '—'}
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center justify-between pt-3 border-t border-border">
-            <Button variant="ghost" size="sm" onClick={onEdit}
-              className="text-primary hover:bg-primary-tint h-7">
-              <Edit className="size-3.5" />
-              Edit
-            </Button>
+          {/* Actions — omitted entirely in read-only mode */}
+          {!readOnly && (
+            <div className="flex items-center justify-between pt-3 border-t border-border">
+              <Button variant="ghost" size="sm" onClick={onEdit}
+                className="text-primary hover:bg-primary-tint h-7">
+                <Edit className="size-3.5" />
+                Edit
+              </Button>
 
-            <div className="flex items-center gap-2">
-              <span className="text-[0.6875rem] text-muted-foreground">
-                {item.is_available ? 'Available' : 'Hidden'}
-              </span>
-              <Switch checked={item.is_available} onCheckedChange={onToggleAvailability} />
+              <div className="flex items-center gap-2">
+                <span className="text-[0.6875rem] text-muted-foreground">
+                  {item.is_available ? 'Available' : 'Hidden'}
+                </span>
+                <Switch checked={item.is_available} onCheckedChange={onToggleAvailability} />
+              </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </motion.div>

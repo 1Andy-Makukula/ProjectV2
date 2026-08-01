@@ -26,10 +26,8 @@ import { Checkbox } from '../../components/ui/checkbox';
 import { cn } from '../../components/ui/utils';
 import {
   useMerchantFulfill,
-  Stage,
   InputMode,
   OrderItem,
-  ShopOrder,
 } from '../../hooks/useMerchantFulfill';
 
 // ---------------------------------------------------------------------------
@@ -58,7 +56,7 @@ function ModeToggle({ mode, onChange }: { mode: InputMode; onChange: (m: InputMo
             className={cn(
               'flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 min-h-[48px] text-sm font-medium transition-all',
               active
-                ? 'bg-gradient-to-r from-orange-500 to-blue-800 text-white shadow-sm'
+                ? 'kl-gradient-brand text-white shadow-sm'
                 : 'text-slate-500 hover:text-slate-700',
             )}
           >
@@ -73,7 +71,7 @@ function ModeToggle({ mode, onChange }: { mode: InputMode; onChange: (m: InputMo
 
 const SCANNER_STYLES = {
   container: { width: '100%', aspectRatio: '1 / 1' },
-  video: { objectFit: 'cover', width: '100%', height: '100%' }
+  video: { objectFit: 'cover' as const, width: '100%', height: '100%' }
 };
 
 const SCANNER_COMPONENTS = {
@@ -99,7 +97,7 @@ function QRScanView({ onDetected }: { onDetected: (code: string) => void }) {
 
   return (
     <div className="w-full max-w-sm mx-auto overflow-hidden rounded-2xl border border-orange-200 shadow-lg shadow-orange-100/60 mb-6">
-      <div className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-blue-800 px-4 py-2">
+      <div className="flex items-center gap-2 kl-gradient-brand px-4 py-2">
         <Camera className="h-3.5 w-3.5 text-white" strokeWidth={1.5} />
         <span className="text-[11px] font-semibold uppercase tracking-widest text-white">Camera Active</span>
         <span className="ml-auto flex h-2 w-2 rounded-full bg-white animate-pulse" />
@@ -183,7 +181,7 @@ export function MerchantFulfill() {
           <h1 className="text-base font-semibold tracking-tight text-slate-900">
             Handover Terminal
           </h1>
-          <span className="ml-auto bg-gradient-to-r from-orange-500 to-blue-800 bg-clip-text text-xs font-semibold uppercase tracking-widest text-transparent">
+          <span className="ml-auto kl-gradient-brand-text text-xs font-semibold uppercase tracking-widest text-transparent">
             KithLy POS
           </span>
         </div>
@@ -392,7 +390,7 @@ export function MerchantFulfill() {
                 id="confirm-handover-button"
                 onClick={handleConfirm}
                 disabled={checkedIds.length === 0}
-                className="w-full h-14 min-h-[48px] text-base font-semibold rounded-2xl bg-gradient-to-r from-orange-500 to-blue-800 text-white hover:opacity-90 transition-opacity"
+                className="w-full h-14 min-h-[48px] text-base font-semibold rounded-2xl kl-gradient-brand text-white hover:opacity-90 transition-opacity"
               >
                 Confirm Handover
               </Button>

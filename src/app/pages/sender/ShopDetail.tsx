@@ -1,10 +1,11 @@
 import { useParams, useNavigate } from 'react-router';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
-import { ArrowLeft, Store, MapPin, ShoppingCart, Gift, ConciergeBell } from 'lucide-react';
+import { ArrowLeft, Store, MapPin, ShoppingCart, Gift, ConciergeBell, ShieldCheck, PackageCheck, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useCart, toProduct } from '../../hooks/useCart';
 import { useShopDetail } from '../../hooks/useShopDetail';
+import { PageLoader } from '../../components/shared/PageLoader';
 import { toast } from 'sonner';
 import { discountPercentage, isService, requiresConversation } from '../../types/items';
 
@@ -19,11 +20,7 @@ export function ShopDetail() {
   const { shop, items, loading } = useShopDetail(shopId);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (!shop) {
@@ -42,17 +39,41 @@ export function ShopDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 md:px-6 py-4 flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/')}
-          >
+      {/* Header — carries the shop's own identity rather than a generic label,
+          so the page still says where you are once the banner scrolls away. */}
+      <div className="sticky top-0 z-10 border-b border-[var(--border)] bg-white/85 backdrop-blur-xl">
+        <div className="max-w-4xl mx-auto px-4 md:px-6 py-3 flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/')} aria-label="Back">
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-xl font-semibold">Shop Details</h1>
+
+          {(shop.logo_url || shop.image_url) ? (
+            <img
+              src={shop.logo_url || shop.image_url || ''}
+              alt=""
+              className="size-8 shrink-0 rounded-full object-cover ring-1 ring-[var(--border)]"
+            />
+          ) : (
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary-tint">
+              <Store className="size-4 text-primary" strokeWidth={1.5} />
+            </div>
+          )}
+
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-base font-medium tracking-tight">{shop.name}</h1>
+            {(shop.location || shop.address) && (
+              <p className="truncate text-xs font-light text-muted-foreground">
+                {shop.location || shop.address}
+              </p>
+            )}
+          </div>
+
+          {shop.verification_status === 'approved' && (
+            <span className="hidden sm:inline-flex shrink-0 items-center gap-1 rounded-full bg-primary-tint px-2.5 py-1 text-[0.6875rem] font-medium text-primary">
+              <ShieldCheck className="size-3" strokeWidth={2} />
+              Verified
+            </span>
+          )}
         </div>
       </div>
 
@@ -76,7 +97,11 @@ export function ShopDetail() {
               />
             </div>
           ) : (
-            <div className="w-full h-32 sm:h-48 bg-gradient-to-r from-orange-100 to-amber-50"></div>
+            <div className="kl-gradient-brand relative w-full h-32 sm:h-48 opacity-90">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Store className="size-10 text-white/25" strokeWidth={1.25} />
+              </div>
+            </div>
           )}
 
           {/* Shop Info (Overlapping Profile Pic) */}
@@ -91,8 +116,8 @@ export function ShopDetail() {
                   className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover flex-shrink-0 bg-white border-4 border-white shadow-md"
                 />
               ) : (
-                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0 border-4 border-white shadow-md">
-                  <Store className="w-10 h-10 sm:w-12 sm:h-12 text-primary" />
+                <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-primary-tint flex items-center justify-center flex-shrink-0 border-4 border-white shadow-md">
+                  <Store className="w-10 h-10 sm:w-12 sm:h-12 text-primary" strokeWidth={1.5} />
                 </div>
               )}
               <div className="flex-1 text-center sm:text-left mt-2 sm:mt-0 sm:mb-2">
@@ -106,21 +131,65 @@ export function ShopDetail() {
               </div>
             </div>
             {shop.description && (
-              <p className="text-muted-foreground mt-4 text-center sm:text-left max-w-2xl">{shop.description}</p>
+              <p className="text-muted-foreground mt-4 text-center sm:text-left max-w-2xl font-light leading-relaxed">
+                {shop.description}
+              </p>
             )}
+
+            {/* Trust strip — every figure here was already in the shop record;
+                it had simply never been surfaced to the buyer. */}
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+              {shop.verification_status === 'approved' && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-tint px-3 py-1.5 text-xs font-medium text-primary">
+                  <ShieldCheck className="size-3.5" strokeWidth={2} />
+                  KithLy Verified
+                </span>
+              )}
+
+              {(shop.successful_deliveries ?? 0) > 0 && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground">
+                  <PackageCheck className="size-3.5 text-[var(--success)]" strokeWidth={2} />
+                  {shop.successful_deliveries!.toLocaleString()} order
+                  {shop.successful_deliveries === 1 ? '' : 's'} fulfilled
+                </span>
+              )}
+
+              {shop.offers_services && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground">
+                  <ConciergeBell className="size-3.5" strokeWidth={2} />
+                  Bookable services
+                </span>
+              )}
+
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground">
+                <Sparkles className="size-3.5" strokeWidth={2} />
+                {items.length} item{items.length === 1 ? '' : 's'}
+              </span>
+            </div>
           </div>
         </motion.div>
 
         {/* Items Grid */}
         <div>
-          <h3 className="text-xl font-semibold mb-4">Available Items</h3>
+          <div className="mb-4 flex items-end justify-between gap-4">
+            <div>
+              <h3 className="text-xs font-medium uppercase tracking-[0.06em] text-muted-foreground">
+                Available Items
+              </h3>
+              <p className="mt-1 text-sm font-light text-muted-foreground/80">
+                Send any of these as a gift, redeemable in store.
+              </p>
+            </div>
+          </div>
 
           {items.length === 0 ? (
-            <Card className="p-12 text-center">
-              <Store className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-              <h4 className="text-lg font-medium mb-2">No Items Available</h4>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                This shop doesn't have any items listed yet. Check back soon!
+            <Card className="flex flex-col items-center px-6 py-16 text-center">
+              <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-primary-tint">
+                <Store className="size-6 text-primary" strokeWidth={1.5} />
+              </div>
+              <h4 className="text-base font-medium tracking-tight">Nothing listed just yet</h4>
+              <p className="mt-1 max-w-xs text-sm font-light text-muted-foreground">
+                This shop is still setting up its catalogue. Check back soon.
               </p>
             </Card>
           ) : (
@@ -130,31 +199,47 @@ export function ShopDetail() {
                   key={item.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
+                  transition={{ delay: Math.min(index * 0.05, 0.4) }}
+                  className="h-full"
                 >
                   <Card
-                    className={`overflow-hidden ${
+                    className={`group h-full overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-[var(--shadow-panel)] ${
                       !item.is_available ? 'opacity-60' : ''
                     }`}
                   >
                     {/* Item Image */}
-                    <div className="relative w-full h-40 sm:h-48 bg-gray-100">
+                    <div className="relative w-full h-40 sm:h-48 overflow-hidden bg-secondary">
                       {item.image_url ? (
                         <img
                           src={item.image_url}
                           alt={item.name}
                           loading="lazy"
                           decoding="async"
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Store className="w-12 h-12 text-gray-400" />
+                          <Store className="size-10 text-muted-foreground/40" strokeWidth={1.25} />
                         </div>
                       )}
+
+                      {/* Corner badges — discount takes precedence, then the
+                          service marker, so the two never stack on top of
+                          each other. */}
+                      {discountPercentage(item) !== null ? (
+                        <span className="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-1 text-[0.6875rem] font-semibold text-primary-foreground shadow-sm">
+                          -{discountPercentage(item)}%
+                        </span>
+                      ) : opensDetail(item) ? (
+                        <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[0.6875rem] font-semibold text-primary shadow-sm backdrop-blur-sm">
+                          <ConciergeBell className="size-3" strokeWidth={2} />
+                          {item.requires_scheduling ? 'Bookable' : 'Service'}
+                        </span>
+                      ) : null}
+
                       {!item.is_available && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                          <span className="bg-white px-4 py-2 rounded-lg font-medium">
+                        <div className="absolute inset-0 flex items-center justify-center bg-foreground/50 backdrop-blur-[1px]">
+                          <span className="rounded-full bg-white px-4 py-1.5 text-xs font-semibold tracking-tight">
                             Unavailable
                           </span>
                         </div>
@@ -164,21 +249,21 @@ export function ShopDetail() {
                     {/* Item Details */}
                     <div className="p-4 space-y-3">
                       <div>
-                        <h4 className="font-semibold text-lg mb-1">{item.name}</h4>
+                        <h4 className="font-medium tracking-tight mb-1 line-clamp-1">{item.name}</h4>
                         {item.description && (
-                          <p className="text-sm text-muted-foreground line-clamp-2">
+                          <p className="text-sm font-light text-muted-foreground line-clamp-2 leading-relaxed">
                             {item.description}
                           </p>
                         )}
                       </div>
 
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-lg font-bold text-primary">
+                      <div className="flex items-end justify-between gap-3 pt-1">
+                        <div className="flex flex-col">
+                          <span className="text-lg font-medium tracking-tight text-primary tabular-nums">
                             ZMW {item.price_zmw != null ? (item.price_zmw / 100).toFixed(2) : '—'}
                           </span>
                           {discountPercentage(item) !== null && item.original_price_zmw != null && (
-                            <span className="text-xs text-muted-foreground line-through">
+                            <span className="text-xs font-light text-muted-foreground line-through tabular-nums">
                               ZMW {(item.original_price_zmw / 100).toFixed(2)}
                             </span>
                           )}
@@ -207,7 +292,7 @@ export function ShopDetail() {
                                   setCartSliderOpen(true);
                                 }}
                                 disabled={!item.is_available}
-                                className="border-orange-200 text-orange-600 hover:bg-orange-50"
+                                className="border-primary/25 text-primary hover:bg-primary-tint"
                               >
                                 <ShoppingCart className="w-4 h-4 mr-1" />
                                 Add

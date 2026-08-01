@@ -131,9 +131,9 @@ function ProductDetailModal({
               </p>
 
               {/* Low stock notice */}
-              {product.stock_count <= 5 && product.stock_count > 0 && (
+              {(product.stock_count ?? 0) <= 5 && (product.stock_count ?? 0) > 0 && (
                 <p className="mt-3 text-xs font-semibold text-red-500 tracking-wide">
-                  Only {product.stock_count} unit{product.stock_count > 1 ? 's' : ''} remaining
+                  Only {product.stock_count} unit{(product.stock_count ?? 0) > 1 ? 's' : ''} remaining
                 </p>
               )}
             </div>
@@ -235,7 +235,7 @@ export function ProductCard({ product, onClick }: ProductCardProps) {
           />
 
           {/* Low-stock badge */}
-          {product.stock_count <= 5 && product.stock_count > 0 && (
+          {(product.stock_count ?? 0) <= 5 && (product.stock_count ?? 0) > 0 && (
             <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm">
               <span className="text-[10px] font-semibold tracking-wide text-red-500 uppercase">
                 Only {product.stock_count} left

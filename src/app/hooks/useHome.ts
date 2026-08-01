@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../utils/auth/AuthContext';
 import { parseAuthError } from '../../utils/errorParser';
@@ -8,6 +7,7 @@ export interface Banner {
   id: string;
   image_url: string;
   title: string;
+  target_route: string;
 }
 
 export interface Shop {
@@ -30,27 +30,29 @@ const FALLBACK_BANNERS: Banner[] = [
     id: 'fallback-1',
     image_url: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&w=1400&q=80',
     title: 'Send a gift that actually means something.',
+    target_route: '/shops',
   },
   {
     id: 'fallback-2',
     image_url: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&w=1400&q=80',
     title: 'Discover local shops crafting unforgettable moments.',
+    target_route: '/shops',
   },
   {
     id: 'fallback-3',
     image_url: 'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&w=1400&q=80',
     title: 'Every order tells a story worth sharing.',
+    target_route: '/shops',
   },
 ];
 
 export function useHome() {
-  const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user, profile, signOut } = useAuth();
 
   const [campaigns, setCampaigns] = useState<Banner[]>([]);
   const [campaignsLoading, setCampaignsLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [, setCategoriesLoading] = useState(true);
   const [shops, setShops] = useState<Shop[]>([]);
   const [shopsLoading, setShopsLoading] = useState(true);
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -61,7 +63,7 @@ export function useHome() {
     try {
       const { data, error } = await supabase
         .from('marketing_campaigns')
-        .select('id, image_url, title')
+        .select('id, image_url, title, target_route')
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
 
@@ -75,7 +77,7 @@ export function useHome() {
     } catch (err: any) {
       console.error('[useHome] fetchBanners error:', err);
       setCampaigns(FALLBACK_BANNERS);
-      setError(parseAuthError(err).message);
+      setError(parseAuthError(err));
     } finally {
       setCampaignsLoading(false);
     }
@@ -97,7 +99,7 @@ export function useHome() {
       setCategories((data as Category[]) ?? []);
     } catch (err: any) {
       console.error('[useHome] fetchCategories error:', err);
-      setError(parseAuthError(err).message);
+      setError(parseAuthError(err));
     } finally {
       setCategoriesLoading(false);
     }
@@ -133,7 +135,7 @@ export function useHome() {
     } catch (err: any) {
       console.error('[useHome] fetchShops error:', err);
       setShops([]);
-      setError(parseAuthError(err).message);
+      setError(parseAuthError(err));
     } finally {
       setShopsLoading(false);
     }
@@ -222,10 +224,7 @@ export function useHome() {
     e.preventDefault();
     try {
       setIsSigningOut(true);
-      await supabase.auth.signOut();
-      localStorage.clear();
-      sessionStorage.clear();
-      navigate('/login', { replace: true });
+      await signOut();
     } catch (err: any) {
       console.error('[useHome] Logout failed:', err);
     } finally {

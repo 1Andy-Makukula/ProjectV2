@@ -10,7 +10,7 @@ project_id = "kithly-local"
 
 [db]
 port = 54322
-major_version = 16
+major_version = "15"
 
 [api]
 enabled = true

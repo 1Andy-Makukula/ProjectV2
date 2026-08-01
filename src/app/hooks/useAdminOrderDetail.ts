@@ -8,8 +8,31 @@ import { parseAuthError } from '../../utils/errorParser';
 
 export function useAdminOrderDetail(orderId?: string) {
   const [order, setOrder] = useState<OrderDetail | null>(null);
+  const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+
+  /**
+   * Raw audit trail for this transaction. Admins are granted SELECT on
+   * transaction_events by RLS, so this needs no privileged path.
+   */
+  const loadEvents = useCallback(async () => {
+    if (!orderId) return;
+    try {
+      const { data, error } = await supabase
+        .from('transaction_events')
+        .select('*')
+        .eq('transaction_id', orderId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setEvents(data ?? []);
+    } catch (err) {
+      // The event feed is supplementary — a failure here must not blank out
+      // the order details the admin actually came for.
+      console.error('[useAdminOrderDetail] loadEvents error:', err);
+    }
+  }, [orderId]);
 
   const loadOrder = useCallback(async () => {
     if (!orderId) return;
@@ -131,7 +154,7 @@ export function useAdminOrderDetail(orderId?: string) {
       }
 
       toast.success(`Order marked as ${newStatus}`);
-      await loadOrder();
+      await Promise.all([loadOrder(), loadEvents()]);
       return true;
     } catch (error: any) {
       console.error('Error updating order status:', error);
@@ -140,16 +163,18 @@ export function useAdminOrderDetail(orderId?: string) {
     } finally {
       setUpdating(false);
     }
-  }, [order, loadOrder]);
+  }, [order, loadOrder, loadEvents]);
 
   useEffect(() => {
     if (orderId) {
       loadOrder();
+      loadEvents();
     }
-  }, [orderId, loadOrder]);
+  }, [orderId, loadOrder, loadEvents]);
 
   return {
     order,
+    events,
     loading,
     updating,
     updateOrderStatus,

@@ -17,6 +17,7 @@ import {
   Info,
   MessageSquare,
   Clock,
+  Megaphone,
   X,
 } from 'lucide-react';
 import { useNotifications, type AppNotification } from '../../hooks/useNotifications';
@@ -40,6 +41,9 @@ function iconFor(type: string) {
       return <MessageSquare className="h-4 w-4 text-blue-500" strokeWidth={2} />;
     case 'reminder':
       return <Clock className="h-4 w-4 text-orange-500" strokeWidth={2} />;
+    case 'announcement':
+    case 'promo':
+      return <Megaphone className="h-4 w-4 text-purple-500" strokeWidth={2} />;
     default:
       return <Info className="h-4 w-4 text-slate-400" strokeWidth={2} />;
   }

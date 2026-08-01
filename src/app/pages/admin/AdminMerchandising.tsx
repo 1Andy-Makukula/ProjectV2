@@ -1,16 +1,19 @@
-// AdminMerchandising — Full storefront control panel at '/admin-merch'
+// AdminMerchandising — Full storefront control panel at '/admin/merchandising'
 // Manages: Banners · Weekly Picks · Shop Logos · Category Flags
 
 import { useRef } from 'react';
 import { useNavigate } from 'react-router';
 import {
-  ArrowLeft, Upload, Trash2, ToggleLeft, ToggleRight,
-  Search, Store, Package, Tag, RefreshCw,
+  Upload, Trash2, ToggleLeft, ToggleRight,
+  Search, Store, Package, Tag,
 } from 'lucide-react';
-import { useBannerManager, Banner } from '../../hooks/useBannerManager';
-import { useWeeklyPicks, Item } from '../../hooks/useWeeklyPicks';
-import { useShopLogoManager, ShopRow } from '../../hooks/useShopLogoManager';
-import { useCategoryFlags, Category } from '../../hooks/useCategoryFlags';
+import { useBannerManager } from '../../hooks/useBannerManager';
+import { useWeeklyPicks } from '../../hooks/useWeeklyPicks';
+import { useShopLogoManager } from '../../hooks/useShopLogoManager';
+import { useCategoryFlags } from '../../hooks/useCategoryFlags';
+import { PageShell, PageBody } from '../../components/layout/PageShell';
+import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
+import { Button } from '../../components/ui/button';
 
 // ─── Generic helpers ──────────────────────────────────────────────────────────
 
@@ -20,10 +23,10 @@ function cls(...args: (string | false | undefined | null)[]) {
 
 function SectionShell({ title, sub, children }: { title: string; sub: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-slate-200 bg-white overflow-hidden">
-      <div className="border-b border-slate-100 px-6 py-4">
-        <h2 className="text-sm font-semibold text-slate-900">{title}</h2>
-        <p className="mt-0.5 text-xs text-slate-500">{sub}</p>
+    <section className="kl-card overflow-hidden">
+      <div className="border-b border-[var(--border)] px-6 py-4">
+        <h2 className="text-xs font-medium uppercase tracking-[0.06em] text-muted-foreground">{title}</h2>
+        <p className="mt-1 text-sm font-light text-muted-foreground/80">{sub}</p>
       </div>
       <div className="p-6">{children}</div>
     </section>
@@ -54,6 +57,8 @@ function BannerManager() {
     saving,
     title,
     setTitle,
+    targetRoute,
+    setTargetRoute,
     sortOrder,
     setSortOrder,
     file,
@@ -79,14 +84,22 @@ function BannerManager() {
   };
 
   return (
-    <SectionShell title="Banner / Campaign Manager" sub="Manages the hero carousel on the storefront. Table: banners.">
+    <SectionShell title="Banner / Campaign Manager" sub="Manages the hero carousel on the storefront. Table: marketing_campaigns.">
       {/* Add form */}
-      <form onSubmit={handleFormSubmit} className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_1fr_auto_auto] mb-6">
+      <form onSubmit={handleFormSubmit} className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_1fr_1fr_auto_auto] mb-6">
         <div>
           <label className="block text-xs font-semibold text-slate-600 mb-1">Title</label>
           <input
             value={title} onChange={e => setTitle(e.target.value)}
             placeholder="Campaign headline"
+            className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-600 mb-1">Destination link</label>
+          <input
+            value={targetRoute} onChange={e => setTargetRoute(e.target.value)}
+            placeholder="/shops or /send/<item-id>"
             className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900"
           />
         </div>
@@ -138,7 +151,7 @@ function BannerManager() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="truncate text-sm font-medium text-slate-900">{b.title}</p>
-                <p className="text-xs text-slate-400">Sort: {b.sort_order}</p>
+                <p className="truncate text-xs text-slate-400">Sort: {b.sort_order} · Links to: {b.target_route}</p>
               </div>
               <StatusTag ok={b.is_active} />
               <button onClick={() => toggleActive(b)} className="text-slate-400 hover:text-slate-700 transition-colors" title={b.is_active ? 'Deactivate' : 'Activate'}>
@@ -348,49 +361,29 @@ export function AdminMerchandising() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-slate-50">
-
-      {/* Header */}
-      <div className="sticky top-0 z-10 border-b border-slate-100 bg-white/90 backdrop-blur-xl">
-        <div className="mx-auto max-w-5xl px-5 sm:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/admin')}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-50 hover:text-slate-700 transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </button>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Admin</p>
-              <h1 className="text-base font-bold text-slate-900 leading-tight">Merchandising Controller</h1>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigate('/admin/shops')}
-              className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
-            >
-              <Store className="h-3.5 w-3.5" />
-              Manage Shops
-            </button>
-            <button
-              onClick={() => navigate('/admin')}
-              className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
-              Admin Home
-            </button>
-          </div>
-        </div>
-      </div>
+    <PageShell>
+      <AdminPageHeader
+        title="Merchandising Controller"
+        subtitle="Banners, weekly picks, shop logos and category flags"
+        onBack={() => navigate('/admin')}
+        actions={
+          <Button
+            onClick={() => navigate('/admin/shops')}
+            className="bg-white text-primary hover:bg-white/90 h-8"
+          >
+            <Store className="size-3.5" />
+            Manage Shops
+          </Button>
+        }
+      />
 
       {/* Panels */}
-      <div className="mx-auto max-w-5xl px-5 sm:px-8 py-8 space-y-6">
+      <PageBody className="space-y-6">
         <BannerManager />
         <WeeklyPicksPanel />
         <ShopLogoPanel />
         <CategoryFlagsPanel />
-      </div>
-    </div>
+      </PageBody>
+    </PageShell>
   );
 }

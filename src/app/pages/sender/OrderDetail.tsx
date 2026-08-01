@@ -7,6 +7,20 @@ import { formatCurrency } from '../../../utils/currency';
 import { getGiftPageUrl } from '../../../utils/whatsapp';
 import { Button } from '../../components/ui/button';
 import { Skeleton } from '../../components/ui/skeleton';
+import { Textarea } from '../../components/ui/textarea';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '../../components/ui/alert-dialog';
+import { useSettlementCountdown } from '../../hooks/useSettlementCountdown';
+import { parseAuthError } from '../../../utils/errorParser';
 import { toast } from 'sonner';
 import {
   ArrowLeft,
@@ -56,6 +70,11 @@ interface ShopOrderDetail {
   message: string | null;
   created_at: string;
   updated_at: string | null;
+  /** When the no-dispute window closes and escrow releases to the merchant. */
+  settlement_target_time: string | null;
+  /** Set once the buyer flags a problem — blocks automatic settlement. */
+  disputed_at: string | null;
+  settled: boolean | null;
   shop: Shop;
   order_items: Array<{
     order_item_id: string;
@@ -124,6 +143,140 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       </h3>
       <div className="space-y-3">{children}</div>
     </div>
+  );
+}
+
+/**
+ * Escrow release window: the live countdown to settlement, plus the buyer's
+ * one chance to halt it.
+ *
+ * Rendered as its own component so `useSettlementCountdown` is called
+ * unconditionally — the same reason SettlementDashboard splits out LedgerRow.
+ */
+function EscrowRelease({
+  shopOrder,
+  onDisputeRaised,
+}: {
+  shopOrder: ShopOrderDetail;
+  onDisputeRaised: () => void;
+}) {
+  const countdown = useSettlementCountdown(shopOrder.settlement_target_time);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [reason, setReason] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const isDisputed = !!shopOrder.disputed_at;
+  const awaitingSettlement =
+    (shopOrder.claim_status === 'FULFILLED' || shopOrder.claim_status === 'PARTIAL_FULFILLMENT') &&
+    shopOrder.settled !== true &&
+    !!shopOrder.settlement_target_time;
+
+  // Nothing to say before the handover, or once the money has cleared.
+  if (!isDisputed && !awaitingSettlement) return null;
+
+  const handleRaiseDispute = async () => {
+    const trimmed = reason.trim();
+    if (!trimmed) return;
+
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.rpc('raise_order_dispute', {
+        p_shop_order_id: shopOrder.shop_order_id,
+        p_reason: trimmed,
+      });
+      if (error) throw error;
+
+      toast.success('Reported. The payment is on hold while we review it.');
+      setDialogOpen(false);
+      setReason('');
+      onDisputeRaised();
+    } catch (err: any) {
+      console.error('[OrderDetail] raise_order_dispute error:', err);
+      toast.error(parseAuthError(err));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Section title="Escrow Release">
+      {isDisputed ? (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+            <div>
+              <p className="text-sm font-medium text-amber-900">Under review</p>
+              <p className="mt-1 text-xs leading-relaxed text-amber-700">
+                You reported a problem on{' '}
+                {new Date(shopOrder.disputed_at!).toLocaleString()}. Payment to the
+                shop is on hold until our team resolves it.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-gray-100 bg-gray-50/60 p-4">
+            <div>
+              <p className="text-xs text-muted-foreground">Funds release to the shop in</p>
+              <p className="mt-0.5 font-mono text-sm font-semibold tabular-nums text-gray-900">
+                {countdown}
+              </p>
+            </div>
+            <Clock className="h-5 w-5 shrink-0 text-muted-foreground" />
+          </div>
+
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            Something wrong with this order? Report it before the timer ends and we
+            will hold the payment while we look into it.
+          </p>
+
+          <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full rounded-xl text-xs font-semibold"
+              >
+                Report a problem
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Report a problem with this order?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This puts the shop&apos;s payment on hold and alerts our team. Tell
+                  us what went wrong.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+
+              <Textarea
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="e.g. Only 2 of the 3 items were handed over."
+                rows={4}
+                className="rounded-xl"
+              />
+
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={submitting}>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={(e) => {
+                    // Keep the dialog open so a failure stays visible instead of
+                    // dismissing behind a toast.
+                    e.preventDefault();
+                    handleRaiseDispute();
+                  }}
+                  disabled={!reason.trim() || submitting}
+                >
+                  {submitting ? 'Submitting...' : 'Submit report'}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
+      )}
+    </Section>
   );
 }
 
@@ -200,6 +353,9 @@ export function OrderDetail() {
           recipient_phone,
           message,
           created_at,
+          settlement_target_time,
+          disputed_at,
+          settled,
           shop:shop_id (id, name, location),
           order_items (
             order_item_id,
@@ -521,6 +677,17 @@ export function OrderDetail() {
             </motion.div>
           );
         })}
+
+        {/* Escrow release countdown + dispute entry point */}
+        {firstShopOrder && (
+          <EscrowRelease
+            shopOrder={firstShopOrder}
+            onDisputeRaised={() => {
+              fetchTransaction();
+              fetchEvents();
+            }}
+          />
+        )}
 
         {/* Recipient details — from first shop order */}
         {firstShopOrder && (firstShopOrder.recipient_name || firstShopOrder.recipient_phone) && (

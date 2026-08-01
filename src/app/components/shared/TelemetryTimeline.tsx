@@ -1,4 +1,4 @@
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface TelemetryEvent {
   id: string;
@@ -37,6 +37,7 @@ export function TelemetryTimeline({ events }: TelemetryTimelineProps) {
       {events.map((event, idx) => {
         const parsed = parsePayload(event.payload);
         const isFulfillment = event.event_type === 'FULFILLMENT_PROCESSED';
+        const isDispute = event.event_type === 'DISPUTE_RAISED';
         const timestamp = new Date(event.created_at).toLocaleTimeString('en-US', {
           hour: '2-digit',
           minute: '2-digit',
@@ -55,6 +56,18 @@ export function TelemetryTimeline({ events }: TelemetryTimelineProps) {
         } else if (event.event_type === 'CLAIM_VERIFIED') {
           title = 'Code Verified';
           desc = 'Escrow code successfully verified at partner terminal. Processing inventory handover...';
+        } else if (isDispute) {
+          title = 'Dispute Raised';
+          desc = `A problem was reported with this order. Settlement is on hold until it is resolved.${parsed.reason ? ` Reason: ${parsed.reason}` : ''}`;
+        } else if (event.event_type === 'REDEMPTION_COMPLETED') {
+          title = 'Escrow Released';
+          desc = 'The no-dispute window closed and funds were released to the merchant.';
+        } else if (event.event_type === 'AUTO_EXPIRED') {
+          title = 'Voucher Expired';
+          desc = 'This item passed its expiry date and was automatically settled per the expiry policy.';
+        } else if (event.event_type === 'WEBHOOK_RECEIVED') {
+          title = 'Payment Callback Received';
+          desc = 'The payment gateway confirmed a status update for this transaction.';
         }
 
         return (
@@ -63,21 +76,26 @@ export function TelemetryTimeline({ events }: TelemetryTimelineProps) {
             <div className="absolute -left-[31px] top-4 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white border border-slate-200">
               {isFulfillment ? (
                 <div className="h-2 w-2 rounded-full bg-emerald-500" />
+              ) : isDispute ? (
+                <div className="h-2 w-2 rounded-full bg-rose-500" />
               ) : (
                 <div className="h-2 w-2 rounded-full bg-black" />
               )}
             </div>
 
             <div className={`flex flex-col gap-1.5 p-3 rounded-xl transition-all duration-200 ${
-              isFulfillment 
-                ? 'bg-emerald-50/50 border border-emerald-100/50 shadow-sm' 
+              isFulfillment
+                ? 'bg-emerald-50/50 border border-emerald-100/50 shadow-sm'
+                : isDispute
+                ? 'bg-rose-50/50 border border-rose-100/50 shadow-sm'
                 : 'hover:bg-slate-50'
             }`}>
               <div className="flex items-center justify-between gap-4">
                 <h4 className={`text-xs font-semibold leading-snug flex items-center gap-1.5 uppercase tracking-wider ${
-                  isFulfillment ? 'text-emerald-800' : 'text-slate-800'
+                  isFulfillment ? 'text-emerald-800' : isDispute ? 'text-rose-800' : 'text-slate-800'
                 }`}>
                   {isFulfillment && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />}
+                  {isDispute && <AlertCircle className="h-3.5 w-3.5 text-rose-600 shrink-0" />}
                   <span>{title}</span>
                 </h4>
                 <span className="text-[10px] font-mono text-slate-400 shrink-0">
@@ -85,7 +103,7 @@ export function TelemetryTimeline({ events }: TelemetryTimelineProps) {
                 </span>
               </div>
               <p className={`text-xs leading-relaxed ${
-                isFulfillment ? 'text-emerald-700/90' : 'text-slate-600'
+                isFulfillment ? 'text-emerald-700/90' : isDispute ? 'text-rose-700/90' : 'text-slate-600'
               }`}>
                 {desc}
               </p>

@@ -39,6 +39,8 @@ export interface Shop {
   id: string;
   owner_id: string;
   business_name: string;
+  /** DB column — canonical name (alias of business_name in the V2 schema) */
+  name?: string;
   description?: string;
   tpin: string;
   district_id: string;

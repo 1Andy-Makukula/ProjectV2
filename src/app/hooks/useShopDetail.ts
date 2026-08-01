@@ -12,6 +12,16 @@ export interface Shop {
   image_url: string | null;
   logo_url: string | null;
   cover_image_url: string | null;
+  /**
+   * Trust signals. These columns already came back from the `select('*')`
+   * below — they were simply never declared here, so the storefront could not
+   * show them. No extra query is involved.
+   */
+  location: string | null;
+  verification_status: 'pending' | 'approved' | 'rejected' | null;
+  successful_deliveries: number | null;
+  offers_products: boolean | null;
+  offers_services: boolean | null;
 }
 
 // The catalogue fields (service, discount, wholesale) come from CatalogItem so

@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { PaymentProcessingScreen } from '../../components/checkout/PaymentProcessingScreen';
 import { formatZMW } from '../../utils/formatters';
 import { useSendFlow, minSchedulableDateTime } from '../../hooks/useSendFlow';
+import { PageLoader } from '../../components/shared/PageLoader';
 import { usePlatformPricing } from '../../hooks/usePlatformPricing';
 import { feePercentFor, serviceFeeFor, CHECKOUT_ORIGIN } from '../../../utils/pricing';
 
@@ -50,11 +51,7 @@ export function SendFlow() {
   }, [setFormData]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (!item || !shop) {

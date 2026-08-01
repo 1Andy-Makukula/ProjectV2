@@ -1,7 +1,7 @@
 // KithLy Footer - Professional Sticky Global Footer
 
 import { useNavigate } from 'react-router';
-import { Gift, Facebook, Twitter, Instagram, Mail, Phone, MessageCircle } from 'lucide-react';
+import { Gift, Facebook, Instagram, Mail, Phone, MessageCircle } from 'lucide-react';
 
 export function Footer() {
   const navigate = useNavigate();

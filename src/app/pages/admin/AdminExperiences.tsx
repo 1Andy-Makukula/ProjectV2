@@ -507,10 +507,12 @@ export function AdminExperiences() {
                   Loading experiences…
                 </div>
               ) : experiences.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-slate-200 py-16 text-center">
-                  <Sparkles className="mx-auto mb-3 h-10 w-10 text-slate-200" strokeWidth={1} />
-                  <p className="text-sm font-semibold text-slate-900">No experiences yet</p>
-                  <p className="mx-auto mt-1 max-w-sm text-sm text-slate-400">
+                <div className="flex flex-col items-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border-dark)] px-6 py-16 text-center">
+                  <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-primary-tint">
+                    <Sparkles className="size-6 text-primary" strokeWidth={1.5} />
+                  </div>
+                  <h3 className="text-base font-medium tracking-tight">No experiences yet</h3>
+                  <p className="mx-auto mt-1 max-w-sm text-sm font-light text-muted-foreground">
                     Combine items from different shops into something no single merchant sells.
                   </p>
                   <Button onClick={startNew} className="mt-5">

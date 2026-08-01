@@ -16,6 +16,11 @@ export function relativeTime(iso: string, now: number = Date.now()): string {
   return new Date(iso).toLocaleDateString();
 }
 
+/** Plain calendar date, locale-formatted — for tables and lists that just need "the date". */
+export function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString();
+}
+
 export function absoluteTime(iso: string): string {
   return new Date(iso).toLocaleString('en-US', {
     month: 'short',

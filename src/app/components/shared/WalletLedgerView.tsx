@@ -7,7 +7,12 @@ import { formatCurrency } from '../../../utils/currency';
 import { formatDistanceToNow } from 'date-fns';
 import { ArrowDownLeft, ArrowUpRight, Clock, Wallet } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import type { LedgerEntry } from '../../../types/database.types';
+import type { Database } from '../../../types/database.types';
+
+type LedgerEntry = Pick<
+  Database['public']['Tables']['wallet_ledger']['Row'],
+  'id' | 'amount' | 'description' | 'created_at'
+>;
 
 
 export function WalletLedgerView() {
@@ -128,7 +133,7 @@ export function WalletLedgerView() {
                                 {entry.description || (isCredit ? 'Received' : 'Sent')}
                               </p>
                               <p className="text-sm text-slate-500">
-                                {formatDistanceToNow(new Date(entry.created_at), { addSuffix: true })}
+                                {entry.created_at && formatDistanceToNow(new Date(entry.created_at), { addSuffix: true })}
                               </p>
                             </div>
                           </div>

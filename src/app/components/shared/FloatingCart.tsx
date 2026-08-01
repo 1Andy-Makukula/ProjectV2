@@ -4,10 +4,14 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '../../hooks/useCart';
+import { useAuth } from '../../../utils/auth/AuthContext';
 
 export function FloatingCart() {
+  const { profile } = useAuth();
   const { getTotalItems, setCartSliderOpen } = useCart();
   const count = getTotalItems();
+
+  if (profile && profile.role !== 'sender') return null;
 
   return (
     <AnimatePresence>

@@ -55,7 +55,7 @@ export function Login() {
     setLoading(true);
 
     // Step 1: Sign in with Supabase
-    const { data: signInData, error: signInError } =
+    const { error: signInError } =
       await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,

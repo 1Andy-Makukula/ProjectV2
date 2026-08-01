@@ -22,11 +22,12 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Label } from '../components/ui/label';
+import { Switch } from '../components/ui/switch';
 import { formatCurrency } from '../../utils/currency';
 import { PhoneInput } from '../components/shared/PhoneInput';
 import { useCheckout, ShopOrderResult } from '../hooks/useCheckout';
 import { usePlatformPricing } from '../hooks/usePlatformPricing';
-import { feePercentFor, serviceFeeFor, CHECKOUT_ORIGIN } from '../../utils/pricing';
+import { feePercentFor, serviceFeeFor, creditsApplicationFor, CHECKOUT_ORIGIN } from '../../utils/pricing';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -201,7 +202,7 @@ const CartLineItem = memo(function CartLineItem({
 
 export function Checkout() {
   const navigate = useNavigate();
-  const { items, removeFromCart, clearCart, getTotalAmount, applyCredits } = useCart();
+  const { items, removeFromCart, clearCart, getTotalAmount, applyCredits, setApplyCredits } = useCart();
   const { recipient } = useSendFlowStore();
   const { profile } = useAuth();
   const { rates } = usePlatformPricing();
@@ -234,9 +235,13 @@ export function Checkout() {
   // The server adds the same fee at checkout, so it has to be visible here —
   // the buyer must never be charged more than this screen showed them.
   const serviceFee = serviceFeeFor(totalAmount, CHECKOUT_ORIGIN, rates);
-  const grossPayable = totalAmount + serviceFee;
-  const creditsToApply = applyCredits ? Math.min(walletBalance, grossPayable) : 0;
-  const finalPayable = grossPayable - creditsToApply;
+  const { creditsToApply, finalPayable } = creditsApplicationFor(
+    totalAmount,
+    CHECKOUT_ORIGIN,
+    rates,
+    walletBalance,
+    applyCredits,
+  );
 
   // ---------- handlers --------------------------------------------------
 
@@ -466,6 +471,15 @@ export function Checkout() {
 
                   {/* Order total */}
                   <div className="rounded-2xl bg-white border border-slate-100 px-5 py-5 flex flex-col gap-2 shadow-sm">
+                    {walletBalance > 0 && (
+                      <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 mb-1">
+                        <div className="flex flex-col">
+                          <span className="text-xs font-semibold text-slate-800">Apply KithLy Credits</span>
+                          <span className="text-[10px] text-slate-400">Available: {formatCurrency(walletBalance, 'ZMW')}</span>
+                        </div>
+                        <Switch checked={applyCredits} onCheckedChange={setApplyCredits} />
+                      </div>
+                    )}
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-slate-500 font-medium">Subtotal</span>
                       <span className="font-semibold text-slate-800">

@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 import { PageShell, PageBody } from '../../components/layout/PageShell';
 import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
 import { useAdminOrderDetail } from '../../hooks/useAdminOrderDetail';
+import { TelemetryTimeline } from '../../components/shared/TelemetryTimeline';
 import { STATUS_COLORS, STATUS_LABELS } from '../../../utils/orderStatus';
 
 export function AdminOrderDetail() {
@@ -28,6 +29,7 @@ export function AdminOrderDetail() {
 
   const {
     order,
+    events,
     loading,
     updating,
     updateOrderStatus,
@@ -170,7 +172,7 @@ export function AdminOrderDetail() {
                 {/* Gift Link */}
                 {order.claim_code && (
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Gift Page Link</label>
+                    <label className="kl-stat__label mb-2 block">Gift Page Link</label>
                     <div className="flex gap-2">
                       <input
                         type="text"
@@ -190,6 +192,16 @@ export function AdminOrderDetail() {
                     </div>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* Event History — raw audit trail from transaction_events */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="font-light">Event History</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <TelemetryTimeline events={events} />
               </CardContent>
             </Card>
 
@@ -234,18 +246,18 @@ export function AdminOrderDetail() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div>
-                    <label className="text-sm text-muted-foreground">Shop Name</label>
+                    <label className="kl-stat__label">Shop Name</label>
                     <p className="font-medium">{order.shop_name}</p>
                   </div>
                   {order.shop_location && (
                     <div>
-                      <label className="text-sm text-muted-foreground">Location</label>
+                      <label className="kl-stat__label">Location</label>
                       <p className="font-light">{order.shop_location}</p>
                     </div>
                   )}
                   {order.shop_address && (
                     <div>
-                      <label className="text-sm text-muted-foreground">Address</label>
+                      <label className="kl-stat__label">Address</label>
                       <p className="font-light">{order.shop_address}</p>
                     </div>
                   )}
@@ -276,19 +288,19 @@ export function AdminOrderDetail() {
               <CardContent className="space-y-2">
                 {order.buyer_name && (
                   <div>
-                    <label className="text-sm text-muted-foreground">Name</label>
+                    <label className="kl-stat__label">Name</label>
                     <p className="font-medium">{order.buyer_name}</p>
                   </div>
                 )}
                 {order.buyer_email && (
                   <div>
-                    <label className="text-sm text-muted-foreground">Email</label>
+                    <label className="kl-stat__label">Email</label>
                     <p className="font-light">{order.buyer_email}</p>
                   </div>
                 )}
                 {order.buyer_phone && (
                   <div>
-                    <label className="text-sm text-muted-foreground">Phone</label>
+                    <label className="kl-stat__label">Phone</label>
                     <p className="font-light">{order.buyer_phone}</p>
                   </div>
                 )}
@@ -304,13 +316,13 @@ export function AdminOrderDetail() {
                 <CardContent className="space-y-2">
                   {order.recipient_name && (
                     <div>
-                      <label className="text-sm text-muted-foreground">Name</label>
+                      <label className="kl-stat__label">Name</label>
                       <p className="font-medium">{order.recipient_name}</p>
                     </div>
                   )}
                   {order.recipient_phone && (
                     <div>
-                      <label className="text-sm text-muted-foreground">Phone</label>
+                      <label className="kl-stat__label">Phone</label>
                       <p className="font-light">{order.recipient_phone}</p>
                     </div>
                   )}
@@ -326,17 +338,19 @@ export function AdminOrderDetail() {
               <CardContent className="space-y-2">
                 {order.gateway_tx_ref && (
                   <div>
-                    <label className="text-sm text-muted-foreground">Transaction Ref</label>
-                    <p className="font-mono text-sm font-light break-all">{order.gateway_tx_ref}</p>
+                    <label className="kl-stat__label">Transaction Ref</label>
+                    <p className="break-all font-mono text-xs font-light">{order.gateway_tx_ref}</p>
                   </div>
                 )}
                 <div>
-                  <label className="text-sm text-muted-foreground">Origin</label>
+                  <label className="kl-stat__label">Origin</label>
                   <p className="font-light">{order.origin_type}</p>
                 </div>
-                <div>
-                  <label className="text-sm text-muted-foreground">Total Amount</label>
-                  <p className="font-semibold text-primary">{formatCurrency(order.total_amount, 'ZMW')}</p>
+                <div className="border-t border-[var(--border)] pt-3">
+                  <label className="kl-stat__label">Total Amount</label>
+                  <p className="kl-stat__value mt-1 text-primary tabular-nums">
+                    {formatCurrency(order.total_amount, 'ZMW')}
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -348,14 +362,14 @@ export function AdminOrderDetail() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <div>
-                  <label className="text-sm text-muted-foreground">Created</label>
+                  <label className="kl-stat__label">Created</label>
                   <p className="font-light text-sm">
                     {new Date(order.created_at).toLocaleString()}
                   </p>
                 </div>
                 {order.derived_status === 'paid' && order.shop_order_updated_at && (
                   <div>
-                    <label className="text-sm text-muted-foreground">Payment Confirmed</label>
+                    <label className="kl-stat__label">Payment Confirmed</label>
                     <p className="font-light text-sm">
                       {new Date(order.shop_order_updated_at).toLocaleString()}
                     </p>
@@ -363,7 +377,7 @@ export function AdminOrderDetail() {
                 )}
                 {order.derived_status === 'fulfilled' && order.shop_order_updated_at && (
                   <div>
-                    <label className="text-sm text-muted-foreground">Gift Collected</label>
+                    <label className="kl-stat__label">Gift Collected</label>
                     <p className="font-light text-sm">
                       {new Date(order.shop_order_updated_at).toLocaleString()}
                     </p>
