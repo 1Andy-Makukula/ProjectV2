@@ -73,7 +73,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        // If row missing (PGRST116), self-heal by creating default profile & wallet
+        if (error.code === 'PGRST116') {
+          const { data: authUserData } = await supabase.auth.getUser();
+          const authUser = authUserData?.user;
+          if (authUser) {
+            const fallbackName = authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User';
+            const fallbackPhone = authUser.user_metadata?.phone || null;
+
+            const { data: createdProfile, error: createError } = await supabase
+              .from('users')
+              .upsert(
+                {
+                  id: userId,
+                  name: fallbackName,
+                  email: authUser.email || '',
+                  phone: fallbackPhone,
+                  role: 'sender',
+                },
+                { onConflict: 'id' }
+              )
+              .select()
+              .single();
+
+            if (!createError && createdProfile) {
+              await supabase.from('kithly_wallets').upsert(
+                { user_id: userId, balance: 0, currency: 'ZMW' },
+                { onConflict: 'user_id' }
+              );
+              setProfile(createdProfile);
+              return;
+            }
+          }
+        }
+        throw error;
+      }
       setProfile(data);
     } catch (error) {
       console.error('Error fetching profile (possible RLS denial):', error);
