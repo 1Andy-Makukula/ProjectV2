@@ -49,10 +49,11 @@ function iconFor(type: string) {
   }
 }
 
-/** Message notifications point at a thread; everything else at an order. */
+/** Message notifications point at a thread; applications at the review queue; everything else at an order. */
 function routeFor(notification: AppNotification): string | null {
   if (!notification.reference_id) return null;
   if (notification.type === 'message') return `/messages?c=${notification.reference_id}`;
+  if (notification.type === 'merchant_application') return '/admin/shops';
   return null;
 }
 
