@@ -14,6 +14,7 @@ export function useAdminDashboard() {
     totalCommission: 0,
     commissionThisWeek: 0,
     totalShops: 0,
+    pendingShops: 0,
     totalUsers: 0,
     fulfilledOrders: 0,
     pendingOrders: 0,
@@ -61,6 +62,16 @@ export function useAdminDashboard() {
 
       if (shopsError) throw shopsError;
 
+      // Merchant applications waiting on review. Nothing on this dashboard
+      // surfaced them, so a self-registered shop sat unseen until someone
+      // happened to open the Shops page.
+      const { count: pendingShopsCount, error: pendingShopsError } = await supabase
+        .from('shops')
+        .select('*', { count: 'exact', head: true })
+        .eq('verification_status', 'pending');
+
+      if (pendingShopsError) throw pendingShopsError;
+
       // Get users count
       const { count: usersCount, error: usersError } = await supabase
         .from('users')
@@ -95,6 +106,7 @@ export function useAdminDashboard() {
         totalCommission: totalComm,
         commissionThisWeek: commThisWeek,
         totalShops: shopsCount || 0,
+        pendingShops: pendingShopsCount || 0,
         totalUsers: usersCount || 0,
         fulfilledOrders: transactions?.filter((t: any) => t.shop_orders?.some((so: any) => so.claim_status === 'REDEEMED' || so.claim_status === 'FULFILLED')).length || 0,
         pendingOrders: transactions?.filter((t: any) => t.status === 'GATEWAY_PROCESSING' || t.shop_orders?.some((so: any) => so.claim_status === 'PENDING')).length || 0,

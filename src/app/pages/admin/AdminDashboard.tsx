@@ -8,6 +8,7 @@ import {
   Download,
   Activity,
   Percent,
+  Store,
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -116,6 +117,25 @@ export function AdminDashboard() {
           />
         </div>
 
+        {/* Merchant applications are work waiting on a person, so they get a
+            prompt rather than a figure buried in the counts below. */}
+        {stats.pendingShops > 0 && (
+          <button
+            onClick={() => navigate('/admin/shops')}
+            className="mb-8 flex w-full items-center gap-3 rounded-2xl border border-orange-200/80 bg-orange-50 px-5 py-4 text-left transition-colors hover:bg-orange-100/70"
+          >
+            <Store className="size-5 shrink-0 text-primary" strokeWidth={1.75} />
+            <p className="flex-1 text-sm leading-relaxed text-orange-850">
+              <strong>
+                {stats.pendingShops} merchant application
+                {stats.pendingShops === 1 ? '' : 's'}
+              </strong>{' '}
+              awaiting review.
+            </p>
+            <ArrowRight className="size-4 shrink-0 text-primary" />
+          </button>
+        )}
+
         {/* ── Operational counts ───────────────────────────────────────── */}
         <SectionHeading
           title="Operations"
@@ -129,6 +149,11 @@ export function AdminDashboard() {
             { label: 'Expired', value: stats.expiredOrders.toLocaleString(), tone: 'muted' },
             { label: 'Orders / wk', value: stats.ordersThisWeek.toLocaleString() },
             { label: 'Shops', value: stats.totalShops.toLocaleString() },
+            {
+              label: 'Applications',
+              value: stats.pendingShops.toLocaleString(),
+              live: stats.pendingShops > 0,
+            },
             { label: 'Users', value: stats.totalUsers.toLocaleString() },
           ]}
         />
@@ -150,6 +175,11 @@ export function AdminDashboard() {
                 title="Manage Orders"
                 description="View all orders"
                 onClick={() => navigate('/admin/orders')}
+              />
+              <QuickLink
+                title="Finance"
+                description="Withdrawals & settlements"
+                onClick={() => navigate('/admin/finance')}
               />
               <QuickLink
                 title="Merchandising"

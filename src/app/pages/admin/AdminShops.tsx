@@ -34,7 +34,6 @@ export function AdminShops() {
     : shops;
 
   const pendingShops = filteredShops.filter(shop => shop.verification_status === 'pending');
-  const nonPendingShops = filteredShops.filter(shop => shop.verification_status !== 'pending');
 
   /** Opens a KithLy thread with the shop. Messages appear as from the platform. */
   const handleMessageShop = async (shopId: string, shopName: string) => {
@@ -114,7 +113,7 @@ export function AdminShops() {
           >
             All Shops
             <span className="ml-1.5 text-xs font-light text-muted-foreground">
-              {nonPendingShops.length}
+              {filteredShops.length}
             </span>
           </button>
           <button
@@ -140,7 +139,7 @@ export function AdminShops() {
         {loading ? (
           <div className="text-center py-12 text-sm text-muted-foreground">Loading shops…</div>
         ) : activeTab === 'all' ? (
-          nonPendingShops.length === 0 ? (
+          filteredShops.length === 0 ? (
             <div className="kl-card flex flex-col items-center px-6 py-16 text-center">
               <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-primary-tint">
                 <Store className="size-6 text-primary" strokeWidth={1.5} />
@@ -162,13 +161,17 @@ export function AdminShops() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {nonPendingShops.map((shop) => (
+              {filteredShops.map((shop) => (
                 <ShopCard
                   key={shop.id}
                   shop={shop}
                   onEdit={() => navigate(`/admin/shops/${shop.id}/edit`)}
                   onToggleActive={() => toggleShopActive(shop.id, shop.is_active)}
-                  onClick={() => navigate(`/admin/shops/${shop.id}/items`)}
+                  onClick={() =>
+                    shop.verification_status === 'pending'
+                      ? setActiveTab('pending')
+                      : navigate(`/admin/shops/${shop.id}/items`)
+                  }
                   onPreview={() => navigate(`/admin/shops/${shop.id}/preview`)}
                 />
               ))}
@@ -372,9 +375,20 @@ function ShopCard({ shop, onEdit, onToggleActive, onClick, onPreview }: any) {
           <CardContent className="pt-3">
             <div className="flex items-start justify-between mb-1.5">
               <h3 className="font-medium text-sm tracking-tight">{shop.name}</h3>
-              <Badge variant={shop.is_active ? 'tint' : 'secondary'}>
-                {shop.is_active ? 'Active' : 'Inactive'}
-              </Badge>
+              {/* A shop awaiting review is neither active nor merely inactive —
+                  saying "Inactive" here hid applications in plain sight. */}
+              {shop.verification_status === 'pending' ? (
+                <Badge
+                  variant="outline"
+                  className="border-orange-200 bg-orange-50 px-2 py-0 text-[10px] text-orange-700"
+                >
+                  Pending Review
+                </Badge>
+              ) : (
+                <Badge variant={shop.is_active ? 'tint' : 'secondary'}>
+                  {shop.is_active ? 'Active' : 'Inactive'}
+                </Badge>
+              )}
             </div>
 
             {shop.location && (
@@ -432,16 +446,22 @@ function ShopCard({ shop, onEdit, onToggleActive, onClick, onPreview }: any) {
             </Button>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="text-[0.6875rem] text-muted-foreground">
-              {shop.is_active ? 'Active' : 'Inactive'}
-            </span>
-            <Switch
-              checked={shop.is_active}
-              onCheckedChange={() => { onToggleActive(); }}
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
+          {/* Activation is the outcome of review, not a shortcut around it —
+              a pending shop must go through Approve/Reject to go live. */}
+          {shop.verification_status === 'pending' ? (
+            <span className="text-[0.6875rem] text-muted-foreground">Awaiting review</span>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-[0.6875rem] text-muted-foreground">
+                {shop.is_active ? 'Active' : 'Inactive'}
+              </span>
+              <Switch
+                checked={shop.is_active}
+                onCheckedChange={() => { onToggleActive(); }}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          )}
         </div>
       </Card>
     </motion.div>

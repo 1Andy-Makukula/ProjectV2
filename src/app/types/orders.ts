@@ -80,6 +80,8 @@ export interface Stats {
   totalCommission: number;
   commissionThisWeek: number;
   totalShops: number;
+  /** Shops with verification_status = 'pending' — merchant applications awaiting review. */
+  pendingShops: number;
   totalUsers: number;
   fulfilledOrders: number;
   pendingOrders: number;
