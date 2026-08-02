@@ -132,25 +132,24 @@ export function useAdminOrderDetail(orderId?: string) {
       } else if (newStatus === 'fulfilled') {
         if (!order.shop_order_id) throw new Error('No shop order found');
 
-        const { error } = await supabase
-          .from('shop_orders')
-          .update({ claim_status: 'REDEEMED' })
-          .eq('transaction_id', order.transaction_id);
+        // Routed through the engine so settlement, float, ledger and
+        // notifications happen — a raw status write skipped all of them.
+        const { error } = await supabase.rpc('admin_force_fulfill_order', {
+          p_shop_order_id: order.shop_order_id,
+          p_reason: null,
+        });
 
         if (error) throw error;
       } else if (newStatus === 'expired') {
-        const { error: txErr } = await supabase
-          .from('transactions')
-          .update({ status: 'CANCELLED' })
-          .eq('transaction_id', order.transaction_id);
+        if (!order.shop_order_id) throw new Error('No shop order found');
 
-        if (txErr) throw txErr;
+        // Applies the configured sender-refund / merchant-credit split.
+        const { error } = await supabase.rpc('admin_expire_order', {
+          p_shop_order_id: order.shop_order_id,
+          p_reason: null,
+        });
 
-        const { error: soErr } = await supabase
-          .from('shop_orders')
-          .update({ claim_status: 'CANCELLED' })
-          .eq('transaction_id', order.transaction_id);
-        if (soErr) throw soErr;
+        if (error) throw error;
       }
 
       toast.success(`Order marked as ${newStatus}`);

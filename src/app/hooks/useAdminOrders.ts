@@ -91,20 +91,16 @@ export function useAdminOrders() {
           transaction_id: order.transaction_id,
         });
       } else {
-        const { error: txError } = await supabase
-          .from('transactions')
-          .update({ status: 'CANCELLED' })
-          .eq('transaction_id', order.transaction_id);
+        if (!order.shop_order_id) throw new Error('No shop order found');
 
-        if (txError) throw txError;
+        // Applies the configured sender-refund / merchant-credit split. The
+        // raw status write this replaces moved no money at all.
+        const { error } = await supabase.rpc('admin_expire_order', {
+          p_shop_order_id: order.shop_order_id,
+          p_reason: null,
+        });
 
-        if (order.shop_order_id) {
-          const { error: soError } = await supabase
-            .from('shop_orders')
-            .update({ claim_status: 'CANCELLED' })
-            .eq('transaction_id', order.transaction_id);
-          if (soError) throw soError;
-        }
+        if (error) throw error;
       }
 
       toast.success(`Order marked as ${newStatus}`);
