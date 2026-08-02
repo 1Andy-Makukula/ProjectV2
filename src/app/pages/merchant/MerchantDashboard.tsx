@@ -4,8 +4,9 @@ import { useAuth } from '../../../utils/auth/AuthContext';
 import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { formatCurrency } from '../../../utils/currency';
-import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles, MessageSquare, Wallet } from 'lucide-react';
+import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles, MessageSquare, Wallet, ShieldAlert, Search, Download } from 'lucide-react';
 import { motion } from 'motion/react';
+import { toast } from 'sonner';
 import { NotificationBell } from '../../components/shared/NotificationBell';
 import { StatCard, SectionHeading } from '../../components/shared/StatCard';
 import { AdminItems } from '../admin/AdminItems';
@@ -67,6 +68,10 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
   const {
     shopName,
     shopId,
+    shopIsActive,
+    shopVerificationStatus,
+    shopRejectionReason,
+    experiences,
     activeOrders,
     fulfilledOrders,
     analytics,
@@ -75,7 +80,25 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
     ledgerData,
     ledgerLoading,
     handleWithdrawRequest,
+    exportOrdersToCSV,
   } = useMerchantDashboard(profile?.id, previewShopId ? { shopId: previewShopId } : undefined);
+
+  // Fulfilled history is the tab that grows without bound, so it gets the
+  // search and export the admin order list already had.
+  const [fulfilledQuery, setFulfilledQuery] = useState('');
+  const filteredFulfilled = (() => {
+    const q = fulfilledQuery.trim().toLowerCase();
+    if (!q) return fulfilledOrders;
+    return fulfilledOrders.filter((o) =>
+      (o.code ?? '').toLowerCase().includes(q) ||
+      (o.recipient_name ?? '').toLowerCase().includes(q) ||
+      (o.order_items ?? []).some((oi) => (oi.item?.name ?? '').toLowerCase().includes(q))
+    );
+  })();
+
+  // Catalogue management is gated behind approval — mirrors the items_merchant_write
+  // RLS policy, which now requires shops.is_active = true.
+  const catalogueLocked = !readOnly && !!shopId && !shopIsActive;
 
   // Sheet drawer state
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -144,6 +167,26 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 py-8">
 
+        {/* ── Approval status banner ───────────────────────────────────── */}
+        {catalogueLocked && (
+          <div className="mb-8 flex items-start gap-3 rounded-2xl border border-orange-200/80 bg-orange-50 px-5 py-4">
+            <ShieldAlert className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <p className="text-sm text-orange-850 leading-relaxed">
+              {shopVerificationStatus === 'rejected' ? (
+                <>
+                  <strong>Your shop was not approved.</strong>{' '}
+                  {shopRejectionReason || 'Contact support for details.'}
+                </>
+              ) : (
+                <>
+                  <strong>Your shop is awaiting admin review.</strong> You'll be able to add
+                  items and appear live on KithLy once it's approved.
+                </>
+              )}
+            </p>
+          </div>
+        )}
+
         {/* ── Trading figures ──────────────────────────────────────────── */}
         <SectionHeading
           title="Your shop"
@@ -201,6 +244,36 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
           </div>
         </div>
 
+        {/* Curated bundles carrying this shop's items. Admin-curated without
+            the merchant's involvement, so it is listed rather than managed. */}
+        {experiences.length > 0 && (
+          <div className="mb-8">
+            <SectionHeading
+              title="Featured in"
+              description="Curated experiences that include your products."
+            />
+            <div className="flex flex-wrap gap-3">
+              {experiences.map((exp) => (
+                <div
+                  key={exp.id}
+                  className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white/80 px-4 py-2.5 shadow-sm"
+                >
+                  <Sparkles className="size-4 shrink-0 text-orange-500" strokeWidth={1.75} />
+                  <span className="text-sm font-medium text-slate-900">{exp.name}</span>
+                  {exp.expires_at && (
+                    <span className="text-xs text-slate-400">
+                      until {new Date(exp.expires_at).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Quick Actions Grid — hidden in preview: every entry navigates into a
             merchant-only route, which would eject the admin out of the preview. */}
         <div className={cn('mb-8', readOnly && 'hidden')}>
@@ -238,7 +311,9 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                 icon: Settings,
                 path: '/settings',
               },
-            ].map((action, index) => (
+            ].map((action, index) => {
+              const locked = catalogueLocked && action.path === '/merchant/items/new';
+              return (
               <motion.button
                 key={action.label}
                 initial={{ opacity: 0, y: 15 }}
@@ -246,13 +321,20 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                 transition={{ delay: index * 0.1 }}
                 onClick={() => {
                   if (action.path === '#') return;
+                  if (locked) {
+                    toast.error('Your shop is still awaiting admin review.');
+                    return;
+                  }
                   if (action.external) {
                     window.open(action.path, '_blank');
                   } else {
                     navigate(action.path);
                   }
                 }}
-                className="group flex flex-col items-start rounded-2xl border border-slate-100 bg-white/80 backdrop-blur-xl p-5 text-left shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all"
+                className={cn(
+                  'group flex flex-col items-start rounded-2xl border border-slate-100 bg-white/80 backdrop-blur-xl p-5 text-left shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all',
+                  locked && 'opacity-50 hover:translate-y-0 hover:shadow-sm cursor-not-allowed'
+                )}
               >
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 transition-colors group-hover:bg-orange-100">
                   <action.icon
@@ -263,7 +345,8 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                 <h3 className="text-base font-semibold text-slate-900">{action.label}</h3>
                 <p className="mt-1 text-xs text-slate-500">{action.description}</p>
               </motion.button>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -419,7 +502,34 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
 
           {/* Fulfilled */}
           <TabsContent value="fulfilled" className="space-y-4">
-            {fulfilledOrders.length === 0 ? (
+            {fulfilledOrders.length > 0 && (
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div className="relative flex-1">
+                  <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    value={fulfilledQuery}
+                    onChange={(e) => setFulfilledQuery(e.target.value)}
+                    placeholder="Search by code, recipient or item…"
+                    className="h-10 w-full rounded-md border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+                </div>
+                {!readOnly && (
+                  <Button
+                    variant="outline"
+                    onClick={() => exportOrdersToCSV(filteredFulfilled, 'kithly-my-orders')}
+                    disabled={filteredFulfilled.length === 0}
+                  >
+                    <Download className="mr-2 size-4" />
+                    Export CSV
+                  </Button>
+                )}
+              </div>
+            )}
+            {filteredFulfilled.length === 0 && fulfilledOrders.length > 0 ? (
+              <div className="kl-card px-6 py-12 text-center text-sm text-muted-foreground">
+                No orders match “{fulfilledQuery}”.
+              </div>
+            ) : fulfilledOrders.length === 0 ? (
               <div className="kl-card flex flex-col items-center px-6 py-16 text-center">
                 <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-secondary">
                   <Package className="size-6 text-muted-foreground" strokeWidth={1.5} />
@@ -430,7 +540,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                 </p>
               </div>
             ) : (
-              fulfilledOrders.map((order) => {
+              filteredFulfilled.map((order) => {
                 const aggregatedItems = aggregateOrderItems(order.order_items);
                 return (
                   <div key={order.id} className="bg-white p-6 rounded-xl shadow-sm border">
@@ -532,7 +642,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
           <TabsContent value="inventory" className="space-y-4">
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
               {shopId ? (
-                <AdminItems merchantShopId={shopId} baseRoute="/merchant" readOnly={readOnly} />
+                <AdminItems merchantShopId={shopId} baseRoute="/merchant" readOnly={readOnly || catalogueLocked} />
               ) : (
                 <div className="p-12 text-center text-muted-foreground">Loading inventory...</div>
               )}

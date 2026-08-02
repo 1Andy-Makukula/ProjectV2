@@ -25,6 +25,13 @@ export interface Order {
   } | null;
 }
 
+/** A live curated bundle that carries at least one of this shop's items. */
+export interface FeaturedExperience {
+  id: string;
+  name: string;
+  expires_at: string | null;
+}
+
 export interface Analytics {
   totalFulfilled: number;
   totalValue: number;
@@ -49,6 +56,10 @@ export function useMerchantDashboard(
   const previewShopId = options?.shopId;
   const [shopName, setShopName] = useState('');
   const [shopId, setShopId] = useState<string | null>(null);
+  const [shopIsActive, setShopIsActive] = useState(false);
+  const [experiences, setExperiences] = useState<FeaturedExperience[]>([]);
+  const [shopVerificationStatus, setShopVerificationStatus] = useState<string | null>(null);
+  const [shopRejectionReason, setShopRejectionReason] = useState<string | null>(null);
   const [activeOrders, setActiveOrders] = useState<Order[]>([]);
   const [fulfilledOrders, setFulfilledOrders] = useState<Order[]>([]);
   const [analytics, setAnalytics] = useState<Analytics>({
@@ -148,6 +159,34 @@ export function useMerchantDashboard(
     }
   }, []);
 
+  /**
+   * Live experiences carrying this shop's items. Admins curate these without
+   * the merchant's involvement, so without this the shop had no way to know
+   * its products were being sold inside a bundle.
+   */
+  const fetchExperiences = useCallback(async (currentShopId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('experience_items')
+        .select('experience:experiences(id, name, is_active, expires_at), items!inner(shop_id)')
+        .eq('items.shop_id', currentShopId);
+
+      if (error) throw error;
+
+      const seen = new Map<string, FeaturedExperience>();
+      for (const row of (data ?? []) as any[]) {
+        const exp = row.experience;
+        if (exp?.is_active && !seen.has(exp.id)) {
+          seen.set(exp.id, { id: exp.id, name: exp.name, expires_at: exp.expires_at ?? null });
+        }
+      }
+      setExperiences(Array.from(seen.values()));
+    } catch (error) {
+      // Informational only — never block the dashboard on it.
+      console.error('Error fetching experiences:', error);
+    }
+  }, []);
+
   const fetchLedger = useCallback(async (currentShopId: string) => {
     setLedgerLoading(true);
     try {
@@ -180,7 +219,7 @@ export function useMerchantDashboard(
         // directly and bill the balance to its owner rather than the viewer.
         const { data: shopRow, error: shopError } = await supabase
           .from('shops')
-          .select('id, name, location, image_url, payout_details, payout_method, owner_id')
+          .select('id, name, location, image_url, payout_details, payout_method, owner_id, is_active, verification_status, rejection_reason')
           .eq('id', previewShopId)
           .maybeSingle();
 
@@ -199,7 +238,7 @@ export function useMerchantDashboard(
       } else {
         const { data: merchantShop, error: shopError } = await supabase
           .from('merchant_shops')
-          .select('shop_id, shop:shops(id, name, location, image_url, payout_details, payout_method)')
+          .select('shop_id, shop:shops(id, name, location, image_url, payout_details, payout_method, is_active, verification_status, rejection_reason)')
           .eq('user_id', profileId)
           .order('created_at', { ascending: true })
           .limit(1)
@@ -222,18 +261,53 @@ export function useMerchantDashboard(
       setShopId(currentShopId);
       setShopName(shop?.name ?? 'Your Shop');
       setWalletOwnerId(currentWalletOwnerId);
+      setShopIsActive(shop?.is_active ?? false);
+      setShopVerificationStatus(shop?.verification_status ?? null);
+      setShopRejectionReason(shop?.rejection_reason ?? null);
 
       await Promise.all([
         fetchOrders(currentShopId),
         fetchAnalytics(currentShopId, currentWalletOwnerId),
         fetchLedger(currentShopId),
+        fetchExperiences(currentShopId),
       ]);
     } catch (error) {
       console.error('Error fetching merchant data:', error);
     } finally {
       setLoading(false);
     }
-  }, [profileId, previewShopId, fetchOrders, fetchAnalytics, fetchLedger]);
+  }, [profileId, previewShopId, fetchOrders, fetchAnalytics, fetchLedger, fetchExperiences]);
+
+  /**
+   * A merchant's own handover history, for their bookkeeping. Amounts are
+   * stored as ngwee, so they are divided back to kwacha for the sheet.
+   */
+  const exportOrdersToCSV = useCallback((rows: Order[], filename: string) => {
+    if (rows.length === 0) return;
+
+    const headers = ['Code', 'Recipient', 'Items', 'Amount (ZMW)', 'Paid', 'Fulfilled'];
+    const body = rows.map((o) => [
+      o.code ?? '',
+      o.recipient_name ?? '',
+      (o.order_items ?? [])
+        .map((oi) => oi.item?.name)
+        .filter(Boolean)
+        .join(' | '),
+      (o.amount / 100).toFixed(2),
+      o.paid_at ? new Date(o.paid_at).toLocaleString() : '',
+      o.fulfilled_at ? new Date(o.fulfilled_at).toLocaleString() : '',
+    ]);
+
+    const csv = [headers.join(','), ...body.map((r) => r.map((c) => `"${c}"`).join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${filename}-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    toast.success('Orders exported to CSV');
+  }, []);
 
   const handleWithdrawRequest = useCallback(async () => {
     if (!shopId || withdrawing || analytics.availableBalance <= 0) return false;
@@ -308,6 +382,10 @@ export function useMerchantDashboard(
   return {
     shopName,
     shopId,
+    shopIsActive,
+    shopVerificationStatus,
+    shopRejectionReason,
+    experiences,
     activeOrders,
     fulfilledOrders,
     analytics,
@@ -316,6 +394,7 @@ export function useMerchantDashboard(
     ledgerData,
     ledgerLoading,
     handleWithdrawRequest,
+    exportOrdersToCSV,
     reload: fetchMerchantData,
   };
 }
