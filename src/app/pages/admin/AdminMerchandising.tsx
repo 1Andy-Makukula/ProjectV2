@@ -1,7 +1,7 @@
 // AdminMerchandising — Full storefront control panel at '/admin/merchandising'
 // Manages: Banners · Weekly Picks · Shop Logos · Category Flags
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
   Upload, Trash2, ToggleLeft, ToggleRight,
@@ -308,9 +308,20 @@ function CategoryFlagsPanel() {
     cats,
     loading,
     toggling,
+    creating,
+    deleting,
     schemaError,
     toggle,
+    create,
+    remove,
   } = useCategoryFlags();
+  const [newName, setNewName] = useState('');
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const ok = await create(newName);
+    if (ok) setNewName('');
+  };
 
   if (schemaError) {
     return (
@@ -324,11 +335,30 @@ function CategoryFlagsPanel() {
   }
 
   return (
-    <SectionShell title="Category Feature Flags" sub="Toggle which categories display in the storefront matrix.">
+    <SectionShell title="Category Feature Flags" sub="Create categories and toggle which ones display in the storefront matrix.">
+      {/* Add form */}
+      <form onSubmit={handleCreate} className="flex gap-3 mb-6">
+        <input
+          value={newName}
+          onChange={e => setNewName(e.target.value)}
+          placeholder="New category name"
+          className="flex-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900"
+        />
+        <button
+          type="submit"
+          aria-busy={creating}
+          disabled={creating || !newName.trim()}
+          className="flex items-center gap-2 rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 disabled:opacity-50 transition-colors"
+        >
+          {creating ? <Spinner /> : <Tag className="h-4 w-4" />}
+          Add Category
+        </button>
+      </form>
+
       {loading ? (
         <div className="flex items-center gap-2 text-sm text-slate-500"><Spinner /> Loading categories...</div>
       ) : cats.length === 0 ? (
-        <p className="text-sm text-slate-400">No categories found. Insert rows into the <code className="font-mono text-xs">categories</code> table.</p>
+        <p className="text-sm text-slate-400">No categories yet. Add one above.</p>
       ) : (
         <div className="divide-y divide-slate-100 rounded-lg border border-slate-100 overflow-hidden">
           {cats.map(cat => (
@@ -339,11 +369,19 @@ function CategoryFlagsPanel() {
               {toggling === cat.id
                 ? <Spinner />
                 : (
-                  <button onClick={() => toggle(cat)} className="transition-colors">
+                  <button onClick={() => toggle(cat)} className="transition-colors" title={cat.is_featured ? 'Unfeature' : 'Feature'}>
                     {cat.is_featured
                       ? <ToggleRight className="h-6 w-6 text-green-600" />
                       : <ToggleLeft className="h-6 w-6 text-slate-300" />
                     }
+                  </button>
+                )
+              }
+              {deleting === cat.id
+                ? <Spinner />
+                : (
+                  <button onClick={() => remove(cat)} className="text-red-400 hover:text-red-600 transition-colors" title="Delete">
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 )
               }
