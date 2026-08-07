@@ -343,7 +343,9 @@ DECLARE
   v_slug text;
   v_attempt integer := 0;
 BEGIN
-  v_base := btrim(both '-' from regexp_replace(lower(coalesce(p_title, '')), '[^a-z0-9]+', '-', 'g'));
+  -- btrim takes the characters to strip as a second argument; `both ... from`
+  -- is trim()'s syntax and is a parse error here.
+  v_base := btrim(regexp_replace(lower(coalesce(p_title, '')), '[^a-z0-9]+', '-', 'g'), '-');
   IF v_base = '' THEN
     v_base := 'list';
   END IF;

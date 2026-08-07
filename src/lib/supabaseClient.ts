@@ -4,7 +4,11 @@
  * This is the single source of truth for all Supabase interactions
  * across the KithLy frontend. All components must import from this file.
  *
- * Connected instance: ghwrvqsoelpcoqdodrzu (Url2 — V2 Production)
+ * The instance is whatever VITE_SUPABASE_URL points at — do not infer it from
+ * this comment. This previously named ghwrvqsoelpcoqdodrzu, which has not been
+ * the project for some time: .env and the linked CLI project are both
+ * mbjbrdhpjgfhhycijodz, and the full migration history is applied there.
+ * A stale reference here is how someone deploys to the wrong database.
  */
 import { createClient } from '@supabase/supabase-js';
 
@@ -30,6 +34,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 /**
  * The Supabase project ID, derived from the URL.
  * Used anywhere a raw project reference is needed (e.g. Edge Function URLs).
- * Example: "mbjbrdhpjgfhhycijodz"
+ * Derived at runtime, so it always matches the configured instance.
  */
 export const projectId = supabaseUrl.replace('https://', '').split('.')[0];
