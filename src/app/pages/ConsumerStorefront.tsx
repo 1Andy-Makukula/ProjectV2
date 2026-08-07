@@ -10,13 +10,14 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, ChevronRight, Shield, Store, ArrowRight, Package } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Shield, Store, ArrowRight, Package, ListChecks } from 'lucide-react';
 
 import { useAuth } from '../../utils/auth/AuthContext';
 import { Skeleton } from '../components/ui/skeleton';
 import { cn } from '../components/ui/utils';
 import { ShopCard } from '../components/shared/ShopCard';
 import { ExperienceCard } from '../components/shared/ExperienceCard';
+import { ListCard } from '../components/shared/ListCard';
 import { Header } from '../components/layout/Header';
 import { ModeSwitcher } from '../components/storefront/ModeSwitcher';
 import { ItemFeed, SectionHeading } from '../components/storefront/ItemFeed';
@@ -52,6 +53,7 @@ export function ConsumerStorefront() {
   const { user, profile, loading: authLoading } = useAuth();
 
   const { data, loading: dataLoading } = useStorefrontData();
+  const communityLists = data?.lists ?? [];
   const { experiences, loading: experiencesLoading } = useExperiences({ limit: 6 });
   const { mode } = useStorefrontMode();
   const definition = modeDefinition(mode);
@@ -137,6 +139,57 @@ export function ConsumerStorefront() {
           onGift={openItem}
           onAddToCart={profile ? addItemToCart : undefined}
         />
+      </section>
+    ),
+
+    lists: (
+      <section key="lists">
+        <SectionHeading
+          kicker={definition.itemsKicker}
+          title={definition.itemsHeading}
+          subtitle="Save one to your own, or buy the whole thing in one go."
+          action={
+            profile ? (
+              <button
+                onClick={() => navigate('/lists/new')}
+                className="flex items-center gap-1 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+              >
+                Make a list <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+            ) : undefined
+          }
+        />
+        {dataLoading ? (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                <Skeleton className="aspect-[4/3] w-full" />
+                <div className="space-y-2 p-4">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-3 w-1/3" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : communityLists.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-200 py-16 text-center text-slate-400">
+            <ListChecks className="mx-auto mb-3 h-10 w-10 text-slate-300" strokeWidth={1} />
+            <p className="text-sm">No lists published yet — yours could be the first.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+            {communityLists.map((list, i) => (
+              <motion.div
+                key={list.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: i * 0.06 }}
+              >
+                <ListCard list={list} onOpen={() => navigate(`/list/${list.slug}`)} />
+              </motion.div>
+            ))}
+          </div>
+        )}
       </section>
     ),
 

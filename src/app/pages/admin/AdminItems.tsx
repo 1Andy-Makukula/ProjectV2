@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { motion } from 'motion/react';
-import { Plus, Edit, Package } from 'lucide-react';
+import { Plus, Edit, Package, LibraryBig } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -8,6 +9,7 @@ import { Switch } from '../../components/ui/switch';
 import { PageShell, PageBody } from '../../components/layout/PageShell';
 import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
 import { useAdminItems } from '../../hooks/useAdminItems';
+import { CatalogImportDialog } from '../../components/shared/CatalogImportDialog';
 
 interface AdminItemsProps {
   merchantShopId?: string;
@@ -30,8 +32,8 @@ export function AdminItems({
   const activeShopId = merchantShopId || paramShopId;
   const isMerchantMode = !!merchantShopId;
 
-  const { shop, items, loading, toggleItemAvailability } = useAdminItems(activeShopId);
-
+  const { shop, items, loading, toggleItemAvailability, reload } = useAdminItems(activeShopId);
+  const [importOpen, setImportOpen] = useState(false);
 
   return (
     <PageShell>
@@ -42,13 +44,23 @@ export function AdminItems({
           onBack={() => navigate('/admin/shops')}
           actions={
             readOnly ? undefined : (
-              <Button
-                onClick={() => navigate(`${baseRoute}/shops/${activeShopId}/items/new`)}
-                className="bg-white text-primary hover:bg-white/90 h-8"
-              >
-                <Plus className="size-3.5" />
-                Add Item
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setImportOpen(true)}
+                  className="h-8 border-white/40 bg-transparent text-white hover:bg-white/10"
+                >
+                  <LibraryBig className="size-3.5" />
+                  Import
+                </Button>
+                <Button
+                  onClick={() => navigate(`${baseRoute}/shops/${activeShopId}/items/new`)}
+                  className="bg-white text-primary hover:bg-white/90 h-8"
+                >
+                  <Plus className="size-3.5" />
+                  Add Item
+                </Button>
+              </div>
             )
           }
         />
@@ -69,10 +81,16 @@ export function AdminItems({
                 : 'List your first product to start receiving gift orders.'}
             </p>
             {!readOnly && (
-              <Button onClick={() => navigate(baseRoute === '/merchant' ? `${baseRoute}/items/new` : `${baseRoute}/shops/${activeShopId}/items/new`)}>
-                <Plus className="size-3.5" />
-                Add Your First Item
-              </Button>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <Button onClick={() => navigate(baseRoute === '/merchant' ? `${baseRoute}/items/new` : `${baseRoute}/shops/${activeShopId}/items/new`)}>
+                  <Plus className="size-3.5" />
+                  Add Your First Item
+                </Button>
+                <Button variant="outline" onClick={() => setImportOpen(true)}>
+                  <LibraryBig className="size-3.5" />
+                  Import from catalogue
+                </Button>
+              </div>
             )}
           </div>
         ) : (
@@ -87,6 +105,15 @@ export function AdminItems({
               />
             ))}
           </div>
+        )}
+
+        {!readOnly && activeShopId && (
+          <CatalogImportDialog
+            open={importOpen}
+            onOpenChange={setImportOpen}
+            shopId={activeShopId}
+            onImported={reload}
+          />
         )}
       </PageBody>
     </PageShell>

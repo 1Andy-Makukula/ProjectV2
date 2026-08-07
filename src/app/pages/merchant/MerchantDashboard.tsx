@@ -4,11 +4,12 @@ import { useAuth } from '../../../utils/auth/AuthContext';
 import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { formatCurrency } from '../../../utils/currency';
-import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles, MessageSquare, Wallet, ShieldAlert, Search, Download } from 'lucide-react';
+import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles, MessageSquare, Wallet, ShieldAlert, Search, Download, ListChecks } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { NotificationBell } from '../../components/shared/NotificationBell';
 import { StatCard, SectionHeading } from '../../components/shared/StatCard';
+import { ShopOfferingBadge } from '../../components/shared/ShopOfferingBadge';
 import { AdminItems } from '../admin/AdminItems';
 import { SettlementDashboard } from '../../components/merchant/SettlementDashboard';
 
@@ -69,6 +70,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
     shopName,
     shopId,
     shopIsActive,
+    shopOfferings,
     shopVerificationStatus,
     shopRejectionReason,
     experiences,
@@ -129,7 +131,16 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
       <div className="bg-white border-b sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-xl font-semibold">{shopName}</h1>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-xl font-semibold">{shopName}</h1>
+              {/* The merchant declared this at onboarding and it decides which
+                  item types their catalogue form offers — but until now it was
+                  only ever visible on the public storefront. */}
+              <ShopOfferingBadge
+                offersProducts={shopOfferings.offers_products}
+                offersServices={shopOfferings.offers_services}
+              />
+            </div>
             <p className="text-sm text-muted-foreground">
               {readOnly ? 'Viewing as merchant — read only' : 'Merchant Dashboard'}
             </p>
@@ -297,6 +308,12 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                 description: 'Update location and details',
                 icon: Store,
                 path: '/merchant/shop/edit',
+              },
+              {
+                label: 'Shop Lists',
+                description: 'Bundle items into a shareable list',
+                icon: ListChecks,
+                path: '/lists',
               },
               {
                 label: 'View Public Storefront',

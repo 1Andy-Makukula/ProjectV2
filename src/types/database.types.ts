@@ -82,10 +82,14 @@ export type Database = {
           minimum_order_quantity: number
           name: string
           original_price_zmw: number | null
+          price_is_minimum: boolean
           price_zmw: number
           promo_badge_text: string | null
           requires_scheduling: boolean
           shop_id: string
+          stock_alert_level: string | null
+          stock_baseline: number | null
+          stock_quantity: number | null
           valid_for_days: number | null
           wholesale_price_zmw: number | null
         }
@@ -108,10 +112,14 @@ export type Database = {
           minimum_order_quantity?: number
           name: string
           original_price_zmw?: number | null
+          price_is_minimum?: boolean
           price_zmw: number
           promo_badge_text?: string | null
           requires_scheduling?: boolean
           shop_id: string
+          stock_alert_level?: string | null
+          stock_baseline?: number | null
+          stock_quantity?: number | null
           valid_for_days?: number | null
           wholesale_price_zmw?: number | null
         }
@@ -134,10 +142,14 @@ export type Database = {
           minimum_order_quantity?: number
           name?: string
           original_price_zmw?: number | null
+          price_is_minimum?: boolean
           price_zmw?: number
           promo_badge_text?: string | null
           requires_scheduling?: boolean
           shop_id?: string
+          stock_alert_level?: string | null
+          stock_baseline?: number | null
+          stock_quantity?: number | null
           valid_for_days?: number | null
           wholesale_price_zmw?: number | null
         }
@@ -157,6 +169,117 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      lists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_anonymous: boolean
+          is_platform: boolean
+          owner_shop_id: string | null
+          owner_user_id: string | null
+          rating_count: number
+          rating_sum: number
+          save_count: number
+          slug: string
+          title: string
+          updated_at: string
+          visibility: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_anonymous?: boolean
+          is_platform?: boolean
+          owner_shop_id?: string | null
+          owner_user_id?: string | null
+          rating_count?: number
+          rating_sum?: number
+          save_count?: number
+          slug: string
+          title: string
+          updated_at?: string
+          visibility?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_anonymous?: boolean
+          is_platform?: boolean
+          owner_shop_id?: string | null
+          owner_user_id?: string | null
+          rating_count?: number
+          rating_sum?: number
+          save_count?: number
+          slug?: string
+          title?: string
+          updated_at?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
+      list_items: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string | null
+          list_id: string
+          snapshot_image_url: string | null
+          snapshot_name: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id?: string | null
+          list_id: string
+          snapshot_image_url?: string | null
+          snapshot_name: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string | null
+          list_id?: string
+          snapshot_image_url?: string | null
+          snapshot_name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      list_saves: {
+        Row: { created_at: string; list_id: string; user_id: string }
+        Insert: { created_at?: string; list_id: string; user_id: string }
+        Update: { created_at?: string; list_id?: string; user_id?: string }
+        Relationships: []
+      }
+      list_ratings: {
+        Row: {
+          created_at: string
+          list_id: string
+          rating: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          list_id: string
+          rating: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          list_id?: string
+          rating?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       kithly_wallets: {
         Row: {
@@ -449,12 +572,18 @@ export type Database = {
           is_active: boolean | null
           location: string | null
           logo_url: string | null
+          maps_link: string | null
           name: string
+          opening_hours: Json | null
           owner_id: string
           payout_account_name: string | null
           payout_bank_name: string | null
           payout_details: string | null
           payout_method: string | null
+          public_email: string | null
+          public_phone: string | null
+          rating_count: number
+          rating_sum: number
         }
         Insert: {
           address?: string | null
@@ -466,12 +595,18 @@ export type Database = {
           is_active?: boolean | null
           location?: string | null
           logo_url?: string | null
+          maps_link?: string | null
           name: string
+          opening_hours?: Json | null
           owner_id: string
           payout_account_name?: string | null
           payout_bank_name?: string | null
           payout_details?: string | null
           payout_method?: string | null
+          public_email?: string | null
+          public_phone?: string | null
+          rating_count?: number
+          rating_sum?: number
         }
         Update: {
           address?: string | null
@@ -483,12 +618,18 @@ export type Database = {
           is_active?: boolean | null
           location?: string | null
           logo_url?: string | null
+          maps_link?: string | null
           name?: string
+          opening_hours?: Json | null
           owner_id?: string
           payout_account_name?: string | null
           payout_bank_name?: string | null
           payout_details?: string | null
           payout_method?: string | null
+          public_email?: string | null
+          public_phone?: string | null
+          rating_count?: number
+          rating_sum?: number
         }
         Relationships: []
       }
@@ -536,6 +677,7 @@ export type Database = {
           items_subtotal: number | null
           origin_type: string | null
           platform_fee: number
+          public_code: string | null
           sender_phone: string | null
           status: string
           total_amount: number
@@ -549,6 +691,7 @@ export type Database = {
           items_subtotal?: number | null
           origin_type?: string | null
           platform_fee?: number
+          public_code?: string | null
           sender_phone?: string | null
           status?: string
           total_amount: number
@@ -562,6 +705,7 @@ export type Database = {
           items_subtotal?: number | null
           origin_type?: string | null
           platform_fee?: number
+          public_code?: string | null
           sender_phone?: string | null
           status?: string
           total_amount?: number

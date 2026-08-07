@@ -4,9 +4,12 @@
 
 import { Package, Shield, ShoppingCart, ConciergeBell, CalendarClock } from 'lucide-react';
 import {
+  OUT_OF_STOCK_REASON,
   discountPercentage,
+  isOutOfStock,
   isService,
   requiresConversation,
+  servicePriceLabel,
   type CatalogItem,
 } from '../../types/items';
 
@@ -25,21 +28,26 @@ function formatZmw(ngwee: number | null | undefined): string {
 
 export function StorefrontProductCard({ item, onGift, onView, onAddToCart }: StorefrontProductCardProps) {
   const service = isService(item);
+  const outOfStock = isOutOfStock(item);
 
   // Services carry terms — where the work happens, how far ahead to book, what
   // the validity is measured from — that a one-tap add-to-cart would hide. They
   // always go through the detail view, as does anything needing a quote first.
   const mustOpenDetail = service || requiresConversation(item);
-  const showAddToCart = Boolean(onAddToCart) && !mustOpenDetail;
+  const showAddToCart = Boolean(onAddToCart) && !mustOpenDetail && !outOfStock;
 
   const handle = onGift ?? onView;
   const badge = item.is_weekly_pick ? 'Top Pick' : (item.promo_badge_text ?? null);
   const discount = discountPercentage(item);
 
+  const priceLabel = servicePriceLabel(item);
+
   const primaryLabel = item.requires_scheduling
     ? 'Book'
     : item.allow_custom_quote
-      ? 'Get a quote'
+      // A minimum price means both routes are open — booking it as listed, or
+      // discussing something tailored — so the card must not promise only one.
+      ? (item.price_is_minimum ? 'Book or customise' : 'Talk to the shop')
       : mustOpenDetail
         ? 'View details'
         : onGift
@@ -53,7 +61,12 @@ export function StorefrontProductCard({ item, onGift, onView, onAddToCart }: Sto
                  hover:border-slate-200 hover:shadow-md"
     >
       {/* ── Image block ─────────────────────────────────────────── */}
-      <div className="relative w-full aspect-square overflow-hidden bg-slate-50 shrink-0">
+      {/* Sold out is greyed rather than hidden: the buyer can see the shop
+          stocks it and come back. Hiding it is what is_available does. */}
+      <div
+        className={`relative w-full aspect-square overflow-hidden bg-slate-50 shrink-0
+                    ${outOfStock ? 'opacity-45 grayscale' : ''}`}
+      >
         {item.image_url ? (
           <img
             src={item.image_url}
@@ -135,6 +148,11 @@ export function StorefrontProductCard({ item, onGift, onView, onAddToCart }: Sto
 
         {/* Price */}
         <div className="mt-1 flex items-baseline gap-2">
+          {priceLabel.prefix && (
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+              {priceLabel.prefix}
+            </span>
+          )}
           <p className="text-sm font-semibold text-slate-900">
             ZMW {formatZmw(item.price_zmw)}
           </p>
@@ -144,6 +162,15 @@ export function StorefrontProductCard({ item, onGift, onView, onAddToCart }: Sto
             </p>
           )}
         </div>
+        {priceLabel.prefix && (
+          <p className="text-[10px] font-medium text-slate-500">Minimum service fee</p>
+        )}
+
+        {outOfStock && (
+          <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+            {OUT_OF_STOCK_REASON}
+          </p>
+        )}
 
         {/* Scheduling note — sets the expectation before they tap through */}
         {item.requires_scheduling && (
@@ -172,13 +199,15 @@ export function StorefrontProductCard({ item, onGift, onView, onAddToCart }: Sto
           {handle && (
             <button
               onClick={e => { e.stopPropagation(); handle(); }}
+              disabled={outOfStock}
               className={`flex-1 rounded-xl border border-slate-200 py-2 text-xs font-semibold
                          text-slate-700 tracking-wide uppercase
-                         hover:border-slate-900 hover:bg-slate-900 hover:text-white
-                         active:scale-[0.98] transition-all duration-200
+                         enabled:hover:border-slate-900 enabled:hover:bg-slate-900 enabled:hover:text-white
+                         enabled:active:scale-[0.98] transition-all duration-200
+                         disabled:cursor-not-allowed disabled:text-slate-400
                          ${showAddToCart ? '' : 'w-full'}`}
             >
-              {primaryLabel}
+              {outOfStock ? 'Sold out' : primaryLabel}
             </button>
           )}
         </div>

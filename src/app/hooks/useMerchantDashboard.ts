@@ -60,6 +60,11 @@ export function useMerchantDashboard(
   const [experiences, setExperiences] = useState<FeaturedExperience[]>([]);
   const [shopVerificationStatus, setShopVerificationStatus] = useState<string | null>(null);
   const [shopRejectionReason, setShopRejectionReason] = useState<string | null>(null);
+  /** What the shop is registered as selling — gates its catalogue item types. */
+  const [shopOfferings, setShopOfferings] = useState<{
+    offers_products: boolean | null;
+    offers_services: boolean | null;
+  }>({ offers_products: null, offers_services: null });
   const [activeOrders, setActiveOrders] = useState<Order[]>([]);
   const [fulfilledOrders, setFulfilledOrders] = useState<Order[]>([]);
   const [analytics, setAnalytics] = useState<Analytics>({
@@ -219,7 +224,7 @@ export function useMerchantDashboard(
         // directly and bill the balance to its owner rather than the viewer.
         const { data: shopRow, error: shopError } = await supabase
           .from('shops')
-          .select('id, name, location, image_url, payout_details, payout_method, owner_id, is_active, verification_status, rejection_reason')
+          .select('id, name, location, image_url, payout_details, payout_method, owner_id, is_active, verification_status, rejection_reason, offers_products, offers_services')
           .eq('id', previewShopId)
           .maybeSingle();
 
@@ -238,7 +243,7 @@ export function useMerchantDashboard(
       } else {
         const { data: merchantShop, error: shopError } = await supabase
           .from('merchant_shops')
-          .select('shop_id, shop:shops(id, name, location, image_url, payout_details, payout_method, is_active, verification_status, rejection_reason)')
+          .select('shop_id, shop:shops(id, name, location, image_url, payout_details, payout_method, is_active, verification_status, rejection_reason, offers_products, offers_services)')
           .eq('user_id', profileId)
           .order('created_at', { ascending: true })
           .limit(1)
@@ -264,6 +269,10 @@ export function useMerchantDashboard(
       setShopIsActive(shop?.is_active ?? false);
       setShopVerificationStatus(shop?.verification_status ?? null);
       setShopRejectionReason(shop?.rejection_reason ?? null);
+      setShopOfferings({
+        offers_products: shop?.offers_products ?? null,
+        offers_services: shop?.offers_services ?? null,
+      });
 
       await Promise.all([
         fetchOrders(currentShopId),
@@ -383,6 +392,7 @@ export function useMerchantDashboard(
     shopName,
     shopId,
     shopIsActive,
+    shopOfferings,
     shopVerificationStatus,
     shopRejectionReason,
     experiences,

@@ -7,6 +7,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Badge } from '../../components/ui/badge';
 import { Switch } from '../../components/ui/switch';
+import { ShopOfferingBadge } from '../../components/shared/ShopOfferingBadge';
 import { PageShell, PageBody } from '../../components/layout/PageShell';
 import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
 import { useAdminShops } from '../../hooks/useAdminShops';
@@ -199,6 +200,14 @@ export function AdminShops() {
                             ? `Submitted on ${formatDate(shop.created_at)}`
                             : 'Submission date unavailable'}
                         </p>
+                        {/* What the applicant declared at onboarding — a reviewer
+                            should not have to open the shop to find out whether
+                            they are approving a products or a services trader. */}
+                        <ShopOfferingBadge
+                          offersProducts={shop.offers_products}
+                          offersServices={shop.offers_services}
+                          className="mt-2"
+                        />
                       </div>
                       <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 text-[10px] py-0 px-2">Pending Review</Badge>
                     </div>
@@ -390,6 +399,12 @@ function ShopCard({ shop, onEdit, onToggleActive, onClick, onPreview }: any) {
                 </Badge>
               )}
             </div>
+
+            <ShopOfferingBadge
+              offersProducts={shop.offers_products}
+              offersServices={shop.offers_services}
+              className="mb-2"
+            />
 
             {shop.location && (
               <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">

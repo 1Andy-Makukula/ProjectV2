@@ -30,7 +30,10 @@ export function ShopDirectory() {
       try {
         const { data: shopsData, error } = await supabase
           .from('shops')
-          .select('id, name, description, is_active, location, logo_url, cover_image_url, image_url')
+          .select(
+            'id, name, description, is_active, location, logo_url, cover_image_url, image_url, ' +
+              'rating_count, rating_sum',
+          )
           .eq('is_active', true)
           .order('created_at', { ascending: false });
 

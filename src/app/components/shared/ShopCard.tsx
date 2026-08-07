@@ -1,7 +1,8 @@
 // ShopCard — Merchant directory card with cover + overlapping circular logo
 // Usage: <ShopCard shop={shop} onClick={() => navigate(`/shops/${shop.id}`)} />
 
-import { MapPin, Store } from 'lucide-react';
+import { MapPin, Star, Store } from 'lucide-react';
+import { shopRating } from '../../types/shops';
 
 export interface ShopCardProps {
   shop: {
@@ -13,6 +14,9 @@ export interface ShopCardProps {
     image_url?: string | null;
     logo_url?: string | null;
     description?: string | null;
+    /** KithLy Rating aggregate; absent or zero means nobody has rated yet. */
+    rating_count?: number | null;
+    rating_sum?: number | null;
   };
   onClick?: () => void;
   /** Optional item count badge */
@@ -24,6 +28,7 @@ function shopInitial(name: string) {
 }
 
 export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
+  const rating = shopRating(shop);
   const cover = shop.cover_image_url ?? shop.image_url ?? null;
   const logo = shop.logo_url ?? null;
 
@@ -113,7 +118,17 @@ export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
             Verified Partner
           </span>
-          <Store className="h-4 w-4 text-orange-200 group-hover:text-primary transition-colors" strokeWidth={1.5} />
+          {/* An unrated shop shows the store glyph rather than an empty score:
+              it has not been judged badly, it has not been judged at all. */}
+          {rating !== null ? (
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600">
+              <Star className="h-3.5 w-3.5 fill-current text-amber-500" strokeWidth={0} />
+              {rating.toFixed(1)}
+              <span className="text-slate-400">({shop.rating_count})</span>
+            </span>
+          ) : (
+            <Store className="h-4 w-4 text-orange-200 group-hover:text-primary transition-colors" strokeWidth={1.5} />
+          )}
         </div>
       </div>
     </article>

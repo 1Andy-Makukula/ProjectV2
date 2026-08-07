@@ -1,13 +1,19 @@
 import { useParams, useNavigate } from 'react-router';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
-import { ArrowLeft, Store, MapPin, ShoppingCart, Gift, ConciergeBell, ShieldCheck, PackageCheck, Sparkles } from 'lucide-react';
+import { ArrowLeft, Store, MapPin, ShoppingCart, Gift, ConciergeBell, ShieldCheck, PackageCheck, Sparkles, Clock, Navigation, Mail, Phone, Star } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useCart, toProduct } from '../../hooks/useCart';
 import { useShopDetail } from '../../hooks/useShopDetail';
 import { PageLoader } from '../../components/shared/PageLoader';
+import { ShopOfferingBadge } from '../../components/shared/ShopOfferingBadge';
+import { ListCard } from '../../components/shared/ListCard';
+import { useShopLists } from '../../hooks/useLists';
+import { useShopRating } from '../../hooks/useShopRating';
+import { shopRating } from '../../types/shops';
 import { toast } from 'sonner';
 import { discountPercentage, isService, requiresConversation } from '../../types/items';
+import { parseOpeningHours, shopOpenState, WEEKDAYS } from '../../../utils/openingHours';
 
 /** Services and quote-first listings need their terms shown before purchase. */
 const opensDetail = (item: Parameters<typeof isService>[0] & Parameters<typeof requiresConversation>[0]) =>
@@ -18,6 +24,8 @@ export function ShopDetail() {
   const navigate = useNavigate();
   const { addToCart, setCartSliderOpen } = useCart();
   const { shop, items, loading } = useShopDetail(shopId);
+  const { lists: shopLists } = useShopLists(shopId);
+  const { canRate, myRating, saving: savingRating, rate: rateShop } = useShopRating(shopId);
 
   if (loading) {
     return <PageLoader />;
@@ -36,6 +44,15 @@ export function ShopDetail() {
       </div>
     );
   }
+
+  // Evaluated in the shop's own timezone rather than the visitor's — see
+  // openingHours.ts. Null means no hours were published, which must render as
+  // nothing at all rather than as "Closed".
+  const publishedShopLists = shopLists.filter((list) => list.visibility !== 'private');
+  const rating = shopRating(shop);
+  const openState = shopOpenState(shop.opening_hours);
+  const hours = parseOpeningHours(shop.opening_hours);
+  const hasContactPanel = Boolean(shop.maps_link || shop.public_phone || shop.public_email || hours);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -146,6 +163,14 @@ export function ShopDetail() {
                 </span>
               )}
 
+              {rating !== null && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground">
+                  <Star className="size-3.5 fill-current text-amber-500" strokeWidth={0} />
+                  {rating.toFixed(1)} KithLy Rating
+                  <span className="font-normal opacity-75">({shop.rating_count})</span>
+                </span>
+              )}
+
               {(shop.successful_deliveries ?? 0) > 0 && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground">
                   <PackageCheck className="size-3.5 text-[var(--success)]" strokeWidth={2} />
@@ -154,10 +179,27 @@ export function ShopDetail() {
                 </span>
               )}
 
-              {shop.offers_services && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground">
-                  <ConciergeBell className="size-3.5" strokeWidth={2} />
-                  Bookable services
+              {/* Replaces a services-only pill: a products shop and a shop that
+                  does both were previously indistinguishable here. */}
+              <ShopOfferingBadge
+                offersProducts={shop.offers_products}
+                offersServices={shop.offers_services}
+                className="px-3 py-1.5 text-xs font-medium normal-case tracking-normal [&>svg]:size-3.5"
+              />
+
+              {openState && (
+                <span
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ${
+                    openState.isOpen
+                      ? 'bg-[var(--success)]/10 text-[var(--success)]'
+                      : 'bg-secondary text-secondary-foreground'
+                  }`}
+                >
+                  <Clock className="size-3.5" strokeWidth={2} />
+                  {openState.label}
+                  {openState.detail && (
+                    <span className="font-normal opacity-75">· {openState.detail}</span>
+                  )}
                 </span>
               )}
 
@@ -166,8 +208,127 @@ export function ShopDetail() {
                 {items.length} item{items.length === 1 ? '' : 's'}
               </span>
             </div>
+
+            {/* Only offered to someone who actually collected an order from
+                here — can_rate_shop decides, and the write policy enforces the
+                same rule again. */}
+            {canRate && (
+              <div className="mt-5 flex flex-wrap items-center gap-2 rounded-xl bg-secondary px-4 py-3">
+                <span className="text-xs font-medium text-secondary-foreground">
+                  {myRating ? 'Your KithLy Rating:' : 'Rate this shop:'}
+                </span>
+                {[1, 2, 3, 4, 5].map((value) => (
+                  <button
+                    key={value}
+                    disabled={savingRating}
+                    aria-label={`Rate ${value} out of 5`}
+                    onClick={() => rateShop(value)}
+                    className="transition-transform hover:scale-110 disabled:opacity-50"
+                  >
+                    <Star
+                      className={`size-5 ${
+                        myRating != null && value <= myRating
+                          ? 'fill-current text-amber-500'
+                          : 'text-slate-300'
+                      }`}
+                      strokeWidth={myRating != null && value <= myRating ? 0 : 1.5}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Directions, contact and trading hours. Every field is optional,
+                so a shop that has published none of them renders exactly as it
+                did before this panel existed. */}
+            {hasContactPanel && (
+              <div className="mt-6 border-t border-[var(--border)] pt-5">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {shop.maps_link && (
+                      <Button asChild variant="outline" size="sm">
+                        {/* Merchant-supplied outbound link on a public page:
+                            noopener/noreferrer is not optional, and the URL is
+                            constrained to Google Maps hosts by both
+                            isValidMapsLink and shops_maps_link_check. */}
+                        <a
+                          href={shop.maps_link}
+                          target="_blank"
+                          rel="noopener noreferrer nofollow"
+                        >
+                          <Navigation className="size-3.5" strokeWidth={2} />
+                          Get Directions
+                        </a>
+                      </Button>
+                    )}
+
+                    {shop.public_phone && (
+                      <Button asChild variant="outline" size="sm">
+                        <a href={`tel:${shop.public_phone.replace(/[^\d+]/g, '')}`}>
+                          <Phone className="size-3.5" strokeWidth={2} />
+                          {shop.public_phone}
+                        </a>
+                      </Button>
+                    )}
+
+                    {shop.public_email && (
+                      <Button asChild variant="outline" size="sm">
+                        <a href={`mailto:${shop.public_email}`}>
+                          <Mail className="size-3.5" strokeWidth={2} />
+                          {shop.public_email}
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+
+                  {hours && (
+                    <div className="shrink-0 sm:min-w-[13rem]">
+                      <h3 className="mb-2 text-xs font-medium uppercase tracking-[0.06em] text-muted-foreground">
+                        Opening Hours
+                      </h3>
+                      <dl className="space-y-1">
+                        {WEEKDAYS.map(({ key, label }) => (
+                          <div key={key} className="flex items-baseline justify-between gap-6 text-xs">
+                            <dt className="font-light text-muted-foreground">{label}</dt>
+                            <dd className="tabular-nums font-light">
+                              {hours[key]
+                                ? `${hours[key]!.open} – ${hours[key]!.close}`
+                                : <span className="text-muted-foreground/60">Closed</span>}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </motion.div>
+
+        {/* Lists this shop has put together. Only the published ones —
+            RLS returns drafts to the owner, and they do not belong here. */}
+        {publishedShopLists.length > 0 && (
+          <div>
+            <div className="mb-4">
+              <h3 className="text-xs font-medium uppercase tracking-[0.06em] text-muted-foreground">
+                Lists from this shop
+              </h3>
+              <p className="mt-1 text-sm font-light text-muted-foreground/80">
+                Save one to your own lists, or buy the whole thing at once.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {publishedShopLists.map((list) => (
+                <ListCard
+                  key={list.id}
+                  list={list}
+                  onOpen={() => navigate(`/list/${list.slug}`)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Items Grid */}
         <div>

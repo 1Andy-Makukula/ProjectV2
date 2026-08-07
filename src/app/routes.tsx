@@ -37,6 +37,8 @@ const ShopDetail = lazyPage(() => import('./pages/sender/ShopDetail'), 'ShopDeta
 const ItemDetail = lazyPage(() => import('./pages/sender/ItemDetail'), 'ItemDetail');
 const Messages = lazyPage(() => import('./pages/Messages'), 'Messages');
 const ExperienceDetail = lazyPage(() => import('./pages/sender/ExperienceDetail'), 'ExperienceDetail');
+const ListDetail = lazyPage(() => import('./pages/sender/ListDetail'), 'ListDetail');
+const MyLists = lazyPage(() => import('./pages/sender/MyLists'), 'MyLists');
 const AdminExperiences = lazyPage(() => import('./pages/admin/AdminExperiences'), 'AdminExperiences');
 const SendFlow = lazyPage(() => import('./pages/sender/SendFlow'), 'SendFlow');
 const CustomerDashboard = lazyPage(() => import('./pages/sender/CustomerDashboard'), 'CustomerDashboard');
@@ -47,6 +49,7 @@ const MerchantDashboard = lazyPage(() => import('./pages/merchant/MerchantDashbo
 const MerchantFulfill = lazyPage(() => import('./pages/merchant/MerchantFulfill'), 'MerchantFulfill');
 const AdminDashboard = lazyPage(() => import('./pages/admin/AdminDashboard'), 'AdminDashboard');
 const AdminMerchandising = lazyPage(() => import('./pages/admin/AdminMerchandising'), 'AdminMerchandising');
+const AdminCatalog = lazyPage(() => import('./pages/admin/AdminCatalog'), 'AdminCatalog');
 const AdminNotifications = lazyPage(() => import('./pages/admin/AdminNotifications'), 'AdminNotifications');
 const AdminShops = lazyPage(() => import('./pages/admin/AdminShops'), 'AdminShops');
 const AdminShopForm = lazyPage(() => import('./pages/admin/AdminShopForm'), 'AdminShopForm');
@@ -127,6 +130,17 @@ export const router = createBrowserRouter([
       { path: 'shops', element: <Lazy><ShopDirectory /></Lazy> },
       { path: 'item/:itemId', element: <Lazy><ItemDetail /></Lazy> },
       { path: 'experience/:slug', element: <Lazy><ExperienceDetail /></Lazy> },
+
+      // Public: a shared link has to open for someone who is not signed in.
+      { path: 'list/:slug', element: <Lazy><ListDetail /></Lazy> },
+      {
+        path: 'lists',
+        element: (
+          <ProtectedRoute>
+            <Lazy><MyLists /></Lazy>
+          </ProtectedRoute>
+        ),
+      },
 
 
       {
@@ -276,6 +290,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['admin']}>
             <Lazy><AdminMerchandising /></Lazy>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/catalog',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><AdminCatalog /></Lazy>
           </ProtectedRoute>
         ),
       },

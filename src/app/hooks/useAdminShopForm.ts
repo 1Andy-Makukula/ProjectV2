@@ -4,6 +4,12 @@ import { useAuth } from '../../utils/auth/AuthContext';
 import { uploadPublicAsset, deleteStorefrontAsset } from '../../utils/uploadImage';
 import { toast } from 'sonner';
 import { parseAuthError } from '../../utils/errorParser';
+import {
+  isValidMapsLink,
+  isValidTime,
+  parseOpeningHours,
+  type OpeningHours,
+} from '../../utils/openingHours';
 
 export interface ShopFormData {
   name: string;
@@ -16,6 +22,11 @@ export interface ShopFormData {
   payout_bank_name: string;
   payout_account_name: string;
   is_active: boolean;
+  /** Storefront contact and directions — all optional, all clearable. */
+  maps_link: string;
+  public_email: string;
+  public_phone: string;
+  opening_hours: OpeningHours;
 }
 
 export interface PayoutBankOption {
@@ -69,6 +80,10 @@ export function useAdminShopForm({ shopId, isMerchant, merchantUserId }: UseAdmi
     payout_bank_name: '',
     payout_account_name: '',
     is_active: true,
+    maps_link: '',
+    public_email: '',
+    public_phone: '',
+    opening_hours: {},
   });
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -117,6 +132,10 @@ export function useAdminShopForm({ shopId, isMerchant, merchantUserId }: UseAdmi
         payout_bank_name: data.payout_bank_name || '',
         payout_account_name: data.payout_account_name || '',
         is_active: data.is_active ?? true,
+        maps_link: data.maps_link || '',
+        public_email: data.public_email || '',
+        public_phone: data.public_phone || '',
+        opening_hours: parseOpeningHours(data.opening_hours) ?? {},
       });
     } catch (error: any) {
       console.error('Error loading shop:', error);
@@ -143,6 +162,24 @@ export function useAdminShopForm({ shopId, isMerchant, merchantUserId }: UseAdmi
 
     if (formData.payout_method === 'bank' && !formData.payout_bank_name) {
       toast.error('Please select a bank for bank account payouts.');
+      return false;
+    }
+
+    // Mirrors the shops_maps_link_check constraint. Without this the save fails
+    // in Postgres and the merchant sees a raw constraint violation instead of
+    // being told what is wrong with their link.
+    if (formData.maps_link.trim() && !isValidMapsLink(formData.maps_link)) {
+      toast.error('Enter a full Google Maps link starting with https:// (e.g. https://maps.app.goo.gl/…).');
+      return false;
+    }
+
+    // A cleared time input yields '', which is_valid_opening_hours rejects.
+    // Catch it here so the merchant is told which day is wrong.
+    const incompleteDay = Object.entries(formData.opening_hours).find(
+      ([, spec]) => !isValidTime(spec?.open) || !isValidTime(spec?.close)
+    );
+    if (incompleteDay) {
+      toast.error('Every open day needs both an opening and a closing time.');
       return false;
     }
 
@@ -179,6 +216,12 @@ export function useAdminShopForm({ shopId, isMerchant, merchantUserId }: UseAdmi
           p_payout_details: formData.payout_details,
           p_payout_bank_name: formData.payout_method === 'bank' ? formData.payout_bank_name : null,
           p_payout_account_name: formData.payout_account_name,
+          // The RPC reads '' as "clear this field" and NULL as "leave it
+          // alone", so a merchant can actually remove a stale phone number.
+          p_maps_link: formData.maps_link.trim(),
+          p_public_email: formData.public_email.trim(),
+          p_public_phone: formData.public_phone.trim(),
+          p_opening_hours: formData.opening_hours,
         });
 
         if (error) throw error;
@@ -203,6 +246,11 @@ export function useAdminShopForm({ shopId, isMerchant, merchantUserId }: UseAdmi
         payout_bank_name: formData.payout_method === 'bank' ? formData.payout_bank_name : null,
         payout_account_name: formData.payout_account_name,
         is_active: formData.is_active,
+        maps_link: formData.maps_link.trim() || null,
+        public_email: formData.public_email.trim().toLowerCase() || null,
+        public_phone: formData.public_phone.trim() || null,
+        opening_hours:
+          Object.keys(formData.opening_hours).length > 0 ? formData.opening_hours : null,
       };
 
       if (isEditing && shopId) {

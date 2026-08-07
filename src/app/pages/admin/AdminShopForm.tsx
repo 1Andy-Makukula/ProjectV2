@@ -9,6 +9,7 @@ import { Textarea } from '../../components/ui/textarea';
 import { Label } from '../../components/ui/label';
 import { Switch } from '../../components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { OpeningHoursEditor } from '../../components/shared/OpeningHoursEditor';
 import { PageShell, PageBody } from '../../components/layout/PageShell';
 import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
 import {
@@ -145,6 +146,63 @@ export function AdminShopForm() {
                   rows={2}
                 />
               </div>
+
+              {/* Google Maps link — becomes a clickable outbound link on the
+                  public storefront, so it is validated here and again by the
+                  shops_maps_link_check constraint. */}
+              <div className="space-y-2">
+                <Label htmlFor="maps_link">Google Maps Link</Label>
+                <Input
+                  id="maps_link"
+                  type="url"
+                  inputMode="url"
+                  value={formData.maps_link}
+                  onChange={(e) => setFormData({ ...formData, maps_link: e.target.value })}
+                  placeholder="https://maps.app.goo.gl/…"
+                />
+                <p className="text-xs font-light text-muted-foreground">
+                  Adds a Get Directions button to your storefront. Share your shop from
+                  Google Maps and paste the link here.
+                </p>
+              </div>
+
+              {/* Public contact — deliberately separate from the owner's login
+                  details, which stay private. */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="public_phone">Public Phone</Label>
+                  <Input
+                    id="public_phone"
+                    type="tel"
+                    inputMode="tel"
+                    value={formData.public_phone}
+                    onChange={(e) => setFormData({ ...formData, public_phone: e.target.value })}
+                    placeholder="+260 …"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="public_email">Public Email</Label>
+                  <Input
+                    id="public_email"
+                    type="email"
+                    inputMode="email"
+                    value={formData.public_email}
+                    onChange={(e) => setFormData({ ...formData, public_email: e.target.value })}
+                    placeholder="shop@example.com"
+                  />
+                </div>
+              </div>
+              <p className="-mt-4 text-xs font-light text-muted-foreground">
+                Shown to buyers on your storefront. Leave blank to show nothing — your
+                login email and phone are never published.
+              </p>
+
+              <OpeningHoursEditor
+                value={formData.opening_hours}
+                onChange={(opening_hours) => setFormData({ ...formData, opening_hours })}
+                disabled={loading}
+              />
 
               {/* Logo Upload */}
               <div className="space-y-2">

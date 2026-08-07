@@ -3,9 +3,9 @@ import { useNavigate, useParams } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { supabase } from '../../../lib/supabaseClient';
 import { PricingTransparencyWidget } from '../../components/shared/PricingTransparencyWidget';
+import { ItemGalleryEditor } from '../../components/shared/ItemGalleryEditor';
 import {
   ArrowLeft,
-  Upload,
   Trash2,
   Package,
   ConciergeBell,
@@ -14,6 +14,7 @@ import {
   Tag,
   Layers,
   MessageSquare,
+  ArrowUpRight,
   Info,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -41,8 +42,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '../../components/ui/alert-dialog';
-import { validateImageFile } from '../../../lib/uploadValidation';
-import { toast } from 'sonner';
 import { useAdminItemForm } from '../../hooks/useAdminItemForm';
 
 export function AdminItemForm() {
@@ -62,6 +61,10 @@ export function AdminItemForm() {
     uploading,
     saveItem,
     deleteItem,
+    gallery,
+    addGalleryFiles,
+    removeGalleryAt,
+    moveGalleryImage,
   } = useAdminItemForm({
     shopId,
     itemId,
@@ -69,8 +72,6 @@ export function AdminItemForm() {
     merchantUserId: profile?.id,
   });
 
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
   const [exchangeRate, setExchangeRate] = useState<number>(26.00);
 
   // Fetch exchange rate on mount
@@ -93,36 +94,9 @@ export function AdminItemForm() {
     fetchExchangeRate();
   }, []);
 
-  // Sync previews with loaded data
-  useEffect(() => {
-    if (formData.image_url) {
-      setImagePreview(formData.image_url);
-    } else {
-      setImagePreview('');
-    }
-  }, [formData.image_url]);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const check = validateImageFile(file);
-      if (!check.ok) {
-        toast.error(check.reason);
-        e.target.value = '';
-        return;
-      }
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = await saveItem(imageFile);
+    const success = await saveItem();
     if (success) {
       if (isMerchant) {
         navigate('/merchant');
@@ -162,6 +136,15 @@ export function AdminItemForm() {
   };
 
   const isServiceItem = formData.item_type === 'service';
+
+  /**
+   * Wholesale is captured by the form but read by no pricing code —
+   * checkout_init_atomic charges price_zmw for every unit — so offering it
+   * promised buyers a discount they never received. Hidden on both sides until
+   * quantity-break tiers apply the break server-side; the columns and any
+   * existing data are untouched, and flipping this back on restores the fields.
+   */
+  const WHOLESALE_UI_ENABLED = false;
 
   // Only offer what the shop said it does at onboarding — but never hide the
   // type an existing item already is, or it could not be edited.
@@ -359,31 +342,35 @@ export function AdminItemForm() {
                 </div>
               </div>
 
-              {/* Image Upload */}
+              {/* Images — the first one is the cover shown on cards and in the
+                  cart, so the gallery order is the only thing that sets it. */}
+              <ItemGalleryEditor
+                gallery={gallery}
+                uploading={uploading}
+                onAddFiles={addGalleryFiles}
+                onRemove={removeGalleryAt}
+                onMove={moveGalleryImage}
+              />
+
+              {/* Stock — blank is the default and means the item is never
+                  blocked at checkout. A tracked zero greys the listing rather
+                  than hiding it, which is what is_available below does. */}
               <div className="space-y-2">
-                <Label htmlFor="image">Item Image</Label>
-                {imagePreview && (
-                  <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden mb-2 w-full max-w-xs">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                <div className="flex flex-col sm:flex-row gap-2 w-full">
-                  <Input
-                    id="image"
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    onChange={handleImageChange}
-                    className="w-full"
-                  />
-                  <Button type="button" variant="outline" disabled={uploading} className="w-full sm:w-auto flex items-center justify-center gap-2">
-                    <Upload className="w-4 h-4" />
-                    <span className="sm:hidden">Upload Image</span>
-                  </Button>
-                </div>
+                <Label htmlFor="stock_quantity">Stock on Hand</Label>
+                <Input
+                  id="stock_quantity"
+                  type="number"
+                  min="0"
+                  step="1"
+                  inputMode="numeric"
+                  value={formData.stock_quantity}
+                  onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })}
+                  placeholder="Leave blank if you don't track stock"
+                />
+                <p className="text-xs text-muted-foreground font-light">
+                  Checkout counts down from this and refuses to oversell. You'll be notified
+                  when it runs low, and again when it hits zero. Leave blank for unlimited.
+                </p>
               </div>
 
               {/* Available Toggle */}
@@ -615,6 +602,7 @@ export function AdminItemForm() {
               <div className="h-px bg-border" />
 
               {/* Wholesale */}
+              {WHOLESALE_UI_ENABLED && (
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <Label htmlFor="is_wholesale" className="flex items-center gap-2">
@@ -633,8 +621,9 @@ export function AdminItemForm() {
                   }
                 />
               </div>
+              )}
 
-              {formData.is_wholesale && (
+              {WHOLESALE_UI_ENABLED && formData.is_wholesale && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="wholesale_price">Wholesale price per unit (ZMW)</Label>
@@ -695,6 +684,31 @@ export function AdminItemForm() {
                   }
                 />
               </div>
+
+              {/* Only meaningful when there is a quote route to discover the
+                  real figure — which is exactly what
+                  items_price_is_minimum_check enforces. */}
+              {isServiceItem && formData.allow_custom_quote && (
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <Label htmlFor="price_is_minimum" className="flex items-center gap-2">
+                      <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.75} />
+                      Listed price is a minimum
+                    </Label>
+                    <p className="text-sm text-muted-foreground font-light">
+                      Shows the price as “From K…” with a note that it is your minimum service
+                      fee. Buyers can still book at it, or talk to you about a bigger job.
+                    </p>
+                  </div>
+                  <Switch
+                    id="price_is_minimum"
+                    checked={formData.price_is_minimum}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, price_is_minimum: checked })
+                    }
+                  />
+                </div>
+              )}
             </CardContent>
           </Card>
 

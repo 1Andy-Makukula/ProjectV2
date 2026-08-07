@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { useCustomerDashboard } from '../../hooks/useCustomerDashboard';
 import { motion, AnimatePresence } from 'motion/react';
-import { TrendingUp, Gift, Store, ArrowLeft, Sparkles, Bell, X, Clock, AlertCircle, ChevronRight, CreditCard, Receipt, Send, Inbox, Package, CheckCircle2, QrCode, Coins, Lock, PhoneOff } from 'lucide-react';
+import { TrendingUp, Gift, Store, ArrowLeft, Sparkles, Bell, X, Clock, AlertCircle, ChevronRight, CreditCard, Receipt, Send, Inbox, Package, CheckCircle2, QrCode, Coins, Lock, PhoneOff, ListChecks } from 'lucide-react';
 
 import {
   Card,
@@ -348,10 +348,19 @@ export function CustomerDashboard() {
         {activePanel === 'sending' && (
           <motion.div key="sending" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.22 }}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-6">
-            <TabsTrigger value="orders">Order History</TabsTrigger>
-            <TabsTrigger value="vault">My Vault</TabsTrigger>
-          </TabsList>
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+            <TabsList>
+              <TabsTrigger value="orders">Order History</TabsTrigger>
+              <TabsTrigger value="vault">My Vault</TabsTrigger>
+            </TabsList>
+
+            {/* Lists live on their own page rather than as a third tab: they
+                are not part of the sending/receiving story these tabs tell. */}
+            <Button variant="outline" size="sm" onClick={() => navigate('/lists')}>
+              <ListChecks className="size-3.5" />
+              My Lists
+            </Button>
+          </div>
 
           <TabsContent value="orders">
             {loadingOrders ? (

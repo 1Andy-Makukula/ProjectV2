@@ -1,4 +1,4 @@
-import { Compass, Gift, Sparkles, ConciergeBell, ShoppingBag } from 'lucide-react';
+import { Compass, Gift, Sparkles, ConciergeBell, ShoppingBag, ListChecks } from 'lucide-react';
 
 /**
  * The storefront wears a different face depending on what the shopper came for.
@@ -9,10 +9,23 @@ import { Compass, Gift, Sparkles, ConciergeBell, ShoppingBag } from 'lucide-reac
  * cart. The palette shift is handled entirely in CSS via `data-mode` on the
  * root element, so nothing here carries colour values.
  */
-export type StorefrontMode = 'discover' | 'gifting' | 'experiences' | 'services' | 'shopping';
+export type StorefrontMode =
+  | 'discover'
+  | 'gifting'
+  | 'experiences'
+  | 'services'
+  | 'shopping'
+  | 'lists';
 
-/** How the item grid is laid out in a given mode. */
-export type ModeLayout = 'grid' | 'editorial' | 'showcase' | 'list';
+/**
+ * How the item grid is laid out in a given mode.
+ *
+ * `list` is a flat dense list; `menu` is the same rows grouped under the
+ * business that offers them, the way a salon or workshop writes out its
+ * services. They are separate values because Shopping wants one long scannable
+ * list and Services wants a price list per provider.
+ */
+export type ModeLayout = 'grid' | 'editorial' | 'showcase' | 'list' | 'menu';
 
 export interface ModeDefinition {
   value: StorefrontMode;
@@ -24,8 +37,14 @@ export interface ModeDefinition {
   tagline: string;
   icon: typeof Gift;
   layout: ModeLayout;
-  /** Which sections appear, in order. */
-  sections: Array<'campaigns' | 'experiences' | 'items' | 'shops'>;
+  /**
+   * Which sections appear, in order.
+   *
+   * `lists` is the one section that is not a re-slice of the item/shop data
+   * every other mode shares — see useStorefrontData, which loads the community
+   * feed alongside them so switching into Lists still refetches nothing.
+   */
+  sections: Array<'campaigns' | 'experiences' | 'items' | 'shops' | 'lists'>;
   /** Filters the item feed. `null` means everything. */
   itemFilter: 'product' | 'service' | null;
   /** Copy for the item section heading. */
@@ -77,11 +96,28 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     title: 'Book someone good',
     tagline: 'Work carried out for the person you are sending it to.',
     icon: ConciergeBell,
-    layout: 'grid',
+    // A service is a name and a price, not a photograph. Grouping the rows
+    // under each business reads like the price list on a shop wall, and shows
+    // far more of what a provider actually offers than a grid of cards did.
+    layout: 'menu',
     sections: ['items', 'shops', 'experiences'],
     itemFilter: 'service',
     itemsHeading: 'Available to book',
     itemsKicker: 'Arranged with the shop',
+  },
+  {
+    value: 'lists',
+    label: 'Lists',
+    title: 'Shop from someone’s list',
+    tagline: 'One link, many shops — groceries, a new baby, a whole braai.',
+    icon: ListChecks,
+    // Unused here: this mode's feed is lists, not items. Kept at the default
+    // rather than reshaping ModeDefinition for a single case.
+    layout: 'grid',
+    sections: ['lists', 'shops'],
+    itemFilter: null,
+    itemsHeading: 'Lists',
+    itemsKicker: 'Built by people and shops',
   },
   {
     value: 'shopping',

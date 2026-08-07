@@ -147,6 +147,70 @@ async function verifyMerchant(
 }
 
 // ---------------------------------------------------------------------------
+// Step 1b — Whole-order codes
+//
+// Buying a list produces one transaction spanning several shops, and the buyer
+// carries a single MULT- code for all of it rather than one code per shop.
+//
+// Everything below this point only ever sees ordinary per-shop claim codes: the
+// MULT- code is swapped for the scanning merchant's own claim_code here, so
+// fetchPendingOrder, verifyMerchant and fulfill_voucher_atomic are unchanged
+// and each merchant still redeems strictly their own lines.
+//
+// This runs before the order lookup because a whole-order code does not name a
+// shop — the caller has to be identified first to know which part is theirs.
+// ---------------------------------------------------------------------------
+
+const WHOLE_ORDER_CODE = /^MULT-[A-Z0-9]{6}$/;
+
+async function resolveWholeOrderCode(
+  httpReq: Request,
+  db: ReturnType<typeof getAdminClient>,
+  code: string,
+): Promise<string | Response> {
+  if (!WHOLE_ORDER_CODE.test(code)) return code;
+
+  const authHeader = httpReq.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return json(httpReq, { error: "A valid Authorization Bearer token is required." }, 401);
+  }
+
+  const { data: { user }, error: authErr } = await db.auth.getUser(authHeader.split(" ")[1]);
+  if (authErr || !user) {
+    return json(httpReq, { error: "Unauthorized. Session may have expired." }, 401);
+  }
+
+  const { data: assignments, error: assignErr } = await db
+    .from("merchant_shops")
+    .select("shop_id")
+    .eq("user_id", user.id);
+
+  if (assignErr) {
+    console.error("[fulfill-voucher] Shop lookup failed:", assignErr.message);
+    return json(httpReq, { error: "Failed to verify shop authorisation." }, 500);
+  }
+
+  for (const { shop_id } of assignments ?? []) {
+    const { data: resolved } = await db.rpc("resolve_claim_code_for_shop", {
+      p_code: code,
+      p_shop_id: shop_id,
+    });
+    if (resolved) return resolved as string;
+  }
+
+  // Either the code is unknown or this merchant has no part in that order.
+  // Both answer identically so a scanner cannot probe for valid orders.
+  return json(
+    httpReq,
+    {
+      error: "Invalid claim code or order is not ready for fulfillment.",
+      rejection_reason: "Invalid or already processed.",
+    },
+    403,
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Step 2 — Fetch pending shop_order (read-only, before auth)
 // ---------------------------------------------------------------------------
 
@@ -431,8 +495,13 @@ async function handleFulfillVoucher(req: Request): Promise<Response> {
       return json(req, { error: "Server configuration error." }, 500);
     }
 
+    // 3b. Swap a whole-order code for this merchant's own claim code. A plain
+    // per-shop code passes straight through untouched.
+    const resolvedCode = await resolveWholeOrderCode(req, db, claim_code);
+    if (resolvedCode instanceof Response) return resolvedCode;
+
     // 4. Read pending order (no lock yet — prevents unauthenticated DoS)
-    const pendingResult = await fetchPendingOrder(req, db, claim_code);
+    const pendingResult = await fetchPendingOrder(req, db, resolvedCode);
     if (pendingResult instanceof Response) return pendingResult;
     const pendingOrder = pendingResult;
 
@@ -447,7 +516,9 @@ async function handleFulfillVoucher(req: Request): Promise<Response> {
     let fulfillResult: any;
     try {
       const { data, error: fulfillError } = await db.rpc("fulfill_voucher_atomic", {
-        p_claim_code: claim_code,
+        // The resolved per-shop code, never the whole-order one: the financial
+        // RPC only knows about shop_orders.claim_code.
+        p_claim_code: resolvedCode,
         p_present_item_ids: present_item_ids,
         p_missing_item_ids: missing_item_ids,
         p_merchant_user_id: merchantUserId,

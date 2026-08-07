@@ -1,6 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { uploadItemImage, deleteStorefrontAsset } from '../../utils/uploadImage';
+import {
+  MAX_ITEM_IMAGES,
+  canAddImages,
+  planGalleryWrite,
+  reorderGallery,
+  type GalleryEntry,
+  type StoredImage,
+} from '../../utils/itemGallery';
 import { toCents } from '../../utils/currency';
 import { toast } from 'sonner';
 import { parseAuthError } from '../../utils/errorParser';
@@ -19,6 +27,7 @@ export interface ItemFormData {
   lead_time_days: string;
   fulfillment_location: FulfillmentLocation | '';
   allow_custom_quote: boolean;
+  price_is_minimum: boolean;
 
   has_expiry: boolean;
   valid_for_days: string;
@@ -29,6 +38,9 @@ export interface ItemFormData {
   is_wholesale: boolean;
   wholesale_price: string;
   minimum_order_quantity: string;
+
+  /** '' leaves stock untracked, which is the default and means unlimited. */
+  stock_quantity: string;
 }
 
 export interface CategoryOption {
@@ -55,6 +67,7 @@ const EMPTY_FORM: ItemFormData = {
   lead_time_days: '',
   fulfillment_location: '',
   allow_custom_quote: false,
+  price_is_minimum: false,
 
   has_expiry: true,
   valid_for_days: '',
@@ -65,6 +78,8 @@ const EMPTY_FORM: ItemFormData = {
   is_wholesale: false,
   wholesale_price: '',
   minimum_order_quantity: '1',
+
+  stock_quantity: '',
 };
 
 /** Ngwee integer to a display string, or '' when unset. */
@@ -102,6 +117,59 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
 
+  // The gallery the merchant is editing, and what was on the row when it
+  // loaded — the difference between the two is what gets written on save.
+  const [gallery, setGallery] = useState<GalleryEntry[]>([]);
+  const [storedImages, setStoredImages] = useState<StoredImage[]>([]);
+
+  const addGalleryFiles = useCallback((files: File[]) => {
+    setGallery((current) => {
+      if (!canAddImages(current.length, files.length)) {
+        toast.error(`An item can have at most ${MAX_ITEM_IMAGES} images.`);
+        return current;
+      }
+      return [
+        ...current,
+        ...files.map((file) => ({ url: URL.createObjectURL(file), file })),
+      ];
+    });
+  }, []);
+
+  const removeGalleryAt = useCallback((index: number) => {
+    setGallery((current) => {
+      const entry = current[index];
+      // Only local previews own their object URL; a stored image's URL is a
+      // real file that save() decides the fate of.
+      if (entry?.file) URL.revokeObjectURL(entry.url);
+      return current.filter((_, i) => i !== index);
+    });
+  }, []);
+
+  const moveGalleryImage = useCallback((from: number, to: number) => {
+    setGallery((current) => reorderGallery(current, from, to));
+  }, []);
+
+  const loadGallery = useCallback(async (id: string) => {
+    const { data, error } = await supabase
+      .from('item_images')
+      .select('id, image_url')
+      .eq('item_id', id)
+      .order('sort_order')
+      .order('created_at');
+
+    if (error) {
+      console.error('Error loading item gallery:', error);
+      return;
+    }
+
+    const rows: StoredImage[] = (data ?? []).map((row: any) => ({
+      id: row.id,
+      url: row.image_url,
+    }));
+    setStoredImages(rows);
+    setGallery(rows.map((row) => ({ id: row.id, url: row.url })));
+  }, []);
+
   // Fetch the merchant's assigned shop automatically
   const fetchMerchantShop = useCallback(async (userId: string) => {
     try {
@@ -130,6 +198,7 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
 
       if (error) throw error;
 
+      await loadGallery(itemId);
       setActualShopId(data.shop_id);
       setFormData({
         name: data.name || '',
@@ -144,6 +213,7 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
         lead_time_days: data.lead_time_days != null ? String(data.lead_time_days) : '',
         fulfillment_location: (data.fulfillment_location as FulfillmentLocation) || '',
         allow_custom_quote: data.allow_custom_quote ?? false,
+        price_is_minimum: data.price_is_minimum ?? false,
 
         has_expiry: data.has_expiry ?? true,
         valid_for_days: data.valid_for_days != null ? String(data.valid_for_days) : '',
@@ -155,6 +225,8 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
         wholesale_price: fromNgwee(data.wholesale_price_zmw),
         minimum_order_quantity:
           data.minimum_order_quantity != null ? String(data.minimum_order_quantity) : '1',
+
+        stock_quantity: data.stock_quantity != null ? String(data.stock_quantity) : '',
       });
     } catch (error: any) {
       console.error('Error loading item:', error);
@@ -162,7 +234,56 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
     } finally {
       setLoading(false);
     }
-  }, [itemId]);
+  }, [itemId, loadGallery]);
+
+  /**
+   * Persists the edited gallery.
+   *
+   * Deletes run first: item_images_cap counts existing rows on INSERT, so
+   * replacing a full gallery in the other order would trip the cap on the first
+   * new row. items.image_url is left to the sync_item_cover trigger.
+   */
+  const writeGallery = useCallback(
+    async (id: string, resolved: GalleryEntry[]) => {
+      const plan = planGalleryWrite(storedImages, resolved);
+
+      if (plan.removedIds.length > 0) {
+        const { error } = await supabase
+          .from('item_images')
+          .delete()
+          .in('id', plan.removedIds);
+        if (error) throw error;
+      }
+
+      const inserts: Array<{ item_id: string; image_url: string; sort_order: number }> = [];
+      for (let index = 0; index < resolved.length; index += 1) {
+        const entry = resolved[index];
+        if (entry.id) {
+          const { error } = await supabase
+            .from('item_images')
+            .update({ sort_order: index })
+            .eq('id', entry.id);
+          if (error) throw error;
+        } else {
+          inserts.push({ item_id: id, image_url: entry.url, sort_order: index });
+        }
+      }
+
+      if (inserts.length > 0) {
+        const { error } = await supabase.from('item_images').insert(inserts);
+        if (error) throw error;
+      }
+
+      // Best-effort: an orphaned file left behind costs storage, but failing
+      // the save over it would be worse.
+      for (const url of plan.orphanedUrls) {
+        await deleteStorefrontAsset(url).catch(console.error);
+      }
+
+      await loadGallery(id);
+    },
+    [storedImages, loadGallery],
+  );
 
   const loadCategories = useCallback(async () => {
     try {
@@ -227,7 +348,7 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
     if (actualShopId) loadShopOfferings(actualShopId);
   }, [actualShopId, loadShopOfferings]);
 
-  const saveItem = useCallback(async (imageFile: File | null) => {
+  const saveItem = useCallback(async () => {
     if (!formData.name || !formData.price) {
       toast.error('Please fill in all required fields');
       return false;
@@ -274,20 +395,43 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
       return false;
     }
 
+    // Blank means untracked, which is not the same as zero — zero is a real
+    // "sold out right now" that greys the listing on the storefront.
+    const stockQuantity = parseOptionalInt(formData.stock_quantity);
+    if (formData.stock_quantity.trim() && (stockQuantity == null || stockQuantity < 0)) {
+      toast.error('Stock cannot be negative. Leave it blank if you do not track stock.');
+      return false;
+    }
+
     const isServiceItem = formData.item_type === 'service';
 
     setLoading(true);
     try {
-      let imageUrl = formData.image_url;
-      if (imageFile) {
+      // Every pending file is uploaded before the item row is written, so the
+      // row is never saved pointing at a cover that does not exist yet.
+      let resolvedGallery: GalleryEntry[] = gallery;
+      if (gallery.some((entry) => entry.file)) {
         if (!actualShopId) {
           throw new Error('Shop context is required before uploading an image.');
         }
         setUploading(true);
-        const { publicUrl } = await uploadItemImage(imageFile, actualShopId);
-        imageUrl = publicUrl;
+        resolvedGallery = [];
+        for (const entry of gallery) {
+          if (!entry.file) {
+            resolvedGallery.push(entry);
+            continue;
+          }
+          const { publicUrl } = await uploadItemImage(entry.file, actualShopId);
+          URL.revokeObjectURL(entry.url);
+          resolvedGallery.push({ url: publicUrl });
+        }
+        setGallery(resolvedGallery);
         setUploading(false);
       }
+
+      // The gallery owns the cover. Falling back to the existing value keeps
+      // items that predate the gallery working untouched.
+      const imageUrl = resolvedGallery[0]?.url ?? formData.image_url;
 
       const itemPayload = {
         shop_id: actualShopId,
@@ -306,6 +450,12 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
         lead_time_days: isServiceItem ? leadTimeDays : null,
         fulfillment_location: isServiceItem ? formData.fulfillment_location || null : null,
         allow_custom_quote: formData.allow_custom_quote,
+        // items_price_is_minimum_check requires both a service and an open
+        // quote route. Deriving it here rather than trusting the toggle means
+        // switching an item back to a product cannot leave a row the database
+        // will reject on the next save.
+        price_is_minimum:
+          isServiceItem && formData.allow_custom_quote ? formData.price_is_minimum : false,
 
         has_expiry: formData.has_expiry,
         valid_for_days: formData.has_expiry ? validForDays : null,
@@ -318,7 +468,11 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
         wholesale_price_zmw:
           formData.is_wholesale && wholesalePriceValue != null ? toCents(wholesalePriceValue) : null,
         minimum_order_quantity: formData.is_wholesale ? minimumOrderQuantity : 1,
+
+        stock_quantity: stockQuantity,
       };
+
+      let savedItemId = itemId;
 
       if (isEditing && itemId) {
         const { error } = await supabase
@@ -327,16 +481,24 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
           .eq('id', itemId);
 
         if (error) throw error;
-        toast.success('Item updated successfully');
       } else {
-        const { error } = await supabase
+        // The id comes back so a brand new item's gallery rows can be written
+        // in the same save rather than needing a second trip through the form.
+        const { data, error } = await supabase
           .from('items')
-          .insert([itemPayload]);
+          .insert([itemPayload])
+          .select('id')
+          .single();
 
         if (error) throw error;
-        toast.success('Item created successfully');
+        savedItemId = data.id;
       }
 
+      if (savedItemId) {
+        await writeGallery(savedItemId, resolvedGallery);
+      }
+
+      toast.success(isEditing ? 'Item updated successfully' : 'Item created successfully');
       return true;
     } catch (error: any) {
       console.error('Error saving item:', error);
@@ -346,15 +508,21 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
       setLoading(false);
       setUploading(false);
     }
-  }, [formData, isEditing, itemId, actualShopId]);
+  }, [formData, isEditing, itemId, actualShopId, gallery, writeGallery]);
 
   const deleteItem = useCallback(async () => {
     if (!itemId) return false;
 
     setLoading(true);
     try {
-      if (formData.image_url) {
-        await deleteStorefrontAsset(formData.image_url).catch(console.error);
+      // The item_images rows cascade with the item, but their storage objects
+      // do not — they have to be removed explicitly or they leak.
+      const galleryUrls = storedImages.map((row) => row.url);
+      const urls = new Set(
+        [formData.image_url, ...galleryUrls].filter((url): url is string => Boolean(url)),
+      );
+      for (const url of urls) {
+        await deleteStorefrontAsset(url).catch(console.error);
       }
 
       const { error } = await supabase
@@ -373,7 +541,7 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
     } finally {
       setLoading(false);
     }
-  }, [itemId, formData.image_url]);
+  }, [itemId, formData.image_url, storedImages]);
 
   return {
     formData,
@@ -385,5 +553,9 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
     uploading,
     saveItem,
     deleteItem,
+    gallery,
+    addGalleryFiles,
+    removeGalleryAt,
+    moveGalleryImage,
   };
 }

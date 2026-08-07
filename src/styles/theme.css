@@ -129,6 +129,15 @@
   --mode-accent: #C93A08;
 }
 
+:root[data-mode='lists'] {
+  --mode-from: #A6552F;   /* clay — the coolest of the warms, so lists read as
+                             collected and considered next to the hotter
+                             selling modes without leaving the family */
+  --mode-to: #C97F55;
+  --mode-tint: #FAF1EB;
+  --mode-accent: #8C4526;
+}
+
 /* Dark mode (kept minimal — same structure) */
 .dark {
   --background: #0D0D0D;

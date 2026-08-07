@@ -18,6 +18,10 @@ export interface Shop {
   offers_products?: boolean;
   offers_services?: boolean;
 
+  /** KithLy Rating aggregate. Only buyers who collected an order can add to it. */
+  rating_count?: number | null;
+  rating_sum?: number | null;
+
   /** KYC verification, captured during merchant onboarding. */
   physical_address?: string | null;
   nrc_url?: string | null;
@@ -30,6 +34,20 @@ export interface Shop {
 
   /** Joined from `users` when the admin list loads owner details. */
   owner?: { name?: string | null; email?: string | null; phone?: string | null } | null;
+}
+
+/**
+ * Mean KithLy Rating for a shop, or null when nobody has rated it yet.
+ *
+ * Null must render as nothing rather than as zero: a new shop has not been
+ * judged badly, it has not been judged at all, and the verified badge plus
+ * fulfilment count already speak for it.
+ */
+export function shopRating(
+  shop: Pick<Shop, 'rating_count' | 'rating_sum'>,
+): number | null {
+  if (!shop.rating_count || !shop.rating_sum) return null;
+  return Math.round((shop.rating_sum / shop.rating_count) * 10) / 10;
 }
 
 export interface Item {

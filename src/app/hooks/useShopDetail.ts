@@ -22,6 +22,19 @@ export interface Shop {
   successful_deliveries: number | null;
   offers_products: boolean | null;
   offers_services: boolean | null;
+  /**
+   * Storefront contact and directions, added in
+   * 20260807000000_shop_contact_and_hours.sql. All optional — a shop that has
+   * published none of them renders exactly as it did before.
+   */
+  maps_link: string | null;
+  public_email: string | null;
+  public_phone: string | null;
+  /** Raw jsonb; run it through parseOpeningHours before reading. */
+  opening_hours: unknown;
+  /** KithLy Rating aggregate, maintained by trigger on shop_ratings. */
+  rating_count: number | null;
+  rating_sum: number | null;
 }
 
 // The catalogue fields (service, discount, wholesale) come from CatalogItem so

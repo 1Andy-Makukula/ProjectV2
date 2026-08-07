@@ -202,6 +202,16 @@ export function AdminDashboard() {
                 onClick={() => navigate('/admin/experiences')}
               />
               <QuickLink
+                title="Catalogue"
+                description="Ready-made listings shops can import"
+                onClick={() => navigate('/admin/catalog')}
+              />
+              <QuickLink
+                title="Lists"
+                description="Publish community lists as KithLy"
+                onClick={() => navigate('/lists')}
+              />
+              <QuickLink
                 title="Messages"
                 description="Talk to shops and customers"
                 onClick={() => navigate('/admin/messages')}

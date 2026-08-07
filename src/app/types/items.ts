@@ -70,6 +70,8 @@ export interface CatalogItem {
   lead_time_days?: number | null;
   fulfillment_location?: FulfillmentLocation | null;
   allow_custom_quote?: boolean | null;
+  /** price_zmw is a starting figure, not the settled price. */
+  price_is_minimum?: boolean | null;
 
   has_expiry?: boolean | null;
   valid_for_days?: number | null;
@@ -80,6 +82,31 @@ export interface CatalogItem {
   is_wholesale?: boolean | null;
   wholesale_price_zmw?: number | null;
   minimum_order_quantity?: number | null;
+
+  /** Units on hand. NULL means the merchant does not track stock for this item. */
+  stock_quantity?: number | null;
+
+  /** Gallery rows, when the surface asked for them. Order via galleryUrls(). */
+  item_images?: Array<{ image_url: string; sort_order: number }> | null;
+}
+
+/**
+ * The item's photographs, cover first.
+ *
+ * items.image_url stays the authoritative cover — the sync_item_cover trigger
+ * keeps it equal to the first gallery row — so it leads, and gallery rows are
+ * appended without repeating it. An item with no gallery yields just its cover,
+ * which is why every caller can treat this as the single source for images.
+ */
+export function galleryUrls(
+  item: Pick<CatalogItem, 'image_url' | 'item_images'>,
+): string[] {
+  const ordered = [...(item.item_images ?? [])]
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map((row) => row.image_url);
+
+  const urls = item.image_url ? [item.image_url, ...ordered] : ordered;
+  return Array.from(new Set(urls.filter(Boolean)));
 }
 
 /** Items default to products — rows predating the service model have no type. */
@@ -96,6 +123,56 @@ export function requiresConversation(
   item: Pick<CatalogItem, 'item_type' | 'requires_scheduling' | 'allow_custom_quote'>,
 ): boolean {
   return Boolean(item.requires_scheduling) || Boolean(item.allow_custom_quote);
+}
+
+/** Shown wherever an out-of-stock item is rendered. */
+export const OUT_OF_STOCK_REASON = 'No available stock yet';
+
+/**
+ * Whether the item cannot currently be bought for want of stock.
+ *
+ * A NULL quantity means the merchant is not tracking stock at all, which is the
+ * default and must never read as "out" — that would make the entire pre-Phase-4
+ * catalogue look sold out. Only a tracked count of zero counts.
+ *
+ * This is deliberately separate from is_available: a delisted item is filtered
+ * out of the storefront queries entirely, whereas a sold-out one stays visible
+ * and greyed so the buyer can see it exists and come back.
+ */
+export function isOutOfStock(item: Pick<CatalogItem, 'stock_quantity'>): boolean {
+  return item.stock_quantity != null && item.stock_quantity <= 0;
+}
+
+export interface ServicePriceLabel {
+  /** Sits before the amount, e.g. "From". Null renders the price plainly. */
+  prefix: string | null;
+  /** One line for surfaces with room to explain. Null when there is nothing to say. */
+  note: string | null;
+}
+
+/**
+ * How a service's price should read.
+ *
+ * A bare figure next to a "talk to the shop" action is ambiguous — the buyer
+ * cannot tell whether it is the price or a starting point. When the merchant
+ * has marked it as a minimum, every surface must say so in the same words, so
+ * the wording lives here rather than in the card, the row and the detail page
+ * separately.
+ *
+ * The database ties price_is_minimum to allow_custom_quote
+ * (items_price_is_minimum_check); the extra check here keeps the label honest
+ * if a row somehow predates that constraint.
+ */
+export function servicePriceLabel(
+  item: Pick<CatalogItem, 'price_is_minimum' | 'allow_custom_quote'>,
+): ServicePriceLabel {
+  if (!item.price_is_minimum || !item.allow_custom_quote) {
+    return { prefix: null, note: null };
+  }
+  return {
+    prefix: 'From',
+    note: 'Minimum service fee. Talk to the shop for a tailored price.',
+  };
 }
 
 /** Whole-ZMW discount percentage, or null when the item is not discounted. */

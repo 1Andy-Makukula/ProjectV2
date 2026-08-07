@@ -9,7 +9,7 @@ import {
   ArrowLeft,
   CalendarClock,
   ConciergeBell,
-  Layers,
+  ListChecks,
   MapPin,
   MessageSquare,
   Package,
@@ -30,8 +30,20 @@ import {
   discountPercentage,
   expiryBasis,
   isService,
+  isOutOfStock,
   requiresConversation,
+  servicePriceLabel,
+  galleryUrls as itemGalleryUrls,
+  OUT_OF_STOCK_REASON,
 } from '../../types/items';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '../../components/ui/carousel';
+import { AddToListDialog } from '../../components/shared/AddToListDialog';
 
 function formatZmw(ngwee: number | null | undefined): string {
   return ngwee != null ? (ngwee / 100).toFixed(2) : '—';
@@ -67,6 +79,7 @@ export function ItemDetail() {
   const { item, loading } = useItemDetail(itemId);
   const { addToCart, setCartSliderOpen } = useCart();
   const [startingChat, setStartingChat] = useState(false);
+  const [addToListOpen, setAddToListOpen] = useState(false);
 
   if (loading) {
     return (
@@ -95,6 +108,9 @@ export function ItemDetail() {
   const mustOpenDetail = requiresConversation(item);
   const discount = discountPercentage(item);
   const basis = expiryBasis(item);
+  const priceLabel = servicePriceLabel(item);
+  const galleryUrls = itemGalleryUrls(item);
+  const outOfStock = isOutOfStock(item);
 
   const handleGift = () => navigate(profile ? `/send/${item.id}` : '/signup');
 
@@ -153,7 +169,28 @@ export function ItemDetail() {
         >
           {/* ── Image ─────────────────────────────────────────────── */}
           <div className="relative aspect-square overflow-hidden rounded-2xl border border-slate-100 bg-white">
-            {item.image_url ? (
+            {galleryUrls.length > 1 ? (
+              // More than one photograph, so it becomes swipeable. A single
+              // image stays a plain <img> — no controls, no embla instance.
+              <Carousel className="h-full w-full" opts={{ loop: true }}>
+                <CarouselContent className="ml-0 h-full">
+                  {galleryUrls.map((url, index) => (
+                    <CarouselItem key={url} className="pl-0">
+                      <img
+                        src={url}
+                        alt={`${item.name} — image ${index + 1} of ${galleryUrls.length}`}
+                        className="aspect-square h-full w-full object-cover"
+                      />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="left-3" />
+                <CarouselNext className="right-3" />
+                <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white">
+                  {galleryUrls.length} photos
+                </div>
+              </Carousel>
+            ) : item.image_url ? (
               <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100">
@@ -203,6 +240,11 @@ export function ItemDetail() {
 
             {/* Price */}
             <div className="mt-5 flex items-baseline gap-3">
+              {priceLabel.prefix && (
+                <span className="text-sm font-medium uppercase tracking-wide text-slate-400">
+                  {priceLabel.prefix}
+                </span>
+              )}
               <span className="text-3xl font-light tracking-tight text-slate-900">
                 ZMW {formatZmw(item.price_zmw)}
               </span>
@@ -212,19 +254,17 @@ export function ItemDetail() {
                 </span>
               )}
             </div>
-
-            {/* Wholesale */}
-            {item.is_wholesale && item.wholesale_price_zmw != null && (
-              <div className="mt-3 flex items-center gap-2 rounded-xl border border-slate-100 bg-white px-3 py-2">
-                <Layers className="h-3.5 w-3.5 shrink-0 text-orange-500" strokeWidth={2} />
-                <p className="text-xs text-slate-600">
-                  <span className="font-semibold text-slate-900">
-                    ZMW {formatZmw(item.wholesale_price_zmw)}
-                  </span>{' '}
-                  per unit on orders of {item.minimum_order_quantity ?? 2} or more
-                </p>
-              </div>
+            {priceLabel.note && (
+              <p className="mt-1.5 text-xs font-light text-slate-500">{priceLabel.note}</p>
             )}
+
+            {/* Wholesale pricing is hidden until it is actually applied.
+                is_wholesale / wholesale_price_zmw / minimum_order_quantity are
+                captured and displayed but no pricing code reads them —
+                checkout_init_atomic charges price_zmw for every unit — so this
+                panel was advertising a discount the buyer never received.
+                Restored by the quantity-break tier work, which prices the
+                break server-side. */}
 
             {/* Escrow reassurance */}
             <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
@@ -233,41 +273,85 @@ export function ItemDetail() {
             </div>
 
             {/* ── CTAs ────────────────────────────────────────────── */}
+            {outOfStock ? (
+              <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <p className="text-sm font-medium text-slate-700">{OUT_OF_STOCK_REASON}</p>
+                <p className="mt-0.5 text-xs font-light text-slate-500">
+                  The shop has been told to restock. This listing stays here so you can come
+                  back for it.
+                </p>
+              </div>
+            ) : (
             <div className="mt-6 flex flex-col gap-2 sm:flex-row">
               {/* Quote-first work has no settled price yet, so the conversation
                   is the primary action rather than a purchase. */}
               {item.allow_custom_quote ? (
-                <Button
-                  onClick={handleAskForQuote}
-                  disabled={startingChat}
-                  className="flex w-full items-center justify-center gap-2 sm:flex-1"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  {startingChat ? 'Opening…' : 'Request a quote'}
-                </Button>
+                item.price_is_minimum ? (
+                  // The listed figure is a real, bookable price — someone who
+                  // just wants the standard job should not have to open a
+                  // conversation to get it.
+                  <>
+                    <Button onClick={handleGift} className="w-full sm:flex-1">
+                      {item.requires_scheduling ? 'Book at' : 'Buy at'} ZMW{' '}
+                      {formatZmw(item.price_zmw)}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={handleAskForQuote}
+                      disabled={startingChat}
+                      className="flex w-full items-center justify-center gap-2 sm:flex-1"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      {startingChat ? 'Opening…' : 'Talk to the shop about a custom order'}
+                    </Button>
+                  </>
+                ) : (
+                  // No minimum declared, so the price is indicative only and
+                  // the conversation stays the primary action.
+                  <>
+                    <Button
+                      onClick={handleAskForQuote}
+                      disabled={startingChat}
+                      className="flex w-full items-center justify-center gap-2 sm:flex-1"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      {startingChat ? 'Opening…' : 'Talk to the shop about a custom order'}
+                    </Button>
+                    <Button variant="outline" onClick={handleGift} className="w-full sm:flex-1">
+                      {item.requires_scheduling ? 'Book at listed price' : 'Buy at listed price'}
+                    </Button>
+                  </>
+                )
               ) : (
-                <Button onClick={handleGift} className="w-full sm:flex-1">
-                  {item.requires_scheduling ? 'Book this' : 'Gift this'}
-                </Button>
-              )}
+                <>
+                  <Button onClick={handleGift} className="w-full sm:flex-1">
+                    {item.requires_scheduling ? 'Book this' : 'Gift this'}
+                  </Button>
 
-              {item.allow_custom_quote && (
-                <Button variant="outline" onClick={handleGift} className="w-full sm:flex-1">
-                  {item.requires_scheduling ? 'Book at listed price' : 'Buy at listed price'}
-                </Button>
-              )}
-
-              {!mustOpenDetail && !item.allow_custom_quote && (
-                <Button
-                  variant="outline"
-                  onClick={handleAddToCart}
-                  className="flex w-full items-center justify-center gap-2 sm:flex-1"
-                >
-                  <ShoppingCart className="h-4 w-4" />
-                  Add to cart
-                </Button>
+                  {!mustOpenDetail && (
+                    <Button
+                      variant="outline"
+                      onClick={handleAddToCart}
+                      className="flex w-full items-center justify-center gap-2 sm:flex-1"
+                    >
+                      <ShoppingCart className="h-4 w-4" />
+                      Add to cart
+                    </Button>
+                  )}
+                </>
               )}
             </div>
+            )}
+
+            {profile && (
+              <button
+                onClick={() => setAddToListOpen(true)}
+                className="mt-3 flex items-center gap-1.5 self-start text-xs font-medium text-slate-500 transition-colors hover:text-slate-900"
+              >
+                <ListChecks className="h-3.5 w-3.5" strokeWidth={2} />
+                Add to a list
+              </button>
+            )}
 
             {!item.allow_custom_quote && item.shop?.id && (
               <button
@@ -325,13 +409,22 @@ export function ItemDetail() {
 
             {item.allow_custom_quote && (
               <DetailRow icon={MessageSquare} label="Custom work">
-                This shop takes custom requests. Ask for a tailored quote instead of buying at
-                the listed price.
+                {item.price_is_minimum
+                  ? 'The listed price is this shop’s minimum for this service. Talk to them to price a larger or more tailored job.'
+                  : 'This shop takes custom requests. Talk to them about a custom order instead of buying at the listed price.'}
               </DetailRow>
             )}
           </div>
         </div>
       </div>
+
+      {profile && (
+        <AddToListDialog
+          open={addToListOpen}
+          onOpenChange={setAddToListOpen}
+          item={{ id: item.id, name: item.name, image_url: item.image_url }}
+        />
+      )}
     </div>
   );
 }

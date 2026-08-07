@@ -21,7 +21,9 @@ export function useItemDetail(itemId?: string) {
         setLoading(true);
         const { data, error } = await supabase
           .from('items')
-          .select('*, shop:shops(id, name, location)')
+          // item_images is ordered client-side: PostgREST cannot order an
+          // embedded relation, and a gallery is at most five rows.
+          .select('*, shop:shops(id, name, location), item_images(image_url, sort_order)')
           .eq('id', itemId)
           .eq('is_available', true)
           .single();
