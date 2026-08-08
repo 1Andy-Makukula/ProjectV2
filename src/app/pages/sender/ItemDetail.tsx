@@ -9,6 +9,7 @@ import {
   ArrowLeft,
   CalendarClock,
   ConciergeBell,
+  Layers,
   ListChecks,
   MapPin,
   MessageSquare,
@@ -33,6 +34,7 @@ import {
   isOutOfStock,
   requiresConversation,
   servicePriceLabel,
+  sortedTiers,
   galleryUrls as itemGalleryUrls,
   OUT_OF_STOCK_REASON,
 } from '../../types/items';
@@ -111,6 +113,7 @@ export function ItemDetail() {
   const priceLabel = servicePriceLabel(item);
   const galleryUrls = itemGalleryUrls(item);
   const outOfStock = isOutOfStock(item);
+  const tiers = sortedTiers(item.item_price_tiers);
 
   const handleGift = () => navigate(profile ? `/send/${item.id}` : '/signup');
 
@@ -138,13 +141,17 @@ export function ItemDetail() {
     }
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (quantity = 1) => {
     if (!profile) {
       navigate('/signup');
       return;
     }
-    addToCart(toProduct({ ...item, shop_id: item.shop?.id ?? '' }));
-    toast.success(`${item.name} added to cart`);
+    addToCart(toProduct({ ...item, shop_id: item.shop?.id ?? '' }), quantity);
+    toast.success(
+      quantity > 1
+        ? `${quantity} × ${item.name} added to cart`
+        : `${item.name} added to cart`,
+    );
     setCartSliderOpen(true);
   };
 
@@ -258,13 +265,37 @@ export function ItemDetail() {
               <p className="mt-1.5 text-xs font-light text-slate-500">{priceLabel.note}</p>
             )}
 
-            {/* Wholesale pricing is hidden until it is actually applied.
-                is_wholesale / wholesale_price_zmw / minimum_order_quantity are
-                captured and displayed but no pricing code reads them —
-                checkout_init_atomic charges price_zmw for every unit — so this
-                panel was advertising a discount the buyer never received.
-                Restored by the quantity-break tier work, which prices the
-                break server-side. */}
+            {/* Quantity breaks. Unlike the wholesale panel this replaces, these
+                are genuinely charged: checkout_init_atomic recomputes the same
+                break server-side from the total quantity of the item. */}
+            {tiers.length > 0 && (
+              <div className="mt-3 space-y-1.5 rounded-xl border border-slate-100 bg-white px-3 py-2.5">
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                  <Layers className="h-3.5 w-3.5 shrink-0 text-orange-500" strokeWidth={2} />
+                  Buy more, pay less
+                </p>
+                {tiers.map((tier) => (
+                  <div
+                    key={tier.min_quantity}
+                    className="flex items-center justify-between gap-4 text-xs"
+                  >
+                    <span className="text-slate-600">{tier.min_quantity} or more</span>
+                    <span className="flex items-baseline gap-2">
+                      <span className="font-semibold text-slate-900">
+                        ZMW {formatZmw(tier.unit_price_zmw)}
+                      </span>
+                      <span className="text-slate-400">each</span>
+                      <button
+                        onClick={() => handleAddToCart(tier.min_quantity)}
+                        className="rounded-md border border-orange-200 px-2 py-0.5 text-[11px] font-semibold text-orange-600 transition-colors hover:bg-orange-50"
+                      >
+                        Add {tier.min_quantity}
+                      </button>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Escrow reassurance */}
             <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
@@ -331,7 +362,7 @@ export function ItemDetail() {
                   {!mustOpenDetail && (
                     <Button
                       variant="outline"
-                      onClick={handleAddToCart}
+                      onClick={() => handleAddToCart()}
                       className="flex w-full items-center justify-center gap-2 sm:flex-1"
                     >
                       <ShoppingCart className="h-4 w-4" />

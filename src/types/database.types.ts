@@ -251,6 +251,30 @@ export type Database = {
         }
         Relationships: []
       }
+      item_price_tiers: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          min_quantity: number
+          unit_price_zmw: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          min_quantity: number
+          unit_price_zmw: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          min_quantity?: number
+          unit_price_zmw?: number
+        }
+        Relationships: []
+      }
       list_saves: {
         Row: { created_at: string; list_id: string; user_id: string }
         Insert: { created_at?: string; list_id: string; user_id: string }

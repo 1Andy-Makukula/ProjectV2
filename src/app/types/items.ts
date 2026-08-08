@@ -86,6 +86,9 @@ export interface CatalogItem {
   /** Units on hand. NULL means the merchant does not track stock for this item. */
   stock_quantity?: number | null;
 
+  /** Quantity breaks, when the surface asked for them. */
+  item_price_tiers?: PriceTier[] | null;
+
   /** Gallery rows, when the surface asked for them. Order via galleryUrls(). */
   item_images?: Array<{ image_url: string; sort_order: number }> | null;
 }
@@ -123,6 +126,51 @@ export function requiresConversation(
   item: Pick<CatalogItem, 'item_type' | 'requires_scheduling' | 'allow_custom_quote'>,
 ): boolean {
   return Boolean(item.requires_scheduling) || Boolean(item.allow_custom_quote);
+}
+
+/** A quantity break: buy `min_quantity` or more and every unit costs this. */
+export interface PriceTier {
+  min_quantity: number;
+  unit_price_zmw: number;
+}
+
+/**
+ * What one unit costs at a given quantity.
+ *
+ * Mirrors the `unit_price_for` SQL function exactly, including taking the
+ * cheapest qualifying tier rather than the highest-threshold one — adding a
+ * tier must never make an order more expensive. Keep the two in step: the
+ * server recomputes this at checkout and its answer is the one that is
+ * charged, so a drift here means the cart quotes a total the buyer is not
+ * billed.
+ *
+ * Tiers are optional everywhere; absent or empty falls back to the base price,
+ * which is what keeps already-persisted carts working.
+ */
+export function unitPriceFor(
+  basePriceZmw: number,
+  tiers: PriceTier[] | null | undefined,
+  quantity: number,
+): number {
+  const qualifying = (tiers ?? []).filter((tier) => tier.min_quantity <= Math.max(quantity, 1));
+  if (qualifying.length === 0) return basePriceZmw;
+  return Math.min(...qualifying.map((tier) => tier.unit_price_zmw));
+}
+
+/** Tiers cheapest-threshold first, for display. */
+export function sortedTiers(tiers: PriceTier[] | null | undefined): PriceTier[] {
+  return [...(tiers ?? [])].sort((a, b) => a.min_quantity - b.min_quantity);
+}
+
+/**
+ * The next break a buyer has not reached yet, or null once they are on the
+ * best price. Drives the "add 4 more and pay K200 each" nudge.
+ */
+export function nextTier(
+  tiers: PriceTier[] | null | undefined,
+  quantity: number,
+): PriceTier | null {
+  return sortedTiers(tiers).find((tier) => tier.min_quantity > Math.max(quantity, 1)) ?? null;
 }
 
 /** Shown wherever an out-of-stock item is rendered. */

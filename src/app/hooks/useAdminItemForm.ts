@@ -12,7 +12,7 @@ import {
 import { toCents } from '../../utils/currency';
 import { toast } from 'sonner';
 import { parseAuthError } from '../../utils/errorParser';
-import type { FulfillmentLocation, ItemType } from '../types/items';
+import type { FulfillmentLocation, ItemType, PriceTier } from '../types/items';
 
 export interface ItemFormData {
   name: string;
@@ -41,6 +41,9 @@ export interface ItemFormData {
 
   /** '' leaves stock untracked, which is the default and means unlimited. */
   stock_quantity: string;
+
+  /** Quantity breaks, prices in ZMW; converted to ngwee on save. */
+  price_tiers: PriceTier[];
 }
 
 export interface CategoryOption {
@@ -80,6 +83,7 @@ const EMPTY_FORM: ItemFormData = {
   minimum_order_quantity: '1',
 
   stock_quantity: '',
+  price_tiers: [],
 };
 
 /** Ngwee integer to a display string, or '' when unset. */
@@ -198,6 +202,12 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
 
       if (error) throw error;
 
+      const { data: tierRows } = await supabase
+        .from('item_price_tiers')
+        .select('min_quantity, unit_price_zmw')
+        .eq('item_id', itemId)
+        .order('min_quantity');
+
       await loadGallery(itemId);
       setActualShopId(data.shop_id);
       setFormData({
@@ -227,6 +237,14 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
           data.minimum_order_quantity != null ? String(data.minimum_order_quantity) : '1',
 
         stock_quantity: data.stock_quantity != null ? String(data.stock_quantity) : '',
+
+        // Stored in ngwee; the editor works in ZMW like every other price field.
+        price_tiers: (tierRows ?? [])
+          .map((tier: any) => ({
+            min_quantity: tier.min_quantity,
+            unit_price_zmw: tier.unit_price_zmw / 100,
+          }))
+          .sort((a, b) => a.min_quantity - b.min_quantity),
       });
     } catch (error: any) {
       console.error('Error loading item:', error);
@@ -284,6 +302,33 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
     },
     [storedImages, loadGallery],
   );
+
+  /**
+   * Replaces an item's tiers wholesale.
+   *
+   * Delete-then-insert rather than a diff: there are at most a handful of rows,
+   * they carry no identity worth preserving, and the unique index on
+   * (item_id, min_quantity) makes an in-place edit that reorders thresholds
+   * awkward to sequence.
+   */
+  const writeTiers = useCallback(async (id: string, tiers: PriceTier[]) => {
+    const { error: deleteError } = await supabase
+      .from('item_price_tiers')
+      .delete()
+      .eq('item_id', id);
+    if (deleteError) throw deleteError;
+
+    if (tiers.length === 0) return;
+
+    const { error } = await supabase.from('item_price_tiers').insert(
+      tiers.map((tier) => ({
+        item_id: id,
+        min_quantity: Math.round(tier.min_quantity),
+        unit_price_zmw: toCents(tier.unit_price_zmw),
+      })),
+    );
+    if (error) throw error;
+  }, []);
 
   const loadCategories = useCallback(async () => {
     try {
@@ -403,6 +448,31 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
       return false;
     }
 
+    // Mirrors item_price_tiers' constraints and validate_price_tier, so the
+    // merchant gets a sentence rather than a raw constraint violation.
+    for (const tier of formData.price_tiers) {
+      if (!Number.isFinite(tier.min_quantity) || tier.min_quantity < 2) {
+        toast.error('A bulk tier needs a minimum quantity of at least 2');
+        return false;
+      }
+      if (!Number.isFinite(tier.unit_price_zmw) || tier.unit_price_zmw <= 0) {
+        toast.error('Every bulk tier needs a price');
+        return false;
+      }
+      if (tier.unit_price_zmw >= priceValue) {
+        toast.error('A bulk price must be below the unit price');
+        return false;
+      }
+    }
+
+    if (
+      new Set(formData.price_tiers.map((tier) => tier.min_quantity)).size !==
+      formData.price_tiers.length
+    ) {
+      toast.error('Two bulk tiers cannot start at the same quantity');
+      return false;
+    }
+
     const isServiceItem = formData.item_type === 'service';
 
     setLoading(true);
@@ -496,6 +566,7 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
 
       if (savedItemId) {
         await writeGallery(savedItemId, resolvedGallery);
+        await writeTiers(savedItemId, formData.price_tiers);
       }
 
       toast.success(isEditing ? 'Item updated successfully' : 'Item created successfully');
@@ -508,7 +579,7 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
       setLoading(false);
       setUploading(false);
     }
-  }, [formData, isEditing, itemId, actualShopId, gallery, writeGallery]);
+  }, [formData, isEditing, itemId, actualShopId, gallery, writeGallery, writeTiers]);
 
   const deleteItem = useCallback(async () => {
     if (!itemId) return false;

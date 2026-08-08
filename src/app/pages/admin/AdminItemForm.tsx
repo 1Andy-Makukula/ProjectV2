@@ -4,6 +4,7 @@ import { useAuth } from '../../../utils/auth/AuthContext';
 import { supabase } from '../../../lib/supabaseClient';
 import { PricingTransparencyWidget } from '../../components/shared/PricingTransparencyWidget';
 import { ItemGalleryEditor } from '../../components/shared/ItemGalleryEditor';
+import { PriceTierEditor } from '../../components/shared/PriceTierEditor';
 import {
   ArrowLeft,
   Trash2,
@@ -601,7 +602,19 @@ export function AdminItemForm() {
 
               <div className="h-px bg-border" />
 
-              {/* Wholesale */}
+              {/* Quantity breaks. Replaces the single wholesale rate, which
+                  could only express one break and was never charged. */}
+              <PriceTierEditor
+                basePrice={formData.price}
+                tiers={formData.price_tiers}
+                onChange={(price_tiers) => setFormData({ ...formData, price_tiers })}
+                disabled={loading}
+              />
+
+              <div className="h-px bg-border" />
+
+              {/* Legacy wholesale fields — superseded by the tiers above and
+                  backfilled into them by 20260808000000_wholesale_tiers.sql. */}
               {WHOLESALE_UI_ENABLED && (
               <div className="flex items-start justify-between gap-4">
                 <div>

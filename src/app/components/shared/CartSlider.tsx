@@ -18,6 +18,7 @@ import { useAuth } from '../../../utils/auth/AuthContext';
 import { supabase } from '../../../lib/supabaseClient';
 import { Switch } from '../ui/switch';
 import { formatCurrency } from '../../../utils/currency';
+import { nextTier, unitPriceFor } from '../../types/items';
 import { usePlatformPricing } from '../../hooks/usePlatformPricing';
 import { creditsApplicationFor, feePercentFor, serviceFeeFor, CHECKOUT_ORIGIN } from '../../../utils/pricing';
 
@@ -192,7 +193,32 @@ export function CartSlider() {
                         {/* Info */}
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-medium text-slate-900">{item.product.name || item.product.title}</p>
-                          <p className="text-xs text-slate-400">{formatCurrency(item.product.price_zmw, 'ZMW')}</p>
+                          {(() => {
+                            const unit = unitPriceFor(
+                              item.product.price_zmw,
+                              item.product.price_tiers,
+                              item.quantity,
+                            );
+                            const upcoming = nextTier(item.product.price_tiers, item.quantity);
+                            return (
+                              <>
+                                <p className="text-xs text-slate-400">
+                                  {formatCurrency(unit, 'ZMW')}
+                                  {unit < item.product.price_zmw && (
+                                    <span className="ml-1 text-slate-300 line-through">
+                                      {formatCurrency(item.product.price_zmw, 'ZMW')}
+                                    </span>
+                                  )}
+                                </p>
+                                {upcoming && (
+                                  <p className="text-[11px] font-medium text-orange-600">
+                                    Add {upcoming.min_quantity - item.quantity} more for{' '}
+                                    {formatCurrency(upcoming.unit_price_zmw, 'ZMW')} each
+                                  </p>
+                                )}
+                              </>
+                            );
+                          })()}
 
                           {/* Qty controls */}
                           <div className="mt-1.5 flex items-center gap-2">
@@ -217,7 +243,14 @@ export function CartSlider() {
                         {/* Line total + remove */}
                         <div className="flex flex-col items-end gap-2 shrink-0">
                           <p className="text-sm font-semibold text-slate-900">
-                            {formatCurrency(item.product.price_zmw * item.quantity, 'ZMW')}
+                            {formatCurrency(
+                              unitPriceFor(
+                                item.product.price_zmw,
+                                item.product.price_tiers,
+                                item.quantity,
+                              ) * item.quantity,
+                              'ZMW',
+                            )}
                           </p>
                           <button
                             onClick={() => removeFromCart(item.product.id)}

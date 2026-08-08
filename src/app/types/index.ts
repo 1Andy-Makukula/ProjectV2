@@ -54,6 +54,8 @@ export interface Shop {
   created_at: string;
 }
 
+import type { PriceTier } from './items';
+
 export interface Product {
   id: string;
   shop_id: string;
@@ -70,6 +72,12 @@ export interface Product {
   images: string[];
   is_available?: boolean;
   currency?: string;
+  /**
+   * Quantity breaks carried into the cart so the line total matches what
+   * checkout_init_atomic will actually charge. Absent on carts persisted
+   * before tiers existed, which falls back to price_zmw.
+   */
+  price_tiers?: PriceTier[];
   stock_count?: number;
   category?: string;
   featured?: boolean;

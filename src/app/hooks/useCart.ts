@@ -3,6 +3,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { CartItem, Product } from '../types';
+import { unitPriceFor } from '../types/items';
 
 /**
  * toProduct — converts a raw DB `items` row into the Product shape
@@ -20,6 +21,7 @@ export function toProduct(item: any): Product {
     images: item.image_url ? [item.image_url] : [],
     is_available: item.is_available ?? true,
     currency: item.currency ?? 'ZMW',
+    price_tiers: item.item_price_tiers ?? item.price_tiers ?? undefined,
   };
 }
 
@@ -94,8 +96,14 @@ export const useCart = create<CartState>()(
       },
 
       getTotalAmount: () => {
+        // Quantity breaks are applied here for the same reason they are applied
+        // in checkout_init_atomic: a cart that quotes the undiscounted total
+        // would show the buyer a number they are not charged.
         return get().items.reduce(
-          (total, item) => total + item.product.price_zmw * item.quantity,
+          (total, item) =>
+            total +
+            unitPriceFor(item.product.price_zmw, item.product.price_tiers, item.quantity) *
+              item.quantity,
           0
         );
       },
