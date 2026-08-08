@@ -5,6 +5,7 @@ import { supabase } from '../../../lib/supabaseClient';
 import { PricingTransparencyWidget } from '../../components/shared/PricingTransparencyWidget';
 import { ItemGalleryEditor } from '../../components/shared/ItemGalleryEditor';
 import { PriceTierEditor } from '../../components/shared/PriceTierEditor';
+import { ItemPreviewDialog } from '../../components/shared/ItemPreviewDialog';
 import {
   ArrowLeft,
   Trash2,
@@ -16,6 +17,7 @@ import {
   Layers,
   MessageSquare,
   ArrowUpRight,
+  Eye,
   Info,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -31,7 +33,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../../components/ui/select';
-import { FULFILLMENT_LOCATIONS, ITEM_TYPES, type ItemType } from '../../types/items';
+import {
+  FULFILLMENT_LOCATIONS,
+  ITEM_TYPES,
+  type CatalogItem,
+  type ItemType,
+} from '../../types/items';
+import { toCents } from '../../../utils/currency';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -74,6 +82,7 @@ export function AdminItemForm() {
   });
 
   const [exchangeRate, setExchangeRate] = useState<number>(26.00);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   // Fetch exchange rate on mount
   useEffect(() => {
@@ -94,6 +103,31 @@ export function AdminItemForm() {
     };
     fetchExchangeRate();
   }, []);
+
+  /**
+   * The form's unsaved state shaped as a CatalogItem, so the preview renders
+   * through the real storefront card instead of a mock-up that could drift.
+   * Prices are ngwee everywhere below the form, hence toCents here.
+   */
+  const previewItem: CatalogItem = {
+    id: itemId ?? 'preview',
+    name: formData.name || 'Untitled item',
+    description: formData.description || null,
+    price_zmw: toCents(Number(formData.price) || 0),
+    image_url: gallery[0]?.url ?? formData.image_url ?? null,
+    item_type: formData.item_type,
+    requires_scheduling: formData.requires_scheduling,
+    lead_time_days: formData.lead_time_days ? Number(formData.lead_time_days) : null,
+    allow_custom_quote: formData.allow_custom_quote,
+    price_is_minimum: formData.price_is_minimum,
+    is_discounted: formData.is_discounted,
+    original_price_zmw: formData.original_price ? toCents(Number(formData.original_price)) : null,
+    stock_quantity: formData.stock_quantity.trim() ? Number(formData.stock_quantity) : null,
+    item_price_tiers: formData.price_tiers.map((tier) => ({
+      min_quantity: tier.min_quantity,
+      unit_price_zmw: toCents(tier.unit_price_zmw),
+    })),
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -756,6 +790,15 @@ export function AdminItemForm() {
               <Button
                 type="button"
                 variant="outline"
+                onClick={() => setPreviewOpen(true)}
+                className="w-full sm:w-auto"
+              >
+                <Eye className="size-4" />
+                Preview
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
                 onClick={handleCancel}
                 disabled={loading}
                 className="w-full sm:w-auto"
@@ -768,6 +811,12 @@ export function AdminItemForm() {
             </div>
           </div>
         </form>
+
+        <ItemPreviewDialog
+          open={previewOpen}
+          onOpenChange={setPreviewOpen}
+          item={previewItem}
+        />
       </div>
     </div>
   );

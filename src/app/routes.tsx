@@ -4,6 +4,21 @@ import { lazy, Suspense, type ComponentType, type ReactNode } from 'react';
 import { createBrowserRouter, useRouteError } from 'react-router';
 import { Root } from './layouts/Root';
 import { ProtectedRoute } from '../components/ProtectedRoute';
+
+/**
+ * Who may use the buyer surfaces.
+ *
+ * Registering a shop overwrites users.role from 'sender' to 'merchant' — the
+ * role is a single column, not a set — so gating these on 'sender' alone meant
+ * that the moment somebody opened a shop they lost the ability to send a gift
+ * or check out at all.
+ *
+ * Nothing below the UI ever required 'sender': no RLS policy references it,
+ * transactions are scoped by buyer_id, checkout-init performs no role check,
+ * and the signup trigger gives every user a wallet. So this is purely the
+ * route gate catching up with what the data layer always allowed.
+ */
+const BUYER_ROLES: Array<'sender' | 'merchant' | 'admin'> = ['sender', 'merchant', 'admin'];
 import { Navigate } from 'react-router';
 
 // Eager: auth surfaces + landing page (low latency to prevent CLS / FCP degradation)
@@ -113,7 +128,7 @@ export const router = createBrowserRouter([
       {
         path: 'dashboard',
         element: (
-          <ProtectedRoute allowedRoles={['sender']}>
+          <ProtectedRoute allowedRoles={BUYER_ROLES}>
             <Lazy><CustomerDashboard /></Lazy>
           </ProtectedRoute>
         ),
@@ -154,7 +169,7 @@ export const router = createBrowserRouter([
       {
         path: 'send/:itemId',
         element: (
-          <ProtectedRoute allowedRoles={['sender']}>
+          <ProtectedRoute allowedRoles={BUYER_ROLES}>
             <Lazy><SendFlow /></Lazy>
           </ProtectedRoute>
         ),
@@ -163,7 +178,7 @@ export const router = createBrowserRouter([
       {
         path: 'confirmation/:orderId',
         element: (
-          <ProtectedRoute allowedRoles={['sender']}>
+          <ProtectedRoute allowedRoles={BUYER_ROLES}>
             <Lazy><Confirmation /></Lazy>
           </ProtectedRoute>
         ),
@@ -171,7 +186,7 @@ export const router = createBrowserRouter([
       {
         path: 'orders',
         element: (
-          <ProtectedRoute allowedRoles={['sender']}>
+          <ProtectedRoute allowedRoles={BUYER_ROLES}>
             <Lazy><CustomerDashboard /></Lazy>
           </ProtectedRoute>
         ),
@@ -179,7 +194,7 @@ export const router = createBrowserRouter([
       {
         path: 'orders/:orderId',
         element: (
-          <ProtectedRoute allowedRoles={['sender']}>
+          <ProtectedRoute allowedRoles={BUYER_ROLES}>
             <Lazy><OrderDetail /></Lazy>
           </ProtectedRoute>
         ),
@@ -230,6 +245,7 @@ export const router = createBrowserRouter([
       {
         path: 'become-merchant',
         element: (
+          // Genuinely sender-only: a merchant already has a shop.
           <ProtectedRoute allowedRoles={['sender']}>
             <Lazy><MerchantOnboarding /></Lazy>
           </ProtectedRoute>
@@ -238,7 +254,7 @@ export const router = createBrowserRouter([
       {
         path: 'checkout',
         element: (
-          <ProtectedRoute allowedRoles={['sender']}>
+          <ProtectedRoute allowedRoles={BUYER_ROLES}>
             <Lazy><Checkout /></Lazy>
           </ProtectedRoute>
         ),

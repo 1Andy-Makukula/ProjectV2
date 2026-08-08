@@ -1,7 +1,7 @@
 // KithLy Header - Global Navigation (Mobile-First Responsive)
 
 import { useState, useEffect } from 'react';
-import { ShoppingCart, User, Menu, Gift, MessageSquare, HelpCircle, Home, LayoutDashboard, Settings, LogOut } from 'lucide-react';
+import { ShoppingCart, User, Menu, Gift, MessageSquare, HelpCircle, Home, LayoutDashboard, Settings, LogOut, Store } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link, useLocation } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
@@ -38,14 +38,14 @@ export function Header({
   const isHomePage = location.pathname === '/';
 
   // ── Role-based hub link ──────────────────────────────────────
-  const hubHref =
-    profile?.role === 'admin' ? '/admin'
-    : profile?.role === 'merchant' ? '/merchant'
-    : '/dashboard';
-  const hubLabel =
-    profile?.role === 'admin' ? 'Admin Hub'
-    : profile?.role === 'merchant' ? 'Merchant Hub'
-    : 'Dashboard';
+  //
+  // A merchant's hub is now their *buyer* dashboard: running a shop does not
+  // stop them being a customer, and they reach the shop console through the
+  // explicit "Enter Shop" switch below rather than by having it be the only
+  // place the header can take them.
+  const isMerchant = profile?.role === 'merchant';
+  const hubHref = profile?.role === 'admin' ? '/admin' : '/dashboard';
+  const hubLabel = profile?.role === 'admin' ? 'Admin Hub' : 'Dashboard';
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [balance, setBalance] = useState<number | null>(null);
@@ -146,6 +146,17 @@ export function Header({
                 className="hidden md:inline-flex items-center px-3 py-1.5 text-sm font-light text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors tracking-wide"
               >
                 {hubLabel}
+              </Link>
+            )}
+
+            {/* Merchants switch into their shop deliberately. */}
+            {isMerchant && (
+              <Link
+                to="/merchant"
+                className="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-primary/25 bg-primary-tint px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
+              >
+                <Store className="h-3.5 w-3.5" strokeWidth={2} />
+                Enter Shop
               </Link>
             )}
 
@@ -310,6 +321,10 @@ export function Header({
 
               {isAuthenticated && (
                 <MobileNavLink to={hubHref} icon={LayoutDashboard} label={hubLabel} onClick={() => setIsMobileMenuOpen(false)} />
+              )}
+
+              {isMerchant && (
+                <MobileNavLink to="/merchant" icon={Store} label="Enter Shop" onClick={() => setIsMobileMenuOpen(false)} />
               )}
 
               <MobileNavLink to="/shops" icon={Gift} label="Browse Shops" onClick={() => setIsMobileMenuOpen(false)} />

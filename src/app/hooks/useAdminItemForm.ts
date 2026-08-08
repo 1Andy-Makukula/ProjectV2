@@ -12,6 +12,7 @@ import {
 import { toCents } from '../../utils/currency';
 import { toast } from 'sonner';
 import { parseAuthError } from '../../utils/errorParser';
+import { ineffectiveTiers } from '../types/items';
 import type { FulfillmentLocation, ItemType, PriceTier } from '../types/items';
 
 export interface ItemFormData {
@@ -459,10 +460,18 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
         toast.error('Every bulk tier needs a price');
         return false;
       }
-      if (tier.unit_price_zmw >= priceValue) {
-        toast.error('A bulk price must be below the unit price');
-        return false;
-      }
+    }
+
+    // Blocked, not warned. An accepted-but-inert tier still rendered on the
+    // storefront and in the cart's next-tier nudge, so the buyer was shown bulk
+    // pricing dearer than buying singly. Mirrors validate_price_tier.
+    const inert = ineffectiveTiers(priceValue, formData.price_tiers);
+    if (inert.length > 0) {
+      toast.error(
+        `Bulk price for ${inert[0].min_quantity}+ must be below your unit price. Enter the price of ONE unit at that quantity, not the total for the pack.`,
+        { duration: 8000 },
+      );
+      return false;
     }
 
     if (

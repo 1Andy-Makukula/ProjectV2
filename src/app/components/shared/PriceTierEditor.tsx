@@ -1,4 +1,4 @@
-import { Layers, Plus, Trash2 } from 'lucide-react';
+import { AlertTriangle, Layers, Plus, Trash2 } from 'lucide-react';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
@@ -107,9 +107,16 @@ export function PriceTierEditor({ basePrice, tiers, onChange, disabled }: PriceT
                   </button>
                 </div>
 
+                {/* Blocks the save. Names the likely mistake rather than
+                    restating the rule — nine of ten existing wholesale prices
+                    turned out to be the cost of the whole pack. */}
                 {tooExpensive && (
-                  <p className="text-xs font-medium text-destructive">
-                    Must be below your unit price of ZMW {base.toFixed(2)}.
+                  <p className="flex items-start gap-1.5 rounded-md bg-destructive/10 px-2 py-1.5 text-xs font-medium text-destructive">
+                    <AlertTriangle className="mt-0.5 size-3.5 shrink-0" strokeWidth={2} />
+                    <span>
+                      Must be below your unit price of ZMW {base.toFixed(2)}. Enter the price of{' '}
+                      <strong>one unit</strong> at this quantity, not the total for the pack.
+                    </span>
                   </p>
                 )}
               </div>

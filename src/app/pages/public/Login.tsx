@@ -28,8 +28,11 @@ export function Login() {
   // Redirect already-authenticated users with a valid profile
   useEffect(() => {
     if (user && profile) {
-      if (profile.role === 'merchant') navigate('/merchant');
-      else if (profile.role === 'admin') navigate('/admin');
+      // Merchants land on the buyer side and step into the shop deliberately.
+      // Running a shop does not stop you being a customer, and dropping
+      // straight into the merchant console made the storefront feel like
+      // somewhere they were not allowed. Admins still go to their console.
+      if (profile.role === 'admin') navigate('/admin');
       else navigate('/dashboard');
     }
   }, [user, profile, navigate]);

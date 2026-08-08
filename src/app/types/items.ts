@@ -154,7 +154,25 @@ export function unitPriceFor(
 ): number {
   const qualifying = (tiers ?? []).filter((tier) => tier.min_quantity <= Math.max(quantity, 1));
   if (qualifying.length === 0) return basePriceZmw;
-  return Math.min(...qualifying.map((tier) => tier.unit_price_zmw));
+  // Capped at the base price: a tier entered above it — the pack-total mistake
+  // the editor warns about — must never charge more than the shelf price.
+  return Math.min(basePriceZmw, ...qualifying.map((tier) => tier.unit_price_zmw));
+}
+
+/**
+ * Tiers that will never take effect because they are not actually cheaper.
+ *
+ * Saving one is allowed — refusing blocked merchants from saving the item at
+ * all — but they are inert, so the editor says so rather than letting someone
+ * believe they have set up a bulk deal that does nothing.
+ */
+export function ineffectiveTiers(
+  basePriceZmw: number,
+  tiers: PriceTier[] | null | undefined,
+): PriceTier[] {
+  return (tiers ?? []).filter(
+    (tier) => tier.unit_price_zmw > 0 && tier.unit_price_zmw >= basePriceZmw,
+  );
 }
 
 /** Tiers cheapest-threshold first, for display. */

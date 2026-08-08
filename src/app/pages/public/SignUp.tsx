@@ -22,8 +22,8 @@ export function SignUp() {
   // Redirect once AuthContext has loaded the user's profile after sign-up
   useEffect(() => {
     if (user && profile) {
-      if (profile.role === 'merchant') navigate('/merchant', { replace: true });
-      else if (profile.role === 'admin') navigate('/admin', { replace: true });
+      // Merchants land on the buyer side; see the note in Login.
+      if (profile.role === 'admin') navigate('/admin', { replace: true });
       else navigate('/dashboard', { replace: true });
     }
   }, [user, profile, navigate]);

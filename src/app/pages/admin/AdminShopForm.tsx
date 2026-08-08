@@ -10,6 +10,8 @@ import { Label } from '../../components/ui/label';
 import { Switch } from '../../components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { OpeningHoursEditor } from '../../components/shared/OpeningHoursEditor';
+import { ShopDocumentsEditor } from '../../components/shared/ShopDocumentsEditor';
+import { useShopDocuments } from '../../hooks/useShopDocuments';
 import { PageShell, PageBody } from '../../components/layout/PageShell';
 import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
 import {
@@ -40,7 +42,10 @@ export function AdminShopForm() {
     isEditing,
     saveShop,
     deleteShop,
+    effectiveShopId,
   } = useAdminShopForm({ shopId, isMerchant, merchantUserId: profile?.id });
+
+  const { documents, addDocument, removeDocument } = useShopDocuments(effectiveShopId);
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -197,6 +202,20 @@ export function AdminShopForm() {
                 Shown to buyers on your storefront. Leave blank to show nothing — your
                 login email and phone are never published.
               </p>
+
+              {/* Compliance paperwork. Only available once the shop exists,
+                  since a document row needs a shop_id to hang off. */}
+              {isEditing && effectiveShopId && (
+                <>
+                  <ShopDocumentsEditor
+                    documents={documents}
+                    onAdd={addDocument}
+                    onRemove={removeDocument}
+                    disabled={loading}
+                  />
+                  <div className="h-px bg-border" />
+                </>
+              )}
 
               <OpeningHoursEditor
                 value={formData.opening_hours}

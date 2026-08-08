@@ -329,5 +329,7 @@ export function useAdminShopForm({ shopId, isMerchant, merchantUserId }: UseAdmi
     isEditing,
     saveShop,
     deleteShop,
+    /** Resolved shop id — a merchant's route carries no :shopId param. */
+    effectiveShopId,
   };
 }

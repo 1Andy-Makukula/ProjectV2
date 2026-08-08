@@ -4,7 +4,7 @@ import { useAuth } from '../../../utils/auth/AuthContext';
 import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { formatCurrency } from '../../../utils/currency';
-import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles, MessageSquare, Wallet, ShieldAlert, Search, Download, ListChecks } from 'lucide-react';
+import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles, MessageSquare, Wallet, ShieldAlert, Search, Download, ListChecks, ArrowLeft } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { NotificationBell } from '../../components/shared/NotificationBell';
@@ -151,6 +151,16 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
             </Button>
           ) : (
             <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+              {/* The way back out. This page is a mode, not a cage — the
+                  merchant is also a customer and can shop like anyone else. */}
+              <Button
+                variant="outline"
+                onClick={() => navigate('/dashboard')}
+                className="hidden sm:inline-flex"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to shopping
+              </Button>
               <Button
                 onClick={() => navigate('/merchant/fulfill')}
                 className="kl-gradient-brand flex-1 sm:flex-none"
