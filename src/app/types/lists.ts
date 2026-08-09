@@ -43,6 +43,9 @@ export interface ListEntry {
     image_url: string | null;
     is_available: boolean | null;
     stock_quantity: number | null;
+    /** Carried so a list can show what is on offer this month, not just today's price. */
+    is_discounted: boolean | null;
+    original_price_zmw: number | null;
     shop: { id: string; name: string } | null;
   } | null;
 }
@@ -123,6 +126,22 @@ export function entryDisplay(entry: ListEntry): { name: string; imageUrl: string
     name: entry.item?.name ?? entry.snapshot_name,
     imageUrl: entry.item?.image_url ?? entry.snapshot_image_url,
   };
+}
+
+/**
+ * What the list saves against the undiscounted prices, in ngwee.
+ *
+ * A monthly-shop list is largely persuasive because of what is on offer, so the
+ * saving is worth totalling rather than leaving the reader to add up
+ * strike-throughs. Counts only buyable entries, matching listBuyableTotal.
+ */
+export function listSavings(entries: ListEntry[]): number {
+  return entries.reduce((total, entry) => {
+    if (entryUnavailableReason(entry) !== null || !entry.item) return total;
+    const { is_discounted, original_price_zmw, price_zmw } = entry.item;
+    if (!is_discounted || !original_price_zmw || original_price_zmw <= price_zmw) return total;
+    return total + (original_price_zmw - price_zmw);
+  }, 0);
 }
 
 /** Total of the entries that can actually be bought right now. */

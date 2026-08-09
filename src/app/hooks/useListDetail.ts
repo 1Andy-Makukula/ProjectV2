@@ -36,6 +36,7 @@ export function useListDetail(slug: string | undefined) {
              id, item_id, snapshot_name, snapshot_image_url, sort_order,
              item:item_id(
                id, name, price_zmw, image_url, is_available, stock_quantity,
+               is_discounted, original_price_zmw,
                shop:shop_id(id, name)
              )
            )`,
@@ -67,6 +68,8 @@ export function useListDetail(slug: string | undefined) {
                 image_url: entry.item.image_url,
                 is_available: entry.item.is_available,
                 stock_quantity: entry.item.stock_quantity,
+                is_discounted: entry.item.is_discounted ?? false,
+                original_price_zmw: entry.item.original_price_zmw ?? null,
                 shop: entry.item.shop ?? null,
               }
             : null,

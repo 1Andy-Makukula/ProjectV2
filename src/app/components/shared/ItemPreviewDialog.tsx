@@ -1,4 +1,4 @@
-import { Eye } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,13 @@ interface ItemPreviewDialogProps {
   onOpenChange: (open: boolean) => void;
   item: CatalogItem;
   shopName?: string | null;
+  /**
+   * From the form's own toggle, not from CatalogItem — a delisted item is
+   * filtered out of the storefront queries entirely, so it is not a property
+   * the card can render, but it is the single most important thing to tell a
+   * merchant previewing a listing that will not appear at all.
+   */
+  isAvailable?: boolean;
 }
 
 /**
@@ -37,6 +44,7 @@ export function ItemPreviewDialog({
   onOpenChange,
   item,
   shopName,
+  isAvailable = true,
 }: ItemPreviewDialogProps) {
   const priceLabel = servicePriceLabel(item);
   const tiers = sortedTiers(item.item_price_tiers);
@@ -54,6 +62,16 @@ export function ItemPreviewDialog({
             How this listing appears while browsing. Nothing here is saved yet.
           </DialogDescription>
         </DialogHeader>
+
+        {!isAvailable && (
+          <p className="flex items-start gap-1.5 rounded-md bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+            <EyeOff className="mt-0.5 size-3.5 shrink-0" strokeWidth={2} />
+            <span>
+              This item is switched off, so buyers will not see it at all — not even greyed
+              out. Turn on “Available Status” to publish it.
+            </span>
+          </p>
+        )}
 
         {/* Constrained to roughly a real grid cell so the card is judged at the
             width it will actually be seen at, not stretched across a dialog. */}

@@ -30,9 +30,11 @@ import {
   listAuthorLabel,
   listBuyableTotal,
   listRating,
+  listSavings,
   listShopCount,
   type ListEntry,
 } from '../../types/lists';
+import { discountPercentage } from '../../types/items';
 
 /**
  * A shared list — the page a WhatsApp link opens.
@@ -75,6 +77,7 @@ export function ListDetail() {
   const buyable = list.entries.filter((entry) => entryUnavailableReason(entry) === null);
   const total = listBuyableTotal(list.entries);
   const shopCount = listShopCount(list.entries);
+  const savings = listSavings(list.entries);
   const rating = listRating(list);
 
   const addEntry = (entry: ListEntry) => {
@@ -185,12 +188,19 @@ export function ListDetail() {
           )}
 
           <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-            <Button onClick={buyAll} disabled={buyable.length === 0} className="w-full sm:flex-1">
-              <ShoppingCart className="h-4 w-4" />
-              {buyable.length === 0
-                ? 'Nothing available right now'
-                : `Add all ${buyable.length} · ${formatCurrency(total, 'ZMW')}`}
-            </Button>
+            <div className="w-full sm:flex-1">
+              <Button onClick={buyAll} disabled={buyable.length === 0} className="w-full">
+                <ShoppingCart className="h-4 w-4" />
+                {buyable.length === 0
+                  ? 'Nothing available right now'
+                  : `Add all ${buyable.length} · ${formatCurrency(total, 'ZMW')}`}
+              </Button>
+              {savings > 0 && (
+                <p className="mt-1.5 text-center text-xs font-medium text-[var(--success)]">
+                  Saves {formatCurrency(savings, 'ZMW')} against normal prices
+                </p>
+              )}
+            </div>
 
             {profile && !isOwner && (
               <Button
@@ -289,9 +299,23 @@ export function ListDetail() {
                         {ENTRY_UNAVAILABLE_TEXT[reason]}
                       </p>
                     ) : (
-                      <p className="text-sm font-semibold tabular-nums text-slate-900">
-                        {formatCurrency(entry.item!.price_zmw, 'ZMW')}
-                      </p>
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-sm font-semibold tabular-nums text-slate-900">
+                          {formatCurrency(entry.item!.price_zmw, 'ZMW')}
+                        </p>
+                        {/* What is on offer this month is most of why a budget
+                            list is worth following, so the old price shows. */}
+                        {discountPercentage(entry.item!) !== null && (
+                          <>
+                            <span className="text-[11px] text-slate-400 line-through">
+                              {formatCurrency(entry.item!.original_price_zmw!, 'ZMW')}
+                            </span>
+                            <span className="rounded-full bg-orange-600 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                              {discountPercentage(entry.item!)}% off
+                            </span>
+                          </>
+                        )}
+                      </div>
                     )}
                   </div>
 

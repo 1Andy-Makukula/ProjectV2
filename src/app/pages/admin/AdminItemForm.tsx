@@ -816,6 +816,7 @@ export function AdminItemForm() {
           open={previewOpen}
           onOpenChange={setPreviewOpen}
           item={previewItem}
+          isAvailable={formData.is_available}
         />
       </div>
     </div>
