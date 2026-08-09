@@ -232,7 +232,16 @@ async function handleUssdRequest(req: Request): Promise<Response> {
 
   const fulfillResult = resultRow as AtomicFulfillResult;
 
-  console.log(`[ussd-gateway] SUCCESS | code=${claimCode} | item=${fulfillResult.item_name}`);
+  // Claim code masked. It is a bearer instrument -- whoever holds it can
+  // collect the gift (see src/utils/whatsapp.ts) -- so a log line containing
+  // one is a credential sitting in a retained, searchable store. The last two
+  // characters are enough to correlate with a support enquiry; the whole code
+  // is enough to redeem someone else's order.
+  //
+  // The full code remains on the transaction_events row written just below,
+  // which is the audit trail and is access-controlled. Logs are not.
+  const maskedCode = `${"•".repeat(Math.max(0, claimCode.length - 2))}${claimCode.slice(-2)}`;
+  console.log(`[ussd-gateway] SUCCESS | code=${maskedCode} | item=${fulfillResult.item_name}`);
 
   // Log the successful fulfillment
   await adminClient.from("transaction_events").insert({

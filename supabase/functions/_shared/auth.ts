@@ -163,3 +163,56 @@ export async function findTransactionByTxRef(
     .eq("gateway_tx_ref", txRef)
     .single();
 }
+
+/**
+ * Is this caller the scheduler (or something else holding service-role rights)?
+ *
+ * For functions invoked by pg_cron rather than by a person. They run with
+ * verify_jwt = true (the deploy default -- config.toml exempts only
+ * flutterwave-webhook, ussd-gateway and health), so Supabase has already
+ * verified the token's signature by the time this is called. What remains is
+ * deciding WHICH KIND of caller it is, because a valid anon key is also a valid
+ * token and anyone with the browser bundle has one.
+ *
+ * Replaces comparing the bearer token to a single key by string equality, which
+ * was brittle in two ways that both bit in practice: it breaks the moment a key
+ * is rotated -- and a local .env copy drifting from the project's secret is
+ * exactly that -- and it does not recognise Supabase's newer sb_secret_ keys,
+ * which are opaque rather than JWTs.
+ *
+ * Decoding the payload without verifying the signature is safe HERE and only
+ * here, because the platform verified it first. Any function that sets
+ * verify_jwt = false must not use this.
+ *
+ * @param overrideSecretEnv name of a function-specific shared secret which,
+ *   when set and matched, authorises outright.
+ */
+export function isServiceRoleCaller(
+  req: Request,
+  overrideSecretEnv?: string,
+): { ok: true } | { ok: false; reason: string } {
+  const header = req.headers.get("Authorization") ?? "";
+  const token = header.replace(/^Bearer\s+/i, "").trim();
+  if (!token) return { ok: false, reason: "no bearer token" };
+
+  if (overrideSecretEnv) {
+    const explicit = Deno.env.get(overrideSecretEnv);
+    if (explicit && token === explicit) return { ok: true };
+  }
+
+  if (token === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) return { ok: true };
+
+  const parts = token.split(".");
+  if (parts.length === 3) {
+    try {
+      const b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+      const claims = JSON.parse(atob(b64 + "=".repeat((4 - (b64.length % 4)) % 4)));
+      if (claims?.role === "service_role") return { ok: true };
+      return { ok: false, reason: `token role is '${claims?.role ?? "unknown"}', not service_role` };
+    } catch {
+      return { ok: false, reason: "bearer token is not a decodable JWT" };
+    }
+  }
+
+  return { ok: false, reason: "opaque token matched no configured secret" };
+}

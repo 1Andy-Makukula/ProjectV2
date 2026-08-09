@@ -41,6 +41,7 @@
  */
 
 import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
+import { isServiceRoleCaller } from "../_shared/auth.ts";
 
 const corsHeaders: HeadersInit = {
   "Access-Control-Allow-Origin": "*",
@@ -276,16 +277,24 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return json({ error: `Method '${req.method}' is not allowed. Use POST.` }, 405);
   }
 
-  const authHeader = req.headers.get("Authorization");
-  const incomingSecret =
-    req.headers.get("x-sweeper-secret") ||
-    (authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null);
-  const expectedSecret =
-    Deno.env.get("BATCH_PAYOUT_SWEEPER_SECRET") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  // The out-of-band header stays: it lets this be triggered manually without a
+  // JWT at all, which is useful when the scheduler is the thing being debugged.
+  const headerSecret = req.headers.get("x-sweeper-secret");
+  const sweeperSecret = Deno.env.get("BATCH_PAYOUT_SWEEPER_SECRET");
+  const viaHeader = Boolean(headerSecret && sweeperSecret && headerSecret === sweeperSecret);
 
-  if (expectedSecret && incomingSecret !== expectedSecret) {
-    console.error("[batch-payout-sweeper] Unauthorized payout sweep request.");
-    return json({ error: "Unauthorized." }, 401);
+  if (!viaHeader) {
+    // Otherwise the caller must hold service-role rights. Comparing the bearer
+    // to one exact key -- what this did before -- breaks on key rotation and
+    // does not recognise Supabase's opaque sb_secret_ keys. This matters more
+    // now than it did: until Vault was populated, pg_cron could not reach this
+    // function at all, so no payout had ever actually been dispatched and the
+    // guard had never been exercised against a real scheduled call.
+    const authorised = isServiceRoleCaller(req, "BATCH_PAYOUT_SWEEPER_SECRET");
+    if (!authorised.ok) {
+      console.error(`[batch-payout-sweeper] Unauthorized payout sweep: ${authorised.reason}`);
+      return json({ error: "Unauthorized." }, 401);
+    }
   }
 
   let supabase;

@@ -16,6 +16,7 @@
  */
 
 import { getCorsHeaders, jsonWithCors } from "../_shared/cors.ts";
+import { isServiceRoleCaller } from "../_shared/auth.ts";
 
 interface NotificationPayload {
   recipient_name: string;
@@ -49,23 +50,43 @@ Deno.serve(async (req: Request): Promise<Response> => {
   // Twilio account. Every real caller (verify-payment, flutterwave-webhook,
   // and now the expiry-reminder dispatch) already invokes it with the service
   // role key, so this costs those callers nothing.
-  const authHeader = req.headers.get("Authorization");
-  const incomingSecret =
-    req.headers.get("x-notify-secret") ||
-    (authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null);
-  const expectedSecret =
-    Deno.env.get("SEND_NOTIFICATION_SECRET") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const headerSecret = req.headers.get("x-notify-secret");
+  const notifySecret = Deno.env.get("SEND_NOTIFICATION_SECRET");
+  const viaHeader = Boolean(headerSecret && notifySecret && headerSecret === notifySecret);
 
-  if (expectedSecret && incomingSecret !== expectedSecret) {
-    console.error("[send-notification] Unauthorized notification request.");
-    return jsonWithCors(req, { error: "Unauthorized." }, 401);
+  if (!viaHeader) {
+    // Service-role rights, established by claim rather than by string-matching
+    // one key. The old comparison broke on key rotation and did not recognise
+    // Supabase's opaque sb_secret_ keys.
+    //
+    // This one guards real money and real messages: until Twilio credentials
+    // were set and Vault was populated, neither the credentials nor the
+    // scheduler existed, so this guard had never been exercised by an actual
+    // expiry-reminder run. It is now, every fifteen minutes.
+    const authorised = isServiceRoleCaller(req, "SEND_NOTIFICATION_SECRET");
+    if (!authorised.ok) {
+      console.error(`[send-notification] Unauthorized notification request: ${authorised.reason}`);
+      return jsonWithCors(req, { error: "Unauthorized." }, 401);
+    }
   }
 
   try {
     if (!Deno.env.get('TWILIO_ACCOUNT_SID')) throw new Error('Missing TWILIO_ACCOUNT_SID');
     if (!Deno.env.get('TWILIO_AUTH_TOKEN')) throw new Error('Missing TWILIO_AUTH_TOKEN');
 
-    console.log(`[NOTIFY] Received payload:`, await req.clone().json());
+    // The whole payload used to be logged here. It carries claim_code and
+    // recipient_phone.
+    //
+    // A claim code is a bearer instrument -- whoever holds it can collect the
+    // gift (see src/utils/whatsapp.ts for that decision and what follows from
+    // it). Logging one puts a credential into function logs, where it is
+    // retained, searchable, and readable by anyone with dashboard access. The
+    // recipient's phone number is personal data with no reason to be there
+    // either.
+    //
+    // Nothing here needed the payload logged; it was debugging that outlived
+    // its purpose. What is useful is that a request arrived and what shape it
+    // was, which is what the success and failure paths already record.
 
     let payload: NotificationPayload;
     try {
@@ -131,7 +152,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
       ? message!.trim()
       : `Hi ${recipient_name}! ${sender_name} has bought you a gift bundle waiting at ${shop_name}. \n\nYour Master Claim Code is: *${claim_code}*\n\nClick here to unwrap your gift and see your QR code: ${appUrl}/gift/${claim_code} \n\n- Powered by KithLy`;
 
-    console.log(`[send-notification] Dispatching WhatsApp notification to: ${formattedPhone}`);
+    // Masked. Enough to tell one recipient from another when reading logs, not
+    // enough to be a list of customer phone numbers sitting in a log store.
+    const maskedPhone = formattedPhone.replace(/\d(?=\d{3})/g, "•");
+    console.log(`[send-notification] Dispatching WhatsApp notification to: ${maskedPhone}`);
 
     // 4. Construct form URL-encoded body parameters for Twilio REST API
     const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
