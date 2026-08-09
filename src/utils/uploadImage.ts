@@ -215,6 +215,58 @@ export async function uploadPublicAsset(
 }
 
 /**
+ * Uploads a compliance document to the PRIVATE shop-documents bucket.
+ *
+ * Deliberately not uploadPublicAsset: that writes to `storefront-assets`, which
+ * is public, and a licence or an NRC must not have an unauthenticated URL. The
+ * object path is namespaced by shop so the storage policy can decide access
+ * from the path alone, and the caller stores the path — never a URL, since a
+ * signed one expires.
+ *
+ * No compression: these are documents, often PDFs, and re-encoding a scan of a
+ * licence would be both pointless and destructive.
+ */
+export async function uploadShopDocument(file: File, shopId: string): Promise<string> {
+  const extension = file.name.includes('.') ? file.name.split('.').pop() : 'bin';
+  const path = `${shopId}/${crypto.randomUUID()}.${extension}`;
+
+  const { error } = await supabase.storage
+    .from('shop-documents')
+    .upload(path, file, { contentType: file.type || 'application/octet-stream' });
+
+  if (error) throw error;
+  return path;
+}
+
+/**
+ * A short-lived link to a private document, for someone already entitled to it.
+ *
+ * The storage policy is the real gate — this only fails to produce a link for
+ * anyone it would have refused anyway.
+ */
+export async function signedShopDocumentUrl(
+  path: string,
+  expiresInSeconds = 60,
+): Promise<string | null> {
+  const { data, error } = await supabase.storage
+    .from('shop-documents')
+    .createSignedUrl(path, expiresInSeconds);
+
+  if (error) {
+    console.error('[signedShopDocumentUrl] failed:', error.message);
+    return null;
+  }
+  return data?.signedUrl ?? null;
+}
+
+/** Removes a document object from the private bucket. */
+export async function deleteShopDocument(path: string): Promise<void> {
+  if (!path) return;
+  const { error } = await supabase.storage.from('shop-documents').remove([path]);
+  if (error) throw error;
+}
+
+/**
  * Deletes a public storefront asset from storage given its public URL.
  */
 export async function deleteStorefrontAsset(url: string, bucketName = 'storefront-assets'): Promise<void> {

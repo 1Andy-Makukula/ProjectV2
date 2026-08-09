@@ -4,13 +4,31 @@
 // Zambian trade requires, and a fixed list would block someone from uploading
 // something legitimate.
 
+/** The private bucket compliance paperwork lives in. Never public. */
+export const SHOP_DOCUMENTS_BUCKET = 'shop-documents';
+
+/** How long a generated view link stays valid. Long enough to open, no longer. */
+export const SIGNED_URL_TTL_SECONDS = 60;
+
 export interface ShopDocument {
   id: string;
   shop_id: string;
   label: string;
-  document_url: string;
+  /**
+   * Object path inside the private bucket, not a URL.
+   *
+   * A signed URL expires, so storing one would be meaningless; the path is the
+   * durable reference and a link is minted per view for whoever is entitled to
+   * it. Storing a public URL is what made these readable by anyone.
+   */
+  storage_path: string;
   /** ISO date, or null for a document that does not expire. */
   expires_at: string | null;
+  /**
+   * Set when the merchant retires it. The row and its file are kept — these are
+   * audit records, so a merchant can stop showing one but cannot destroy it.
+   */
+  archived_at: string | null;
   created_at: string;
 }
 
@@ -45,7 +63,18 @@ export function documentExpiry(
 ): DocumentExpiry {
   if (!doc.expires_at) return { state: 'none', label: '' };
 
-  const expiry = new Date(`${doc.expires_at}T00:00:00`);
+  // Compared as calendar dates, in whichever timezone the viewer is in.
+  //
+  // `new Date('2026-08-08')` parses as UTC midnight while `now` is a local
+  // instant, so mixing the two shifted the comparison by a day for anyone far
+  // enough from UTC — a licence expiring today read as expired in Auckland.
+  // Both sides are therefore reduced to local Y/M/D before subtracting.
+  const parts = doc.expires_at.split('-').map(Number);
+  if (parts.length !== 3 || parts.some((n) => !Number.isFinite(n))) {
+    return { state: 'none', label: '' };
+  }
+
+  const expiry = new Date(parts[0], parts[1] - 1, parts[2]);
   if (Number.isNaN(expiry.getTime())) return { state: 'none', label: '' };
 
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());

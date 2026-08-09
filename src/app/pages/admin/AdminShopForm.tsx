@@ -45,7 +45,8 @@ export function AdminShopForm() {
     effectiveShopId,
   } = useAdminShopForm({ shopId, isMerchant, merchantUserId: profile?.id });
 
-  const { documents, addDocument, removeDocument } = useShopDocuments(effectiveShopId);
+  const { documents, archivedDocuments, addDocument, archiveDocument, openDocument } =
+    useShopDocuments(effectiveShopId);
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -209,8 +210,10 @@ export function AdminShopForm() {
                 <>
                   <ShopDocumentsEditor
                     documents={documents}
+                    archivedDocuments={archivedDocuments}
                     onAdd={addDocument}
-                    onRemove={removeDocument}
+                    onArchive={archiveDocument}
+                    onOpen={openDocument}
                     disabled={loading}
                   />
                   <div className="h-px bg-border" />

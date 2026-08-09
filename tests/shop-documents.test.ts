@@ -5,7 +5,10 @@ import {
   type ShopDocument,
 } from '../src/app/types/shopDocuments';
 
-const NOW = new Date('2026-08-08T14:30:00Z');
+// Local midday, not a UTC instant. An instant would land on a different
+// calendar day depending on where the suite runs, so "expires today" would
+// read as expired anywhere far enough east.
+const NOW = new Date(2026, 7, 8, 12, 0, 0);
 
 function doc(expires_at: string | null, id = 'd1'): ShopDocument {
   return {
@@ -57,17 +60,24 @@ describe('documentExpiry', () => {
 });
 
 describe('documentsNeedingAttention', () => {
+  // Uses the real clock, so the fixtures are pinned relative to today rather
+  // than to fixed dates that would silently stop meaning anything.
+  const daysFromNow = (days: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+      d.getDate(),
+    ).padStart(2, '0')}`;
+  };
+
   it('picks out expired and expiring, leaving the rest', () => {
     const docs = [
       doc(null, 'permanent'),
-      doc('2027-03-01', 'fine'),
-      doc('2026-08-20', 'soon'),
-      doc('2026-01-01', 'lapsed'),
+      doc(daysFromNow(400), 'fine'),
+      doc(daysFromNow(10), 'soon'),
+      doc(daysFromNow(-30), 'lapsed'),
     ];
-    // documentExpiry defaults to the real clock, so pin dates far enough out
-    // that this stays true regardless of when the suite runs.
-    const flagged = documentsNeedingAttention(docs).map((d) => d.id);
-    expect(flagged).toContain('lapsed');
-    expect(flagged).not.toContain('permanent');
+
+    expect(documentsNeedingAttention(docs).map((d) => d.id).sort()).toEqual(['lapsed', 'soon']);
   });
 });
