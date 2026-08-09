@@ -24,6 +24,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # `pnpm build` cannot stand in for this: Vite compiles through esbuild,
+      # which strips types without checking them. A half-finished refactor
+      # (hook renamed, caller not updated) passed both `pnpm test` and
+      # `pnpm build` here while `tsc --noEmit` reported three errors.
+      - name: Typecheck
+        run: pnpm typecheck
+
       - name: Unit tests
         run: pnpm test
 

@@ -130,6 +130,77 @@ BEGIN
   RAISE NOTICE 'PASS: all expected tables present after a from-empty replay';
 END $$;
 
+-- ---------------------------------------------------------------------------
+-- 4. No money function is reachable by anon or authenticated.
+--
+-- PostgreSQL grants EXECUTE to PUBLIC by default on every new function, and
+-- Supabase's `anon` role inherits PUBLIC. Every money RPC created after the
+-- earliest migrations was therefore callable by anyone holding the anon key
+-- that ships in the browser bundle -- verified live against production on
+-- 2026-08-09, where `increment_wallet_balance` returned HTTP 204 and would
+-- mint spendable wallet credit for any user id.
+--
+-- Closed by 20260809000000_lock_money_rpcs_service_role_only.sql. This check
+-- exists because the fix is one `CREATE OR REPLACE` away from being undone:
+-- replacing a function preserves its ACL, but a migration that CREATEs a new
+-- money function, or DROPs and recreates one, silently gets the PUBLIC default
+-- back. Nothing but this check would notice.
+-- ---------------------------------------------------------------------------
+DO $$
+DECLARE
+  v_leak    RECORD;
+  v_leaked  text[] := '{}';
+BEGIN
+  FOR v_leak IN
+    SELECT p.oid::regprocedure::text AS sig, r.rolname
+    FROM pg_proc p
+    JOIN pg_namespace n ON n.oid = p.pronamespace
+    CROSS JOIN (SELECT unnest(ARRAY['anon','authenticated']) AS rolname) r
+    WHERE n.nspname = 'public'
+      AND p.proname = ANY (ARRAY[
+        'checkout_init_atomic','confirm_payment_atomic','sweep_hanging_payments',
+        'trigger_payment_sweeper','fulfill_voucher_atomic','atomic_fulfill_voucher',
+        'complete_redemption','process_due_redemptions','process_expired_vouchers',
+        'resolve_claim_code_for_shop','settle_payout_atomic','apply_merchant_settlement',
+        'increment_wallet_balance','increment_merchant_balance','refresh_shop_trust_tier',
+        'resolve_shop_merchant_user_id','request_withdrawal_atomic','claim_withdrawal_batch',
+        'complete_withdrawal','fail_withdrawal','trigger_daily_payout_sweeper',
+        'import_catalog_item_to_shop'
+      ])
+      AND has_function_privilege(r.rolname, p.oid, 'EXECUTE')
+  LOOP
+    v_leaked := array_append(v_leaked, v_leak.rolname || ' -> ' || v_leak.sig);
+  END LOOP;
+
+  IF array_length(v_leaked, 1) > 0 THEN
+    RAISE EXCEPTION 'CHECK FAILED: money functions reachable by anon/authenticated: %', v_leaked;
+  END IF;
+  RAISE NOTICE 'PASS: no money function is reachable by anon or authenticated';
+END $$;
+
+-- ---------------------------------------------------------------------------
+-- 5. checkout_init_atomic has exactly one signature.
+--
+-- Nine rewrites left older overloads behind in production; a 4-argument call
+-- returned PGRST203 (overload could not be resolved) until they were dropped.
+-- Ambiguous overloads on the checkout entry point are a correctness hazard,
+-- and each ghost carries its own inherited grants.
+-- ---------------------------------------------------------------------------
+DO $$
+DECLARE
+  v_count int;
+BEGIN
+  SELECT count(*) INTO v_count
+  FROM pg_proc p
+  JOIN pg_namespace n ON n.oid = p.pronamespace
+  WHERE n.nspname = 'public' AND p.proname = 'checkout_init_atomic';
+
+  IF v_count <> 1 THEN
+    RAISE EXCEPTION 'CHECK FAILED: expected exactly 1 checkout_init_atomic, found %', v_count;
+  END IF;
+  RAISE NOTICE 'PASS: checkout_init_atomic has a single canonical signature';
+END $$;
+
 DO $$
 BEGIN
   RAISE NOTICE '--- CI smoke checks complete ---';
