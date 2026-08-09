@@ -88,7 +88,7 @@ interface TransactionDetail {
   transaction_id: string;
   buyer_id: string;
   total_amount: number;
-  status: string;  // GATEWAY_PROCESSING | SUCCESSFUL | FAILED | CANCELLED
+  status: string;  // GATEWAY_PROCESSING | SUCCESS | FAILED | CANCELLED
   gateway_tx_ref: string | null;
   origin_type: string;
   created_at: string;

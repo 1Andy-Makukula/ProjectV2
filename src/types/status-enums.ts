@@ -5,7 +5,6 @@
 export type TransactionStatus = 
   | 'GATEWAY_PROCESSING'
   | 'SUCCESS'
-  | 'SUCCESSFUL'
   | 'FAILED'
   | 'CANCELLED'
   | 'EXPIRED';

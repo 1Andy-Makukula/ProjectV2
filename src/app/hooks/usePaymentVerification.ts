@@ -5,7 +5,7 @@
  *
  * Purpose:
  *   Heals dropped webhooks by polling the authoritative `transactions` row on a
- *   fixed interval until `status` becomes `SUCCESSFUL` (set by the webhook).
+ *   fixed interval until `status` becomes `SUCCESS` (set by the webhook).
  *
  * Polling contract:
  *   - Fires every 3 000 ms (POLL_INTERVAL_MS).
@@ -47,7 +47,7 @@ const MAX_POLLING_ATTEMPTS = 30;  // 90 seconds total
  *
  *   POLLING  — An interval is active and ticks are being dispatched.
  *
- *   SUCCESS  — The transaction reached status SUCCESSFUL.
+ *   SUCCESS  — The transaction reached status SUCCESS.
  *              The interval has been cleared.
  *
  *   TIMEOUT  — MAX_ATTEMPTS ticks elapsed without finding the event.
@@ -214,7 +214,7 @@ export function usePaymentVerification({
         setStatus('TIMEOUT');
       }
       console.warn(
-        `[usePaymentVerification] TIMEOUT: transaction '${currentVoucherId}' not SUCCESSFUL after ${maxAttempts} attempts (~${(maxAttempts * intervalMs) / 1_000}s).`,
+        `[usePaymentVerification] TIMEOUT: transaction '${currentVoucherId}' not SUCCESS after ${maxAttempts} attempts (~${(maxAttempts * intervalMs) / 1_000}s).`,
       );
       return;
     }
@@ -246,7 +246,7 @@ export function usePaymentVerification({
       }
 
       // --- SUCCESS BRANCH ---
-      if (statusValue === 'SUCCESS' || statusValue === 'SUCCESSFUL') {
+      if (statusValue === 'SUCCESS') {
         cleanUpResources();
         console.log(
           `[usePaymentVerification] SUCCESS: transaction ${currentVoucherId} status is '${statusValue}' on attempt ${thisAttempt}.`,
@@ -337,9 +337,9 @@ export function usePaymentVerification({
         (payload) => {
           if (!isMountedRef.current) return;
           console.log(`[usePaymentVerification] Realtime update received:`, payload);
-          if (payload.new && (payload.new.status === 'SUCCESS' || payload.new.status === 'SUCCESSFUL')) {
+          if (payload.new && payload.new.status === 'SUCCESS') {
             console.log(
-              `[usePaymentVerification] SUCCESS: Realtime status updated to SUCCESS/SUCCESSFUL.`,
+              `[usePaymentVerification] SUCCESS: Realtime status updated to SUCCESS.`,
             );
             cleanUpResources();
             onSuccessRef.current?.();

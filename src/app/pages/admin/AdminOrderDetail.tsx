@@ -105,7 +105,7 @@ export function AdminOrderDetail() {
                         <AlertDialogHeader>
                           <AlertDialogTitle>Mark Order as Paid?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            This will confirm payment has been received and update the transaction status to SUCCESSFUL.
+                            This will confirm payment has been received and update the transaction status to SUCCESS.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

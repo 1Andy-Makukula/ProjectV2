@@ -40,7 +40,7 @@ interface OrderView {
   transaction_id: string;
   buyer_id: string;
   total_amount: number;
-  status: string;           // GATEWAY_PROCESSING | SUCCESSFUL | FAILED
+  status: string;           // GATEWAY_PROCESSING | SUCCESS | FAILED
   gateway_tx_ref: string | null;
   created_at: string;
 
@@ -107,7 +107,7 @@ const STATUS_CONFIG: Record<
  * Maps V2 transaction.status + shop_orders.claim_status to a display status.
  *
  * V2 status values:
- *   transactions.status: GATEWAY_PROCESSING | SUCCESSFUL | FAILED | CANCELLED
+ *   transactions.status: GATEWAY_PROCESSING | SUCCESS | FAILED | CANCELLED
  *   shop_orders.claim_status: PENDING_PAYMENT | PENDING | REDEEMED | CANCELLED
  */
 function deriveDisplayStatus(txStatus: string, claimStatus: string | null): DisplayStatus {

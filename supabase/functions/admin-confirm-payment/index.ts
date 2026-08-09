@@ -2,7 +2,7 @@
  * admin-confirm-payment
  *
  * Admin-only manual payment recovery. Promotes a transaction that is stuck in
- * `GATEWAY_PROCESSING` to `SUCCESSFUL` and releases its child `shop_orders`
+ * `GATEWAY_PROCESSING` to `SUCCESS` and releases its child `shop_orders`
  * from `PENDING_PAYMENT` to `PENDING`.
  *
  * This bypasses gateway verification, so it is deliberately narrow: it refuses
@@ -71,7 +71,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return jsonWithCors(req, { error: "Transaction not found." }, 404);
     }
 
-    if (txn.status === "SUCCESS" || txn.status === "SUCCESSFUL") {
+    if (txn.status === "SUCCESS") {
       return jsonWithCors(req, { success: true, alreadyConfirmed: true });
     }
 
@@ -88,7 +88,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     const { error: txError } = await adminClient
       .from("transactions")
-      .update({ status: "SUCCESSFUL" })
+      .update({ status: "SUCCESS" })
       .eq("transaction_id", transactionId)
       .eq("status", "GATEWAY_PROCESSING");
 
@@ -104,7 +104,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       .eq("claim_status", "PENDING_PAYMENT");
 
     if (shopOrderError) {
-      // The parent is already SUCCESSFUL — surface this loudly rather than
+      // The parent is already SUCCESS — surface this loudly rather than
       // reporting a clean success the operator would not investigate.
       console.error(`[${FN}] shop_orders release failed:`, shopOrderError.message);
       return jsonWithCors(

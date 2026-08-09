@@ -130,7 +130,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     }
 
     // Idempotent: an already-confirmed transaction is a success, not an error.
-    if (transaction.status === "SUCCESS" || transaction.status === "SUCCESSFUL") {
+    if (transaction.status === "SUCCESS") {
       return jsonWithCors(req, { success: true, alreadyConfirmed: true });
     }
 

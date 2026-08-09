@@ -56,7 +56,7 @@ interface TransactionConfirm {
   total_amount: number;
   items_subtotal: number | null;
   platform_fee: number | null;
-  status: string;         // GATEWAY_PROCESSING | SUCCESSFUL | FAILED
+  status: string;         // GATEWAY_PROCESSING | SUCCESS | FAILED
   gateway_tx_ref: string | null;
   created_at: string;
   shop_orders: ShopOrderConfirm[];
@@ -132,7 +132,7 @@ function usePaymentConfirmation(transactionId: string | null, txRef: string | nu
 
       setTransaction(txn);
 
-      if (txn.status === 'SUCCESS' || txn.status === 'SUCCESSFUL') {
+      if (txn.status === 'SUCCESS') {
         clearInterval(pollingRef.current!);
         setPollingStatus('confirmed');
         return;
