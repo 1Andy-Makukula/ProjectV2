@@ -85,22 +85,48 @@ COMMENT ON CONSTRAINT transactions_status_check ON public.transactions IS
 --
 -- Asserted rather than assumed: a CHECK with a subtly wrong expression is
 -- indistinguishable from a working one until the day it matters.
+--
+-- Probed on a throwaway table carrying a copy of the real constraint, rather
+-- than by inserting into transactions. PostgreSQL does not guarantee the order
+-- constraints are evaluated in, so a probe row aimed at the CHECK can be
+-- rejected first by NOT NULL or a foreign key -- which says nothing about the
+-- CHECK either way. The first version of this migration did exactly that and
+-- correctly refused to claim success, which is why it did not apply.
+--
+-- The definition is read back from pg_constraint rather than restated, so this
+-- tests the constraint that actually exists rather than a second copy of the
+-- author's intent.
 -- ---------------------------------------------------------------------------
 DO $$
+DECLARE
+  v_def TEXT;
 BEGIN
+  SELECT pg_get_constraintdef(oid) INTO v_def
+  FROM pg_constraint
+  WHERE conrelid = 'public.transactions'::regclass
+    AND conname = 'transactions_status_check';
+
+  IF v_def IS NULL THEN
+    RAISE EXCEPTION 'transactions_status_check was not created';
+  END IF;
+
+  CREATE TEMP TABLE _status_probe (status TEXT) ON COMMIT DROP;
+  EXECUTE format('ALTER TABLE _status_probe ADD CONSTRAINT probe_chk %s', v_def);
+
+  -- Must reject the value this migration exists to eliminate.
   BEGIN
-    -- Rolled back regardless of outcome; this only probes the constraint.
-    INSERT INTO public.transactions (buyer_id, total_amount, status, origin_type)
-    VALUES (NULL, 0, 'SUCCESSFUL', 'LOCAL');
-    RAISE EXCEPTION 'CONSTRAINT NOT ENFORCED: a SUCCESSFUL row was accepted';
-  EXCEPTION
-    WHEN check_violation THEN
-      RAISE NOTICE 'verified: SUCCESSFUL is rejected by transactions_status_check';
-    WHEN not_null_violation OR foreign_key_violation THEN
-      -- Another constraint rejected the probe row first, so this tells us
-      -- nothing either way. Not treated as success.
-      RAISE EXCEPTION
-        'Could not probe the status constraint: the test row failed on a different constraint first';
+    INSERT INTO _status_probe (status) VALUES ('SUCCESSFUL');
+    RAISE EXCEPTION 'CONSTRAINT NOT ENFORCED: SUCCESSFUL was accepted';
+  EXCEPTION WHEN check_violation THEN
+    NULL;
   END;
-  -- Nothing to undo: the INSERT never committed.
+
+  -- And must still admit everything the system actually writes. A constraint
+  -- that rejects the right value and the wrong ones too would take checkout
+  -- down at the first order.
+  INSERT INTO _status_probe (status)
+  VALUES ('GATEWAY_PROCESSING'), ('SUCCESS'), ('FAILED'), ('CANCELLED'), ('EXPIRED');
+
+  RAISE NOTICE
+    'verified: transactions_status_check rejects SUCCESSFUL and admits all five live values';
 END $$;
