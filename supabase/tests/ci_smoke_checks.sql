@@ -280,6 +280,56 @@ BEGIN
   RAISE NOTICE 'PASS: dispatch internals locked, RLS predicates still reachable';
 END $$;
 
+-- ---------------------------------------------------------------------------
+-- 7. checkout_init_atomic's signature is frozen.
+--
+-- See docs/adr/0001-checkout-init-atomic-signature.md.
+--
+-- This function was rewritten nine times and grew from seven positional
+-- parameters to twelve, one selling mode at a time. Each rewrite reproduced the
+-- whole body, the DROPs did not keep up, and production ended up serving
+-- several signatures at once -- a four-argument call returned PGRST203 because
+-- PostgREST could not tell which was meant, and every stale copy kept its own
+-- grants.
+--
+-- Everything that describes a checkout now travels in p_context, which rejects
+-- unknown keys. A new vertical adds a key, not an argument.
+--
+-- Pinned because a freeze nobody can breach by accident is the only kind worth
+-- having: all nine of those rewrites looked locally reasonable. Changing the
+-- signature is allowed -- update this pin, add a superseding ADR explaining why
+-- the context object was insufficient, and drop the old signature explicitly in
+-- the same migration, remembering that a new signature does NOT inherit the old
+-- one's grants.
+-- ---------------------------------------------------------------------------
+DO $$
+DECLARE
+  v_count int;
+  v_args  text;
+  v_expected CONSTANT text :=
+    'p_buyer_id uuid, p_origin_type text, p_gateway_tx_ref text, p_vendors jsonb, p_context jsonb';
+BEGIN
+  SELECT count(*) INTO v_count
+  FROM pg_proc
+  WHERE pronamespace = 'public'::regnamespace AND proname = 'checkout_init_atomic';
+
+  IF v_count <> 1 THEN
+    RAISE EXCEPTION
+      'CHECK FAILED: expected exactly 1 checkout_init_atomic, found % -- a stale overload is back', v_count;
+  END IF;
+
+  SELECT pg_get_function_identity_arguments(oid) INTO v_args
+  FROM pg_proc
+  WHERE pronamespace = 'public'::regnamespace AND proname = 'checkout_init_atomic';
+
+  IF v_args <> v_expected THEN
+    RAISE EXCEPTION 'CHECK FAILED: checkout_init_atomic signature changed. expected [%] but found [%]. See docs/adr/0001-checkout-init-atomic-signature.md before changing it.',
+      v_expected, v_args;
+  END IF;
+
+  RAISE NOTICE 'PASS: checkout_init_atomic signature is unchanged (ADR 0001)';
+END $$;
+
 DO $$
 BEGIN
   RAISE NOTICE '--- CI smoke checks complete ---';

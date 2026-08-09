@@ -713,19 +713,27 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     const { data: checkoutResult, error: checkoutError } = await adminClient.rpc(
       "checkout_init_atomic",
       {
+        // The four arguments that identify a checkout stay positional. Anything
+        // describing it travels in p_context, which is a CLOSED set -- the
+        // function rejects unknown keys rather than ignoring them, so a typo
+        // here fails the checkout instead of silently dropping a recipient or
+        // an expiry date.
         p_buyer_id: caller.id,
         p_origin_type: origin_type,
         p_gateway_tx_ref: txRef,
         p_vendors: vendorsPayload,
-        p_recipient_name: recipient_name ?? caller.user_metadata?.name ?? caller.email ?? "Gift Recipient",
-        p_recipient_phone: recipient_phone ?? caller.phone ?? "0000000000",
-        p_message: message ?? "",
-        p_sender_phone: sender_phone || null,
-        p_credits_to_apply: credits_to_apply,
-        p_target_execution_date: target_execution_date,
-        // The shared deadline is read from the experience server-side, so a
-        // client cannot extend it by sending its own date.
-        p_experience_id: experience_id,
+        p_context: {
+          recipient_name:
+            recipient_name ?? caller.user_metadata?.name ?? caller.email ?? "Gift Recipient",
+          recipient_phone: recipient_phone ?? caller.phone ?? "0000000000",
+          message: message ?? "",
+          sender_phone: sender_phone || null,
+          credits_to_apply: credits_to_apply,
+          target_execution_date: target_execution_date,
+          // The shared deadline is read from the experience server-side, so a
+          // client cannot extend it by sending its own date.
+          experience_id: experience_id,
+        },
       },
     );
 

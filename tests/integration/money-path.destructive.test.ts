@@ -71,13 +71,24 @@ const PRICE_B = 2500;
 
 let admin: SupabaseClient;
 
-/** A checkout payload with sensible defaults, overridable per case. */
-function checkoutArgs(overrides: Record<string, unknown> = {}) {
+/**
+ * A checkout payload with sensible defaults.
+ *
+ * `overrides` replaces top-level arguments; `context` fills p_context, which is
+ * the closed set of everything describing the checkout rather than identifying
+ * it. Kept separate so a test cannot accidentally pass a context key as a
+ * top-level argument -- the function would reject it, but confusingly.
+ */
+function checkoutArgs(
+  overrides: Record<string, unknown> = {},
+  context: Record<string, unknown> = {},
+) {
   return {
     p_buyer_id: ids.buyer,
     p_origin_type: 'LOCAL',
     p_gateway_tx_ref: `${TAG}-${crypto.randomUUID()}`,
     p_vendors: [{ shop_id: ids.shop, item_ids: [ids.openItem] }],
+    p_context: context,
     ...overrides,
   };
 }
@@ -276,7 +287,7 @@ describe.skipIf(!shouldRun || !url || !serviceKey)('money path — adversarial',
 
       const { error } = await admin.rpc(
         'checkout_init_atomic',
-        checkoutArgs({ p_credits_to_apply: 9_000_000 }),
+        checkoutArgs({}, { credits_to_apply: 9_000_000 }),
       );
       expect(error?.message).toMatch(/exceed the amount payable/i);
     });
@@ -284,9 +295,41 @@ describe.skipIf(!shouldRun || !url || !serviceKey)('money path — adversarial',
     it('rejects negative credits', async () => {
       const { error } = await admin.rpc(
         'checkout_init_atomic',
-        checkoutArgs({ p_credits_to_apply: -100 }),
+        checkoutArgs({}, { credits_to_apply: -100 }),
       );
       expect(error?.message).toMatch(/negative/i);
+    });
+
+    it('rejects an unknown key in p_context instead of ignoring it', async () => {
+      // The whole safety argument for collapsing twelve parameters into one
+      // object. If an unrecognised key were ignored, a misspelled
+      // 'recipient_phone' would produce an order with no recipient and nothing
+      // would say so.
+      const { error } = await admin.rpc(
+        'checkout_init_atomic',
+        checkoutArgs({}, { recipient_phonee: '0977000000' }),
+      );
+      expect(error?.message).toMatch(/unknown key/i);
+      expect(error?.message).toMatch(/recipient_phonee/);
+    });
+
+    it('accepts a context carrying every recognised key', async () => {
+      // The other direction: the closed set must actually admit its own
+      // members, or the check is just breaking checkout.
+      const { error } = await admin.rpc(
+        'checkout_init_atomic',
+        checkoutArgs({}, {
+          recipient_name: 'Test Recipient',
+          recipient_phone: '0977000000',
+          message: 'enjoy',
+          sender_phone: '0966000000',
+          credits_to_apply: 0,
+          target_execution_date: null,
+          experience_id: null,
+          expires_at: null,
+        }),
+      );
+      expect(error).toBeNull();
     });
 
     /**
