@@ -134,6 +134,52 @@ $function$;
 -- that out belongs with the comprehensive privilege pass, where tests can catch
 -- a wrong call.
 -- ---------------------------------------------------------------------------
+-- First, a ghost overload that only exists in production.
+--
+-- A from-empty replay of this chain produces exactly one register_merchant_shop
+-- -- the seven-argument one MerchantOnboarding actually calls. Production also
+-- carries a two-argument (p_shop_name, p_location) version that no migration
+-- creates and nothing in src/ calls. It predates the tracked chain, the same
+-- way the tables in the baseline snapshot do.
+--
+-- It matters because it is SECURITY DEFINER and was never revoked from PUBLIC,
+-- so it is a merchant-registration entry point reachable by anyone. Dropping it
+-- is also what lets the revoke below be verifiable: leaving an unused overload
+-- behind means the check can only ever be asserted per-signature, and drift
+-- like this is invisible to CI, which tests a clean replay where it does not
+-- exist.
+--
+-- Guarded so it can never remove the only implementation: the drop happens only
+-- when the real seven-argument version is present.
+DO $$
+DECLARE
+  v_ghost oid;
+BEGIN
+  SELECT p.oid INTO v_ghost
+  FROM pg_proc p
+  WHERE p.pronamespace = 'public'::regnamespace
+    AND p.proname = 'register_merchant_shop'
+    AND p.pronargs = 2;
+
+  IF v_ghost IS NULL THEN
+    RAISE NOTICE 'no 2-arg register_merchant_shop ghost present -- nothing to drop';
+    RETURN;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_proc p
+    WHERE p.pronamespace = 'public'::regnamespace
+      AND p.proname = 'register_merchant_shop'
+      AND p.pronargs = 7
+  ) THEN
+    RAISE EXCEPTION
+      'Refusing to drop the 2-arg register_merchant_shop: the 7-arg version is missing';
+  END IF;
+
+  EXECUTE format('DROP FUNCTION %s', v_ghost::regprocedure);
+  RAISE NOTICE 'dropped ghost overload: register_merchant_shop(text,text)';
+END $$;
+
 DO $$
 DECLARE
   v_fn   TEXT;
@@ -156,7 +202,14 @@ BEGIN
       JOIN pg_namespace n ON n.oid = p.pronamespace
       WHERE n.nspname = 'public' AND p.proname = v_fn
     LOOP
-      EXECUTE format('REVOKE ALL ON FUNCTION %s FROM anon', v_proc.sig);
+      -- PUBLIC as well as anon, and this is not belt-and-braces.
+      --
+      -- anon INHERITS from PUBLIC, so revoking only from anon leaves a PUBLIC
+      -- grant intact and has_function_privilege('anon', ...) still answers
+      -- true. The first attempt at this migration revoked only from anon and
+      -- was correctly rejected by its own verification block, which is how the
+      -- ghost overload below came to light.
+      EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC, anon', v_proc.sig);
       EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO authenticated, service_role', v_proc.sig);
       RAISE NOTICE 'authenticated-only: %', v_proc.sig;
     END LOOP;
