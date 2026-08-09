@@ -68,6 +68,10 @@ export function useExperience(slug?: string) {
       return;
     }
 
+    // Captured after the guard; see useItemDetail for why the narrowing does
+    // not survive into the closure.
+    const experienceSlug = slug;
+
     let cancelled = false;
 
     async function load() {
@@ -76,7 +80,7 @@ export function useExperience(slug?: string) {
         const { data, error } = await supabase
           .from('experiences')
           .select(EXPERIENCE_SELECT)
-          .eq('slug', slug)
+          .eq('slug', experienceSlug)
           .single();
 
         if (error) throw error;

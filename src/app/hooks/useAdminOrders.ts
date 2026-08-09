@@ -97,7 +97,7 @@ export function useAdminOrders() {
         // raw status write this replaces moved no money at all.
         const { error } = await supabase.rpc('admin_expire_order', {
           p_shop_order_id: order.shop_order_id,
-          p_reason: null,
+          p_reason: undefined,
         });
 
         if (error) throw error;

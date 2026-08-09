@@ -109,7 +109,7 @@ export function QuotationCard({
     try {
       const { data, error } = await supabase.rpc('decline_quotation', {
         p_quotation_id: quotation.id,
-        p_reason: null,
+        p_reason: undefined,
       });
       if (error) throw error;
       const status = (data as { status: Quotation['status'] }).status;

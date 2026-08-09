@@ -40,7 +40,7 @@ export function AdminShops() {
   const handleMessageShop = async (shopId: string, shopName: string) => {
     try {
       const { data, error } = await supabase.rpc('admin_start_conversation', {
-        p_buyer_id: null,
+        p_buyer_id: undefined,
         p_shop_id: shopId,
         p_subject: shopName,
       });

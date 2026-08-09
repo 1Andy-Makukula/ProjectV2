@@ -8,7 +8,53 @@ interface UserProfile {
   name: string;
   email: string;
   phone: string | null;
-  role: 'sender' | 'merchant' | 'admin';
+  role: UserRole;
+}
+
+type UserRole = 'sender' | 'merchant' | 'admin';
+
+const USER_ROLES: readonly UserRole[] = ['sender', 'merchant', 'admin'];
+
+/**
+ * Narrow a role from the database into the union the app routes on.
+ *
+ * The column is constrained -- users_role_check restricts it to exactly these
+ * three -- but the generated types say `string`, because the type generator
+ * does not translate CHECK constraints into unions. So the narrowing is sound;
+ * it just cannot be proven to TypeScript.
+ *
+ * Validated rather than cast. If the constraint is ever widened and this is not
+ * updated, a blind cast would let an unknown role flow into route gating and be
+ * treated as whichever branch happened to match last. Falling back to the least
+ * privileged role fails safe, and says so.
+ */
+function toUserRole(role: string, userId: string): UserRole {
+  if ((USER_ROLES as readonly string[]).includes(role)) {
+    return role as UserRole;
+  }
+  console.error(
+    `[AuthContext] User ${userId} has an unrecognised role '${role}'. ` +
+      `Treating them as 'sender'. This means users_role_check was widened ` +
+      `without updating UserRole.`,
+  );
+  return 'sender';
+}
+
+/** Row shape from `users`, narrowed to what the app actually consumes. */
+function toProfile(row: {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  role: string;
+}): UserProfile {
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    phone: row.phone,
+    role: toUserRole(row.role, row.id),
+  };
 }
 
 interface AuthContextType {
@@ -102,14 +148,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 { user_id: userId, balance: 0, currency: 'ZMW' },
                 { onConflict: 'user_id' }
               );
-              setProfile(createdProfile);
+              setProfile(toProfile(createdProfile));
               return;
             }
           }
         }
         throw error;
       }
-      setProfile(data);
+      setProfile(toProfile(data));
     } catch (error) {
       console.error('Error fetching profile (possible RLS denial):', error);
       setProfileError(true);

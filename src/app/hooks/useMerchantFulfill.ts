@@ -61,6 +61,17 @@ export function useMerchantFulfill() {
       return;
     }
 
+    // The ownership filter below is the only thing scoping this lookup to the
+    // merchant's own shop. `profile?.id` being undefined would send an
+    // undefined value into that filter rather than failing, so it is checked
+    // here instead of relying on how PostgREST happens to treat it.
+    const merchantUserId = profile?.id;
+    if (!merchantUserId) {
+      setRejectReason('Your merchant profile is still loading. Try again in a moment.');
+      setStage('REJECTED');
+      return;
+    }
+
     setStage('LOADING');
 
     try {
@@ -82,7 +93,7 @@ export function useMerchantFulfill() {
           )
         `)
         .eq('claim_code', val.toUpperCase())
-        .eq('shop.merchant_shops.user_id', profile?.id)
+        .eq('shop.merchant_shops.user_id', merchantUserId)
         .single();
 
       if (orderErr || !orderData) {

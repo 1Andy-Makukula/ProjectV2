@@ -13,7 +13,8 @@ export interface AppNotification {
   type: string;
   is_read: boolean;
   created_at: string;
-  reference_id?: string;
+  /** Nullable in the schema, so modelled as null rather than absent. */
+  reference_id: string | null;
 }
 
 interface NotificationSliderProps {

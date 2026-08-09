@@ -1,7 +1,8 @@
 export interface Shop {
   id: string;
   name: string;
-  description: string;
+  /** Nullable column; modelled as null rather than absent. */
+  description: string | null;
   location: string;
   image_url: string;
   logo_url?: string;
@@ -26,7 +27,12 @@ export interface Shop {
   physical_address?: string | null;
   nrc_url?: string | null;
   pacra_url?: string | null;
-  verification_status?: 'pending' | 'approved' | 'rejected';
+  /**
+   * Constrained in the database to pending | approved | rejected, but typed
+   * as a string because the type generator does not translate CHECK
+   * constraints into unions. Compared against those literals throughout.
+   */
+  verification_status?: string | null;
   verification_tier?: string | null;
   rejection_reason?: string | null;
   verification_reviewed_by?: string | null;
@@ -53,7 +59,8 @@ export function shopRating(
 export interface Item {
   id: string;
   name: string;
-  description: string;
+  /** Nullable column; modelled as null rather than absent. */
+  description: string | null;
   price_zmw: number;
   image_url: string;
   is_available: boolean;

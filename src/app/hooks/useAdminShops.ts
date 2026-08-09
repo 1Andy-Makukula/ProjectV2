@@ -79,7 +79,10 @@ export function useAdminShops() {
         const { error } = await supabase.rpc('review_merchant_verification', {
           p_shop_id: shopId,
           p_decision: decision,
-          p_rejection_reason: reason ?? null,
+          // undefined rather than null: supabase-js omits undefined keys, so the SQL
+          // DEFAULT NULL applies. Passing null explicitly fights the generated Args type
+          // for an identical result.
+          p_rejection_reason: reason ?? undefined,
         });
 
         if (error) throw error;

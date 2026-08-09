@@ -241,6 +241,14 @@ export function useMerchantDashboard(
         currentShopId = shopRow.id;
         currentWalletOwnerId = (shopRow as any).owner_id ?? null;
       } else {
+        // The guard at the top only proves one of previewShopId/profileId is
+        // set. In this branch previewShopId is absent, so profileId must be
+        // present -- stated explicitly rather than left for .eq() to receive
+        // undefined and silently scope the query to nothing.
+        if (!profileId) {
+          throw new Error('No merchant profile id available to load the dashboard.');
+        }
+
         const { data: merchantShop, error: shopError } = await supabase
           .from('merchant_shops')
           .select('shop_id, shop:shops(id, name, location, image_url, payout_details, payout_method, is_active, verification_status, rejection_reason, offers_products, offers_services)')

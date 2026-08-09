@@ -14,6 +14,11 @@ export function useItemDetail(itemId?: string) {
       return;
     }
 
+    // Captured after the guard. itemId is a hook argument, so TypeScript cannot
+    // carry the narrowing into the closure below -- and an undefined id reaching
+    // .eq() queries for the wrong thing rather than failing.
+    const id = itemId;
+
     let cancelled = false;
 
     async function fetchItem() {
@@ -27,7 +32,7 @@ export function useItemDetail(itemId?: string) {
             '*, shop:shops(id, name, location), item_images(image_url, sort_order), ' +
               'item_price_tiers(min_quantity, unit_price_zmw)',
           )
-          .eq('id', itemId)
+          .eq('id', id)
           .eq('is_available', true)
           .single();
 
