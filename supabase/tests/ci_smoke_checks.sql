@@ -217,6 +217,69 @@ BEGIN
   RAISE NOTICE 'PASS: every function in public has a single signature';
 END $$;
 
+-- ---------------------------------------------------------------------------
+-- 6. Notification and dispatch internals stay unreachable, and RLS stays alive.
+--
+-- Both halves matter. create_notification writes a notification to any user id
+-- and is SECURITY DEFINER: reachable by anon, it is a phishing primitive on a
+-- financial product, since the message arrives in the app's own notification
+-- list. dispatch_expiry_reminder_whatsapp makes outbound HTTP, so reaching it
+-- means sending real messages to real numbers at the platform's expense.
+-- Neither is called from the frontend; both simply inherited the PUBLIC default
+-- grant, and 20260809050000 removed it.
+--
+-- The second half guards the opposite failure. A check that only asserts things
+-- are locked would pass happily on a database where current_user_role has been
+-- revoked too -- and that single function backs 54 policies, so losing it locks
+-- every user out of their own rows. Over-tightening is as much a regression as
+-- under-tightening, and only asserting both catches it.
+-- ---------------------------------------------------------------------------
+DO $$
+DECLARE
+  v_bad text[] := '{}';
+  v_row RECORD;
+BEGIN
+  FOR v_row IN
+    SELECT p.oid::regprocedure::text AS sig, r.rolname
+    FROM pg_proc p
+    CROSS JOIN (SELECT unnest(ARRAY['anon','authenticated']) AS rolname) r
+    WHERE p.pronamespace = 'public'::regnamespace
+      AND p.proname = ANY (ARRAY[
+        'create_notification','dispatch_expiry_reminder_whatsapp',
+        'notify_conversation_counterparties','notify_experience_shop_owners',
+        'notify_expiring_vouchers','notify_low_stock'
+      ])
+      AND has_function_privilege(r.rolname, p.oid, 'EXECUTE')
+  LOOP
+    v_bad := array_append(v_bad, v_row.rolname || ' -> ' || v_row.sig);
+  END LOOP;
+
+  IF array_length(v_bad, 1) > 0 THEN
+    RAISE EXCEPTION 'CHECK FAILED: notification/dispatch internals reachable: %', v_bad;
+  END IF;
+
+  FOR v_row IN
+    SELECT p.oid::regprocedure::text AS sig
+    FROM pg_proc p
+    WHERE p.pronamespace = 'public'::regnamespace
+      AND p.proname = ANY (ARRAY[
+        'current_user_role','can_view_list','can_edit_list','can_rate_shop',
+        'can_access_conversation','can_access_shop_document_folder',
+        'can_edit_item_options','is_transaction_buyer','is_transaction_recipient',
+        'is_valid_opening_hours'
+      ])
+      AND NOT has_function_privilege('anon', p.oid, 'EXECUTE')
+  LOOP
+    v_bad := array_append(v_bad, 'anon cannot reach ' || v_row.sig);
+  END LOOP;
+
+  IF array_length(v_bad, 1) > 0 THEN
+    RAISE EXCEPTION 'CHECK FAILED: RLS predicates are over-restricted: %', v_bad;
+  END IF;
+
+  RAISE NOTICE 'PASS: dispatch internals locked, RLS predicates still reachable';
+END $$;
+
 DO $$
 BEGIN
   RAISE NOTICE '--- CI smoke checks complete ---';
