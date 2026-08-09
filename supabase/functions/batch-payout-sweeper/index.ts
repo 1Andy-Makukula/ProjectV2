@@ -77,6 +77,140 @@ interface FlutterwaveTransferResponse {
   };
 }
 
+/** GET /v3/transfers?reference=… — the list shape, filtered to one reference. */
+interface FlutterwaveTransferLookup {
+  status?: string;
+  message?: string;
+  data?: Array<{
+    id?: number | string;
+    /** Flutterwave's own lifecycle: NEW, PENDING, SUCCESSFUL, FAILED. */
+    status?: string;
+    reference?: string;
+  }>;
+}
+
+/**
+ * Settle withdrawals whose dispatch outcome was never learned.
+ *
+ * Asks Flutterwave what became of each parked reference and resolves only on an
+ * unambiguous answer. Everything else is deliberately left `unverified` for a
+ * human, including a lookup that returns no rows at all: an empty result could
+ * mean the transfer never landed, or it could mean the query was wrong, the
+ * index was lagging, or the endpoint changed. Reversing a merchant's debit on
+ * the strength of a negative result from an API call that might simply have
+ * failed to find something is the same class of guess that made unknown
+ * outcomes dangerous in the first place.
+ *
+ * Being stuck is recoverable and visible. Being wrongly reversed is neither.
+ */
+async function resolveUnverifiedWithdrawals(
+  supabase: ReturnType<typeof getAdminClient>,
+  flutterwaveSecretKey: string,
+): Promise<{ checked: number; completed: number; failed: number; stillUnverified: number }> {
+  const summary = { checked: 0, completed: 0, failed: 0, stillUnverified: 0 };
+
+  const { data: parked, error } = await supabase
+    .from("merchant_withdrawals")
+    .select("id, shop_id, amount")
+    .eq("status", "unverified")
+    .order("created_at", { ascending: true })
+    .limit(25);
+
+  if (error) {
+    console.error("[batch-payout-sweeper] Could not load unverified withdrawals:", error.message);
+    return summary;
+  }
+  if (!parked || parked.length === 0) return summary;
+
+  console.warn(
+    `[batch-payout-sweeper] ${parked.length} withdrawal(s) awaiting verification — resolving.`,
+  );
+
+  for (const w of parked) {
+    summary.checked += 1;
+    const reference = `kithly-withdrawal-${w.id}`;
+
+    let lookup: FlutterwaveTransferLookup;
+    try {
+      const res = await fetch(
+        `https://api.flutterwave.com/v3/transfers?reference=${encodeURIComponent(reference)}`,
+        { headers: { Authorization: `Bearer ${flutterwaveSecretKey}` } },
+      );
+      lookup = await res.json();
+      if (!res.ok) throw new Error(lookup.message ?? `HTTP ${res.status}`);
+    } catch (err: unknown) {
+      console.error(
+        `[batch-payout-sweeper] Lookup failed for '${reference}': ${
+          err instanceof Error ? err.message : String(err)
+        }. Leaving unverified.`,
+      );
+      summary.stillUnverified += 1;
+      continue;
+    }
+
+    const match = lookup.data?.find((t) => t.reference === reference) ?? lookup.data?.[0];
+    const providerStatus = match?.status?.toUpperCase();
+
+    // Only these two are acted on. NEW and PENDING mean it is still in flight,
+    // and an absent match means nothing conclusive at all.
+    if (providerStatus !== "SUCCESSFUL" && providerStatus !== "FAILED") {
+      console.warn(
+        `[batch-payout-sweeper] '${reference}' is inconclusive (provider status: ` +
+          `${providerStatus ?? "no match"}). Leaving unverified for review.`,
+      );
+      summary.stillUnverified += 1;
+      continue;
+    }
+
+    // Back to `processing` so the existing terminal transitions apply unchanged.
+    const { error: reopenError } = await supabase.rpc("reopen_unverified_withdrawal", {
+      p_withdrawal_id: w.id,
+    });
+    if (reopenError) {
+      console.error(
+        `[batch-payout-sweeper] Could not reopen '${reference}': ${reopenError.message}`,
+      );
+      summary.stillUnverified += 1;
+      continue;
+    }
+
+    if (providerStatus === "SUCCESSFUL") {
+      const { error: completeError } = await supabase.rpc("complete_withdrawal", {
+        p_withdrawal_id: w.id,
+        p_transfer_id: String(match?.id ?? ""),
+        p_reference: reference,
+      });
+      if (completeError) {
+        // Reopened but not completed: the row sits in `processing`, where it is
+        // visible rather than lost. Flagged loudly because the money did move.
+        console.error(
+          `[batch-payout-sweeper] TRANSFER SUCCEEDED BUT NOT RECORDED for '${reference}': ${completeError.message}`,
+        );
+        summary.stillUnverified += 1;
+        continue;
+      }
+      summary.completed += 1;
+      console.log(`[batch-payout-sweeper] '${reference}' confirmed paid by provider.`);
+    } else {
+      const { error: failError } = await supabase.rpc("fail_withdrawal", {
+        p_withdrawal_id: w.id,
+        p_reason: "Provider reported the transfer failed (resolved from unverified)",
+      });
+      if (failError) {
+        console.error(
+          `[batch-payout-sweeper] Could not fail '${reference}': ${failError.message}`,
+        );
+        summary.stillUnverified += 1;
+        continue;
+      }
+      summary.failed += 1;
+      console.log(`[batch-payout-sweeper] '${reference}' confirmed failed; debit reversed.`);
+    }
+  }
+
+  return summary;
+}
+
 function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
@@ -147,6 +281,14 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return json({ error: "Flutterwave keys not configured." }, 500);
   }
 
+  // Resolve anything parked as `unverified` before dispatching new work.
+  //
+  // Runs first so a withdrawal whose outcome was unknown is settled against
+  // Flutterwave's own record before this run can add more of them. Failures
+  // here are logged, never fatal: an unresolved row simply stays unverified,
+  // which is the safe state.
+  const resolved = await resolveUnverifiedWithdrawals(supabase, flutterwaveSecretKey);
+
   try {
     const { data: claimed, error: claimError } = await supabase.rpc("claim_withdrawal_batch", {
       p_limit: 25,
@@ -160,7 +302,14 @@ Deno.serve(async (req: Request): Promise<Response> => {
     const withdrawals = (claimed ?? []) as ClaimedWithdrawal[];
 
     if (withdrawals.length === 0) {
-      return json({ success: true, claimed: 0, paid: 0, failed: 0, results: [] });
+      return json({
+        success: true,
+        claimed: 0,
+        paid: 0,
+        failed: 0,
+        verification: resolved,
+        results: [],
+      });
     }
 
     const results: Array<Record<string, unknown>> = [];
@@ -345,6 +494,9 @@ Deno.serve(async (req: Request): Promise<Response> => {
       claimed: withdrawals.length,
       paid,
       failed,
+      // Surfaced in the response, not just the logs: a non-zero
+      // stillUnverified is money in an unknown state and wants a human.
+      verification: resolved,
       results,
     });
   } catch (unhandled: unknown) {
