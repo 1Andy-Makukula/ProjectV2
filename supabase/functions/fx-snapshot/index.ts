@@ -54,6 +54,55 @@ function json(data: unknown, status = 200): Response {
   });
 }
 
+/**
+ * Only the scheduler should be able to spend the month's API quota.
+ *
+ * This function runs with verify_jwt = true (the deploy default; see
+ * config.toml, which exempts only flutterwave-webhook, ussd-gateway and
+ * health). So Supabase has already verified the token's signature before this
+ * handler is reached -- what is left to decide is which KIND of caller it is,
+ * because a valid anon key is also a valid token and anyone holding the browser
+ * bundle has one.
+ *
+ * Three ways to be the scheduler, in order of specificity. Matching a single
+ * key by string equality -- the original approach, copied from
+ * batch-payout-sweeper -- is brittle in two ways that both bit during testing:
+ * it breaks the moment a key is rotated, and it does not recognise Supabase's
+ * newer sb_secret_ keys, which are opaque rather than JWTs.
+ *
+ * Decoding the payload without verifying the signature is safe HERE and only
+ * here, because the platform already verified it. If verify_jwt is ever turned
+ * off for this function, this check becomes worthless and must be replaced.
+ */
+function authoriseCaller(req: Request): { ok: true } | { ok: false; reason: string } {
+  const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "").trim();
+  if (!token) return { ok: false, reason: "no bearer token" };
+
+  // 1. An explicit shared secret, if one is configured, wins outright.
+  const explicit = Deno.env.get("FX_SNAPSHOT_SECRET");
+  if (explicit && token === explicit) return { ok: true };
+
+  // 2. The service role key exactly as this function sees it.
+  if (token === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) return { ok: true };
+
+  // 3. Any platform-verified JWT carrying the service_role claim. This is what
+  //    survives key rotation, and what makes the check independent of which
+  //    copy of the key the caller happens to hold.
+  const parts = token.split(".");
+  if (parts.length === 3) {
+    try {
+      const padded = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+      const claims = JSON.parse(atob(padded + "=".repeat((4 - (padded.length % 4)) % 4)));
+      if (claims?.role === "service_role") return { ok: true };
+      return { ok: false, reason: `token role is '${claims?.role ?? "unknown"}', not service_role` };
+    } catch {
+      return { ok: false, reason: "bearer token is not a decodable JWT" };
+    }
+  }
+
+  return { ok: false, reason: "opaque token did not match any configured secret" };
+}
+
 function getAdminClient() {
   const url = Deno.env.get("SUPABASE_URL");
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -76,13 +125,9 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return json({ error: `Method '${req.method}' is not allowed. Use POST.` }, 405);
   }
 
-  // Same guard as batch-payout-sweeper: only the scheduler should be able to
-  // spend the month's API quota.
-  const incomingSecret = req.headers.get("Authorization")?.replace("Bearer ", "");
-  const expectedSecret =
-    Deno.env.get("FX_SNAPSHOT_SECRET") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (expectedSecret && incomingSecret !== expectedSecret) {
-    console.error("[fx-snapshot] Unauthorized snapshot request.");
+  const authorised = authoriseCaller(req);
+  if (!authorised.ok) {
+    console.error(`[fx-snapshot] Rejected: ${authorised.reason}`);
     return json({ error: "Unauthorized." }, 401);
   }
 
