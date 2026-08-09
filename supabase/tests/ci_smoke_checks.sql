@@ -179,26 +179,42 @@ BEGIN
 END $$;
 
 -- ---------------------------------------------------------------------------
--- 5. checkout_init_atomic has exactly one signature.
+-- 5. No function in `public` is overloaded.
 --
--- Nine rewrites left older overloads behind in production; a 4-argument call
--- returned PGRST203 (overload could not be resolved) until they were dropped.
--- Ambiguous overloads on the checkout entry point are a correctness hazard,
--- and each ghost carries its own inherited grants.
+-- checkout_init_atomic was rewritten nine times, each adding a parameter, and
+-- the DROPs did not keep up: production ended up carrying several signatures at
+-- once, and a 4-argument call returned PGRST203 because PostgREST could not
+-- resolve which one was meant. Every stale copy also kept its own inherited
+-- grants, so revoking the live one hardened nothing.
+--
+-- Checked generally rather than for that one function: a from-empty replay of
+-- this chain produces exactly one signature per name today, so any overload is
+-- drift rather than design. If an overload is ever genuinely wanted, this check
+-- is the place to say so deliberately -- which is the point. Overloads on RPCs
+-- reached by name through PostgREST are a footgun, and they cost a real
+-- production incident once already.
 -- ---------------------------------------------------------------------------
 DO $$
 DECLARE
-  v_count int;
+  v_dupes text[] := '{}';
+  v_row   RECORD;
 BEGIN
-  SELECT count(*) INTO v_count
-  FROM pg_proc p
-  JOIN pg_namespace n ON n.oid = p.pronamespace
-  WHERE n.nspname = 'public' AND p.proname = 'checkout_init_atomic';
+  FOR v_row IN
+    SELECT p.proname, count(*) AS n
+    FROM pg_proc p
+    JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = 'public'
+    GROUP BY p.proname
+    HAVING count(*) > 1
+    ORDER BY p.proname
+  LOOP
+    v_dupes := array_append(v_dupes, v_row.proname || ' x' || v_row.n);
+  END LOOP;
 
-  IF v_count <> 1 THEN
-    RAISE EXCEPTION 'CHECK FAILED: expected exactly 1 checkout_init_atomic, found %', v_count;
+  IF array_length(v_dupes, 1) > 0 THEN
+    RAISE EXCEPTION 'CHECK FAILED: overloaded functions in public: %', v_dupes;
   END IF;
-  RAISE NOTICE 'PASS: checkout_init_atomic has a single canonical signature';
+  RAISE NOTICE 'PASS: every function in public has a single signature';
 END $$;
 
 DO $$
