@@ -28,7 +28,14 @@ describe.skipIf(!shouldRun || !url || !serviceKey)(
         p_transaction_id: fakeId,
         p_paid_amount: 0,
         p_paid_currency: 'ZMW',
-        p_payload: '{}',
+        // Was '{}'. Since 20260809010000 the payload must carry the gateway's
+        // own charge id, so an empty object is now rejected before the
+        // transaction is ever looked up — which made this assert the wrong
+        // thing. The guard itself is covered in money-path.integration.test.ts;
+        // here the payload just has to be well-formed enough to get past it so
+        // the original intent, that the RPC is callable and reports a missing
+        // transaction, is what gets tested.
+        p_payload: JSON.stringify({ data: { id: 'flw-smoke-1' } }),
         p_idempotency_key: key,
       });
 

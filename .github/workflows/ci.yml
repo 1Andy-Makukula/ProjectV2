@@ -100,6 +100,29 @@ jobs:
         # well-known default (matches config.toml's db.port = 54322).
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -f supabase/tests/ci_smoke_checks.sql
 
+      # Run the money-path tests here rather than in the `integration` job.
+      # That job is gated on secrets pointing at a hosted project, so it is
+      # skipped on forks and on any checkout without them -- exactly the runs
+      # where a regression would slip through. This job already has a real
+      # stack with the whole chain replayed from empty, needs no secrets, and
+      # the database is disposable, so the adversarial cases (concurrent
+      # checkouts on the last unit of stock, redelivered webhooks, anon
+      # callers) can run destructively without touching anything real.
+      - name: Money-path integration tests
+        env:
+          RUN_INTEGRATION_TESTS: 'true'
+          SUPABASE_URL: http://127.0.0.1:54321
+        run: |
+          # `status -o env` prints KEY="value" pairs for the running stack.
+          # Sourcing it is more robust than parsing individual lines, and keeps
+          # working if the CLI renames or reorders keys.
+          eval "$(pnpm exec supabase status -o env)"
+          export SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY"
+          export SUPABASE_ANON_KEY="$ANON_KEY"
+          test -n "$SUPABASE_SERVICE_ROLE_KEY" || { echo "no service role key from supabase status"; exit 1; }
+          test -n "$SUPABASE_ANON_KEY" || { echo "no anon key from supabase status"; exit 1; }
+          pnpm test:integration
+
       - name: Confirm the chain re-applies cleanly (idempotency)
         run: pnpm exec supabase db reset
 
