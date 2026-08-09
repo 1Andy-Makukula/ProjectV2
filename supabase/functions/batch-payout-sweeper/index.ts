@@ -19,8 +19,17 @@
  *   - No double dispatch. `claim_withdrawal_batch` claims rows with SKIP
  *     LOCKED, so two overlapping runs cannot wire the same money twice.
  *
- * A failed transfer reverses the wallet debit through `fail_withdrawal`.
- * Leaving it debited would take the merchant's money and deliver nothing.
+ * A transfer Flutterwave definitely rejected reverses the wallet debit through
+ * `fail_withdrawal`. Leaving it debited would take the merchant's money and
+ * deliver nothing.
+ *
+ * A transfer whose outcome is UNKNOWN -- the request threw rather than
+ * answering -- is parked as `unverified` with the debit intact, because the
+ * money may well be in flight. Reversing there would pay the merchant and
+ * refund them for it. The deterministic reference prevents a duplicate
+ * request; only this prevents a duplicate credit. Resolution means asking
+ * Flutterwave what became of that reference, then reopening the row and
+ * completing or failing it normally.
  *
  *   - No guessed routing codes. `claim_withdrawal_batch` resolves each
  *     withdrawal's payout method against `payout_bank_codes`, which starts
@@ -51,6 +60,21 @@ interface ClaimedWithdrawal {
   bank_category: string | null;
   flutterwave_code: string | null;
   is_verified: boolean;
+}
+
+/**
+ * The subset of Flutterwave's POST /v3/transfers response this function reads.
+ *
+ * Every field is optional: an error response carries `status` and `message` but
+ * no `data`, and the point of typing it is to force the failure path to be
+ * handled rather than to assume the success shape.
+ */
+interface FlutterwaveTransferResponse {
+  status?: string;
+  message?: string;
+  data?: {
+    id?: number | string;
+  };
 }
 
 function json(data: unknown, status = 200): Response {
@@ -195,27 +219,70 @@ Deno.serve(async (req: Request): Promise<Response> => {
           `[batch-payout-sweeper] Transfer: shop='${w.shop_name}' amount=${amountZmw} ZMW bank='${w.flutterwave_code}' ref='${reference}'`,
         );
 
-        const flwResponse = await fetch("https://api.flutterwave.com/v3/transfers", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${flutterwaveSecretKey}`,
-          },
-          body: JSON.stringify({
-            account_bank: w.flutterwave_code,
-            account_number: accountNumber,
-            amount: amountZmw,
-            currency: "ZMW",
-            narration: `KithLy payout - ${w.shop_name}`,
-            ...(w.payout_account_name ? { beneficiary_name: w.payout_account_name } : {}),
-            // Derived from the withdrawal id, so a retry of the same withdrawal
-            // is recognisable to Flutterwave rather than looking like new work.
-            reference,
-          }),
-        });
+        // The dispatch is isolated from everything after it.
+        //
+        // A thrown error here -- socket timeout, dropped connection, DNS
+        // failure -- means the request may already have reached Flutterwave and
+        // be in flight. Treating that as a failure and reversing the debit pays
+        // the merchant AND gives them their balance back. The reference stops a
+        // duplicate request being accepted; it does nothing about a reversal
+        // for a transfer that actually succeeded.
+        //
+        // So an unknown outcome parks the row in `unverified` and leaves the
+        // debit standing, to be resolved against Flutterwave out of band. Only
+        // a definite rejection below reverses anything.
+        let flwResponse: Response;
+        let flwResult: FlutterwaveTransferResponse;
+        try {
+          flwResponse = await fetch("https://api.flutterwave.com/v3/transfers", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${flutterwaveSecretKey}`,
+            },
+            body: JSON.stringify({
+              account_bank: w.flutterwave_code,
+              account_number: accountNumber,
+              amount: amountZmw,
+              currency: "ZMW",
+              narration: `KithLy payout - ${w.shop_name}`,
+              ...(w.payout_account_name ? { beneficiary_name: w.payout_account_name } : {}),
+              // Derived from the withdrawal id, so a retry of the same withdrawal
+              // is recognisable to Flutterwave rather than looking like new work.
+              reference,
+            }),
+          });
 
-        const flwResult = await flwResponse.json();
+          flwResult = await flwResponse.json();
+        } catch (dispatchErr: unknown) {
+          // Also covers a malformed/truncated body from .json(): if the
+          // response cannot be read, the outcome is not known either.
+          const message =
+            dispatchErr instanceof Error ? dispatchErr.message : String(dispatchErr);
 
+          console.error(
+            `[batch-payout-sweeper] UNKNOWN OUTCOME for withdrawal ${w.withdrawal_id} ` +
+              `(ref '${reference}'): ${message}. Debit left in place, not reversed.`,
+          );
+
+          await supabase.rpc("mark_withdrawal_unverified", {
+            p_withdrawal_id: w.withdrawal_id,
+            p_reason: `Dispatch outcome unknown: ${message}`.slice(0, 300),
+          });
+
+          failed += 1;
+          results.push({
+            withdrawal_id: w.withdrawal_id,
+            shop_name: w.shop_name,
+            status: "UNVERIFIED",
+            transfer_reference: reference,
+            message,
+          });
+          continue;
+        }
+
+        // Past this point Flutterwave answered, so any failure is definite and
+        // reversing the debit is correct.
         if (!flwResponse.ok || flwResult.status !== "success") {
           throw new Error(flwResult.message ?? JSON.stringify(flwResult));
         }
@@ -252,6 +319,8 @@ Deno.serve(async (req: Request): Promise<Response> => {
           transfer_id: String(flwResult.data?.id ?? ""),
         });
       } catch (transferErr: unknown) {
+        // Definite failures only. An unknown dispatch outcome is handled at the
+        // fetch itself and never reaches here, so reversing the debit is safe.
         const message =
           transferErr instanceof Error ? transferErr.message : String(transferErr);
         console.error(`[batch-payout-sweeper] Transfer failed for '${w.shop_name}':`, message);

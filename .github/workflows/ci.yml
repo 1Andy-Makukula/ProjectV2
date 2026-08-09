@@ -31,6 +31,18 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      # tsconfig.json sets "exclude": ["supabase"], so `pnpm typecheck` never
+      # sees the edge functions -- and those are the code that moves money.
+      # They are Deno, not Vite, so they need checking on their own terms
+      # against supabase/functions/deno.json (which is already "strict": true).
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Typecheck edge functions
+        working-directory: supabase/functions
+        run: deno check --config deno.json ./*/index.ts
+
       - name: Unit tests
         run: pnpm test
 
