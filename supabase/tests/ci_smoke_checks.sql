@@ -330,6 +330,65 @@ BEGIN
   RAISE NOTICE 'PASS: checkout_init_atomic signature is unchanged (ADR 0001)';
 END $$;
 
+-- ---------------------------------------------------------------------------
+-- 8. The supported-currency list exists in exactly one place, effectively.
+--
+-- It is written twice by necessity -- fx_supported_currencies() is the runtime
+-- source, and the fx_quotes CHECK carries a literal because a function inside a
+-- constraint is a dump/restore hazard and does not revalidate existing rows
+-- when it changes. Two copies is tolerable; two copies that can drift is not.
+--
+-- They did drift, once: AUD was added to the constraint and not to the function,
+-- so the schema advertised a currency the issuer refused, and AUD quotes failed
+-- with "Unsupported quote currency" while the table said otherwise.
+-- ---------------------------------------------------------------------------
+DO $$
+DECLARE
+  v_def      text;
+  v_currency text;
+  v_missing  text[] := '{}';
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_proc
+    WHERE pronamespace = 'public'::regnamespace AND proname = 'fx_supported_currencies'
+  ) THEN
+    RAISE NOTICE 'SKIP: fx_supported_currencies() not present yet';
+    RETURN;
+  END IF;
+
+  SELECT pg_get_constraintdef(oid) INTO v_def
+  FROM pg_constraint
+  WHERE conrelid = 'public.fx_quotes'::regclass AND conname = 'fx_quotes_currency_supported';
+
+  IF v_def IS NULL THEN
+    RAISE EXCEPTION 'CHECK FAILED: fx_quotes has no currency constraint';
+  END IF;
+
+  FOREACH v_currency IN ARRAY public.fx_supported_currencies() LOOP
+    IF position(v_currency IN v_def) = 0 THEN
+      v_missing := array_append(v_missing, v_currency);
+    END IF;
+  END LOOP;
+
+  IF array_length(v_missing, 1) > 0 THEN
+    RAISE EXCEPTION
+      'CHECK FAILED: fx_supported_currencies() allows % but the fx_quotes constraint does not (%)',
+      v_missing, v_def;
+  END IF;
+
+  -- And no issuer may reintroduce a private copy of the list.
+  IF EXISTS (
+    SELECT 1 FROM pg_proc
+    WHERE pronamespace = 'public'::regnamespace
+      AND proname = 'issue_fx_quote'
+      AND prosrc LIKE '%''GBP'', ''USD''%'
+  ) THEN
+    RAISE EXCEPTION 'CHECK FAILED: issue_fx_quote has its own hardcoded currency list again';
+  END IF;
+
+  RAISE NOTICE 'PASS: supported currencies agree between function and constraint';
+END $$;
+
 DO $$
 BEGIN
   RAISE NOTICE '--- CI smoke checks complete ---';
