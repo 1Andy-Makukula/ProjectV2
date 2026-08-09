@@ -18,16 +18,27 @@
  *   SUPABASE_ANON_KEY=<Publishable from `supabase status`> \
  *   pnpm test:integration
  *
- * Every fixture is namespaced with a per-run tag and removed afterwards, so a
- * failed run cannot poison the next one.
+ * Every fixture is namespaced with a per-run tag so runs cannot collide. Note
+ * that most of what these tests create CANNOT be removed afterwards -- ledger
+ * and event rows are append-only by design, and the records they reference
+ * cannot be deleted while they exist. That is why a disposable database is a
+ * hard requirement, enforced by the guard below rather than left to discipline.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { checkDisposableDb } from './_disposable-db';
 
 const shouldRun = process.env.RUN_INTEGRATION_TESTS === 'true';
 const url = process.env.SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const anonKey = process.env.SUPABASE_ANON_KEY;
+
+// These tests create users, take stock and confirm payments, and none of it can
+// be undone -- see _disposable-db.ts. Never let them touch a real database.
+const disposable = checkDisposableDb(url);
+if (shouldRun && url && !disposable.ok) {
+  throw new Error(`[money-path] ${disposable.reason}`);
+}
 
 /** Distinguishes this run's rows from every other run's. */
 const TAG = `it-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
@@ -170,41 +181,17 @@ describe.skipIf(!shouldRun || !url || !serviceKey)('money path — adversarial',
 
   afterAll(async () => {
     if (!admin) return;
-    // Children first: order_items and shop_orders hang off transactions.
-    const { data: txns } = await admin
-      .from('transactions')
-      .select('transaction_id')
-      .like('gateway_tx_ref', `${TAG}%`);
-    const txnIds = (txns ?? []).map((t) => t.transaction_id);
 
-    if (txnIds.length > 0) {
-      const { data: orders } = await admin
-        .from('shop_orders')
-        .select('shop_order_id')
-        .in('transaction_id', txnIds);
-      const orderIds = (orders ?? []).map((o) => o.shop_order_id);
-      if (orderIds.length > 0) {
-        await admin.from('order_items').delete().in('shop_order_id', orderIds);
-      }
-      await admin.from('shop_orders').delete().in('transaction_id', txnIds);
-      await admin.from('wallet_ledger').delete().in('transaction_id', txnIds);
-      await admin.from('transaction_events').delete().in('transaction_id', txnIds);
-      await admin.from('payment_webhook_idempotency').delete().in('transaction_id', txnIds);
-      await admin.from('transactions').delete().in('transaction_id', txnIds);
-    }
-
-    await admin.from('items').delete().eq('shop_id', ids.shop);
-    await admin.from('items').delete().eq('shop_id', ids.shopB);
+    // Best effort, and deliberately partial.
+    //
+    // Nothing on the money path can actually be removed: wallet_ledger and
+    // transaction_events are append-only (enforce_immutable_ledger), and the
+    // transactions and wallets they reference cannot be deleted while those
+    // rows exist. Attempting it and swallowing the errors would only look like
+    // cleanup. What follows removes the catalogue fixtures that genuinely can
+    // go; the rest is why this suite requires a disposable database.
+    await admin.from('items').delete().in('shop_id', [ids.shop, ids.shopB]);
     await admin.from('merchant_shops').delete().eq('user_id', ids.merchant);
-    await admin.from('kithly_wallets').delete().eq('user_id', ids.buyer);
-    await admin.from('shops').delete().in('id', [ids.shop, ids.shopB]);
-
-    // Deleting the auth user takes the public.users row with it — see
-    // 20260802020000_users_fk_cascade_auth_delete.sql. Doing it in this order
-    // means a failure here leaves nothing dangling that the next run trips on.
-    for (const id of [ids.buyer, ids.merchant]) {
-      if (id) await admin.auth.admin.deleteUser(id);
-    }
   });
 
   // -------------------------------------------------------------------------

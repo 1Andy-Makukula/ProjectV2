@@ -31,7 +31,7 @@ describe.skipIf(!shouldRun || !url || !serviceKey)(
         // Was '{}'. Since 20260809010000 the payload must carry the gateway's
         // own charge id, so an empty object is now rejected before the
         // transaction is ever looked up — which made this assert the wrong
-        // thing. The guard itself is covered in money-path.integration.test.ts;
+        // thing. The guard itself is covered in money-path.destructive.test.ts;
         // here the payload just has to be well-formed enough to get past it so
         // the original intent, that the RPC is callable and reports a missing
         // transaction, is what gets tested.

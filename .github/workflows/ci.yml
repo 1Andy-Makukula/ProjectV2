@@ -65,8 +65,19 @@ jobs:
           node-version: '22'
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - name: Integration tests (skipped without secrets)
-        run: pnpm test:integration
+      # Read-only smoke tests only. `*.destructive.test.ts` is excluded because
+      # this job points at a HOSTED project: those suites create users, take
+      # stock and write ledger entries, and none of it can be deleted
+      # afterwards (enforce_immutable_ledger makes those rows permanent, and
+      # the records they reference cannot be removed while they exist). They
+      # run in the db-migrations job instead, against a disposable stack.
+      #
+      # They also refuse to run against a non-local host of their own accord --
+      # see tests/integration/_disposable-db.ts. This exclusion is what keeps
+      # that refusal from failing an otherwise legitimate job, rather than the
+      # thing preventing the damage.
+      - name: Integration smoke tests (skipped without secrets)
+        run: pnpm test:integration -- --exclude '**/*.destructive.test.ts'
         env:
           RUN_INTEGRATION_TESTS: ${{ secrets.SUPABASE_URL != '' && secrets.SUPABASE_SERVICE_ROLE_KEY != '' }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
