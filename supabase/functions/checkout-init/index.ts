@@ -42,6 +42,8 @@ interface CheckoutInitPayload {
   target_execution_date?: string | null;
   /** Set when the cart was filled from a curated experience. */
   experience_id?: string | null;
+  /** Set when the buyer was quoted in a foreign currency. */
+  fx_quote_id?: string | null;
 }
 
 /**
@@ -213,6 +215,11 @@ function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
       ? raw.target_execution_date
       : null;
 
+  const fx_quote_id =
+    typeof raw.fx_quote_id === "string" && raw.fx_quote_id.trim()
+      ? raw.fx_quote_id.trim()
+      : null;
+
   const experience_id =
     typeof raw.experience_id === "string" && raw.experience_id.trim()
       ? raw.experience_id
@@ -228,6 +235,7 @@ function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
     credits_to_apply,
     target_execution_date,
     experience_id,
+    fx_quote_id,
   };
 }
 
@@ -441,6 +449,17 @@ async function generateFlutterwaveLink(
   buyerPhone: string,
   requestOrigin: string,
   recipientPhone?: string,
+  /**
+   * Set only when the order was priced from an FX quote.
+   *
+   * The gateway must be asked for the currency the buyer was quoted, not for
+   * kwacha, or they are shown one figure and charged another -- and
+   * confirm_payment_atomic would then reject the webhook, because it validates
+   * against the currency recorded on the transaction. The two have to agree,
+   * and both come from the same consumed quote.
+   */
+  chargeCurrency?: string | null,
+  chargeAmountMinor?: number | null,
 ): Promise<string> {
   const secretKey = Deno.env.get("FLUTTERWAVE_SECRET_KEY");
   if (!secretKey) {
@@ -455,10 +474,17 @@ async function generateFlutterwaveLink(
   const finalPhone = buyerPhone || recipientPhone || "";
 
   const dynamicTxRef = `${transactionId}_${Date.now()}`;
+
+  // Both are 1/100 currencies, so the minor-unit conversion is the same either
+  // way; only which figure and which code changes.
+  const isForeignCharge = Boolean(chargeCurrency && chargeAmountMinor && chargeAmountMinor > 0);
+  const gatewayCurrency = isForeignCharge ? chargeCurrency! : "ZMW";
+  const gatewayMinor = isForeignCharge ? chargeAmountMinor! : totalAmount;
+
   const payload = {
     tx_ref: dynamicTxRef,
-    amount: totalAmount / 100, // Convert from ngwee to ZMW for Flutterwave
-    currency: "ZMW",
+    amount: gatewayMinor / 100, // minor units -> major, for Flutterwave
+    currency: gatewayCurrency,
     redirect_url: `${appUrl}/confirmation/${transactionId}?tx_ref=${dynamicTxRef}`,
     customer: {
       email: buyerEmail,
@@ -526,7 +552,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     return json(req, { error: message }, 400);
   }
 
-  const { cart_items, origin_type, recipient_name, recipient_phone, message, sender_phone, credits_to_apply, target_execution_date, experience_id } = payload;
+  const { cart_items, origin_type, recipient_name, recipient_phone, message, sender_phone, credits_to_apply, target_execution_date, experience_id, fx_quote_id } = payload;
 
   // --- 2.5. Resolve requestOrigin dynamically ---
   const originHeader = req.headers.get("Origin") || req.headers.get("Referer");
@@ -733,6 +759,9 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
           // The shared deadline is read from the experience server-side, so a
           // client cannot extend it by sending its own date.
           experience_id: experience_id,
+          // Consumed inside checkout_init_atomic, in the same transaction as
+          // the order, so a rolled-back checkout cannot burn a quote.
+          fx_quote_id: fx_quote_id,
         },
       },
     );
@@ -751,6 +780,40 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     );
 
     // --- 8. Generate Flutterwave payment link (Step D) ---
+    //
+    // When a quote was consumed, the transaction now records the currency and
+    // amount the buyer was actually quoted. Read it back rather than
+    // recomputing: checkout_init_atomic wrote it from the consumed quote, and
+    // confirm_payment_atomic will validate the webhook against that same row.
+    // Deriving it a second time here is how the two come to disagree.
+    let chargeCurrency: string | null = null;
+    let chargeAmountMinor: number | null = null;
+
+    if (fx_quote_id) {
+      const { data: charged, error: chargedError } = await adminClient
+        .from("transactions")
+        .select("charge_currency, charge_amount_minor")
+        .eq("transaction_id", transactionId)
+        .single();
+
+      if (chargedError || !charged?.charge_currency) {
+        // The quote was consumed but the charge did not land, so a payment link
+        // here would be denominated in kwacha for a buyer who was shown
+        // sterling. Failing is the only honest option.
+        console.error(
+          `[checkout-init] Quote ${fx_quote_id} consumed but no charge recorded on ${transactionId}`,
+        );
+        throw new Error("Could not price this order in the quoted currency.");
+      }
+
+      chargeCurrency = charged.charge_currency;
+      chargeAmountMinor = charged.charge_amount_minor;
+      console.log(
+        `[checkout-init] Charging ${chargeAmountMinor! / 100} ${chargeCurrency} ` +
+          `for a ZMW ${totalAmount / 100} order | transaction_id=${transactionId}`,
+      );
+    }
+
     let paymentLink = "#";
     if (totalAmount > 0) {
       paymentLink = await generateFlutterwaveLink(
@@ -760,6 +823,8 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
         sender_phone || caller.phone || "",
         requestOrigin,
         recipient_phone,
+        chargeCurrency,
+        chargeAmountMinor,
       );
     } else {
       console.log(`[checkout-init] Order fully paid by credits. Skipping Flutterwave generation.`);
