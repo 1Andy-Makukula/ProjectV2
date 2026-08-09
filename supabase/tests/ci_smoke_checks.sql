@@ -165,7 +165,8 @@ BEGIN
         'increment_wallet_balance','increment_merchant_balance','refresh_shop_trust_tier',
         'resolve_shop_merchant_user_id','request_withdrawal_atomic','claim_withdrawal_batch',
         'complete_withdrawal','fail_withdrawal','trigger_daily_payout_sweeper',
-        'import_catalog_item_to_shop'
+        'import_catalog_item_to_shop',
+        'release_abandoned_checkout','reclaim_abandoned_checkouts'
       ])
       AND has_function_privilege(r.rolname, p.oid, 'EXECUTE')
   LOOP

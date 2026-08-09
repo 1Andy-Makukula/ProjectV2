@@ -446,6 +446,114 @@ export type Database = {
           },
         ]
       }
+      fx_quotes: {
+        Row: {
+          applied_rate: number
+          basket_zmw_minor: number
+          buyer_id: string
+          consumed_at: string | null
+          consumed_by_transaction_id: string | null
+          expires_at: string
+          fee_percent_applied: number
+          issued_at: string
+          mid_rate: number
+          oer_timestamp: string
+          platform_fee_minor: number
+          quote_id: string
+          quoted_amount_minor: number
+          snapshot_age_minutes_at_issue: number
+          snapshot_id: string
+          spread_percent_applied: number
+          target_currency: string
+          total_zmw_minor: number
+        }
+        Insert: {
+          applied_rate: number
+          basket_zmw_minor: number
+          buyer_id: string
+          consumed_at?: string | null
+          consumed_by_transaction_id?: string | null
+          expires_at: string
+          fee_percent_applied: number
+          issued_at?: string
+          mid_rate: number
+          oer_timestamp: string
+          platform_fee_minor: number
+          quote_id?: string
+          quoted_amount_minor: number
+          snapshot_age_minutes_at_issue: number
+          snapshot_id: string
+          spread_percent_applied: number
+          target_currency: string
+          total_zmw_minor: number
+        }
+        Update: {
+          applied_rate?: number
+          basket_zmw_minor?: number
+          buyer_id?: string
+          consumed_at?: string | null
+          consumed_by_transaction_id?: string | null
+          expires_at?: string
+          fee_percent_applied?: number
+          issued_at?: string
+          mid_rate?: number
+          oer_timestamp?: string
+          platform_fee_minor?: number
+          quote_id?: string
+          quoted_amount_minor?: number
+          snapshot_age_minutes_at_issue?: number
+          snapshot_id?: string
+          spread_percent_applied?: number
+          target_currency?: string
+          total_zmw_minor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fx_quotes_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fx_quotes_snapshot_id_fkey"
+            columns: ["snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "fx_rate_snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fx_rate_snapshots: {
+        Row: {
+          base_currency: string
+          created_at: string
+          fetched_at: string
+          id: string
+          oer_timestamp: string
+          rate_source: string
+          rates: Json
+        }
+        Insert: {
+          base_currency: string
+          created_at?: string
+          fetched_at?: string
+          id?: string
+          oer_timestamp: string
+          rate_source?: string
+          rates: Json
+        }
+        Update: {
+          base_currency?: string
+          created_at?: string
+          fetched_at?: string
+          id?: string
+          oer_timestamp?: string
+          rate_source?: string
+          rates?: Json
+        }
+        Relationships: []
+      }
       item_images: {
         Row: {
           created_at: string
@@ -1376,10 +1484,15 @@ export type Database = {
       }
       platform_settings: {
         Row: {
+          abandoned_checkout_timeout_minutes: number | null
           current_usd_zmw_rate: number
           dispute_window_minutes: number
           expiry_reminder_days: number
           expiry_sender_refund_percent: number
+          fx_fallback_bank_fee_percent: number
+          fx_max_snapshot_age_minutes: number
+          fx_quote_ttl_seconds: number
+          fx_spread_percent: number
           id: number
           international_buyer_fee_percent: number
           local_buyer_fee_percent: number
@@ -1388,10 +1501,15 @@ export type Database = {
           voucher_grace_days: number
         }
         Insert: {
+          abandoned_checkout_timeout_minutes?: number | null
           current_usd_zmw_rate?: number
           dispute_window_minutes?: number
           expiry_reminder_days?: number
           expiry_sender_refund_percent?: number
+          fx_fallback_bank_fee_percent?: number
+          fx_max_snapshot_age_minutes?: number
+          fx_quote_ttl_seconds?: number
+          fx_spread_percent?: number
           id?: number
           international_buyer_fee_percent?: number
           local_buyer_fee_percent?: number
@@ -1400,10 +1518,15 @@ export type Database = {
           voucher_grace_days?: number
         }
         Update: {
+          abandoned_checkout_timeout_minutes?: number | null
           current_usd_zmw_rate?: number
           dispute_window_minutes?: number
           expiry_reminder_days?: number
           expiry_sender_refund_percent?: number
+          fx_fallback_bank_fee_percent?: number
+          fx_max_snapshot_age_minutes?: number
+          fx_quote_ttl_seconds?: number
+          fx_spread_percent?: number
           id?: number
           international_buyer_fee_percent?: number
           local_buyer_fee_percent?: number
@@ -1954,8 +2077,13 @@ export type Database = {
       transactions: {
         Row: {
           buyer_id: string | null
+          charge_amount_minor: number | null
+          charge_currency: string | null
           created_at: string | null
           currency: string
+          fx_quote_id: string | null
+          fx_rate_applied: number | null
+          gateway_initiated_at: string | null
           gateway_reference: string | null
           gateway_tx_ref: string | null
           items_subtotal: number | null
@@ -1969,8 +2097,13 @@ export type Database = {
         }
         Insert: {
           buyer_id?: string | null
+          charge_amount_minor?: number | null
+          charge_currency?: string | null
           created_at?: string | null
           currency?: string
+          fx_quote_id?: string | null
+          fx_rate_applied?: number | null
+          gateway_initiated_at?: string | null
           gateway_reference?: string | null
           gateway_tx_ref?: string | null
           items_subtotal?: number | null
@@ -1984,8 +2117,13 @@ export type Database = {
         }
         Update: {
           buyer_id?: string | null
+          charge_amount_minor?: number | null
+          charge_currency?: string | null
           created_at?: string | null
           currency?: string
+          fx_quote_id?: string | null
+          fx_rate_applied?: number | null
+          gateway_initiated_at?: string | null
           gateway_reference?: string | null
           gateway_tx_ref?: string | null
           items_subtotal?: number | null
@@ -2004,6 +2142,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_fx_quote_id_fkey"
+            columns: ["fx_quote_id"]
+            isOneToOne: false
+            referencedRelation: "fx_quotes"
+            referencedColumns: ["quote_id"]
           },
         ]
       }
@@ -2043,6 +2188,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          reversal_of: string | null
           transaction_id: string | null
           wallet_id: string
         }
@@ -2051,6 +2197,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          reversal_of?: string | null
           transaction_id?: string | null
           wallet_id: string
         }
@@ -2059,10 +2206,18 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          reversal_of?: string | null
           transaction_id?: string | null
           wallet_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "wallet_ledger_reversal_of_fkey"
+            columns: ["reversal_of"]
+            isOneToOne: false
+            referencedRelation: "wallet_ledger"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "wallet_ledger_transaction_id_fkey"
             columns: ["transaction_id"]
@@ -2173,6 +2328,15 @@ export type Database = {
         }
         Returns: Json
       }
+      consume_fx_quote: {
+        Args: {
+          p_buyer_id: string
+          p_expected_total_minor: number
+          p_quote_id: string
+          p_transaction_id: string
+        }
+        Returns: Json
+      }
       conversation_role_for: {
         Args: { p_conversation_id: string; p_user_id: string }
         Returns: string
@@ -2232,6 +2396,17 @@ export type Database = {
         }
         Returns: Json
       }
+      fx_estimate_for_basket: {
+        Args: { p_target_currency: string; p_vendors: Json }
+        Returns: Json
+      }
+      fx_estimate_local_cost: {
+        Args: { p_target_currency: string; p_total_zmw_minor: number }
+        Returns: Json
+      }
+      fx_snapshot_age_minutes: { Args: never; Returns: number }
+      fx_supported_currencies: { Args: never; Returns: string[] }
+      fx_zmw_rate: { Args: { p_target_currency: string }; Returns: number }
       gen_claim_code: { Args: { p_len?: number }; Returns: string }
       generate_list_slug: { Args: { p_title: string }; Returns: string }
       get_shop_order_by_claim_code: { Args: { code: string }; Returns: Json }
@@ -2271,6 +2446,18 @@ export type Database = {
         Returns: boolean
       }
       is_valid_opening_hours: { Args: { p_hours: Json }; Returns: boolean }
+      issue_fx_quote: {
+        Args: {
+          p_basket_zmw_minor: number
+          p_buyer_id: string
+          p_target_currency: string
+        }
+        Returns: Json
+      }
+      issue_fx_quote_for_basket: {
+        Args: { p_buyer_id: string; p_target_currency: string; p_vendors: Json }
+        Returns: Json
+      }
       log_admin_action: {
         Args: {
           p_action: string
@@ -2306,11 +2493,16 @@ export type Database = {
       }
       notify_expiring_vouchers: { Args: never; Returns: number }
       notify_low_stock: { Args: never; Returns: number }
+      price_basket_zmw: { Args: { p_vendors: Json }; Returns: number }
       process_due_redemptions: { Args: never; Returns: number }
       process_expired_vouchers: { Args: never; Returns: number }
       raise_order_dispute: {
         Args: { p_reason: string; p_shop_order_id: string }
         Returns: Json
+      }
+      reclaim_abandoned_checkouts: {
+        Args: { p_older_than_minutes?: number }
+        Returns: number
       }
       refresh_shop_trust_tier: {
         Args: { p_shop_id: string }
@@ -2326,6 +2518,10 @@ export type Database = {
           p_physical_address: string
           p_shop_name: string
         }
+        Returns: Json
+      }
+      release_abandoned_checkout: {
+        Args: { p_reason?: string; p_transaction_id: string }
         Returns: Json
       }
       reopen_unverified_withdrawal: {
@@ -2360,6 +2556,7 @@ export type Database = {
         }
         Returns: Json
       }
+      scheduler_prerequisites: { Args: never; Returns: Json }
       send_message: {
         Args: {
           p_body?: string
@@ -2382,6 +2579,7 @@ export type Database = {
         Returns: string
       }
       trigger_daily_payout_sweeper: { Args: never; Returns: undefined }
+      trigger_fx_snapshot: { Args: never; Returns: undefined }
       unit_price_for: {
         Args: { p_item_id: string; p_quantity: number }
         Returns: number

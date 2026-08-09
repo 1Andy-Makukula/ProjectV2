@@ -211,6 +211,32 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return json(req, { error: "Transaction is already completed." }, 400);
     }
 
+    // A released checkout cannot be retried.
+    //
+    // release_abandoned_checkout has already given the buyer's wallet credits
+    // back and returned the reserved stock to the shelf, but transactions.
+    // total_amount still holds the CASH half of the original split — the amount
+    // owed after those credits were applied. Reopening the transaction would
+    // charge that reduced figure while the credits sit spendable in the wallet,
+    // so the buyer pays for the order twice over and receives it once.
+    //
+    // Refusing here rather than repricing: the honest answer to "this order was
+    // cancelled" is a new order, priced from a live basket against current
+    // stock, not a resurrected row carrying a stale total.
+    if (txn.status !== "GATEWAY_PROCESSING" && txn.status !== "FAILED") {
+      console.warn(
+        `[checkout-retry] Refusing retry of a ${txn.status} transaction | transaction_id=${transaction_id}`,
+      );
+      return json(
+        req,
+        {
+          error:
+            "This order was cancelled because payment was not completed. Any wallet credit you applied has been returned — please place the order again.",
+        },
+        409,
+      );
+    }
+
     // Get any associated shop_orders recipient phone number as a fallback
     const { data: shopOrders, error: shopOrdersErr } = await adminClient
       .from("shop_orders")

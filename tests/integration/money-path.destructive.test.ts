@@ -494,6 +494,254 @@ describe.skipIf(!shouldRun || !url || !serviceKey)('money path — adversarial',
   });
 
   // -------------------------------------------------------------------------
+  // release_abandoned_checkout
+  //
+  // checkout_init_atomic debits the wallet before the gateway is contacted, so
+  // a buyer who closes the payment page has already paid. Until
+  // 20260809190000 nothing gave it back: the transaction sat in
+  // GATEWAY_PROCESSING forever and the credits were simply gone. Reproduced
+  // live on 2026-08-09.
+  // -------------------------------------------------------------------------
+  describe('release_abandoned_checkout', () => {
+    async function walletBalance(): Promise<number> {
+      const { data, error } = await admin
+        .from('kithly_wallets')
+        .select('balance')
+        .eq('user_id', ids.buyer)
+        .single();
+      if (error) throw new Error(`wallet read: ${error.message}`);
+      return data!.balance as number;
+    }
+
+    /** An abandoned checkout: credits taken, gateway never heard from. */
+    async function abandonedCheckout(credits: number): Promise<string> {
+      const { data, error } = await admin.rpc(
+        'checkout_init_atomic',
+        checkoutArgs({}, { credits_to_apply: credits }),
+      );
+      expect(error).toBeNull();
+      return (data as { transaction_id: string }).transaction_id;
+    }
+
+    beforeAll(async () => {
+      const { error } = await admin.rpc('increment_wallet_balance', {
+        p_user_id: ids.buyer,
+        p_amount: 50_000,
+        p_reference: `${TAG}-release-seed`,
+      });
+      if (error) throw new Error(`could not seed wallet: ${error.message}`);
+    });
+
+    it('gives back the credits and cancels the order', async () => {
+      const before = await walletBalance();
+      const txId = await abandonedCheckout(500);
+      expect(await walletBalance()).toBe(before - 500);
+
+      const { data, error } = await admin.rpc('release_abandoned_checkout', {
+        p_transaction_id: txId,
+      });
+      expect(error).toBeNull();
+      expect(data).toMatchObject({ released: true, credits_returned: 500 });
+      expect(await walletBalance()).toBe(before);
+
+      const { data: txn } = await admin
+        .from('transactions')
+        .select('status')
+        .eq('transaction_id', txId)
+        .single();
+      expect(txn?.status).toBe('CANCELLED');
+
+      const { data: orders } = await admin
+        .from('shop_orders')
+        .select('claim_status')
+        .eq('transaction_id', txId);
+      expect(orders?.length).toBeGreaterThan(0);
+      for (const o of orders ?? []) expect(o.claim_status).toBe('CANCELLED');
+    });
+
+    it('writes the refund as a compensating entry, not by editing history', async () => {
+      const txId = await abandonedCheckout(300);
+      await admin.rpc('release_abandoned_checkout', { p_transaction_id: txId });
+
+      const { data: rows } = await admin
+        .from('wallet_ledger')
+        .select('id, amount, reversal_of')
+        .eq('transaction_id', txId)
+        .order('created_at');
+
+      // Both halves survive. The ledger says credits were taken and then given
+      // back, because that is what happened -- the debit is not erased.
+      expect(rows).toHaveLength(2);
+      expect(rows![0].amount).toBe(-300);
+      expect(rows![0].reversal_of).toBeNull();
+      expect(rows![1].amount).toBe(300);
+      expect(rows![1].reversal_of).toBe(rows![0].id);
+    });
+
+    it('cannot credit the same debit twice', async () => {
+      const before = await walletBalance();
+      const txId = await abandonedCheckout(400);
+
+      const first = await admin.rpc('release_abandoned_checkout', { p_transaction_id: txId });
+      expect((first.data as { credits_returned: number }).credits_returned).toBe(400);
+
+      // The status guard stops the second call.
+      const second = await admin.rpc('release_abandoned_checkout', { p_transaction_id: txId });
+      expect(second.error).toBeNull();
+      expect(second.data).toMatchObject({ released: false, status: 'CANCELLED' });
+      expect(await walletBalance()).toBe(before);
+
+      // And the index stops it even if the guard is bypassed entirely, which is
+      // the case that matters: checkout-retry puts a released transaction back
+      // into GATEWAY_PROCESSING, so the guard alone is not a guarantee.
+      const { data: debit } = await admin
+        .from('wallet_ledger')
+        .select('id, wallet_id')
+        .eq('transaction_id', txId)
+        .lt('amount', 0)
+        .single();
+
+      const { error: dupeError } = await admin.from('wallet_ledger').insert({
+        wallet_id: debit!.wallet_id,
+        amount: 400,
+        transaction_id: txId,
+        description: 'second refund of one debit',
+        reversal_of: debit!.id,
+      });
+      expect(dupeError?.code).toBe('23505');
+      expect(await walletBalance()).toBe(before);
+    });
+
+    it('refuses to release a transaction that was actually paid', async () => {
+      const { data } = await admin.rpc('checkout_init_atomic', checkoutArgs({}, { credits_to_apply: 200 }));
+      const txn = data as { transaction_id: string; total_amount: number };
+
+      await admin.rpc('confirm_payment_atomic', {
+        p_transaction_id: txn.transaction_id,
+        p_paid_amount: txn.total_amount,
+        p_paid_currency: 'ZMW',
+        p_payload: JSON.stringify({ data: { id: `flw-paid-${TAG}` } }),
+      });
+
+      const before = await walletBalance();
+      const { data: released } = await admin.rpc('release_abandoned_checkout', {
+        p_transaction_id: txn.transaction_id,
+      });
+
+      // Releasing a paid order would hand back the credits AND leave the goods
+      // owed -- strictly worse than the bug this function exists to fix.
+      expect(released).toMatchObject({ released: false, status: 'SUCCESS' });
+      expect(await walletBalance()).toBe(before);
+    });
+
+    it('puts reserved stock back on the shelf', async () => {
+      const stockedItem = crypto.randomUUID();
+      await mustInsert('items', [{
+        id: stockedItem,
+        shop_id: ids.shop,
+        name: `${TAG}-restock`,
+        price_zmw: PRICE,
+        stock_quantity: 5,
+        is_available: true,
+      }]);
+
+      const { data, error } = await admin.rpc(
+        'checkout_init_atomic',
+        checkoutArgs({ p_vendors: [{ shop_id: ids.shop, item_ids: [stockedItem, stockedItem] }] }),
+      );
+      expect(error).toBeNull();
+      const txId = (data as { transaction_id: string }).transaction_id;
+
+      const reserved = await admin.from('items').select('stock_quantity').eq('id', stockedItem).single();
+      expect(reserved.data?.stock_quantity).toBe(3);
+
+      await admin.rpc('release_abandoned_checkout', { p_transaction_id: txId });
+
+      const restored = await admin.from('items').select('stock_quantity').eq('id', stockedItem).single();
+      expect(restored.data?.stock_quantity).toBe(5);
+    });
+
+    it('leaves a payment that is still in flight alone', async () => {
+      const txId = await abandonedCheckout(100);
+
+      // The sweeper's whole risk is cancelling an attempt the buyer is still
+      // completing. A transaction stamped seconds ago must survive the
+      // configured window.
+      const { data: swept, error } = await admin.rpc('reclaim_abandoned_checkouts', {
+        p_older_than_minutes: 60,
+      });
+      expect(error).toBeNull();
+      expect(swept).toBe(0);
+
+      const { data: txn } = await admin
+        .from('transactions')
+        .select('status')
+        .eq('transaction_id', txId)
+        .single();
+      expect(txn?.status).toBe('GATEWAY_PROCESSING');
+
+      // With the window closed it is reclaimed, and the credits come back.
+      const before = await walletBalance();
+      const { data: sweptNow } = await admin.rpc('reclaim_abandoned_checkouts', {
+        p_older_than_minutes: 0,
+      });
+      expect(sweptNow as number).toBeGreaterThanOrEqual(1);
+      expect(await walletBalance()).toBe(before + 100);
+    });
+
+    /**
+     * The reason the sweeper measures gateway_initiated_at rather than
+     * created_at.
+     *
+     * checkout-retry reuses the same transaction row, so an order first
+     * attempted hours ago is retried on a row whose created_at is hours old.
+     * Sweeping on that would cancel the retry within minutes of the buyer
+     * opening the new payment link — turning a fix for lost credits into a
+     * cause of failed payments.
+     */
+    it('restarts the abandonment clock when the payment is retried', async () => {
+      const txId = await abandonedCheckout(0);
+      const fiveHoursAgo = new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString();
+
+      const age = () =>
+        admin
+          .from('transactions')
+          .update({ gateway_initiated_at: fiveHoursAgo })
+          .eq('transaction_id', txId);
+
+      await age();
+
+      // Exactly what checkout-retry writes: the same status again, with a
+      // brand new gateway reference. A status-only test would miss this.
+      await admin
+        .from('transactions')
+        .update({ gateway_tx_ref: `${TAG}-retry-${crypto.randomUUID()}`, status: 'GATEWAY_PROCESSING' })
+        .eq('transaction_id', txId);
+
+      await admin.rpc('reclaim_abandoned_checkouts', { p_older_than_minutes: 60 });
+
+      const { data: survived } = await admin
+        .from('transactions')
+        .select('status')
+        .eq('transaction_id', txId)
+        .single();
+      expect(survived?.status).toBe('GATEWAY_PROCESSING');
+
+      // And the other direction, so this is not passing because the sweeper
+      // has stopped working: aged with no new attempt, it is reclaimed.
+      await age();
+      await admin.rpc('reclaim_abandoned_checkouts', { p_older_than_minutes: 60 });
+
+      const { data: reclaimed } = await admin
+        .from('transactions')
+        .select('status')
+        .eq('transaction_id', txId)
+        .single();
+      expect(reclaimed?.status).toBe('CANCELLED');
+    });
+  });
+
+  // -------------------------------------------------------------------------
   // Grants
   // -------------------------------------------------------------------------
   describe.skipIf(!anonKey)('anonymous callers', () => {
@@ -535,6 +783,8 @@ describe.skipIf(!shouldRun || !url || !serviceKey)('money path — adversarial',
       ['mark_withdrawal_unverified', { p_withdrawal_id: NIL, p_reason: 'probe' }],
       ['reopen_unverified_withdrawal', { p_withdrawal_id: NIL }],
       ['reverse_completed_withdrawal', { p_withdrawal_id: NIL, p_reason: 'probe' }],
+      ['release_abandoned_checkout', { p_transaction_id: NIL }],
+      ['reclaim_abandoned_checkouts', { p_older_than_minutes: 0 }],
     ];
 
     it.each(MONEY_RPCS)('cannot execute %s', async (fn, args) => {
