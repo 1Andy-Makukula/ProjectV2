@@ -77,7 +77,13 @@ interface FlutterwaveTransferResponse {
   };
 }
 
-/** GET /v3/transfers?reference=… — the list shape, filtered to one reference. */
+/**
+ * GET /v3/transfers?reference=… — the list shape.
+ *
+ * Querying by reference rather than /{id} returns a paginated LIST, so the
+ * transfer sits at data[0], not data. Typed as an array so that cannot be
+ * misread.
+ */
 interface FlutterwaveTransferLookup {
   status?: string;
   message?: string;
@@ -86,6 +92,8 @@ interface FlutterwaveTransferLookup {
     /** Flutterwave's own lifecycle: NEW, PENDING, SUCCESSFUL, FAILED. */
     status?: string;
     reference?: string;
+    /** Provider's human-readable outcome, e.g. "Transaction Successful". */
+    complete_message?: string;
   }>;
 }
 
@@ -148,7 +156,14 @@ async function resolveUnverifiedWithdrawals(
       continue;
     }
 
-    const match = lookup.data?.find((t) => t.reference === reference) ?? lookup.data?.[0];
+    // Exact reference match only, with no fall back to data[0].
+    //
+    // The query is already filtered to this reference and every row carries its
+    // own, so a non-match means the provider returned something other than what
+    // was asked for. Acting on whatever happened to be first would risk
+    // completing or failing a DIFFERENT merchant's withdrawal -- the same kind
+    // of guess that made unknown outcomes dangerous to begin with.
+    const match = lookup.data?.find((t) => t.reference === reference);
     const providerStatus = match?.status?.toUpperCase();
 
     // Only these two are acted on. NEW and PENDING mean it is still in flight,
@@ -194,7 +209,13 @@ async function resolveUnverifiedWithdrawals(
     } else {
       const { error: failError } = await supabase.rpc("fail_withdrawal", {
         p_withdrawal_id: w.id,
-        p_reason: "Provider reported the transfer failed (resolved from unverified)",
+        // The provider's own wording, when it gave one. A merchant asking why
+        // their payout bounced is better served by "Invalid account number"
+        // than by a generic phrase this function made up.
+        p_reason: (
+          match?.complete_message ??
+            "Provider reported the transfer failed (resolved from unverified)"
+        ).slice(0, 300),
       });
       if (failError) {
         console.error(
