@@ -25,6 +25,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { deriveStatus } from '../../../utils/orderStatus';
 
 // ---------------------------------------------------------------------------
 // V2 Schema Types
@@ -110,13 +111,10 @@ const STATUS_CONFIG: Record<
  *   transactions.status: GATEWAY_PROCESSING | SUCCESS | FAILED | CANCELLED
  *   shop_orders.claim_status: PENDING_PAYMENT | PENDING | REDEEMED | CANCELLED
  */
-function deriveDisplayStatus(txStatus: string, claimStatus: string | null): DisplayStatus {
-  if (txStatus === 'GATEWAY_PROCESSING') return 'pending_payment';
-  if (txStatus === 'FAILED' || txStatus === 'CANCELLED') return 'cancelled';
-  if (claimStatus === 'REDEEMED') return 'fulfilled';
-  if (claimStatus === 'PENDING') return 'paid';
-  return 'pending_payment';
-}
+// Shared with the other order views. Each page used to carry its own copy of
+// this and all of them mapped a partially fulfilled order to "Pending" --
+// see the note in utils/orderStatus.
+const deriveDisplayStatus = deriveStatus;
 
 const getStatus = (raw: DisplayStatus) =>
   STATUS_CONFIG[raw] ?? {
@@ -347,7 +345,7 @@ export function OrderDashboard() {
   const totalSpend = orders.reduce((sum, order) => sum + order.total_amount, 0);
   const completedCount = orders.filter((order) => {
     const ds = deriveDisplayStatus(order.status, order.claim_status);
-    return ds === 'fulfilled' || ds === 'completed';
+    return ds === 'fulfilled';
   }).length;
   const pendingCount = orders.filter((order) => {
     const ds = deriveDisplayStatus(order.status, order.claim_status);

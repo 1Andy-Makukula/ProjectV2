@@ -85,6 +85,7 @@ function MetricCard({
 }
 
 import { calculateTimeRemaining } from '../../../utils/timeHelpers';
+import { deriveStatus } from '../../../utils/orderStatus';
 
 
 // Derived unified status for display
@@ -132,13 +133,10 @@ const STATUS_CONFIG: Record<
   },
 };
 
-function deriveDisplayStatus(txStatus: string, claimStatus: string | null): DisplayStatus {
-  if (txStatus === 'GATEWAY_PROCESSING') return 'pending_payment';
-  if (txStatus === 'FAILED' || txStatus === 'CANCELLED') return 'cancelled';
-  if (claimStatus === 'REDEEMED') return 'fulfilled';
-  if (claimStatus === 'PENDING') return 'paid';
-  return 'pending_payment';
-}
+// Shared with OrderDashboard, OrderDetail and the admin views. Three pages
+// each carried their own copy of this and all three mapped a partially
+// fulfilled order to "Pending" -- see the note in utils/orderStatus.
+const deriveDisplayStatus = deriveStatus;
 
 function formatDate(iso: string): string {
   const date = new Date(iso);

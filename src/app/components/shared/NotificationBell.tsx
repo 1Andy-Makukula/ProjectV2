@@ -6,6 +6,7 @@
 // all, so a merchant whose shop was approved had nowhere to find out.
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -94,11 +95,24 @@ export function NotificationBell({ tone = 'dark', className = '' }: Notification
         )}
       </button>
 
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
+      {/* Rendered into document.body, not in place.
+          
+          This drawer is `fixed` with z-50, which ought to be enough -- but the
+          bell sits inside page headers that are `sticky top-0 z-10`, several
+          of them also `backdrop-blur`. Both sticky-with-z-index and
+          backdrop-filter establish a stacking context, and a descendant can
+          never paint above its own stacking context no matter how high its
+          z-index goes. So the drawer was confined to the header's z-10 layer
+          and the page grid painted straight over it.
+          
+          Raising z-50 to z-[9999] would have changed nothing, which is the
+          trap here. Escaping the ancestor is the only fix. */}
+      {createPortal(
+        <AnimatePresence>
+          {isOpen && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
@@ -229,7 +243,9 @@ export function NotificationBell({ tone = 'dark', className = '' }: Notification
             </motion.div>
           </>
         )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body,
+      )}
     </>
   );
 }

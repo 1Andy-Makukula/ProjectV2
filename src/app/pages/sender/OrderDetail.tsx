@@ -53,6 +53,7 @@ interface Item {
 }
 
 import { calculateTimeRemaining } from '../../../utils/timeHelpers';
+import { deriveStatus } from '../../../utils/orderStatus';
 
 interface Shop {
   id: string;
@@ -104,21 +105,42 @@ interface TransactionDetail {
 // Derived display status
 // ---------------------------------------------------------------------------
 
-type DisplayStatus = 'pending_payment' | 'paid' | 'fulfilled' | 'cancelled';
+// Shared with the other order views. Each page used to carry its own copy of
+// this and all of them mapped a partially fulfilled order to "Pending" --
+// see the note in utils/orderStatus.
+const deriveDisplayStatus = deriveStatus;
 
-function deriveDisplayStatus(txStatus: string, claimStatus: string | null): DisplayStatus {
-  if (txStatus === 'GATEWAY_PROCESSING') return 'pending_payment';
-  if (txStatus === 'FAILED' || txStatus === 'CANCELLED') return 'cancelled';
-  if (claimStatus === 'REDEEMED') return 'fulfilled';
-  if (claimStatus === 'PENDING') return 'paid';
-  return 'pending_payment';
-}
+type DisplayStatus = ReturnType<typeof deriveStatus>;
 
-const STATUS_CONFIG = {
+/**
+ * Per-item fulfilment, in the customer's language rather than the database's.
+ *
+ * MISSING is the one that mattered: the merchant did not have the item, and
+ * fulfill_voucher_atomic has already credited its allocated_price back to the
+ * buyer's wallet as PARTIAL_REFUND. Showing the raw enum told the customer the
+ * item was "MISSING" and left them to work out whether they were owed money.
+ */
+const ITEM_STATUS_LABELS: Record<string, string> = {
+  COLLECTED: 'Collected',
+  MISSING:   'Refunded to wallet',
+  FLOATING:  'Awaiting collection',
+  CONVERTED: 'Converted to credit',
+  EXPIRED:   'Expired',
+  PENDING:   'Ready to collect',
+};
+
+// Keyed by DisplayStatus rather than left to inference, so that a status the
+// shared helper can return but this page has no entry for is a compile error
+// instead of an undefined lookup at render time. 'expired' was exactly that.
+const STATUS_CONFIG: Record<
+  DisplayStatus,
+  { label: string; icon: typeof Clock; color: string; bg: string; border: string; dot: string }
+> = {
   pending_payment: { label: 'Payment Pending', icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200', dot: 'bg-amber-400' },
   paid:            { label: 'Payment Confirmed', icon: CheckCircle2, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200', dot: 'bg-blue-400' },
   fulfilled:       { label: 'Gift Collected', icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200', dot: 'bg-green-400' },
   cancelled:       { label: 'Cancelled', icon: AlertCircle, color: 'text-red-500', bg: 'bg-red-50', border: 'border-red-200', dot: 'bg-red-400' },
+  expired:         { label: 'Expired', icon: AlertCircle, color: 'text-slate-500', bg: 'bg-slate-50', border: 'border-slate-200', dot: 'bg-slate-400' },
 };
 
 function InfoRow({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
@@ -602,7 +624,7 @@ export function OrderDetail() {
                                 fulfillment_status === 'EXPIRED' ? 'bg-gray-400' :
                                 'bg-amber-500'
                               )} />
-                              {fulfillment_status}
+                              {ITEM_STATUS_LABELS[fulfillment_status] ?? fulfillment_status}
                             </span>
                           </div>
                           

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
+import { claimCodeForMerchant, canRevealClaimCode } from '../../../utils/claimCode';
 import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { formatCurrency } from '../../../utils/currency';
@@ -152,10 +153,15 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
           ) : (
             <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
               {/* The way back out. This page is a mode, not a cage — the
-                  merchant is also a customer and can shop like anyone else. */}
+                  merchant is also a customer and can shop like anyone else.
+                  Routed to '/' rather than '/dashboard': this button says
+                  "shopping", and the marketplace is at the root. Sending a
+                  merchant to the Impact Dashboard instead left them with no
+                  route to the storefront at all, since every other path out of
+                  here is role-aware and lands them back on the merchant side. */}
               <Button
                 variant="outline"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/')}
                 className="hidden sm:inline-flex"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
@@ -702,9 +708,16 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                     <span className="text-slate-500 font-semibold">Claim Code</span>
                   </div>
                   <span className="font-mono font-bold text-orange-600 bg-orange-100/40 border border-orange-200/50 px-2.5 py-1 rounded-xl text-xs select-all tracking-wider shadow-sm">
-                    {selectedOrder.code}
+                    {claimCodeForMerchant(selectedOrder.code, selectedOrder.claim_status)}
                   </span>
                 </div>
+
+                {!canRevealClaimCode(selectedOrder.claim_status) && (
+                  <p className="text-[11px] text-slate-500 leading-relaxed -mt-2">
+                    The customer presents this code at the counter. Enter it in the
+                    Handover Terminal to verify and redeem.
+                  </p>
+                )}
 
                 <div className="grid grid-cols-2 gap-4 text-xs pt-1">
                   <div className="space-y-1">
@@ -755,14 +768,10 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                   )}
                 </div>
 
-                {selectedOrder.message && (
-                  <div className="pt-3 border-t border-orange-100/50 text-xs">
-                    <span className="text-slate-400 font-medium block mb-1">Gift Message:</span>
-                    <p className="text-slate-600 italic bg-white/85 p-2.5 rounded-xl border border-orange-100/30 shadow-inner">
-                      "{selectedOrder.message}"
-                    </p>
-                  </div>
-                )}
+                {/* The gift message is deliberately not shown.
+                    It is a private note from the buyer to the recipient, and
+                    it reaches the recipient through the WhatsApp share link.
+                    The shop needs the items and the recipient, not the words. */}
               </div>
 
               {/* Items List */}

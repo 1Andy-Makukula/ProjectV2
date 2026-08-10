@@ -13,7 +13,9 @@ export interface Order {
   code: string;
   recipient_name: string;
   recipient_phone?: string | null;
-  message?: string | null;
+  // No `message`. The buyer's gift message is deliberately absent from every
+  // merchant-facing shape so that rendering it is a type error rather than a
+  // decision someone has to remember to make.
   amount: number;
   paid_at: string | null;
   fulfilled_at: string | null;
@@ -89,7 +91,28 @@ export function useMerchantDashboard(
     try {
       const { data, error } = await supabase
         .from('shop_orders')
-        .select('*, order_items(item:items(name, image_url))')
+        // Explicit columns, not `*`.
+        //
+        // The wildcard shipped the whole row to the merchant's browser,
+        // including shop_orders.message -- the private note the buyer wrote
+        // for the recipient. That is a message between two other people; the
+        // shop needs to know what to hand over and to whom, not what was said.
+        //
+        // Note this is the client half only. RLS still lets a merchant SELECT
+        // the column directly, so the message is withheld from the product,
+        // not from a determined operator with the anon key. Closing that needs
+        // a column-restricted view; see the note in the handover notes.
+        .select(`
+          shop_order_id,
+          claim_code,
+          claim_status,
+          subtotal,
+          recipient_name,
+          recipient_phone,
+          created_at,
+          fulfilled_at,
+          order_items(item:items(name, image_url))
+        `)
         .eq('shop_id', currentShopId)
         .order('created_at', { ascending: false });
 
