@@ -4,6 +4,43 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { CartItem, Product } from '../types';
 import { unitPriceFor } from '../types/items';
+import {
+  selectionDelta,
+  selectionSignature,
+  type OptionSelection,
+} from '../types/itemOptions';
+
+/**
+ * Identifies one configuration of a product in the cart.
+ *
+ * The cart used to merge purely on product id, which is right until options
+ * exist: two of the same dish with different sides would have collapsed into
+ * one line and the second choice been lost. An item with no options keeps its
+ * bare id as the key, so carts already saved in localStorage keep working and
+ * every existing call site that passes a product id still resolves.
+ */
+export function cartLineKey(productId: string, selection?: OptionSelection | null): string {
+  const signature = selectionSignature(selection);
+  return signature ? `${productId}#${signature}` : productId;
+}
+
+/** The key of a line already in the cart, tolerating lines saved before options. */
+export function lineKeyOf(item: CartItem): string {
+  return item.lineKey ?? cartLineKey(item.product.id, item.selection);
+}
+
+/**
+ * What one unit of a cart line costs: the quantity-break price for the item,
+ * plus whatever its chosen options add.
+ *
+ * checkout_init_atomic computes the same figure and its answer is the one
+ * charged. This exists so the buyer is shown that number rather than a total
+ * they will not be billed.
+ */
+export function cartLineUnitPrice(item: CartItem): number {
+  const base = unitPriceFor(item.product.price_zmw, item.product.price_tiers, item.quantity);
+  return base + selectionDelta(item.product.option_groups, item.selection ?? {});
+}
 
 /**
  * toProduct — converts a raw DB `items` row into the Product shape
@@ -22,6 +59,7 @@ export function toProduct(item: any): Product {
     is_available: item.is_available ?? true,
     currency: item.currency ?? 'ZMW',
     price_tiers: item.item_price_tiers ?? item.price_tiers ?? undefined,
+    option_groups: item.item_option_groups ?? item.option_groups ?? undefined,
   };
 }
 
@@ -31,9 +69,10 @@ interface CartState {
   applyCredits: boolean;
 
   // Actions
-  addToCart: (product: Product, quantity?: number) => void;
-  removeFromCart: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  addToCart: (product: Product, quantity?: number, selection?: OptionSelection) => void;
+  /** Keyed by cart line, not product id — see cartLineKey. */
+  removeFromCart: (lineKey: string) => void;
+  updateQuantity: (lineKey: string, quantity: number) => void;
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalAmount: () => number;
@@ -51,38 +90,39 @@ export const useCart = create<CartState>()(
       setCartSliderOpen: (open: boolean) => set({ isCartSliderOpen: open }),
       setApplyCredits: (apply: boolean) => set({ applyCredits: apply }),
 
-      addToCart: (product: Product, quantity = 1) => {
+      addToCart: (product: Product, quantity = 1, selection?: OptionSelection) => {
         const { items } = get();
-        const existingItem = items.find(item => item.product.id === product.id);
-        
+        const lineKey = cartLineKey(product.id, selection);
+        const existingItem = items.find(item => lineKeyOf(item) === lineKey);
+
         if (existingItem) {
           set({
             items: items.map(item =>
-              item.product.id === product.id
+              lineKeyOf(item) === lineKey
                 ? { ...item, quantity: item.quantity + quantity }
                 : item
             ),
           });
         } else {
-          set({ items: [...items, { product, quantity }] });
+          set({ items: [...items, { product, quantity, selection, lineKey }] });
         }
       },
 
-      removeFromCart: (productId: string) => {
+      removeFromCart: (lineKey: string) => {
         set(state => ({
-          items: state.items.filter(item => item.product.id !== productId),
+          items: state.items.filter(item => lineKeyOf(item) !== lineKey),
         }));
       },
 
-      updateQuantity: (productId: string, quantity: number) => {
+      updateQuantity: (lineKey: string, quantity: number) => {
         if (quantity <= 0) {
-          get().removeFromCart(productId);
+          get().removeFromCart(lineKey);
           return;
         }
-        
+
         set(state => ({
           items: state.items.map(item =>
-            item.product.id === productId ? { ...item, quantity } : item
+            lineKeyOf(item) === lineKey ? { ...item, quantity } : item
           ),
         }));
       },
@@ -100,10 +140,7 @@ export const useCart = create<CartState>()(
         // in checkout_init_atomic: a cart that quotes the undiscounted total
         // would show the buyer a number they are not charged.
         return get().items.reduce(
-          (total, item) =>
-            total +
-            unitPriceFor(item.product.price_zmw, item.product.price_tiers, item.quantity) *
-              item.quantity,
+          (total, item) => total + cartLineUnitPrice(item) * item.quantity,
           0
         );
       },

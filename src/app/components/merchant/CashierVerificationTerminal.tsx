@@ -114,9 +114,22 @@ function ChecklistView({ bundle, onProcess, onCancel }: { bundle: BundleData; on
           const isPresent = itemToggles[oi.order_item_id];
           return (
             <div key={oi.order_item_id} className="flex items-center justify-between gap-4 rounded-xl border border-slate-50 bg-slate-50/50 p-3 min-h-[48px] transition-colors hover:bg-slate-50">
-              <span className={cn("text-sm font-medium transition-colors line-clamp-2", isPresent ? "text-slate-800" : "text-slate-400 line-through")}>
-                {oi.items?.name || 'Unknown item'}
-              </span>
+              <div className="min-w-0">
+                <span className={cn("text-sm font-medium transition-colors line-clamp-2", isPresent ? "text-slate-800" : "text-slate-400 line-through")}>
+                  {oi.items?.name || 'Unknown item'}
+                </span>
+                {/* What the buyer chose, snapshotted at checkout — the merchant
+                    cannot prepare "6 plates, extra juice" without seeing it. */}
+                {Array.isArray(oi.selected_options) && oi.selected_options.length > 0 && (
+                  <p className={cn("mt-0.5 text-[11px]", isPresent ? "text-slate-500" : "text-slate-400")}>
+                    {oi.selected_options
+                      .map((entry: { group?: string; value?: string }) =>
+                        entry?.group ? `${entry.group}: ${entry.value}` : entry?.value)
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </p>
+                )}
+              </div>
               <div className="flex items-center gap-3 shrink-0">
                 <span className={cn("text-xs font-semibold", isPresent ? "text-emerald-600" : "text-slate-400")}>
                   {isPresent ? 'Available' : 'Missing'}

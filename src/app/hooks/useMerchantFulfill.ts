@@ -89,6 +89,7 @@ export function useMerchantFulfill() {
             order_item_id,
             item_id,
             allocated_price,
+            selected_options,
             items ( name, image_url )
           )
         `)

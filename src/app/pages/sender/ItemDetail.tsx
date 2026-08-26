@@ -2,7 +2,7 @@
 // the cart: booked services, custom-quote work, and discounted or wholesale
 // listings whose terms need stating before the buyer commits.
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { motion } from 'motion/react';
 import {
@@ -46,6 +46,14 @@ import {
   CarouselPrevious,
 } from '../../components/ui/carousel';
 import { AddToListDialog } from '../../components/shared/AddToListDialog';
+import { ItemOptionPicker } from '../../components/shared/ItemOptionPicker';
+import {
+  initialSelection,
+  selectionDelta,
+  selectionProblem,
+  sortedGroups,
+  type OptionSelection,
+} from '../../types/itemOptions';
 
 function formatZmw(ngwee: number | null | undefined): string {
   return ngwee != null ? (ngwee / 100).toFixed(2) : '—';
@@ -82,6 +90,15 @@ export function ItemDetail() {
   const { addToCart, setCartSliderOpen } = useCart();
   const [startingChat, setStartingChat] = useState(false);
   const [addToListOpen, setAddToListOpen] = useState(false);
+  const [selection, setSelection] = useState<OptionSelection>({});
+
+  // Declared above the early returns because hooks must be, and seeded once the
+  // item lands: a required single-choice group starts on its first option so
+  // the buyer is not blocked by something they were never shown.
+  const loadedGroups = item?.item_option_groups;
+  useEffect(() => {
+    setSelection(initialSelection(loadedGroups));
+  }, [itemId, loadedGroups]);
 
   if (loading) {
     return (
@@ -113,6 +130,8 @@ export function ItemDetail() {
   const priceLabel = servicePriceLabel(item);
   const galleryUrls = itemGalleryUrls(item);
   const outOfStock = isOutOfStock(item);
+  const optionGroups = sortedGroups(item.item_option_groups);
+  const optionsDelta = selectionDelta(optionGroups, selection);
   const tiers = sortedTiers(item.item_price_tiers);
 
   const handleGift = () => navigate(profile ? `/send/${item.id}` : '/signup');
@@ -146,7 +165,13 @@ export function ItemDetail() {
       navigate('/signup');
       return;
     }
-    addToCart(toProduct({ ...item, shop_id: item.shop?.id ?? '' }), quantity);
+    const problem = selectionProblem(optionGroups, selection);
+    if (problem) {
+      toast.error(problem);
+      return;
+    }
+
+    addToCart(toProduct({ ...item, shop_id: item.shop?.id ?? '' }), quantity, selection);
     toast.success(
       quantity > 1
         ? `${quantity} × ${item.name} added to cart`
@@ -261,6 +286,20 @@ export function ItemDetail() {
                 </span>
               )}
             </div>
+            {optionsDelta > 0 && (
+              <p className="mt-1.5 text-sm font-medium text-slate-700">
+                With your choices: ZMW {formatZmw(item.price_zmw + optionsDelta)}
+              </p>
+            )}
+
+            {!outOfStock && optionGroups.length > 0 && (
+              <ItemOptionPicker
+                groups={optionGroups}
+                selection={selection}
+                onChange={setSelection}
+              />
+            )}
+
             {priceLabel.note && (
               <p className="mt-1.5 text-xs font-light text-slate-500">{priceLabel.note}</p>
             )}

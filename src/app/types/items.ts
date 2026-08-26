@@ -1,3 +1,4 @@
+import type { ItemOptionGroup } from './itemOptions';
 // Shared vocabulary for the catalogue.
 //
 // The admin form, the storefront card and the item detail view all need to
@@ -88,6 +89,9 @@ export interface CatalogItem {
 
   /** Quantity breaks, when the surface asked for them. */
   item_price_tiers?: PriceTier[] | null;
+
+  /** Option groups, when the surface asked for them. Order via sortedGroups(). */
+  item_option_groups?: ItemOptionGroup[] | null;
 
   /** Gallery rows, when the surface asked for them. Order via galleryUrls(). */
   item_images?: Array<{ image_url: string; sort_order: number }> | null;

@@ -13,12 +13,13 @@ import {
   SheetDescription,
   SheetFooter,
 } from '../ui/sheet';
-import { useCart } from '../../hooks/useCart';
+import { useCart, lineKeyOf, cartLineUnitPrice } from '../../hooks/useCart';
+import { describeSelection } from '../../types/itemOptions';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { supabase } from '../../../lib/supabaseClient';
 import { Switch } from '../ui/switch';
 import { formatCurrency } from '../../../utils/currency';
-import { nextTier, unitPriceFor } from '../../types/items';
+import { nextTier } from '../../types/items';
 import { usePlatformPricing } from '../../hooks/usePlatformPricing';
 import { creditsApplicationFor, feePercentFor, serviceFeeFor, CHECKOUT_ORIGIN } from '../../../utils/pricing';
 
@@ -90,7 +91,7 @@ export function CartSlider() {
       };
     }
     acc[shopId].items.push(item);
-    acc[shopId].subtotal += item.product.price_zmw * item.quantity;
+    acc[shopId].subtotal += cartLineUnitPrice(item) * item.quantity;
     return acc;
   }, {} as Record<string, { shopName: string; items: typeof items; subtotal: number }>);
 
@@ -194,14 +195,19 @@ export function CartSlider() {
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-medium text-slate-900">{item.product.name || item.product.title}</p>
                           {(() => {
-                            const unit = unitPriceFor(
-                              item.product.price_zmw,
-                              item.product.price_tiers,
-                              item.quantity,
+                            // Includes any chosen options, so the line agrees
+                            // with the total and with what checkout charges.
+                            const unit = cartLineUnitPrice(item);
+                            const extras = describeSelection(
+                              item.product.option_groups,
+                              item.selection ?? {},
                             );
                             const upcoming = nextTier(item.product.price_tiers, item.quantity);
                             return (
                               <>
+                                {extras && (
+                                  <p className="truncate text-[11px] text-slate-500">{extras}</p>
+                                )}
                                 <p className="text-xs text-slate-400">
                                   {formatCurrency(unit, 'ZMW')}
                                   {unit < item.product.price_zmw && (
@@ -223,7 +229,7 @@ export function CartSlider() {
                           {/* Qty controls */}
                           <div className="mt-1.5 flex items-center gap-2">
                             <button
-                              onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                              onClick={() => updateQuantity(lineKeyOf(item), item.quantity - 1)}
                               className="flex h-5 w-5 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:border-orange-300 hover:text-orange-500 transition-colors"
                             >
                               <Minus className="h-3 w-3" />
@@ -232,7 +238,7 @@ export function CartSlider() {
                               {item.quantity}
                             </span>
                             <button
-                              onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                              onClick={() => updateQuantity(lineKeyOf(item), item.quantity + 1)}
                               className="flex h-5 w-5 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:border-orange-300 hover:text-orange-500 transition-colors"
                             >
                               <Plus className="h-3 w-3" />
@@ -243,17 +249,10 @@ export function CartSlider() {
                         {/* Line total + remove */}
                         <div className="flex flex-col items-end gap-2 shrink-0">
                           <p className="text-sm font-semibold text-slate-900">
-                            {formatCurrency(
-                              unitPriceFor(
-                                item.product.price_zmw,
-                                item.product.price_tiers,
-                                item.quantity,
-                              ) * item.quantity,
-                              'ZMW',
-                            )}
+                            {formatCurrency(cartLineUnitPrice(item) * item.quantity, 'ZMW')}
                           </p>
                           <button
-                            onClick={() => removeFromCart(item.product.id)}
+                            onClick={() => removeFromCart(lineKeyOf(item))}
                             className="rounded-md p-1 text-slate-300 hover:bg-red-50 hover:text-red-400 transition-colors"
                             aria-label="Remove item"
                           >

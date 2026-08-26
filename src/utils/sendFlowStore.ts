@@ -1,3 +1,4 @@
+import type { OptionSelection } from '../app/types/itemOptions';
 import { create } from 'zustand';
 import type { CartItem } from '../app/types';
 
@@ -19,6 +20,8 @@ export interface CartItemPayload {
   item_id: string;
   quantity: number;
   shop_id: string;
+  /** Chosen options, keyed by group id. Priced by the server, never the client. */
+  selection?: OptionSelection;
 }
 
 export interface FlatCartPayload {
@@ -46,10 +49,12 @@ export function getFlatCartPayload(
   items: CartItem[],
   recipient?: RecipientDetails,
 ): FlatCartPayload {
-  const cart_items: CartItemPayload[] = items.map(({ product, quantity }) => ({
+  const cart_items: CartItemPayload[] = items.map(({ product, quantity, selection }) => ({
     item_id: product.id,
     quantity,
     shop_id: product.shop_id,
+    // What was chosen, never what it costs: the server reprices it.
+    ...(selection && Object.keys(selection).length > 0 ? { selection } : {}),
   }));
 
   return {

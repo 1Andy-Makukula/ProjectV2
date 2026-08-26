@@ -30,7 +30,11 @@ export function useItemDetail(itemId?: string) {
           // embedded relation, and a gallery is at most five rows.
           .select(
             '*, shop:shops(id, name, location), item_images(image_url, sort_order), ' +
-              'item_price_tiers(min_quantity, unit_price_zmw)',
+              'item_price_tiers(min_quantity, unit_price_zmw), ' +
+              // Ordered client-side: PostgREST cannot sort a nested relation.
+              'item_option_groups(id, label, kind, allow_multiple, is_required, ' +
+              'min_value, max_value, unit_price_delta_zmw, sort_order, ' +
+              'options:item_options(id, label, price_delta_zmw, is_available, sort_order))',
           )
           .eq('id', id)
           .eq('is_available', true)

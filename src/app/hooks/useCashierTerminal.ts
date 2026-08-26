@@ -13,6 +13,11 @@ export interface BundleData {
   order_items: Array<{
     order_item_id: string;
     items: { name: string } | null;
+    /**
+     * What the buyer chose, snapshotted at checkout. Kept verbatim rather than
+     * joined, so it stays readable after the option definitions change.
+     */
+    selected_options?: Array<{ group?: string; value?: string; delta?: number }> | null;
   }>;
 }
 
@@ -89,7 +94,7 @@ export function useCashierTerminal(shopId: string, onApproved?: (result: Approve
     try {
       const { data, error } = await supabase
         .from('shop_orders')
-        .select('shop_order_id, transaction_id, claim_code, recipient_name, order_items(order_item_id, items(name))')
+        .select('shop_order_id, transaction_id, claim_code, recipient_name, order_items(order_item_id, selected_options, items(name))')
         .eq('claim_code', codeToUse.toUpperCase())
         .eq('shop_id', shopId)
         .in('claim_status', ['PENDING', 'PENDING_PAYMENT'])

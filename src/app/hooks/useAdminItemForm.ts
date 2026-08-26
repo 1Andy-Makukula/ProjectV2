@@ -14,6 +14,8 @@ import { toast } from 'sonner';
 import { parseAuthError } from '../../utils/errorParser';
 import { ineffectiveTiers } from '../types/items';
 import type { FulfillmentLocation, ItemType, PriceTier } from '../types/items';
+import { draftGroupProblem } from '../types/itemOptions';
+import type { DraftOptionGroup, OptionGroupKind } from '../types/itemOptions';
 
 export interface ItemFormData {
   name: string;
@@ -45,6 +47,7 @@ export interface ItemFormData {
 
   /** Quantity breaks, prices in ZMW; converted to ngwee on save. */
   price_tiers: PriceTier[];
+  option_groups: DraftOptionGroup[];
 }
 
 export interface CategoryOption {
@@ -85,6 +88,7 @@ const EMPTY_FORM: ItemFormData = {
 
   stock_quantity: '',
   price_tiers: [],
+  option_groups: [],
 };
 
 /** Ngwee integer to a display string, or '' when unset. */
@@ -209,6 +213,16 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
         .eq('item_id', itemId)
         .order('min_quantity');
 
+      const { data: groupRows } = await supabase
+        .from('item_option_groups')
+        .select(
+          'id, label, kind, allow_multiple, is_required, min_value, max_value, ' +
+            'unit_price_delta_zmw, sort_order, ' +
+            'options:item_options(id, label, price_delta_zmw, is_available, sort_order)',
+        )
+        .eq('item_id', itemId)
+        .order('sort_order');
+
       await loadGallery(itemId);
       setActualShopId(data.shop_id);
       setFormData({
@@ -240,6 +254,26 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
         stock_quantity: data.stock_quantity != null ? String(data.stock_quantity) : '',
 
         // Stored in ngwee; the editor works in ZMW like every other price field.
+        // Prices are stored in ngwee and edited in ZMW, like every other
+        // price field on this form.
+        option_groups: (groupRows ?? [])
+          .map((group: any) => ({
+            label: group.label ?? '',
+            kind: (group.kind ?? 'choice') as OptionGroupKind,
+            allow_multiple: group.allow_multiple ?? false,
+            is_required: group.is_required ?? false,
+            min_value: group.min_value != null ? String(group.min_value) : '',
+            max_value: group.max_value != null ? String(group.max_value) : '',
+            unit_price_delta_zmw: (group.unit_price_delta_zmw ?? 0) / 100,
+            options: (group.options ?? [])
+              .slice()
+              .sort((a: any, b: any) => a.sort_order - b.sort_order)
+              .map((option: any) => ({
+                label: option.label ?? '',
+                price_delta_zmw: (option.price_delta_zmw ?? 0) / 100,
+              })),
+          })),
+
         price_tiers: (tierRows ?? [])
           .map((tier: any) => ({
             min_quantity: tier.min_quantity,
@@ -329,6 +363,60 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
       })),
     );
     if (error) throw error;
+  }, []);
+
+  /**
+   * Replaces the item's option groups.
+   *
+   * Deleted and rewritten wholesale rather than diffed: groups cascade to their
+   * options, the sets are tiny, and a merchant editing an item expects what they
+   * see to be what is saved. Existing orders keep a snapshot of what was chosen
+   * (order_items.selected_options), so rewriting definitions cannot rewrite
+   * history.
+   */
+  const writeOptionGroups = useCallback(async (id: string, groups: DraftOptionGroup[]) => {
+    const { error: deleteError } = await supabase
+      .from('item_option_groups')
+      .delete()
+      .eq('item_id', id);
+    if (deleteError) throw deleteError;
+
+    for (const [index, group] of groups.entries()) {
+      const isChoice = group.kind === 'choice';
+
+      const { data: inserted, error } = await supabase
+        .from('item_option_groups')
+        .insert([
+          {
+            item_id: id,
+            label: group.label.trim(),
+            kind: group.kind,
+            // item_option_groups_shape_check: the two shapes are exclusive.
+            allow_multiple: isChoice ? group.allow_multiple : false,
+            is_required: group.is_required,
+            min_value: isChoice ? null : parseOptionalInt(group.min_value),
+            max_value: isChoice ? null : parseOptionalInt(group.max_value),
+            unit_price_delta_zmw: isChoice ? 0 : toCents(group.unit_price_delta_zmw || 0),
+            sort_order: index,
+          },
+        ])
+        .select('id')
+        .single();
+      if (error) throw error;
+
+      // item_options_choice_only rejects options on a quantity group.
+      if (!isChoice || group.options.length === 0) continue;
+
+      const { error: optionError } = await supabase.from('item_options').insert(
+        group.options.map((option, optionIndex) => ({
+          group_id: inserted.id,
+          label: option.label.trim(),
+          price_delta_zmw: toCents(option.price_delta_zmw || 0),
+          sort_order: optionIndex,
+        })),
+      );
+      if (optionError) throw optionError;
+    }
   }, []);
 
   const loadCategories = useCallback(async () => {
@@ -465,6 +553,16 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
     // Blocked, not warned. An accepted-but-inert tier still rendered on the
     // storefront and in the cart's next-tier nudge, so the buyer was shown bulk
     // pricing dearer than buying singly. Mirrors validate_price_tier.
+    // Mirrors item_option_groups_shape_check and item_options_choice_only, so a
+    // malformed group is caught in the form rather than by a failed save.
+    for (const group of formData.option_groups) {
+      const problem = draftGroupProblem(group);
+      if (problem) {
+        toast.error(`${group.label.trim() || 'Option group'}: ${problem}`);
+        return false;
+      }
+    }
+
     const inert = ineffectiveTiers(priceValue, formData.price_tiers);
     if (inert.length > 0) {
       toast.error(
@@ -576,6 +674,7 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
       if (savedItemId) {
         await writeGallery(savedItemId, resolvedGallery);
         await writeTiers(savedItemId, formData.price_tiers);
+        await writeOptionGroups(savedItemId, formData.option_groups);
       }
 
       toast.success(isEditing ? 'Item updated successfully' : 'Item created successfully');
@@ -588,7 +687,7 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
       setLoading(false);
       setUploading(false);
     }
-  }, [formData, isEditing, itemId, actualShopId, gallery, writeGallery, writeTiers]);
+  }, [formData, isEditing, itemId, actualShopId, gallery, writeGallery, writeTiers, writeOptionGroups]);
 
   const deleteItem = useCallback(async () => {
     if (!itemId) return false;

@@ -5,6 +5,7 @@ import { supabase } from '../../../lib/supabaseClient';
 import { PricingTransparencyWidget } from '../../components/shared/PricingTransparencyWidget';
 import { ItemGalleryEditor } from '../../components/shared/ItemGalleryEditor';
 import { PriceTierEditor } from '../../components/shared/PriceTierEditor';
+import { ItemOptionsEditor } from '../../components/shared/ItemOptionsEditor';
 import { ItemPreviewDialog } from '../../components/shared/ItemPreviewDialog';
 import {
   ArrowLeft,
@@ -642,6 +643,16 @@ export function AdminItemForm() {
                 basePrice={formData.price}
                 tiers={formData.price_tiers}
                 onChange={(price_tiers) => setFormData({ ...formData, price_tiers })}
+                disabled={loading}
+              />
+
+              <div className="h-px bg-border" />
+
+              {/* Options the buyer picks at order time. Priced server-side by
+                  resolve_item_selection, so what is entered here is charged. */}
+              <ItemOptionsEditor
+                groups={formData.option_groups}
+                onChange={(option_groups) => setFormData({ ...formData, option_groups })}
                 disabled={loading}
               />
 

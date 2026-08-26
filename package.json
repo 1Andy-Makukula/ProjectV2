@@ -67,7 +67,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@capacitor/cli": "^8.3.4",
+    "@capacitor/cli": "^8.5.0",
     "@supabase/supabase-js": "^2.105.4",
     "@tailwindcss/vite": "4.1.12",
     "@types/canvas-confetti": "^1.6.4",
@@ -75,12 +75,12 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "4.7.0",
-    "hono": "^4.12.18",
+    "hono": "^4.13.1",
     "supabase": "^2.98.2",
     "tailwindcss": "4.1.12",
     "typescript": "^5.9.3",
     "vite": "6.4.3",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.7"
   },
   "peerDependencies": {
     "react": "18.3.1",
@@ -94,10 +94,6 @@
       "optional": true
     }
   },
-  "pnpm": {
-    "overrides": {
-      "vite": "6.4.3"
-    }
-  },
+  "_comment_pnpm_overrides": "Overrides moved to pnpm-workspace.yaml — pnpm no longer reads a pnpm.overrides field here and warns that it is ignoring it. vite stays pinned exactly in devDependencies, which is what was actually holding it at 6.4.3.",
   "packageManager": "pnpm@11.2.2"
 }

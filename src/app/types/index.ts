@@ -1,3 +1,4 @@
+import type { OptionSelection, ItemOptionGroup } from './itemOptions';
 // KithLy Type System - The "Bible" in Code
 
 export type UserRole = 'customer' | 'merchant' | 'admin';
@@ -78,6 +79,8 @@ export interface Product {
    * before tiers existed, which falls back to price_zmw.
    */
   price_tiers?: PriceTier[];
+  /** Option groups, so the cart can price a line's chosen extras. */
+  option_groups?: ItemOptionGroup[];
   stock_count?: number;
   category?: string;
   featured?: boolean;
@@ -112,6 +115,13 @@ export interface HandshakeLog {
 export interface CartItem {
   product: Product;
   quantity: number;
+  /** Chosen options for this line, keyed by option group id. */
+  selection?: OptionSelection;
+  /**
+   * Identity of this configuration. Optional because carts persisted before
+   * options existed have no key; lineKeyOf() derives one for those.
+   */
+  lineKey?: string;
 }
 
 export interface Notification {

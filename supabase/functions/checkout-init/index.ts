@@ -11,12 +11,16 @@ import { getCorsHeaders } from "../_shared/cors.ts";
 interface CartItemPayload {
   item_id: string;
   quantity: number;
+  /** Chosen options for this line, keyed by option group id. Priced server-side. */
+  selection?: Record<string, unknown>;
   shop_id: string;
 }
 
 interface SecureVendorGroup {
   shop_id: string;
   item_ids: string[];
+  /** Aligned index-for-index with item_ids; one entry per unit. */
+  line_options: Array<Record<string, unknown>>;
   secureSubtotal: number;
 }
 
@@ -190,7 +194,15 @@ function validatePayload(raw: Record<string, unknown>): CheckoutInitPayload {
     if (!shop_id) throw new Error(`cart_items[${i}].shop_id is required.`);
     if (quantity <= 0) throw new Error(`cart_items[${i}].quantity must be strictly positive.`);
 
-    return { item_id, shop_id, quantity };
+    // Passed through untouched. The client says what was chosen, never what it
+    // costs — resolve_item_selection prices it inside the checkout transaction
+    // and refuses anything it does not recognise.
+    const selection =
+      typeof itemObj.selection === "object" && itemObj.selection !== null && !Array.isArray(itemObj.selection)
+        ? (itemObj.selection as Record<string, unknown>)
+        : undefined;
+
+    return { item_id, shop_id, quantity, selection };
   });
 
   // --- origin_type ---
@@ -690,7 +702,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
   }
 
   // Group into vendors dynamically
-  const vendorMap = new Map<string, { item_ids: string[], secureSubtotal: number }>();
+  const vendorMap = new Map<string, { item_ids: string[], line_options: Array<Record<string, unknown>>, secureSubtotal: number }>();
   
   for (const item of cart_items) {
     const price = priceMap.get(item.item_id);
@@ -698,11 +710,13 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
       return json(req, { error: `Item ${item.item_id} is invalid or no longer available.` }, 400);
     }
     
-    const existing = vendorMap.get(item.shop_id) ?? { item_ids: [], secureSubtotal: 0 };
-    
-    // Add multiple times based on quantity
+    const existing = vendorMap.get(item.shop_id) ?? { item_ids: [], line_options: [], secureSubtotal: 0 };
+
+    // Add multiple times based on quantity. line_options grows in lockstep so
+    // each unit keeps its own selection.
     for (let q = 0; q < item.quantity; q++) {
       existing.item_ids.push(item.item_id);
+      existing.line_options.push(item.selection ?? {});
       existing.secureSubtotal += price;
     }
     
@@ -717,6 +731,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     secureVendors.push({
       shop_id,
       item_ids: group.item_ids,
+      line_options: group.line_options,
       secureSubtotal: group.secureSubtotal
     });
   }
@@ -734,6 +749,7 @@ async function handleCheckoutInit(req: Request): Promise<Response> {
     const vendorsPayload = secureVendors.map((v) => ({
       shop_id: v.shop_id,
       item_ids: v.item_ids,
+      line_options: v.line_options,
     }));
 
     const { data: checkoutResult, error: checkoutError } = await adminClient.rpc(
