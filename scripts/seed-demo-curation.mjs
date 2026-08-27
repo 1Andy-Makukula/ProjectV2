@@ -159,6 +159,11 @@ async function seedExperiences(items) {
     const { data, error } = await db.from('experiences').insert({
       name: def.name, slug, tagline: def.tagline, description: def.description,
       image_url: image, expires_at: expires,
+      // Required by experiences_public_read -- an experience defaults to
+      // inactive and is invisible to shoppers until this is set. Seeded
+      // experiences are meant to be browsable, so they are published on
+      // creation rather than left in a draft state nobody would think to leave.
+      is_active: true,
     }).select('id').single();
     if (error) { console.warn(`  ${def.name}: ${error.message}`); continue; }
 
