@@ -53,6 +53,7 @@ import {
   AlertDialogTrigger,
 } from '../../components/ui/alert-dialog';
 import { useAdminItemForm } from '../../hooks/useAdminItemForm';
+import { CategoryPicker } from '../../components/shared/CategoryPicker';
 
 export function AdminItemForm() {
   const navigate = useNavigate();
@@ -64,7 +65,8 @@ export function AdminItemForm() {
   const {
     formData,
     setFormData,
-    categories,
+    // categories is no longer destructured here: CategoryPicker loads and
+    // manages its own list, so the form does not need to thread it through.
     shopOfferings,
     actualShopId,
     loading,
@@ -323,26 +325,17 @@ export function AdminItemForm() {
               {/* Category */}
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Select
-                  value={formData.category_id || 'none'}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, category_id: value === 'none' ? '' : value })
+                <CategoryPicker
+                  id="category"
+                  value={formData.category_id}
+                  onChange={(categoryId) =>
+                    setFormData({ ...formData, category_id: categoryId })
                   }
-                >
-                  <SelectTrigger id="category">
-                    <SelectValue placeholder="Uncategorised" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Uncategorised</SelectItem>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder="Uncategorised"
+                />
                 <p className="text-xs font-light text-muted-foreground">
-                  Categories drive where this appears in browse and search.
+                  Categories drive where this appears in browse and search. Type to
+                  search; if what you need is missing, you can add it from here.
                 </p>
               </div>
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { toast } from 'sonner';
+import { useAuth } from '../../utils/auth/AuthContext';
 
 export interface Category {
   id: string;
@@ -22,6 +23,13 @@ export function useCategoryFlags() {
   const [loading, setLoading] = useState(true);
   const [toggling, setToggling] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+
+  // Categories are admin-managed at the database level ("Admins manage
+  // categories"). Surfaced here so callers can hide an add button rather than
+  // show one that fails on RLS -- a disabled affordance explains itself; a
+  // failing one just looks broken.
+  const { profile } = useAuth();
+  const canManage = profile?.role === 'admin';
   const [deleting, setDeleting] = useState<string | null>(null);
   const [schemaError, setSchemaError] = useState(false);
 
@@ -74,11 +82,19 @@ export function useCategoryFlags() {
     }
   };
 
-  const create = async (name: string) => {
+  /**
+   * Returns the created category rather than a boolean.
+   *
+   * The picker needs the new row's id so it can select what the admin just
+   * typed -- creating a category and then making them find it in the list is
+   * the kind of small friction that stops people categorising at all. Existing
+   * callers test truthiness, so this stays compatible.
+   */
+  const create = async (name: string): Promise<Category | null> => {
     const trimmed = name.trim();
     if (!trimmed) {
       toast.error('Category name is required');
-      return false;
+      return null;
     }
     setCreating(true);
     try {
@@ -90,14 +106,14 @@ export function useCategoryFlags() {
 
       if (error) {
         toast.error(error.code === '23505' ? 'A category with that name already exists' : error.message);
-        return false;
+        return null;
       }
       setCats(prev => [...prev, data as Category].sort((a, b) => a.name.localeCompare(b.name)));
       toast.success(`"${trimmed}" added`);
-      return true;
+      return data as Category;
     } catch (err: any) {
       toast.error(err.message ?? 'Failed to create category');
-      return false;
+      return null;
     } finally {
       setCreating(false);
     }
@@ -126,6 +142,7 @@ export function useCategoryFlags() {
 
   return {
     cats,
+    canManage,
     loading,
     toggling,
     creating,
