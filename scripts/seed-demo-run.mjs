@@ -13,6 +13,7 @@
  * Idempotent: every entity is keyed on a stable natural key and skipped if
  * already present, so re-running tops up rather than duplicating.
  */
+import { pathToFileURL } from 'node:url';
 import { db, placeholder, slugify } from './seed-demo-data.mjs';
 
 // --- catalogue --------------------------------------------------------------
@@ -284,4 +285,10 @@ async function main() {
   console.log('totals:', counts);
 }
 
-main().catch((e) => { console.error('SEED FAILED:', e.message); process.exit(1); });
+export { SHOPS };
+
+// Only run when executed directly -- importing SHOPS for the photo backfill
+// script must not also replay the whole seeding routine as a side effect.
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((e) => { console.error('SEED FAILED:', e.message); process.exit(1); });
+}
