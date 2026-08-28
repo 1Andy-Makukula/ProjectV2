@@ -1,6 +1,6 @@
 import { Share } from 'lucide-react';
 import { Button } from '../ui/button';
-import { getGiftPageUrl } from '../../../utils/whatsapp';
+import { createGiftShareMessage, getGiftPageUrl } from '../../../utils/whatsapp';
 
 export interface WhatsAppShareButtonProps {
   claimCode: string;
@@ -10,24 +10,20 @@ export interface WhatsAppShareButtonProps {
   amount?: number;
 }
 
+/**
+ * Share a gift over WhatsApp.
+ *
+ * The message carries the LINK ONLY. It used to carry the claim code in
+ * plaintext as well, which contradicted the decision block at the top of
+ * utils/whatsapp.ts: a claim code is a credential, and a WhatsApp message is
+ * forwarded, cloud-backed and screenshotted. The link resolves to /gift/:code,
+ * which reveals the code on a page we control — same reach for the recipient,
+ * far less spill.
+ */
 export function WhatsAppShareButton({ claimCode, shopName, recipientName, senderName }: WhatsAppShareButtonProps) {
   const handleShare = () => {
     const giftLink = getGiftPageUrl(claimCode);
-    const greeting = recipientName ? `Hi ${recipientName}, ` : 'Hi, ';
-    const fromLine = senderName ? `you've received a gift from ${senderName}` : `you've received a gift`;
-
-    const text = [
-      `${greeting}${fromLine} on KithLy! 🎁`,
-      ``,
-      `Your claim code is: *${claimCode}*`,
-      `Shop: ${shopName}`,
-      ``,
-      `Show the code to the cashier at the shop to collect your gift.`,
-      ``,
-      `Or tap the link below to view your gift details & QR code:`,
-      giftLink,
-    ].join('\n');
-
+    const text = createGiftShareMessage(giftLink, shopName, recipientName, senderName);
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };

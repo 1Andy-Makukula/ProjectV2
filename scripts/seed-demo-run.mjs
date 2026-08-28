@@ -14,6 +14,7 @@
  * already present, so re-running tops up rather than duplicating.
  */
 import { pathToFileURL } from 'node:url';
+import { randomBytes } from 'node:crypto';
 import { db, placeholder, slugify } from './seed-demo-data.mjs';
 
 // --- catalogue --------------------------------------------------------------
@@ -156,12 +157,23 @@ async function loadCategories() {
  * the profile row, so going through the admin API exercises the same path a
  * real merchant signup does rather than a shape only a script can produce.
  */
+/**
+ * A throwaway password for a seeded demo owner.
+ *
+ * These create real auth.users rows, so the value has to be unguessable even
+ * though the account is disposable. Was `Math.random().toString(36)`, which is
+ * both non-cryptographic and only ~41 bits before the suffix.
+ */
+function demoPassword() {
+  return `Demo!${randomBytes(12).toString('base64url')}A1`;
+}
+
 async function ensureOwner(email, name) {
   const { data: existing } = await db.from('users').select('id').eq('email', email).maybeSingle();
   if (existing) return existing.id;
 
   const { data, error } = await db.auth.admin.createUser({
-    email, password: `Demo!${Math.random().toString(36).slice(2, 10)}A1`, email_confirm: true,
+    email, password: demoPassword(), email_confirm: true,
   });
   if (error || !data.user) throw new Error(`owner ${email}: ${error?.message}`);
 

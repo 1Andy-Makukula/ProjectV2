@@ -576,8 +576,13 @@ async function handleFulfillVoucher(req: Request): Promise<Response> {
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : "Unknown error.";
+    // The detail stays in the function log, where an operator can read it. It
+    // used to be returned as `details` too, which handed an unauthenticated
+    // caller our internal failure text — table names, constraint names and
+    // whatever a driver decided to put in a message. The caller cannot act on
+    // any of it, so it is server-side only.
     console.error("[fulfill-voucher] Execution crash:", msg);
-    return json(req, { error: "An unexpected error occurred during fulfillment.", details: msg }, 500);
+    return json(req, { error: "An unexpected error occurred during fulfillment." }, 500);
   }
 }
 

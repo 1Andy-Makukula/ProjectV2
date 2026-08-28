@@ -32,6 +32,7 @@ import { Badge } from '../../components/ui/badge';
 import { PageShell, PageBody } from '../../components/layout/PageShell';
 import { AdminPageHeader } from '../../components/layout/AdminPageHeader';
 import { useAdminMerchants } from '../../hooks/useAdminMerchants';
+import { generateSecurePassword } from '../../../utils/securePassword';
 
 interface Merchant {
   id: string;
@@ -74,10 +75,11 @@ export function AdminMerchants() {
   const [editPassword, setEditPassword] = useState('');
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
-  const generatePassword = () => {
-    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
-    return Array.from({ length: 12 }, () => charset[Math.floor(Math.random() * charset.length)]).join('');
-  };
+  // Was a Math.random() loop over a 70-character set. Math.random is not a
+  // CSPRNG — its state is recoverable from a run of outputs — and these are
+  // real merchant sign-in credentials, so an admin who generates several was
+  // leaking the rest. See utils/securePassword.
+  const generatePassword = () => generateSecurePassword();
 
   useEffect(() => {
     if (createOpen) {

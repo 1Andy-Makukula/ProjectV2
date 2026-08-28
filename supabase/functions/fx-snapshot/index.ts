@@ -112,8 +112,13 @@ Deno.serve(async (req: Request): Promise<Response> => {
     // until it ages past fx_max_snapshot_age_minutes, at which point quoting
     // stops rather than pricing against something stale.
     const message = err instanceof Error ? err.message : String(err);
+    // Logged, never returned. This is not only the usual "do not leak internal
+    // errors" rule: the fetch URL carries `app_id=<secret>` in its query
+    // string, and a network-layer failure in Deno puts the whole URL in the
+    // error message. Returning it would publish the OpenExchangeRates key to
+    // anyone who could make this function fail.
     console.error(`[fx-snapshot] Provider fetch failed: ${message}`);
-    return json({ error: "Could not fetch rates.", detail: message }, 502);
+    return json({ error: "Could not fetch rates." }, 502);
   }
 
   const rates = payload.rates;

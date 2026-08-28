@@ -41,6 +41,36 @@ export function createWhatsAppShareLink(
   return `https://wa.me/?text=${encodedMessage}`;
 }
 
+/**
+ * The message a sender shares with their recipient.
+ *
+ * It carries the LINK ONLY, never the claim code. This lives here rather than
+ * in the button so it sits next to the decision block above and so the rule is
+ * testable: see tests/claim-code.test.ts, which asserts the code never appears
+ * in the output. A WhatsApp message is forwarded, cloud-backed and
+ * screenshotted; the link resolves to /gift/:code, where the code is revealed
+ * on a page we control.
+ *
+ * Kept short on purpose — WhatsApp renders a preview card for the gift link,
+ * and a wall of instructions competes with it.
+ */
+export function createGiftShareMessage(
+  giftPageUrl: string,
+  shopName: string,
+  recipientName?: string,
+  senderName?: string,
+): string {
+  const greeting = recipientName ? `Hi ${recipientName}, ` : 'Hi, ';
+  const fromLine = senderName ? `${senderName} sent you something` : 'someone sent you something';
+
+  return [
+    `${greeting}${fromLine} from ${shopName} on KithLy. 🎁`,
+    '',
+    'Open it here:',
+    giftPageUrl,
+  ].join('\n');
+}
+
 export function getGiftPageUrl(code: string): string {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
   return `${baseUrl}/gift/${code}`;

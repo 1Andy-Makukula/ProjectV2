@@ -6,6 +6,16 @@ on:
   pull_request:
     branches: [main, master]
 
+# Least privilege for the automatic GITHUB_TOKEN. Without this block the token
+# inherits the repository default, which can be write-all: any compromised
+# action or dependency in a job could then push commits, move tags or open
+# releases. Nothing here needs that. The jobs read the repo, build it, run a
+# throwaway Postgres, and deploy to Supabase through secrets that have nothing
+# to do with this token. Declared once at workflow level so a new job cannot
+# be added without one.
+permissions:
+  contents: read
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
