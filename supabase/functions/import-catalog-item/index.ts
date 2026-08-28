@@ -154,7 +154,7 @@ async function handleImport(req: Request): Promise<Response> {
     if (copiedPaths.length > 0) {
       await db.storage.from(BUCKET).remove(copiedPaths).catch(() => {});
     }
-    return json(req, { error: rpcError.message }, 400);
+    return json(req, { error: "Could not import this item." }, 400);
   }
 
   console.log(

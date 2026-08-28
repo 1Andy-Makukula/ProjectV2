@@ -36,6 +36,9 @@ const CHARSET = LOWER + UPPER + DIGITS + SYMBOLS;
 /** Long enough that the charset size stops being the interesting number. */
 export const DEFAULT_PASSWORD_LENGTH = 16;
 
+/** Not a security limit — a guard against an absurd allocation. */
+export const MAX_PASSWORD_LENGTH = 256;
+
 /**
  * A uniformly distributed integer in [0, maxExclusive).
  *
@@ -71,8 +74,28 @@ function shuffle(characters: string[]): string[] {
 export function generateSecurePassword(length = DEFAULT_PASSWORD_LENGTH): string {
   const classes = [LOWER, UPPER, DIGITS, SYMBOLS];
 
+  // The whole domain, not just the low end. A `length <  classes.length` guard
+  // alone lets two values through that both fail badly and silently:
+  //
+  //   NaN       — every comparison against it is false, so the guard does not
+  //               fire AND the fill loop never runs. The caller asks for a
+  //               password and is handed a FOUR character one. In a credential
+  //               generator that is the worst possible failure mode: it looks
+  //               like it worked.
+  //   Infinity  — the fill loop never terminates and the tab hangs.
+  //
+  // `Number.isInteger` rejects both, plus fractions like 12.5 which otherwise
+  // produced a 13-character password for a 12.5-character request.
+  if (!Number.isInteger(length)) {
+    throw new TypeError(`Password length must be an integer, received ${String(length)}`);
+  }
+
   if (length < classes.length) {
     throw new RangeError(`Password length must be at least ${classes.length}`);
+  }
+
+  if (length > MAX_PASSWORD_LENGTH) {
+    throw new RangeError(`Password length must not exceed ${MAX_PASSWORD_LENGTH}`);
   }
 
   const characters = classes.map((set) => set[randomIndex(set.length)]);

@@ -12,7 +12,11 @@
  * length, and the absence of an obvious positional pattern.
  */
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_PASSWORD_LENGTH, generateSecurePassword } from '../src/utils/securePassword';
+import {
+  DEFAULT_PASSWORD_LENGTH,
+  MAX_PASSWORD_LENGTH,
+  generateSecurePassword,
+} from '../src/utils/securePassword';
 
 const LOWER = /[a-z]/;
 const UPPER = /[A-Z]/;
@@ -72,5 +76,32 @@ describe('generateSecurePassword', () => {
 
   it('refuses a length that cannot hold every class', () => {
     expect(() => generateSecurePassword(3)).toThrow(RangeError);
+    expect(() => generateSecurePassword(0)).toThrow(RangeError);
+    expect(() => generateSecurePassword(-5)).toThrow(RangeError);
+  });
+
+  describe('the rest of the length domain', () => {
+    // A `length < 4` guard alone is not enough, and the two values it misses
+    // both fail in ways nobody would notice from the call site.
+    it('rejects NaN rather than silently returning a 4-character password', () => {
+      // This is the dangerous one. Every comparison against NaN is false, so
+      // neither the guard nor the fill loop fired, and the caller got four
+      // characters back and no indication anything had gone wrong.
+      expect(() => generateSecurePassword(Number.NaN)).toThrow(TypeError);
+    });
+
+    it('rejects Infinity rather than looping forever', () => {
+      expect(() => generateSecurePassword(Number.POSITIVE_INFINITY)).toThrow(TypeError);
+    });
+
+    it('rejects fractional lengths', () => {
+      // Previously returned 13 characters for a request of 12.5.
+      expect(() => generateSecurePassword(12.5)).toThrow(TypeError);
+    });
+
+    it('rejects an absurd allocation', () => {
+      expect(() => generateSecurePassword(MAX_PASSWORD_LENGTH + 1)).toThrow(RangeError);
+      expect(generateSecurePassword(MAX_PASSWORD_LENGTH)).toHaveLength(MAX_PASSWORD_LENGTH);
+    });
   });
 });

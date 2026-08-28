@@ -48,6 +48,21 @@ interface OerLatestResponse {
   description?: string;
 }
 
+/**
+ * Strip the OpenExchangeRates app_id out of anything before it is written down.
+ *
+ * The provider URL carries `app_id=<secret>` in its query string, and a
+ * network-layer failure in Deno puts the entire URL into the error message. It
+ * was already kept out of the response body -- but it was still being written
+ * straight into the function log, which is readable by anyone with dashboard
+ * access and is usually shipped on to a log aggregator. A secret in a log is a
+ * leaked secret with a longer fuse, so the same rule has to apply on both
+ * paths.
+ */
+function redactAppId(text: string): string {
+  return text.replace(/app_id=[^&\s"')]+/gi, "app_id=[redacted]");
+}
+
 function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
@@ -111,12 +126,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
     // Not fatal to the platform: checkout keeps using the previous snapshot
     // until it ages past fx_max_snapshot_age_minutes, at which point quoting
     // stops rather than pricing against something stale.
-    const message = err instanceof Error ? err.message : String(err);
-    // Logged, never returned. This is not only the usual "do not leak internal
-    // errors" rule: the fetch URL carries `app_id=<secret>` in its query
-    // string, and a network-layer failure in Deno puts the whole URL in the
-    // error message. Returning it would publish the OpenExchangeRates key to
-    // anyone who could make this function fail.
+    // Redacted on the way to the log and absent from the response entirely.
+    // See redactAppId: the provider URL carries the key, and a network-layer
+    // failure puts the whole URL in the message.
+    const message = redactAppId(err instanceof Error ? err.message : String(err));
     console.error(`[fx-snapshot] Provider fetch failed: ${message}`);
     return json({ error: "Could not fetch rates." }, 502);
   }

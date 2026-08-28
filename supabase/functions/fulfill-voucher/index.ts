@@ -525,19 +525,19 @@ async function handleFulfillVoucher(req: Request): Promise<Response> {
       });
 
       if (fulfillError) {
+        // The whole driver error goes to the log, where an operator can read
+        // it. None of it goes back: `details` is the raw Postgres message,
+        // `code` is the SQLSTATE, and `hint` is Postgres actively suggesting
+        // how to reshape the failing statement. This response is rendered on a
+        // cashier's phone, and the cashier can act on none of it.
         console.error("[fulfill-voucher] fulfill_voucher_atomic database error:", fulfillError);
-        return json(req, {
-          error: "Database transaction failed.",
-          details: fulfillError.message,
-          code: fulfillError.code,
-          hint: fulfillError.hint
-        }, 400);
+        return json(req, { error: "Database transaction failed." }, 400);
       }
       fulfillResult = data;
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error("[fulfill-voucher] rpc call threw exception:", msg);
-      return json(req, { error: "RPC invocation failed.", details: msg }, 500);
+      return json(req, { error: "RPC invocation failed." }, 500);
     }
 
     if (!fulfillResult || !fulfillResult.success) {

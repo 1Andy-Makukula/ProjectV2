@@ -133,10 +133,13 @@ Deno.serve(async (req: Request): Promise<Response> => {
       // A stale rate is the expected reason, and it is not the buyer's fault.
       // Surfaced rather than swallowed so the client can offer the kwacha path
       // instead of showing a dead end.
+      // The 503 and the sentence are what the client acts on -- it offers the
+      // kwacha path instead of a dead end. It never needed the RPC's own error
+      // text to do that, and that text is internal.
       console.error(`[${FN}] Quote failed for ${currency}: ${error.message}`);
       return jsonWithCors(
         req,
-        { error: "Could not price this order in that currency right now.", detail: error.message },
+        { error: "Could not price this order in that currency right now." },
         503,
       );
     }
