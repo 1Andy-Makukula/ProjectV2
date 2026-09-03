@@ -367,7 +367,21 @@
 }
 
 /* ── Keyframe animations ───────────────────────────────────────────────────── */
-@layer utilities {
+/* ── Component classes ──────────────────────────────────────────────────────
+   In `components`, not `utilities`, and the distinction is not cosmetic.
+
+   These sat in @layer utilities, which is where Tailwind puts its own, so they
+   competed with it at equal specificity and won purely by coming later in the
+   file. That meant `.kl-rim`'s `position: relative` beat Tailwind's `fixed` on
+   any element carrying both -- which is exactly what DialogContent is. The
+   dialog rendered at the end of <body>, translated -50%/-50%, and left the
+   screen: overlay visible, panel gone, focus inside it so the keyboard opened
+   over nothing.
+
+   As a component layer these lose to utilities by cascade order rather than by
+   luck, so a class on the element always overrides the shell it is built from.
+   That is the correct relationship, and it is why this layer exists. */
+@layer components {
   @keyframes kl-fade-up {
     from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: translateY(0); }

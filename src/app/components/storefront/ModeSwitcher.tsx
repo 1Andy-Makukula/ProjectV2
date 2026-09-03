@@ -60,7 +60,10 @@ export function ModeSwitcher() {
       aria-label="Browse by"
       tabIndex={0}
       {...handlers}
-      className={`kl-rail scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 py-1
+      // No overflow utility here: kl-rail owns the overflow, and now that it
+      // is a component class a utility would win and turn the carousel back
+      // into a scroller.
+      className={`kl-rail scrollbar-none -mx-4 flex gap-2 px-4 py-1
                   outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
                   sm:mx-0 sm:px-0 ${dragging ? 'kl-rail--dragging' : ''}`}
     >

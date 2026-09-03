@@ -288,6 +288,7 @@ export type Database = {
           id: string
           kind: string
           label: string | null
+          last_reminded_on: string | null
           month: number | null
           notes: string | null
           recurrence: string
@@ -301,6 +302,7 @@ export type Database = {
           id?: string
           kind: string
           label?: string | null
+          last_reminded_on?: string | null
           month?: number | null
           notes?: string | null
           recurrence?: string
@@ -314,6 +316,7 @@ export type Database = {
           id?: string
           kind?: string
           label?: string | null
+          last_reminded_on?: string | null
           month?: number | null
           notes?: string | null
           recurrence?: string

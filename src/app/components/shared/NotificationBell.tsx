@@ -10,6 +10,7 @@ import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import {
+  CalendarHeart,
   Bell,
   CheckCheck,
   CheckCircle2,
@@ -42,6 +43,8 @@ function iconFor(type: string) {
       return <MessageSquare className="h-4 w-4 text-blue-500" strokeWidth={2} />;
     case 'reminder':
       return <Clock className="h-4 w-4 text-orange-500" strokeWidth={2} />;
+    case 'occasion_reminder':
+      return <CalendarHeart className="h-4 w-4 text-primary" strokeWidth={2} />;
     case 'announcement':
     case 'promo':
       return <Megaphone className="h-4 w-4 text-purple-500" strokeWidth={2} />;
