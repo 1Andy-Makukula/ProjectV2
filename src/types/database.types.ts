@@ -280,11 +280,58 @@ export type Database = {
           },
         ]
       }
+      contact_occasions: {
+        Row: {
+          contact_id: string
+          created_at: string
+          day: number
+          id: string
+          kind: string
+          label: string | null
+          month: number | null
+          notes: string | null
+          recurrence: string
+          updated_at: string
+          year: number | null
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          day: number
+          id?: string
+          kind: string
+          label?: string | null
+          month?: number | null
+          notes?: string | null
+          recurrence?: string
+          updated_at?: string
+          year?: number | null
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          day?: number
+          id?: string
+          kind?: string
+          label?: string | null
+          month?: number | null
+          notes?: string | null
+          recurrence?: string
+          updated_at?: string
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_occasions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
-          birth_day: number | null
-          birth_month: number | null
-          birth_year: number | null
           created_at: string
           id: string
           name: string
@@ -296,9 +343,6 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          birth_day?: number | null
-          birth_month?: number | null
-          birth_year?: number | null
           created_at?: string
           id?: string
           name: string
@@ -310,9 +354,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          birth_day?: number | null
-          birth_month?: number | null
-          birth_year?: number | null
           created_at?: string
           id?: string
           name?: string

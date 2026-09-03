@@ -26,14 +26,16 @@ import {
   StorefrontStatusRibbon,
 } from '../components/storefront/StorefrontRail';
 import { RailDrawer } from '../components/storefront/RailDrawer';
-import { hapticTap } from '../../utils/native';
+import { hapticTap, hapticTick } from '../../utils/native';
 import { ItemFeed, SectionHeading } from '../components/storefront/ItemFeed';
 import { useCart, toProduct } from '../hooks/useCart';
 import { useExperiences } from '../hooks/useExperiences';
 import { useStorefrontData } from '../hooks/useStorefrontData';
 import { useStorefrontMode } from '../hooks/useStorefrontMode';
 import { useScrollDirection } from '../hooks/useScrollDirection';
+import { useScreenSwipe } from '../hooks/useScreenSwipe';
 import {
+  STOREFRONT_MODES,
   modeCartIcon,
   modeDefinition,
   modeDensity,
@@ -81,6 +83,26 @@ export function ConsumerStorefront() {
   // One reading of the scroll, two bars: the header slides away and the mode
   // rail rises into the slot it left.
   const headerCollapsed = useScrollDirection();
+
+  // The whole page answers a sideways swipe, not just the rail at the top of
+  // it — by the time somebody is deep in the feed, that rail is long gone.
+  const { setMode } = useStorefrontMode();
+  const stepMode = useCallback(
+    (delta: number) => {
+      const order = STOREFRONT_MODES.map((definition) => definition.value);
+      const index = Math.max(0, order.indexOf(mode));
+      hapticTick();
+      setMode(order[(index + delta + order.length) % order.length]);
+    },
+    [mode, setMode],
+  );
+
+  useScreenSwipe({
+    onNext: () => stepMode(1),
+    onPrev: () => stepMode(-1),
+    // Touch only, and only where the rail is not permanently on screen.
+    enabled: typeof window !== 'undefined' && window.matchMedia('(max-width: 1279px)').matches,
+  });
 
   const [slide, setSlide] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);

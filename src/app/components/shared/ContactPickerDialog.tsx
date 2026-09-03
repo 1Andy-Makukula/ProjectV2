@@ -12,7 +12,13 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { useContacts } from '../../hooks/useContacts';
-import { birthdayLabel, type Contact, type ContactSuggestion } from '../../types/contacts';
+import {
+  countdownLabel,
+  daysUntil,
+  occasionTitle,
+  type Contact,
+  type ContactSuggestion,
+} from '../../types/contacts';
 import { formatPhoneDisplay } from '../../../utils/phone';
 
 interface ContactPickerDialogProps {
@@ -141,7 +147,13 @@ export function ContactPickerDialog({ open, onOpenChange, onPick }: ContactPicke
 }
 
 function ContactRow({ contact, onClick }: { contact: Contact; onClick: () => void }) {
-  const birthday = birthdayLabel(contact);
+  // The soonest thing coming up, if anything is close enough to mention.
+  const next = contact.occasions
+    .map((occasion) => ({ occasion, days: daysUntil(occasion) }))
+    .filter((entry): entry is { occasion: (typeof contact.occasions)[number]; days: number } =>
+      entry.days !== null && entry.days <= 30,
+    )
+    .sort((a, b) => a.days - b.days)[0];
 
   return (
     <li>
@@ -158,7 +170,7 @@ function ContactRow({ contact, onClick }: { contact: Contact; onClick: () => voi
           <p className="truncate text-sm font-medium">{contact.name}</p>
           <p className="truncate text-xs font-light text-muted-foreground">
             {formatPhoneDisplay(contact.phone)}
-            {birthday && ` · ${birthday}`}
+            {next && ` · ${occasionTitle(next.occasion)} ${countdownLabel(next.days).toLowerCase()}`}
           </p>
         </div>
         {contact.relationship && <Badge variant="secondary">{contact.relationship}</Badge>}

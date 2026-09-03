@@ -24,7 +24,7 @@ import { useCart } from '../../hooks/useCart';
 import { useMyLists } from '../../hooks/useLists';
 import { useShopperStatus } from '../../hooks/useShopperStatus';
 import { useContacts } from '../../hooks/useContacts';
-import { countdownLabel, upcomingBirthdays } from '../../types/contacts';
+import { countdownLabel, occasionTitle, upcomingOccasions } from '../../types/contacts';
 import { formatCurrency } from '../../../utils/currency';
 import { useStorefrontMode } from '../../hooks/useStorefrontMode';
 import { OCCASION_ICON, modeLexicon, modeRail } from '../../types/storefrontModes';
@@ -234,7 +234,7 @@ function Occasions({ layout }: { layout: Layout }) {
 
   if (!user || loading) return null;
 
-  const upcoming = upcomingBirthdays(contacts, 60).slice(0, 4);
+  const upcoming = upcomingOccasions(contacts, 60).slice(0, 4);
 
   return (
     <Module
@@ -250,23 +250,21 @@ function Occasions({ layout }: { layout: Layout }) {
             className="w-full rounded-[var(--radius-lg)] px-1.5 py-2 text-left text-[0.8125rem] font-light text-muted-foreground transition-colors hover:bg-accent"
           >
             {contacts.length === 0
-              ? 'Save the people you send to, and their birthdays turn up here.'
-              : 'Add a birthday to someone and it will appear here.'}
+              ? 'Save the people you send to, and their dates turn up here.'
+              : 'Add a date to someone and it will appear here.'}
           </button>
         ) : (
           <div className="space-y-0.5">
-            {upcoming.map(({ contact, days }) => (
+            {upcoming.map(({ contact, occasion, days }) => (
               <button
-                key={contact.id}
+                key={occasion.id}
                 onClick={() => navigate('/contacts')}
                 className="flex w-full items-baseline gap-2 rounded-[var(--radius-lg)] px-1.5 py-1.5 text-left transition-colors hover:bg-accent"
               >
                 <span className="truncate text-[0.8125rem] font-medium">{contact.name}</span>
-                {contact.relationship && (
-                  <span className="shrink-0 text-[0.6875rem] font-light text-muted-foreground">
-                    {contact.relationship}
-                  </span>
-                )}
+                <span className="shrink-0 text-[0.6875rem] font-light text-muted-foreground">
+                  {occasionTitle(occasion)}
+                </span>
                 <span
                   className={`ml-auto shrink-0 text-[0.6875rem] font-medium ${
                     days <= 7 ? 'text-primary' : 'text-muted-foreground'

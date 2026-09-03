@@ -1,5 +1,5 @@
 // KithLy Root Layout - Main App Container
-import { Outlet } from 'react-router';
+import { Outlet, ScrollRestoration } from 'react-router';
 import { AuthProvider } from '../../utils/auth/AuthContext';
 import { Toaster } from '../components/ui/sonner';
 import { Footer } from '../components/layout/Footer'; // 1. IMPORT THE FOOTER
@@ -28,6 +28,11 @@ export function Root() {
         {/* 2. INJECT THE FOOTER AT THE BOTTOM */}
         <Footer />
         
+        {/* Pages opened at whatever offset the last one was left at, which
+            on a long storefront meant landing on the footer and scrolling up
+            to find the page. This restores position on back and forward, and
+            starts every new navigation at the top. */}
+        <ScrollRestoration />
         <ScrollIndicator />
         <Toaster position="bottom-right" />
       </div>

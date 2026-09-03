@@ -4,10 +4,18 @@ import { toast } from 'sonner';
 import { parseAuthError } from '../../utils/errorParser';
 import { useAuth } from '../../utils/auth/AuthContext';
 import { validateAndFormatPhone } from '../../utils/phone';
-import type { Contact, ContactDraft, ContactSuggestion } from '../types/contacts';
+import type {
+  Contact,
+  ContactDraft,
+  ContactSuggestion,
+  Occasion,
+  OccasionDraft,
+} from '../types/contacts';
 
-const CONTACT_SELECT =
-  'id, name, phone, relationship, birth_month, birth_day, birth_year, source, notes, created_at';
+const CONTACT_SELECT = `
+  id, name, phone, relationship, source, notes, created_at,
+  contact_occasions (id, contact_id, kind, label, recurrence, month, day, year, notes)
+`;
 
 /**
  * The people this person sends things to.
@@ -100,7 +108,11 @@ export function useContacts() {
   }, [load]);
 
   const create = useCallback(
-    async (draft: ContactDraft, source: Contact['source'] = 'manual') => {
+    async (
+      draft: ContactDraft,
+      source: Contact['source'] = 'manual',
+      firstOccasion?: OccasionDraft,
+    ) => {
       if (!user?.id) {
         toast.error('Sign in to save contacts');
         return null;
@@ -122,11 +134,7 @@ export function useContacts() {
               name: draft.name.trim(),
               phone: formatted,
               relationship: draft.relationship?.trim() || null,
-              birth_month: draft.birthMonth ?? null,
-              birth_day: draft.birthDay ?? null,
-              // A year without a day would fail the CHECK, and is meaningless
-              // anyway — it is the day that gets somebody a present.
-              birth_year: draft.birthMonth ? (draft.birthYear ?? null) : null,
+              notes: draft.notes?.trim() || null,
               source,
             },
           ])
@@ -142,9 +150,16 @@ export function useContacts() {
           throw error;
         }
 
+        const created = toContact(data as any);
+
+        // Saving somebody and saying why in one step: the occasion is written
+        // against the contact that was just made, so the pair either both
+        // exist or the contact stands alone and can be added to later.
+        if (firstOccasion) await writeOccasion(created.id, firstOccasion);
+
         toast.success(`${draft.name.trim()} saved`);
         await load();
-        return toContact(data as any);
+        return created;
       } catch (error: any) {
         console.error('[useContacts] create failed:', error);
         toast.error(parseAuthError(error));
@@ -172,9 +187,7 @@ export function useContacts() {
             name: draft.name.trim(),
             phone: formatted,
             relationship: draft.relationship?.trim() || null,
-            birth_month: draft.birthMonth ?? null,
-            birth_day: draft.birthDay ?? null,
-            birth_year: draft.birthMonth ? (draft.birthYear ?? null) : null,
+            notes: draft.notes?.trim() || null,
           })
           .eq('id', id);
 
@@ -213,6 +226,47 @@ export function useContacts() {
     [load],
   );
 
+  const addOccasion = useCallback(
+    async (contactId: string, draft: OccasionDraft) => {
+      try {
+        setBusy(true);
+        await writeOccasion(contactId, draft);
+        toast.success('Occasion saved');
+        await load();
+        return true;
+      } catch (error: any) {
+        console.error('[useContacts] addOccasion failed:', error);
+        toast.error(parseAuthError(error));
+        return false;
+      } finally {
+        setBusy(false);
+      }
+    },
+    [load],
+  );
+
+  const removeOccasion = useCallback(
+    async (occasionId: string) => {
+      try {
+        setBusy(true);
+        const { error } = await supabase
+          .from('contact_occasions')
+          .delete()
+          .eq('id', occasionId);
+        if (error) throw error;
+        await load();
+        return true;
+      } catch (error: any) {
+        console.error('[useContacts] removeOccasion failed:', error);
+        toast.error(parseAuthError(error));
+        return false;
+      } finally {
+        setBusy(false);
+      }
+    },
+    [load],
+  );
+
   /** Accepts one of the suggestions above, as-is. */
   const saveSuggestion = useCallback(
     (suggestion: ContactSuggestion) =>
@@ -229,8 +283,38 @@ export function useContacts() {
     create,
     update,
     remove,
+    addOccasion,
+    removeOccasion,
     saveSuggestion,
   };
+}
+
+/**
+ * Writes one occasion, shaped to its recurrence.
+ *
+ * The columns a recurrence does not use are nulled rather than left to chance:
+ * the table's CHECK constraints reject a monthly occasion carrying a month, and
+ * rightly so -- a stored value nothing reads is a value that will eventually be
+ * read by mistake.
+ */
+async function writeOccasion(contactId: string, draft: OccasionDraft) {
+  const annual = draft.recurrence === 'annual';
+  const once = draft.recurrence === 'once';
+
+  const { error } = await supabase.from('contact_occasions').insert([
+    {
+      contact_id: contactId,
+      kind: draft.kind,
+      label: draft.label?.trim() || null,
+      recurrence: draft.recurrence,
+      month: annual || once ? (draft.month ?? null) : null,
+      day: draft.day,
+      year: once ? (draft.year ?? null) : null,
+      notes: draft.notes?.trim() || null,
+    },
+  ]);
+
+  if (error) throw error;
 }
 
 function toContact(row: any): Contact {
@@ -239,11 +323,21 @@ function toContact(row: any): Contact {
     name: row.name,
     phone: row.phone,
     relationship: row.relationship ?? null,
-    birthMonth: row.birth_month ?? null,
-    birthDay: row.birth_day ?? null,
-    birthYear: row.birth_year ?? null,
     source: (row.source ?? 'manual') as Contact['source'],
     notes: row.notes ?? null,
     created_at: row.created_at,
+    occasions: (row.contact_occasions ?? []).map(
+      (occasion: any): Occasion => ({
+        id: occasion.id,
+        contact_id: occasion.contact_id,
+        kind: occasion.kind,
+        label: occasion.label ?? null,
+        recurrence: occasion.recurrence,
+        month: occasion.month ?? null,
+        day: occasion.day,
+        year: occasion.year ?? null,
+        notes: occasion.notes ?? null,
+      }),
+    ),
   };
 }
