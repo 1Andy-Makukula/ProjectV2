@@ -1,11 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
-import { validateAndFormatPhone } from '../../../utils/phone';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
-import { PhoneInput } from '../../components/shared/PhoneInput';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Separator } from '../../components/ui/separator';
 import { ArrowLeft, User, Mail, Lock, LogOut, Check, AlertCircle, Store, ArrowRight } from 'lucide-react';
@@ -22,39 +20,34 @@ export function Settings() {
   // Form state
   const [name, setName] = useState(profile?.name || '');
   const [email, setEmail] = useState(profile?.email || '');
-  const [phone, setPhone] = useState(profile?.phone || '');
+
+  // Phone is displayed but not editable.
+  //
+  // convert_floating_item_to_credits authorises a wallet credit by matching
+  // users.phone against the gift's recipient_phone, and nothing has ever
+  // verified that number. While it was self-editable, changing it to someone
+  // else's number was enough to redirect their escrowed gift into your own
+  // wallet. Migration 20260903010000 pins the column in RLS, so an update that
+  // includes `phone` is now rejected outright -- which would fail the whole
+  // profile save, name and email with it.
+  //
+  // Editing returns with verification (supabase.auth.updateUser({ phone }) plus
+  // an OTP round-trip); see docs/phone-verification-design.md.
+  const phone = profile?.phone || '';
 
   // Track if form has been modified
   const hasChanges =
     name !== profile?.name ||
-    email !== profile?.email ||
-    phone !== (profile?.phone || '');
-
-  const handlePhoneChange = useCallback((value: string) => {
-    setPhone(value);
-  }, []);
+    email !== profile?.email;
 
   const handleSaveProfile = async () => {
     if (!hasChanges) return;
-
-    // Validate phone if it changed
-    if (phone !== (profile?.phone || '')) {
-      const { isValid } = validateAndFormatPhone(phone);
-      if (!isValid && phone.replace(/\D/g, '').length > 0) {
-        toast.error('Please enter a valid phone number for Zambia, USA, UK, or Australia.');
-        return;
-      }
-    }
 
     setLoading(true);
     try {
       const updates: any = {};
       if (name !== profile?.name) updates.name = name;
       if (email !== profile?.email) updates.email = email;
-      if (phone !== (profile?.phone || '')) {
-        const { formatted } = validateAndFormatPhone(phone);
-        updates.phone = formatted;
-      }
 
       const { error } = await updateProfile(updates);
 
@@ -171,11 +164,17 @@ export function Settings() {
 
               <div className="space-y-2">
                 <Label htmlFor="phone" className="text-sm font-medium text-slate-750">Phone Number</Label>
-                <PhoneInput
+                <Input
                   id="phone"
                   value={phone}
-                  onChange={handlePhoneChange}
+                  readOnly
+                  disabled
+                  className="bg-slate-50 text-slate-500"
                 />
+                <p className="text-xs text-slate-500">
+                  Your number identifies gifts sent to you, so it can only be changed by
+                  contacting support.
+                </p>
               </div>
 
               <Button

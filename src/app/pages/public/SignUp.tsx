@@ -24,7 +24,9 @@ export function SignUp() {
     if (user && profile) {
       // Merchants land on the buyer side; see the note in Login.
       if (profile.role === 'admin') navigate('/admin', { replace: true });
-      else navigate('/dashboard', { replace: true });
+      // Straight into discovery, matching Login — a new account has no orders
+      // for a dashboard to show.
+      else navigate('/', { replace: true });
     }
   }, [user, profile, navigate]);
 

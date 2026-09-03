@@ -11,7 +11,7 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
         // Layout
         "flex h-9 w-full min-w-0",
         // Visual — clean, no tinted bg, just a subtle border
-        "rounded-lg border border-border bg-transparent px-3 py-0",
+        "rounded-[var(--radius-xl)] border border-border bg-transparent px-3.5 py-0",
         // Typography
         "text-sm font-normal text-foreground placeholder:text-muted-foreground",
         // Focus — orange ring

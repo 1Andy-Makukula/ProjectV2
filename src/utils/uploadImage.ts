@@ -8,6 +8,52 @@ export interface UploadImageResult {
 }
 
 /**
+ * A chat attachment lives in the PRIVATE `chat-attachments` bucket, so there is
+ * no public URL to keep. `path` is the durable reference stored on the message;
+ * `signedUrl` is a short-lived view grant for the sender's own optimistic
+ * render. See migration 20260903020000.
+ */
+export interface UploadChatImageResult {
+  signedUrl: string;
+  path: string;
+}
+
+/** How long a minted chat-image view URL is valid for. */
+const CHAT_IMAGE_SIGNED_TTL_SECONDS = 60 * 60;
+
+/**
+ * Resolves what is stored in `messages.image_url` into something an <img> can
+ * load.
+ *
+ * The column holds one of two things, and which one depends on when the message
+ * was sent:
+ *
+ *   - a legacy absolute URL, from when attachments were written to the public
+ *     `storefront-assets` bucket. Already public; used as-is.
+ *   - a storage path in the private `chat-attachments` bucket, for everything
+ *     sent since. Needs a signed URL, minted per view and expiring.
+ *
+ * Migration 20260903020000 explains why the legacy rows are left alone rather
+ * than rewritten: they are real conversation history, and re-homing the files
+ * would break every historical message while un-publishing nothing already
+ * handed out.
+ */
+export async function resolveChatImageSrc(stored: string | null | undefined): Promise<string | null> {
+  if (!stored) return null;
+  if (/^https?:\/\//i.test(stored)) return stored;
+
+  const { data, error } = await supabase.storage
+    .from('chat-attachments')
+    .createSignedUrl(stored, CHAT_IMAGE_SIGNED_TTL_SECONDS);
+
+  if (error || !data?.signedUrl) {
+    console.error('[resolveChatImageSrc] Could not sign chat attachment:', error?.message);
+    return null;
+  }
+  return data.signedUrl;
+}
+
+/**
  * Converts a Blob to real WebP format using HTML5 Canvas.
  */
 function convertToWebP(blob: Blob): Promise<Blob> {
@@ -110,8 +156,11 @@ export async function uploadItemImage(rawFile: File, shopId: string): Promise<Up
  * Uploads a chat image attachment via the `upload-chat-image` Edge Function.
  * Authorisation is conversation participancy (buyer, the shop's merchant, or
  * an admin), checked server-side against `conversation_role_for`.
+ *
+ * Returns the storage `path` -- that is what belongs on the message. The
+ * `signedUrl` expires and must never be persisted.
  */
-export async function uploadChatImage(rawFile: File, conversationId: string): Promise<UploadImageResult> {
+export async function uploadChatImage(rawFile: File, conversationId: string): Promise<UploadChatImageResult> {
   let fileToUpload: File;
 
   try {
@@ -163,7 +212,7 @@ export async function uploadChatImage(rawFile: File, conversationId: string): Pr
   }
 
   return {
-    publicUrl: payload.publicUrl as string,
+    signedUrl: payload.signedUrl as string,
     path: payload.path as string,
   };
 }

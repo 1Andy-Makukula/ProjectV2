@@ -6,6 +6,11 @@
  * shipped, and MessageBubble already renders image messages — nothing has
  * ever produced the URL to send it with.
  *
+ * Files land in the PRIVATE `chat-attachments` bucket and the message stores
+ * the storage path; viewers mint a short-lived signed URL. This used to write
+ * to the public `storefront-assets` bucket and hand back a permanent public
+ * URL -- see migration 20260903020000.
+ *
  * Authorisation is conversation participancy, not shop ownership, so this is
  * a separate function from `upload-item-image` rather than a branch inside
  * it: a buyer with no shop of their own is a legitimate uploader here.
@@ -19,7 +24,15 @@ import { createAdminClient, authenticateCaller, type AdminClient } from "../_sha
 const FN = "upload-chat-image";
 const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
-const BUCKET = "storefront-assets";
+// Private. Chat attachments are receipts, addresses and identity documents
+// that buyers and merchants photograph at each other; storefront-assets is a
+// PUBLIC bucket and gave every one of them a permanent unauthenticated URL.
+// See migration 20260903020000.
+const BUCKET = "chat-attachments";
+
+/** How long a minted view URL stays valid. Long enough to load a thread and
+ *  scroll it; short enough that a leaked URL is not a permanent handle. */
+const SIGNED_URL_TTL_SECONDS = 60 * 60;
 
 function extensionForMime(mime: string): string {
   switch (mime) {
@@ -82,7 +95,13 @@ async function handleUpload(req: Request): Promise<Response> {
 
   const bytes = new Uint8Array(await file.arrayBuffer());
   const ext = extensionForMime(file.type);
-  const path = `chat/${conversationId}/${crypto.randomUUID()}.${ext}`;
+  // <conversation_id>/<uuid>.<ext>, not chat/<conversation_id>/...
+  //
+  // The storage policy authorises on the FIRST folder segment (the convention
+  // shop-documents established). A constant "chat/" prefix put a literal in
+  // that position and left the conversation id where no path-based policy could
+  // reach it.
+  const path = `${conversationId}/${crypto.randomUUID()}.${ext}`;
 
   const { error: uploadError } = await db.storage.from(BUCKET).upload(path, bytes, {
     contentType: file.type,
@@ -94,8 +113,19 @@ async function handleUpload(req: Request): Promise<Response> {
     return jsonWithCors(req, { error: "Upload failed" }, 500);
   }
 
-  const { data: { publicUrl } } = db.storage.from(BUCKET).getPublicUrl(path);
-  return jsonWithCors(req, { success: true, publicUrl, path });
+  // The PATH is what gets persisted on the message; the signed URL is a view
+  // grant that expires. Persisting a signed URL would be meaningless (it dies)
+  // and persisting a public one is the defect being fixed.
+  const { data: signed, error: signError } = await db.storage
+    .from(BUCKET)
+    .createSignedUrl(path, SIGNED_URL_TTL_SECONDS);
+
+  if (signError || !signed?.signedUrl) {
+    console.error(`[${FN}] Could not sign uploaded object:`, signError?.message);
+    return jsonWithCors(req, { error: "Upload succeeded but the image could not be prepared for viewing." }, 500);
+  }
+
+  return jsonWithCors(req, { success: true, signedUrl: signed.signedUrl, path });
 }
 
 Deno.serve(async (req: Request): Promise<Response> => {

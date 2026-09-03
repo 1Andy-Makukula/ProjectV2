@@ -280,6 +280,59 @@ export type Database = {
           },
         ]
       }
+      contacts: {
+        Row: {
+          birth_day: number | null
+          birth_month: number | null
+          birth_year: number | null
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          owner_user_id: string
+          phone: string
+          relationship: string | null
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          birth_day?: number | null
+          birth_month?: number | null
+          birth_year?: number | null
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          owner_user_id: string
+          phone: string
+          relationship?: string | null
+          source?: string
+          updated_at?: string
+        }
+        Update: {
+          birth_day?: number | null
+          birth_month?: number | null
+          birth_year?: number | null
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          owner_user_id?: string
+          phone?: string
+          relationship?: string | null
+          source?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_owner_user_id_fkey"
+            columns: ["owner_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           buyer_id: string | null
@@ -855,27 +908,33 @@ export type Database = {
       list_items: {
         Row: {
           created_at: string
+          entry_kind: string
           id: string
           item_id: string | null
           list_id: string
+          shop_id: string | null
           snapshot_image_url: string | null
           snapshot_name: string
           sort_order: number
         }
         Insert: {
           created_at?: string
+          entry_kind?: string
           id?: string
           item_id?: string | null
           list_id: string
+          shop_id?: string | null
           snapshot_image_url?: string | null
           snapshot_name: string
           sort_order?: number
         }
         Update: {
           created_at?: string
+          entry_kind?: string
           id?: string
           item_id?: string | null
           list_id?: string
+          shop_id?: string | null
           snapshot_image_url?: string | null
           snapshot_name?: string
           sort_order?: number
@@ -886,6 +945,13 @@ export type Database = {
             columns: ["item_id"]
             isOneToOne: false
             referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "list_items_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
             referencedColumns: ["id"]
           },
           {

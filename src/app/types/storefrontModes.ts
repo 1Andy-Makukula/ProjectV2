@@ -1,4 +1,14 @@
-import { Compass, Gift, Sparkles, ConciergeBell, ShoppingBag, ListChecks } from 'lucide-react';
+import {
+  CalendarHeart,
+  Compass,
+  Gift,
+  PackageOpen,
+  ShoppingCart,
+  Sparkles,
+  ConciergeBell,
+  ShoppingBag,
+  ListChecks,
+} from 'lucide-react';
 
 /**
  * The storefront wears a different face depending on what the shopper came for.
@@ -27,6 +37,62 @@ export type StorefrontMode =
  */
 export type ModeLayout = 'grid' | 'editorial' | 'showcase' | 'list' | 'menu';
 
+/**
+ * The words a mode uses for the same actions.
+ *
+ * Vocabulary is the cheapest way to make a face feel like its own place, and
+ * the most dangerous: a button whose label changes underneath someone is a
+ * support ticket. So the lexicon reaches the browse surfaces only - tiles, the
+ * rail, and the cart control on the storefront. Checkout, receipts and every
+ * escrow message stay literal, and accessible names stay literal everywhere,
+ * so a cart is always announced as a cart however it is dressed.
+ */
+export interface ModeLexicon {
+  /** What the basket is called while browsing. */
+  cart: string;
+  /** The add-to-cart action on a tile. */
+  add: string;
+  /** Bulk add, on a list. */
+  addAll: string;
+  /** Saving something to a list. */
+  save: string;
+}
+
+const DEFAULT_LEXICON: ModeLexicon = {
+  cart: 'Cart',
+  add: 'Add',
+  addAll: 'Add all',
+  save: 'Save',
+};
+
+/** Which rail modules a mode shows, in the order it shows them. */
+export type RailModuleKey =
+  | 'status'
+  | 'occasions'
+  | 'trending'
+  | 'picks'
+  | 'myLists'
+  | 'communityLists';
+
+const DEFAULT_RAIL: RailModuleKey[] = [
+  'status',
+  'trending',
+  'picks',
+  'myLists',
+  'communityLists',
+];
+
+/**
+ * How many tiles sit across the feed at each width.
+ *
+ * Per mode because density *is* tone: browsing for a present wants fewer,
+ * larger cards than restocking a kitchen does. Written as the grid classes
+ * rather than as numbers so the ladder stays legible beside the mode it
+ * belongs to.
+ */
+const DEFAULT_DENSITY =
+  'grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 xl:grid-cols-4 2xl:grid-cols-5';
+
 export interface ModeDefinition {
   value: StorefrontMode;
   /** Short label for the switcher chip. */
@@ -50,6 +116,16 @@ export interface ModeDefinition {
   /** Copy for the item section heading. */
   itemsHeading: string;
   itemsKicker: string;
+  /** Grid classes for the item feed. Falls back to the standard ladder. */
+  density?: string;
+  /** Words this mode uses. Anything omitted keeps the plain one. */
+  lexicon?: Partial<ModeLexicon>;
+  /** The glyph on the cart control while this mode is active. */
+  cartIcon?: typeof Gift;
+  /** A tile treatment, drawn by theme.css. */
+  ornament?: 'gift' | 'ticket' | 'list';
+  /** Rail composition. Falls back to the standard running order. */
+  rail?: RailModuleKey[];
 }
 
 export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
@@ -71,12 +147,26 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     title: 'Find the right gift',
     tagline: 'Chosen by you, collected by them, held safely in between.',
     icon: Gift,
-    // Fewer, larger cards — gifting is browsing, not scanning.
+    // Fewer, larger cards — gifting is browsing, not scanning. Still a step
+    // denser than it was: two-up on a desktop meant four products filled a
+    // screen, which is a lookbook rather than a shop.
     layout: 'editorial',
     sections: ['campaigns', 'items', 'experiences', 'shops'],
     itemFilter: 'product',
     itemsHeading: 'Ready to send',
     itemsKicker: 'For someone you like',
+    density: 'grid grid-cols-2 gap-4 sm:gap-5 xl:grid-cols-3 2xl:grid-cols-4',
+    lexicon: {
+      cart: 'Gift bag',
+      add: 'Stash',
+      addAll: 'Wrap the lot',
+      save: 'Stash',
+    },
+    cartIcon: PackageOpen,
+    ornament: 'gift',
+    // What is already on its way matters most when you are giving; the
+    // catalogue can wait until further down the rail.
+    rail: ['status', 'occasions', 'myLists', 'trending', 'communityLists'],
   },
   {
     value: 'experiences',
@@ -89,6 +179,10 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     itemFilter: null,
     itemsHeading: 'Also worth a look',
     itemsKicker: 'Single items',
+    lexicon: { cart: 'Itinerary', add: 'Reserve', addAll: 'Reserve all' },
+    cartIcon: Sparkles,
+    ornament: 'ticket',
+    rail: ['status', 'communityLists', 'trending'],
   },
   {
     value: 'services',
@@ -104,6 +198,9 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     itemFilter: 'service',
     itemsHeading: 'Available to book',
     itemsKicker: 'Arranged with the shop',
+    lexicon: { add: 'Book', addAll: 'Book all' },
+    cartIcon: ConciergeBell,
+    rail: ['status', 'trending', 'myLists'],
   },
   {
     value: 'lists',
@@ -118,6 +215,9 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     itemFilter: null,
     itemsHeading: 'Lists',
     itemsKicker: 'Built by people and shops',
+    cartIcon: ListChecks,
+    ornament: 'list',
+    rail: ['status', 'communityLists', 'myLists', 'trending'],
   },
   {
     value: 'shopping',
@@ -131,9 +231,39 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     itemFilter: null,
     itemsHeading: 'All items',
     itemsKicker: 'Full catalogue',
+    lexicon: { cart: 'Basket' },
+    cartIcon: ShoppingCart,
+    rail: ['status', 'picks', 'trending', 'myLists'],
   },
 ];
 
 export function modeDefinition(mode: StorefrontMode): ModeDefinition {
   return STOREFRONT_MODES.find((m) => m.value === mode) ?? STOREFRONT_MODES[0];
 }
+
+/**
+ * The resolved dressing for a mode.
+ *
+ * Every accessor fills in from the plain default, so a mode that says nothing
+ * about its words, its density or its rail is not half-built - it simply wears
+ * the standard face. That is what lets one mode be dressed in detail without
+ * the other four having to be touched.
+ */
+export function modeLexicon(mode: StorefrontMode): ModeLexicon {
+  return { ...DEFAULT_LEXICON, ...(modeDefinition(mode).lexicon ?? {}) };
+}
+
+export function modeDensity(mode: StorefrontMode): string {
+  return modeDefinition(mode).density ?? DEFAULT_DENSITY;
+}
+
+export function modeRail(mode: StorefrontMode): RailModuleKey[] {
+  return modeDefinition(mode).rail ?? DEFAULT_RAIL;
+}
+
+export function modeCartIcon(mode: StorefrontMode): typeof Gift {
+  return modeDefinition(mode).cartIcon ?? ShoppingCart;
+}
+
+/** The glyph for the occasions module, which is gifting's alone. */
+export const OCCASION_ICON = CalendarHeart;

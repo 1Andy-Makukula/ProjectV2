@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Package, Search } from 'lucide-react';
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -67,7 +68,7 @@ export function CatalogImportDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Import from the catalogue</DialogTitle>
           <DialogDescription>
@@ -86,6 +87,7 @@ export function CatalogImportDialog({
           />
         </div>
 
+        <DialogBody>
         {loading ? (
           <p className="py-8 text-center text-sm text-muted-foreground">Loading catalogue…</p>
         ) : available.length === 0 ? (
@@ -146,6 +148,7 @@ export function CatalogImportDialog({
             ))}
           </ul>
         )}
+        </DialogBody>
       </DialogContent>
     </Dialog>
   );

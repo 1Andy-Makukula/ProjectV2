@@ -37,6 +37,43 @@ export function createAdminClient(fnName: string) {
   });
 }
 
+/**
+ * A Supabase client that acts AS THE CALLER rather than as service_role.
+ *
+ * Needed wherever an edge function invokes a SECURITY DEFINER RPC that
+ * authorises through `auth.uid()` / `current_user_role()` -- the pattern every
+ * admin RPC in this codebase uses, because they are otherwise called straight
+ * from the browser (see admin_force_fulfill_order, admin_expire_order).
+ *
+ * The service-role client is the wrong tool for that call: it has no session,
+ * so `auth.uid()` is NULL inside the function and the guard raises
+ * "Authentication required" for a legitimate admin. Escalating instead -- by
+ * having the function accept a caller-supplied admin id -- would put the
+ * identity back under the caller's control, which is the shape of VULN-01.
+ *
+ * Authorisation is therefore checked twice, in both directions: requireAdmin
+ * here verifies the token before the call is made, and the function re-derives
+ * the role from the session it actually runs under.
+ */
+export function createCallerClient(req: Request, fnName: string) {
+  const url = Deno.env.get("SUPABASE_URL");
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+  const authorization = req.headers.get("Authorization") ?? "";
+
+  if (!url || !anonKey) {
+    throw new Error(`[${fnName}] SUPABASE_URL or SUPABASE_ANON_KEY is not configured.`);
+  }
+
+  return createClient(url, anonKey, {
+    global: { headers: { Authorization: authorization } },
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
+}
+
 /** Validates the Bearer token and returns the authenticated auth user. */
 export async function authenticateCaller(
   req: Request,
@@ -164,55 +201,151 @@ export async function findTransactionByTxRef(
     .single();
 }
 
+/** Constant-time string comparison, so a shared secret cannot be recovered
+ *  byte-by-byte from response timing. */
+function secretEquals(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+function base64UrlToBytes(input: string): Uint8Array {
+  const b64 = input.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = b64 + "=".repeat((4 - (b64.length % 4)) % 4);
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+/**
+ * Verifies an HS256 Supabase JWT against SUPABASE_JWT_SECRET and returns its
+ * claims, or null if the token is not authentic.
+ *
+ * Rejects a token whose header names any algorithm other than HS256. Without
+ * that check, `{"alg":"none"}` -- a token with an empty signature -- is the
+ * classic bypass, and accepting an arbitrary `alg` reintroduces exactly the
+ * trust-the-payload behaviour this function exists to remove.
+ */
+async function verifyHs256(token: string, secret: string): Promise<Record<string, unknown> | null> {
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+
+  const [headerB64, payloadB64, signatureB64] = parts;
+
+  let header: Record<string, unknown>;
+  try {
+    header = JSON.parse(new TextDecoder().decode(base64UrlToBytes(headerB64)));
+  } catch {
+    return null;
+  }
+  if (header?.alg !== "HS256") return null;
+
+  let key: CryptoKey;
+  try {
+    key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["verify"],
+    );
+  } catch {
+    return null;
+  }
+
+  let valid: boolean;
+  try {
+    valid = await crypto.subtle.verify(
+      "HMAC",
+      key,
+      base64UrlToBytes(signatureB64),
+      new TextEncoder().encode(`${headerB64}.${payloadB64}`),
+    );
+  } catch {
+    return null;
+  }
+  if (!valid) return null;
+
+  let claims: Record<string, unknown>;
+  try {
+    claims = JSON.parse(new TextDecoder().decode(base64UrlToBytes(payloadB64)));
+  } catch {
+    return null;
+  }
+
+  // An authentic but expired token is not a valid one.
+  const exp = claims?.exp;
+  if (typeof exp === "number" && exp * 1000 <= Date.now()) return null;
+
+  return claims;
+}
+
 /**
  * Is this caller the scheduler (or something else holding service-role rights)?
  *
- * For functions invoked by pg_cron rather than by a person. They run with
- * verify_jwt = true (the deploy default -- config.toml exempts only
- * flutterwave-webhook, ussd-gateway and health), so Supabase has already
- * verified the token's signature by the time this is called. What remains is
- * deciding WHICH KIND of caller it is, because a valid anon key is also a valid
- * token and anyone with the browser bundle has one.
+ * For functions invoked by pg_cron rather than by a person.
  *
- * Replaces comparing the bearer token to a single key by string equality, which
- * was brittle in two ways that both bit in practice: it breaks the moment a key
- * is rotated -- and a local .env copy drifting from the project's secret is
- * exactly that -- and it does not recognise Supabase's newer sb_secret_ keys,
- * which are opaque rather than JWTs.
+ * WHAT CHANGED, AND WHY
+ * ---------------------
+ * This used to split the bearer token on dots, base64-decode the middle
+ * segment, and believe whatever `role` it found there. It never verified the
+ * signature. The justification -- correct as far as it went -- was that these
+ * functions run with verify_jwt = true, so Supabase's gateway had already
+ * checked the signature before the request arrived.
  *
- * Decoding the payload without verifying the signature is safe HERE and only
- * here, because the platform verified it first. Any function that sets
- * verify_jwt = false must not use this.
+ * That is an argument that the platform is currently compensating for the
+ * defect, not that there is no defect. It holds only while every consumer stays
+ * verify_jwt = true, and config.toml already carries three exemptions
+ * (flutterwave-webhook, ussd-gateway, health). Nothing in the type system, the
+ * tests, or the deploy stops a fourth from being added and then calling this:
+ * the failure would be silent, and the payload is `{"role":"service_role"}`
+ * base64-encoded, which anyone can produce. An auth primitive that is safe only
+ * because of a setting in a different file is a trap laid for a future edit.
+ *
+ * It now verifies the HMAC itself, so it is correct standalone. The two opaque
+ * paths below are unchanged in effect and now compare in constant time.
  *
  * @param overrideSecretEnv name of a function-specific shared secret which,
  *   when set and matched, authorises outright.
  */
-export function isServiceRoleCaller(
+export async function isServiceRoleCaller(
   req: Request,
   overrideSecretEnv?: string,
-): { ok: true } | { ok: false; reason: string } {
+): Promise<{ ok: true } | { ok: false; reason: string }> {
   const header = req.headers.get("Authorization") ?? "";
   const token = header.replace(/^Bearer\s+/i, "").trim();
   if (!token) return { ok: false, reason: "no bearer token" };
 
   if (overrideSecretEnv) {
     const explicit = Deno.env.get(overrideSecretEnv);
-    if (explicit && token === explicit) return { ok: true };
+    if (explicit && secretEquals(token, explicit)) return { ok: true };
   }
 
-  if (token === Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")) return { ok: true };
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (serviceKey && secretEquals(token, serviceKey)) return { ok: true };
 
-  const parts = token.split(".");
-  if (parts.length === 3) {
-    try {
-      const b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-      const claims = JSON.parse(atob(b64 + "=".repeat((4 - (b64.length % 4)) % 4)));
-      if (claims?.role === "service_role") return { ok: true };
-      return { ok: false, reason: `token role is '${claims?.role ?? "unknown"}', not service_role` };
-    } catch {
-      return { ok: false, reason: "bearer token is not a decodable JWT" };
-    }
+  if (token.split(".").length !== 3) {
+    return { ok: false, reason: "opaque token matched no configured secret" };
   }
 
-  return { ok: false, reason: "opaque token matched no configured secret" };
+  // Fails closed rather than falling back to the old unverified decode.
+  // The two paths above cover the scheduler's normal call (pg_cron sends the
+  // service-role key from Vault, matched exactly), so a missing secret does not
+  // silently disable the caller it is most likely to be -- it disables only the
+  // branch that cannot be checked.
+  const jwtSecret = Deno.env.get("SUPABASE_JWT_SECRET");
+  if (!jwtSecret) {
+    console.error(
+      "[auth] SUPABASE_JWT_SECRET is not configured; cannot verify a JWT bearer token. Set it with `supabase secrets set SUPABASE_JWT_SECRET=...`.",
+    );
+    return { ok: false, reason: "JWT verification is not configured" };
+  }
+
+  const claims = await verifyHs256(token, jwtSecret);
+  if (!claims) return { ok: false, reason: "bearer token signature is invalid or expired" };
+
+  if (claims.role === "service_role") return { ok: true };
+  return { ok: false, reason: `token role is '${String(claims.role ?? "unknown")}', not service_role` };
 }

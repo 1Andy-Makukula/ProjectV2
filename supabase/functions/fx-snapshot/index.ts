@@ -92,7 +92,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return json({ error: `Method '${req.method}' is not allowed. Use POST.` }, 405);
   }
 
-  const authorised = isServiceRoleCaller(req, "FX_SNAPSHOT_SECRET");
+  const authorised = await isServiceRoleCaller(req, "FX_SNAPSHOT_SECRET");
   if (!authorised.ok) {
     console.error(`[fx-snapshot] Rejected: ${authorised.reason}`);
     return json({ error: "Unauthorized." }, 401);

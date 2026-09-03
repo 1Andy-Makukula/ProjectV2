@@ -87,7 +87,7 @@ export function ItemDetail() {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { item, loading } = useItemDetail(itemId);
-  const { addToCart, setCartSliderOpen } = useCart();
+  const { addToCart } = useCart();
   const [startingChat, setStartingChat] = useState(false);
   const [addToListOpen, setAddToListOpen] = useState(false);
   const [selection, setSelection] = useState<OptionSelection>({});
@@ -177,7 +177,6 @@ export function ItemDetail() {
         ? `${quantity} × ${item.name} added to cart`
         : `${item.name} added to cart`,
     );
-    setCartSliderOpen(true);
   };
 
   return (
@@ -492,7 +491,7 @@ export function ItemDetail() {
         <AddToListDialog
           open={addToListOpen}
           onOpenChange={setAddToListOpen}
-          item={{ id: item.id, name: item.name, image_url: item.image_url }}
+          target={{ kind: 'item', id: item.id, name: item.name, image_url: item.image_url }}
         />
       )}
     </div>

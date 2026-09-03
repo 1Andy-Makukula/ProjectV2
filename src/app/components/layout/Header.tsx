@@ -11,6 +11,8 @@ import { Badge } from '../ui/badge';
 import { SearchBar } from '../shared/SearchBar';
 import { NotificationBell } from '../shared/NotificationBell';
 import { formatCurrency } from '../../../utils/currency';
+import { useStorefrontMode } from '../../hooks/useStorefrontMode';
+import { modeCartIcon, modeLexicon } from '../../types/storefrontModes';
 import {
   Sheet,
   SheetContent,
@@ -23,12 +25,22 @@ interface HeaderProps {
   onMenuClick?: () => void;
   onProfileClick?: () => void;
   onLogoClick?: () => void;
+  /**
+   * Slides the bar out of the way.
+   *
+   * Owned by the page rather than measured here, so that whatever takes the
+   * header's place — the storefront's mode rail, say — moves on exactly the
+   * same signal instead of running a second scroll listener that could
+   * disagree with this one. Pages that never pass it are unaffected.
+   */
+  collapsed?: boolean;
 }
 
 export function Header({
   onMenuClick: _onMenuClick,
   onProfileClick: _onProfileClick,
   onLogoClick: _onLogoClick,
+  collapsed = false,
 }: HeaderProps) {
   const { user, profile, signOut } = useAuth();
   const isAuthenticated = !!user;
@@ -36,6 +48,13 @@ export function Header({
   const cartItemCount = getTotalItems();
   const location = useLocation();
   const isHomePage = location.pathname === '/';
+
+  // The mode's dressing reaches the storefront and stops there. Everywhere
+  // else the cart is a cart, because a control that renames itself as you move
+  // between pages is worse than one that never changes at all.
+  const { mode } = useStorefrontMode();
+  const CartGlyph = isHomePage ? modeCartIcon(mode) : ShoppingCart;
+  const cartWord = isHomePage ? modeLexicon(mode).cart : 'Cart';
 
   // ── Role-based hub link ──────────────────────────────────────
   //
@@ -104,7 +123,12 @@ export function Header({
   }, [location.pathname]);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/60 backdrop-blur-md border-b border-white/20" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+    <header
+      className={`sticky top-0 z-50 w-full bg-white/60 backdrop-blur-md border-b border-white/20
+                  transition-transform duration-300 ease-out
+                  ${collapsed ? '-translate-y-full' : 'translate-y-0'}`}
+      style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+    >
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-14 md:h-16">
           {/* Left: Hamburger (mobile) + Logo */}
@@ -137,90 +161,78 @@ export function Header({
             <SearchBar />
           </div>
 
-          {/* Right: Desktop actions (hidden on mobile) + Cart (always visible) */}
+          {/* Right: three clusters, not one queue ─────────────────────────
+              Where you can go, then the tools, then you. On a wide screen the
+              old flat run of nine mixed links and icons had no reading order;
+              grouping them with a hairline between each cluster means the eye
+              can skip to the right third instead of scanning the lot. */}
           <div className="flex items-center gap-1 md:gap-2">
-            {/* Dashboard Link — desktop only */}
-            {isAuthenticated && (
-              <Link
-                to={hubHref}
-                className="hidden md:inline-flex items-center px-3 py-1.5 text-sm font-light text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors tracking-wide"
-              >
-                {hubLabel}
-              </Link>
-            )}
+            {/* ── Cluster 1: destinations ── */}
+            <nav className="hidden items-center gap-0.5 md:flex">
+              {isAuthenticated && <HeaderLink to={hubHref}>{hubLabel}</HeaderLink>}
+              {!isHomePage && <HeaderLink to="/">Home</HeaderLink>}
 
-            {/* Merchants switch into their shop deliberately. */}
-            {isMerchant && (
-              <Link
-                to="/merchant"
-                className="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-primary/25 bg-primary-tint px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
-              >
-                <Store className="h-3.5 w-3.5" strokeWidth={2} />
-                Enter Shop
-              </Link>
-            )}
+              {/* Merchants switch into their shop deliberately — accented, so
+                  it does not read as one more place to browse. */}
+              {isMerchant && (
+                <Link
+                  to="/merchant"
+                  className="kl-rim ml-1 inline-flex h-9 items-center gap-1.5 rounded-[var(--radius-pill)]
+                             bg-primary-tint px-3.5 text-sm font-medium text-primary
+                             transition-colors hover:bg-primary/10"
+                >
+                  <Store className="h-3.5 w-3.5" strokeWidth={2} />
+                  Enter Shop
+                </Link>
+              )}
+            </nav>
 
-            {/* Home Link — desktop only */}
-            {!isHomePage && (
-              <Link
-                to="/"
-                className="hidden md:inline-flex items-center px-3 py-1.5 text-sm font-light text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors tracking-wide"
-              >
-                Home
-              </Link>
-            )}
+            <HeaderDivider />
 
-            {/* Messages — desktop only */}
-            {isAuthenticated && (
-              <Link
-                to="/messages"
-                className="hidden md:flex p-2 text-gray-500 hover:text-gray-700 transition-colors"
-                aria-label="Messages"
-              >
-                <MessageSquare className="w-5 h-5" strokeWidth={1.5} />
-              </Link>
-            )}
+            {/* ── Cluster 2: tools ── */}
+            <div className="hidden items-center gap-0.5 md:flex">
+              {isAuthenticated && (
+                <HeaderIcon to="/messages" label="Messages">
+                  <MessageSquare className="h-[1.15rem] w-[1.15rem]" strokeWidth={1.5} />
+                </HeaderIcon>
+              )}
+              {isAuthenticated && <NotificationBell />}
+              <HeaderIcon to="/support" label="Support">
+                <HelpCircle className="h-[1.15rem] w-[1.15rem]" strokeWidth={1.5} />
+              </HeaderIcon>
+            </div>
 
-            {/* Notifications — desktop only */}
-            {isAuthenticated && (
-              <div className="hidden md:flex">
-                <NotificationBell />
-              </div>
-            )}
-
-            {/* Support — desktop only */}
-            <Link
-              to="/support"
-              className="hidden md:flex p-2 text-gray-500 hover:text-gray-700 transition-colors"
-              aria-label="Support"
+            {/* Cart — always present, at every width.
+                It used to appear only once something was in it, which meant the
+                one control people look for was missing exactly when they went
+                looking. Adding an item no longer opens anything: the badge is
+                the confirmation, and this is the way in. */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setCartSliderOpen(true)}
+              className="relative grid size-9 place-items-center rounded-[var(--radius-pill)]
+                         text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              // Announced literally whatever it is wearing.
+              aria-label={cartItemCount > 0 ? `Cart, ${cartItemCount} items` : 'Cart, empty'}
+              title={cartWord}
             >
-              <HelpCircle className="w-5 h-5" strokeWidth={1.5} />
-            </Link>
-
-            {/* Cart — always visible */}
-            {cartItemCount > 0 && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setCartSliderOpen(true)}
-                className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                aria-label="Shopping cart"
-              >
-                <ShoppingCart className="w-5 h-5" strokeWidth={1.5} />
-                <Badge className="absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 kl-gradient-brand text-white text-xs">
+              <CartGlyph className="h-[1.15rem] w-[1.15rem]" strokeWidth={1.5} />
+              {cartItemCount > 0 && (
+                <Badge className="absolute -top-0.5 -right-0.5 h-5 min-w-5 flex items-center justify-center p-0 kl-gradient-brand text-white text-xs">
                   {cartItemCount}
                 </Badge>
-              </motion.button>
-            )}
+              )}
+            </motion.button>
 
-            {/* Mobile: messages and notifications */}
+            {/* Mobile keeps its own short run of the same tools. */}
             {isAuthenticated && (
               <Link
                 to="/messages"
-                className="flex md:hidden p-2 text-gray-500 hover:text-gray-700 transition-colors"
+                className="grid size-9 place-items-center rounded-[var(--radius-pill)] text-muted-foreground transition-colors hover:bg-accent md:hidden"
                 aria-label="Messages"
               >
-                <MessageSquare className="w-5 h-5" strokeWidth={1.5} />
+                <MessageSquare className="h-[1.15rem] w-[1.15rem]" strokeWidth={1.5} />
               </Link>
             )}
             {isAuthenticated && (
@@ -229,26 +241,33 @@ export function Header({
               </div>
             )}
 
-            {/* Wallet Balance Pill — desktop only */}
+            <HeaderDivider />
+
+            {/* ── Cluster 3: you ── */}
             {isAuthenticated && balance !== null && (
-              <div className="hidden md:inline-flex items-center bg-slate-100 px-3 py-1 rounded-full text-xs font-light text-slate-700 tracking-wide select-none">
-                <span className="text-[10px] text-slate-400 mr-1.5 uppercase font-semibold">Credits</span>
-                <span className="font-semibold text-slate-900">{formatCurrency(balance, 'ZMW')}</span>
+              <div
+                className="kl-rim hidden h-9 select-none items-center rounded-[var(--radius-pill)]
+                           bg-secondary px-3.5 text-xs tracking-wide text-secondary-foreground md:inline-flex"
+              >
+                <span className="mr-1.5 text-[10px] font-semibold uppercase text-muted-foreground">
+                  Credits
+                </span>
+                <span className="font-semibold">{formatCurrency(balance, 'ZMW')}</span>
               </div>
             )}
 
-            {/* Profile — desktop only */}
             {isAuthenticated ? (
               <Link
                 to="/settings"
-                className="hidden md:flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="hidden h-9 items-center gap-2 rounded-[var(--radius-pill)] pl-0.5 pr-3
+                           transition-colors hover:bg-accent md:flex"
               >
-                <div className="w-8 h-8 rounded-full kl-gradient-brand-br flex items-center justify-center">
-                  <span className="text-white text-sm font-light">
+                <div className="kl-gradient-brand-br grid size-8 place-items-center rounded-[var(--radius-pill)]">
+                  <span className="text-sm font-light text-white">
                     {(user?.user_metadata?.full_name || profile?.name)?.charAt(0) || 'U'}
                   </span>
                 </div>
-                <span className="hidden lg:inline text-sm font-light">
+                <span className="hidden text-sm font-light lg:inline">
                   {(user?.user_metadata?.full_name || profile?.name)?.split(' ')[0]}
                 </span>
               </Link>
@@ -356,6 +375,55 @@ export function Header({
 
     </header>
   );
+}
+
+// ── Desktop header building blocks ──────────────────────────────────────────
+//
+// Three shapes, defined once. Before this the bar carried five different
+// paddings and four hover treatments across nine controls, which is what made
+// it read as a pile: every control has to agree on height and radius before any
+// grouping can be seen.
+
+/** A text destination. */
+function HeaderLink({ to, children }: { to: string; children: React.ReactNode }) {
+  return (
+    <Link
+      to={to}
+      className="inline-flex h-9 items-center rounded-[var(--radius-pill)] px-3 text-sm
+                 font-light tracking-wide text-muted-foreground transition-colors
+                 hover:bg-accent hover:text-foreground"
+    >
+      {children}
+    </Link>
+  );
+}
+
+/** A tool: one glyph, square footprint, round hover. */
+function HeaderIcon({
+  to,
+  label,
+  children,
+}: {
+  to: string;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      to={to}
+      aria-label={label}
+      title={label}
+      className="grid size-9 place-items-center rounded-[var(--radius-pill)] text-muted-foreground
+                 transition-colors hover:bg-accent hover:text-foreground"
+    >
+      {children}
+    </Link>
+  );
+}
+
+/** The hairline that makes the clusters legible as clusters. */
+function HeaderDivider() {
+  return <span aria-hidden className="mx-1 hidden h-5 w-px bg-border-dark md:block" />;
 }
 
 // ── Mobile Navigation Link ──────────────────────────────────────────────────

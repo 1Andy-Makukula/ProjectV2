@@ -8,6 +8,8 @@ import {
   Link2,
   ListChecks,
   Package,
+  Plus,
+  SlidersHorizontal,
   ShieldCheck,
   ShoppingCart,
   Star,
@@ -18,15 +20,18 @@ import { toast } from 'sonner';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { PageLoader } from '../../components/shared/PageLoader';
+import { CustomizeListDialog } from '../../components/shared/CustomizeListDialog';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { useCart, toProduct } from '../../hooks/useCart';
 import { useListDetail } from '../../hooks/useListDetail';
 import { useListActions } from '../../hooks/useLists';
+import { shareLink } from '../../../utils/native';
 import { formatCurrency } from '../../../utils/currency';
 import {
   ENTRY_UNAVAILABLE_TEXT,
   entryDisplay,
   entryUnavailableReason,
+  isBuyableEntry,
   listAuthorLabel,
   listBuyableTotal,
   listRating,
@@ -49,13 +54,15 @@ export function ListDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const { addToCart, setCartSliderOpen } = useCart();
-  const { list, loading, saved, setSaved, myRating, setMyRating, isOwner } = useListDetail(slug);
+  const { addToCart } = useCart();
+  const { list, loading, saved, setSaved, myRating, setMyRating, isOwner, reload } =
+    useListDetail(slug);
   const { busy, toggleSave, rate, copy } = useListActions();
 
   // Purely local: dismissing an unavailable entry tidies this screen and
   // nothing else.
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const [customizeOpen, setCustomizeOpen] = useState(false);
 
   if (loading) return <PageLoader />;
 
@@ -74,7 +81,9 @@ export function ListDetail() {
   }
 
   const visible = list.entries.filter((entry) => !dismissed.has(entry.id));
-  const buyable = list.entries.filter((entry) => entryUnavailableReason(entry) === null);
+  // Shops on the list are places to visit, not things with a price, so they
+  // are outside "buy all" and outside the total.
+  const buyable = list.entries.filter(isBuyableEntry);
   const total = listBuyableTotal(list.entries);
   const shopCount = listShopCount(list.entries);
   const savings = listSavings(list.entries);
@@ -98,21 +107,19 @@ export function ListDetail() {
     if (buyable.length === 0) return;
     buyable.forEach(addEntry);
     toast.success(`${buyable.length} item${buyable.length === 1 ? '' : 's'} added to your cart`);
-    setCartSliderOpen(true);
   };
 
-  const shareLink = async () => {
-    const url = `${window.location.origin}/list/${list.slug}`;
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: list.title, url });
-        return;
-      }
-      await navigator.clipboard.writeText(url);
-      toast.success('Link copied');
-    } catch {
-      // The user dismissed the share sheet — not an error worth reporting.
-    }
+  const share = async () => {
+    // Native sheet on a phone, the browser's sheet on the web, clipboard when
+    // there is neither — and the message matches whichever actually happened.
+    const outcome = await shareLink({
+      title: list.title,
+      text: `${list.title} on KithLy`,
+      url: `${window.location.origin}/list/${list.slug}`,
+    });
+
+    if (outcome === 'copied') toast.success('Link copied');
+    else if (outcome === 'failed') toast.error('Could not share that link');
   };
 
   return (
@@ -125,7 +132,7 @@ export function ListDetail() {
           <h1 className="min-w-0 flex-1 truncate text-base font-medium tracking-tight">
             {list.title}
           </h1>
-          <Button variant="ghost" size="icon" onClick={shareLink} aria-label="Share this list">
+          <Button variant="ghost" size="icon" onClick={share} aria-label="Share this list">
             <Link2 className="h-4 w-4" />
           </Button>
         </div>
@@ -214,6 +221,27 @@ export function ListDetail() {
               </Button>
             )}
 
+            {/* Adding is done by browsing, not by a picker of its own: the
+                storefront is already the place with the search, the filters and
+                the save tag on every card. This is the door to it. */}
+            {isOwner && (
+              <Button variant="outline" onClick={() => navigate('/')} className="w-full sm:w-auto">
+                <Plus className="h-4 w-4" />
+                Add items
+              </Button>
+            )}
+
+            {isOwner && (
+              <Button
+                variant="outline"
+                onClick={() => setCustomizeOpen(true)}
+                className="w-full sm:w-auto"
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                Customize
+              </Button>
+            )}
+
             {profile && (
               <Button
                 variant="outline"
@@ -261,7 +289,23 @@ export function ListDetail() {
           {visible.length === 0 ? (
             <div className="py-16 text-center text-slate-400">
               <Package className="mx-auto mb-3 h-10 w-10 text-slate-300" strokeWidth={1} />
-              <p className="text-sm">Nothing left to show on this list.</p>
+              {list.entries.length === 0 ? (
+                <>
+                  <p className="text-sm">
+                    {isOwner
+                      ? 'Nothing on this list yet — save things to it as you browse.'
+                      : 'Nothing on this list yet.'}
+                  </p>
+                  {isOwner && (
+                    <Button className="mt-4" onClick={() => navigate('/')}>
+                      <Plus className="h-4 w-4" />
+                      Add items
+                    </Button>
+                  )}
+                </>
+              ) : (
+                <p className="text-sm">Nothing left to show on this list.</p>
+              )}
             </div>
           ) : (
             visible.map((entry) => {
@@ -288,15 +332,25 @@ export function ListDetail() {
                   </div>
 
                   <div className={`min-w-0 flex-1 ${reason ? 'opacity-60' : ''}`}>
-                    {entry.item?.shop?.name && (
+                    {entry.entry_kind === 'shop' ? (
                       <p className="truncate text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-                        {entry.item.shop.name}
+                        Shop
                       </p>
+                    ) : (
+                      entry.item?.shop?.name && (
+                        <p className="truncate text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                          {entry.item.shop.name}
+                        </p>
+                      )
                     )}
                     <p className="truncate text-sm font-medium text-slate-900">{name}</p>
                     {reason ? (
                       <p className="text-[11px] font-medium text-slate-500">
                         {ENTRY_UNAVAILABLE_TEXT[reason]}
+                      </p>
+                    ) : entry.entry_kind === 'shop' ? (
+                      <p className="truncate text-[11px] font-light text-slate-500">
+                        {entry.shop?.location ?? 'Browse everything they sell'}
                       </p>
                     ) : (
                       <div className="flex items-baseline gap-2">
@@ -331,6 +385,15 @@ export function ListDetail() {
                     >
                       <X className="size-4" strokeWidth={2} />
                     </button>
+                  ) : entry.entry_kind === 'shop' ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate(`/shop/${entry.shop!.id}`)}
+                    >
+                      <Store className="size-3.5" strokeWidth={2} />
+                      Visit
+                    </Button>
                   ) : (
                     <Button
                       variant="outline"
@@ -349,6 +412,15 @@ export function ListDetail() {
           )}
         </div>
       </div>
+
+      {isOwner && (
+        <CustomizeListDialog
+          open={customizeOpen}
+          onOpenChange={setCustomizeOpen}
+          list={list}
+          onChanged={reload}
+        />
+      )}
     </div>
   );
 }

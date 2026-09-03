@@ -6,8 +6,14 @@ import { Footer } from '../components/layout/Footer'; // 1. IMPORT THE FOOTER
 import { FloatingCart } from '../components/shared/FloatingCart';
 import { CartSlider } from '../components/shared/CartSlider';
 import { FloatingHomeButton } from '../components/shared/FloatingHomeButton';
+import { ScrollIndicator } from '../components/shared/ScrollIndicator';
+import { useNativeShell } from '../hooks/useNativeShell';
 
 export function Root() {
+  // Splash, status bar, hardware back, deep links, resume and connectivity.
+  // Every branch of it is skipped in a browser.
+  useNativeShell();
+
   return (
     <AuthProvider>
       <div className="flex min-h-screen flex-col bg-background" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
@@ -22,6 +28,7 @@ export function Root() {
         {/* 2. INJECT THE FOOTER AT THE BOTTOM */}
         <Footer />
         
+        <ScrollIndicator />
         <Toaster position="bottom-right" />
       </div>
     </AuthProvider>

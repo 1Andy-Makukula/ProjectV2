@@ -220,15 +220,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateProfile = async (updates: Partial<UserProfile>) => {
     if (!user) return { error: new Error('Not authenticated') };
 
+    // `phone` is not self-editable and is dropped here rather than sent and
+    // rejected.
+    //
+    // Migration 20260903010000 pins the column in users_update_own_no_role,
+    // because a self-editable phone number was a direct route into someone
+    // else's escrowed gift: convert_floating_item_to_credits authorises the
+    // wallet credit by matching users.phone to the gift's recipient_phone, and
+    // that number has never been verified by anything.
+    //
+    // Stripping it matters because RLS rejects the whole row, not the offending
+    // column: a save carrying an unchanged phone alongside a genuinely edited
+    // name would fail entirely, and the user would be told their name could not
+    // be saved. A verified change path is specified in
+    // docs/phone-verification-design.md.
+    const { phone: _ignoredPhone, ...editable } = updates;
+
     const promises = [];
 
-    if (updates.email || updates.name || updates.phone) {
+    if (editable.email || editable.name) {
       promises.push(
         supabase.auth.updateUser({
-          email: updates.email,
+          email: editable.email,
           data: {
-            name: updates.name ?? profile?.name,
-            phone: updates.phone ?? profile?.phone,
+            name: editable.name ?? profile?.name,
+            phone: profile?.phone,
           },
         })
       );
@@ -237,7 +253,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     promises.push(
       supabase
         .from('users')
-        .update(updates)
+        .update(editable)
         .eq('id', user.id)
     );
 
@@ -249,7 +265,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: errors[0] };
       }
 
-      setProfile((prev: UserProfile | null) => (prev ? { ...prev, ...updates } : null));
+      setProfile((prev: UserProfile | null) => (prev ? { ...prev, ...editable } : null));
       return { error: null };
     } catch (error: any) {
       return { error };

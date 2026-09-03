@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
-import { Package, ShoppingCart } from 'lucide-react';
+import { Minus, Package, Plus, ShoppingCart } from 'lucide-react';
+import { cartLineKey, useCart } from '../../hooks/useCart';
 import { StorefrontProductCard } from '../shared/StorefrontProductCard';
 import { Skeleton } from '../ui/skeleton';
 import { formatCurrency } from '../../../utils/currency';
@@ -11,6 +12,7 @@ import {
   discountPercentage,
   servicePriceLabel,
 } from '../../types/items';
+import { SaveToListButton } from '../shared/SaveToListButton';
 import type { CatalogItem } from '../../types/items';
 import type { ModeLayout } from '../../types/storefrontModes';
 
@@ -20,6 +22,14 @@ interface ItemFeedProps {
   layout: ModeLayout;
   onGift: (item: CatalogItem) => void;
   onAddToCart?: (item: CatalogItem) => void;
+  /** Grid classes for this mode. Density is tone, so the mode decides it. */
+  density?: string;
+  /** What this mode calls adding something to the cart. */
+  addLabel?: string;
+  /** The glyph for that action — the same one the navbar's basket wears. */
+  addIcon?: typeof ShoppingCart;
+  /** A tile treatment, drawn by theme.css. */
+  ornament?: 'gift';
 }
 
 function CardSkeleton() {
@@ -43,12 +53,16 @@ function ItemRow({
   onGift,
   onAddToCart,
   hideShopName,
+  addLabel = 'Add',
+  addIcon: AddGlyph = ShoppingCart,
 }: {
   item: CatalogItem;
   onGift: () => void;
   onAddToCart?: () => void;
   /** The menu layout already names the business in its group header. */
   hideShopName?: boolean;
+  addLabel?: string;
+  addIcon?: typeof ShoppingCart;
 }) {
   const service = isService(item);
   const discount = discountPercentage(item);
@@ -56,9 +70,22 @@ function ItemRow({
   const priceLabel = servicePriceLabel(item);
   const outOfStock = isOutOfStock(item);
 
+  // Restocking is a counting job, so the row counts. An item with options is
+  // deliberately excluded: its price depends on choices that can only be made
+  // on the detail page, and a stepper here would quietly add the wrong thing.
+  const hasOptions = (item.item_option_groups ?? []).length > 0;
+  const lineKey = cartLineKey(item.id);
+  const inCart = useCart((state) =>
+    state.items.find((line) => (line.lineKey ?? line.product.id) === lineKey),
+  );
+  const quantity = inCart?.quantity ?? 0;
+  const updateQuantity = useCart((state) => state.updateQuantity);
+  const steppable = Boolean(onAddToCart) && !conversationFirst && !outOfStock && !hasOptions;
+
   return (
     <div
-      className={`flex items-center gap-3 border-b border-slate-100 px-1 py-3 transition-colors last:border-0 hover:bg-slate-50/70
+      className={`flex break-inside-avoid items-center gap-3 border-b border-slate-100 px-1 py-3
+                  transition-colors last:border-0 hover:bg-slate-50/70
                   ${outOfStock ? 'opacity-55' : ''}`}
     >
       <button
@@ -75,7 +102,8 @@ function ItemRow({
         )}
       </button>
 
-      <button onClick={onGift} className="min-w-0 flex-1 text-left">
+      <button onClick={onGift} className="flex min-w-0 flex-1 items-end gap-2 text-left">
+        <span className="min-w-0 flex-1">
         {!hideShopName && item.shop?.name && (
           <p className="truncate text-[10px] font-semibold uppercase tracking-widest text-slate-400">
             {item.shop.name}
@@ -102,9 +130,40 @@ function ItemRow({
             {OUT_OF_STOCK_REASON}
           </p>
         )}
+        </span>
+
+        {/* The run of dots between a service and its price, the way a printed
+            menu sets it — and the honest way to fill the width a wide screen
+            leaves between the two. */}
+        {service && <span aria-hidden className="kl-leader" />}
       </button>
 
-      {outOfStock ? (
+      {/* Saving is offered even when it is sold out — that is often exactly
+          when someone wants to keep track of it. */}
+      <SaveToListButton
+        className="shrink-0"
+        target={{ kind: 'item', id: item.id, name: item.name, image_url: item.image_url }}
+      />
+
+      {steppable && quantity > 0 ? (
+        <div className="kl-rim flex shrink-0 items-center gap-1 rounded-[var(--radius-pill)] bg-background p-0.5">
+          <button
+            onClick={() => updateQuantity(lineKey, quantity - 1)}
+            aria-label={`One fewer ${item.name}`}
+            className="grid size-7 place-items-center rounded-[var(--radius-pill)] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <Minus className="size-3.5" strokeWidth={2} />
+          </button>
+          <span className="min-w-5 text-center text-xs font-semibold tabular-nums">{quantity}</span>
+          <button
+            onClick={onAddToCart}
+            aria-label={`One more ${item.name}`}
+            className="grid size-7 place-items-center rounded-[var(--radius-pill)] text-mode-accent transition-colors hover:bg-mode-tint"
+          >
+            <Plus className="size-3.5" strokeWidth={2} />
+          </button>
+        </div>
+      ) : outOfStock ? (
         <span className="shrink-0 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-400">
           Sold out
         </span>
@@ -123,8 +182,8 @@ function ItemRow({
             className="flex shrink-0 items-center gap-1 rounded-xl border border-mode-accent/30 px-3 py-2 text-xs font-semibold
                        text-mode-accent transition-all duration-200 hover:bg-mode-tint active:scale-[0.98]"
           >
-            <ShoppingCart className="h-3.5 w-3.5" />
-            Add
+            <AddGlyph className="h-3.5 w-3.5" />
+            {addLabel}
           </button>
         )
       )}
@@ -132,7 +191,17 @@ function ItemRow({
   );
 }
 
-export function ItemFeed({ items, loading, layout, onGift, onAddToCart }: ItemFeedProps) {
+export function ItemFeed({
+  items,
+  loading,
+  layout,
+  onGift,
+  onAddToCart,
+  density,
+  addLabel,
+  addIcon,
+  ornament,
+}: ItemFeedProps) {
   const rowLayout = layout === 'list' || layout === 'menu';
 
   if (loading) {
@@ -152,9 +221,10 @@ export function ItemFeed({ items, loading, layout, onGift, onAddToCart }: ItemFe
     ) : (
       <div
         className={
-          layout === 'editorial'
+          density ??
+          (layout === 'editorial'
             ? 'grid grid-cols-1 gap-6 sm:grid-cols-2'
-            : 'grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6'
+            : 'grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 xl:grid-cols-4 2xl:grid-cols-5')
         }
       >
         {Array.from({ length: count }).map((_, i) => (
@@ -175,11 +245,13 @@ export function ItemFeed({ items, loading, layout, onGift, onAddToCart }: ItemFe
 
   if (layout === 'list') {
     return (
-      <div className="rounded-2xl border border-slate-100 bg-white px-4">
+      <div className="kl-tile columns-1 gap-x-8 px-4 py-1 xl:columns-2 2xl:columns-3">
         {items.map((item) => (
           <ItemRow
             key={item.id}
             item={item}
+            addLabel={addLabel}
+            addIcon={addIcon}
             onGift={() => onGift(item)}
             onAddToCart={onAddToCart ? () => onAddToCart(item) : undefined}
           />
@@ -229,6 +301,8 @@ export function ItemFeed({ items, loading, layout, onGift, onAddToCart }: ItemFe
                   key={item.id}
                   item={item}
                   hideShopName
+                  addLabel={addLabel}
+                  addIcon={addIcon}
                   onGift={() => onGift(item)}
                   onAddToCart={onAddToCart ? () => onAddToCart(item) : undefined}
                 />
@@ -240,11 +314,13 @@ export function ItemFeed({ items, loading, layout, onGift, onAddToCart }: ItemFe
     );
   }
 
-  // Editorial gives each card room to breathe; grid is the standard density.
+  // The mode's own ladder wins; otherwise editorial gives each card room to
+  // breathe and grid is the standard density.
   const gridClass =
-    layout === 'editorial'
+    density ??
+    (layout === 'editorial'
       ? 'grid grid-cols-1 gap-6 sm:grid-cols-2'
-      : 'grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 sm:gap-6';
+      : 'grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 xl:grid-cols-4 2xl:grid-cols-5');
 
   return (
     <div className={gridClass}>
@@ -257,6 +333,9 @@ export function ItemFeed({ items, loading, layout, onGift, onAddToCart }: ItemFe
         >
           <StorefrontProductCard
             item={item}
+            ornament={ornament}
+            addLabel={addLabel}
+            addIcon={addIcon}
             onGift={() => onGift(item)}
             onAddToCart={onAddToCart ? () => onAddToCart(item) : undefined}
           />

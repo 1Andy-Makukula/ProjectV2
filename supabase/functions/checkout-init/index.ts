@@ -117,6 +117,12 @@ function requireString(value: unknown, field: string): string | null {
  * Uses rejection sampling to avoid modulo bias.
  * Alphabet size = 36 (A–Z + 0–9). Max unbiased byte = 252 (= 36 × 7).
  */
+/**
+ * Characters of randomness in a bearer claim code. See the note at the point of
+ * use in insertVendorOrders for why this is 12 and not 6.
+ */
+const CLAIM_CODE_LENGTH = 12;
+
 function generateClaimCode(length = 8): string {
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   const alphabetLength = alphabet.length; // 36
@@ -342,7 +348,7 @@ export interface ShopOrderResult {
 
 /**
  * For each vendor in the payload:
- *   1. Generates a secure Master claim_code (BNDL-XXXX).
+ *   1. Generates a secure Master claim_code (BNDL- plus 12 random chars).
  *   2. Inserts one row into `shop_orders`, linking it to the parent transaction.
  *      Recipient fields (recipient_name, recipient_phone, message) are included
  *      when present in the payload.
@@ -364,7 +370,21 @@ async function insertVendorOrders(
 
   for (const vendor of vendors) {
     // --- 1. Generate Master claim code ---
-    const claimCode = `BNDL-${generateClaimCode(6)}`;
+    //
+    // 12 random characters, not 6.
+    //
+    // A claim code is a bearer instrument -- see the decision block at the top
+    // of src/utils/whatsapp.ts. Whoever holds it collects the goods, so its
+    // entropy is the only thing standing between an attacker and someone
+    // else's gift. 36^6 is ~2.2e9: with get_shop_order_by_claim_code exposed to
+    // `anon` over PostgREST and no rate limit in front of it, a few hundred
+    // requests a second walks the whole space against a live pool of pending
+    // vouchers in hours. 36^12 is ~4.7e18, which does not.
+    //
+    // Existing shorter codes stay valid; nothing here rewrites them. The
+    // brute-force window closes for everything issued from now on, and drains
+    // as the old vouchers are redeemed or expire.
+    const claimCode = `BNDL-${generateClaimCode(CLAIM_CODE_LENGTH)}`;
 
     // --- 2. Insert shop_order ---
     const shopOrderRow: Record<string, unknown> = {
@@ -415,7 +435,7 @@ async function insertVendorOrders(
       shop_order_id: shopOrderId,
       item_id: itemId,
       allocated_price: priceMap.get(itemId) ?? 0,
-      child_claim_code: `ITEM-${generateClaimCode(6)}`,
+      child_claim_code: `ITEM-${generateClaimCode(CLAIM_CODE_LENGTH)}`,
       created_at: new Date().toISOString(),
     }));
 

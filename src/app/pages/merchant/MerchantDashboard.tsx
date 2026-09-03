@@ -5,7 +5,7 @@ import { claimCodeForMerchant, canRevealClaimCode } from '../../../utils/claimCo
 import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { formatCurrency } from '../../../utils/currency';
-import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles, MessageSquare, Wallet, ShieldAlert, Search, Download, ListChecks, ArrowLeft } from 'lucide-react';
+import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles, MessageSquare, Wallet, ShieldAlert, Search, Download, ListChecks, ArrowLeft, ShoppingBag } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { NotificationBell } from '../../components/shared/NotificationBell';
@@ -337,6 +337,15 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                 icon: Store,
                 path: shopId ? `/shop/${shopId}` : '#',
                 external: true,
+              },
+              {
+                // Running a shop does not stop you being a customer — this is
+                // the way out to the storefront, where the merchant buys like
+                // anyone else.
+                label: 'Shop as a Customer',
+                description: 'Browse and buy from other shops',
+                icon: ShoppingBag,
+                path: '/',
               },
               {
                 label: 'Account Settings',

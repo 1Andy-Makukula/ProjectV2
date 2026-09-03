@@ -1,11 +1,12 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { PhoneInput } from '../../components/shared/PhoneInput';
-import { ArrowLeft, Store, Shield } from 'lucide-react';
+import { ContactPickerDialog } from '../../components/shared/ContactPickerDialog';
+import { ArrowLeft, Store, Shield, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PaymentProcessingScreen } from '../../components/checkout/PaymentProcessingScreen';
 import { formatZMW } from '../../utils/formatters';
@@ -49,6 +50,19 @@ export function SendFlow() {
   const handlePhoneChange = useCallback((value: string) => {
     setFormData(prev => ({ ...prev, recipientPhone: value }));
   }, [setFormData]);
+
+  // Typing the same number from memory every time was the friction here.
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const handlePickContact = useCallback(
+    (person: { name: string; phone: string }) => {
+      setFormData(prev => ({
+        ...prev,
+        recipientName: person.name,
+        recipientPhone: person.phone,
+      }));
+    },
+    [setFormData],
+  );
 
   if (loading) {
     return <PageLoader />;
@@ -185,6 +199,17 @@ export function SendFlow() {
               <Card>
                 <CardHeader>
                   <CardTitle>Gift Information</CardTitle>
+                  <CardAction>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPickerOpen(true)}
+                    >
+                      <Users className="size-3.5" />
+                      From contacts
+                    </Button>
+                  </CardAction>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Recipient Name */}
@@ -380,6 +405,16 @@ export function SendFlow() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Mounted only once asked for: the picker loads contacts, and a page
+          that nobody has opened it on should not be querying for them. */}
+      {pickerOpen && (
+        <ContactPickerDialog
+          open={pickerOpen}
+          onOpenChange={setPickerOpen}
+          onPick={handlePickContact}
+        />
+      )}
     </div>
   );
 }

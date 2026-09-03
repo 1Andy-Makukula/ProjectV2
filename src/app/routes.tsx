@@ -54,6 +54,7 @@ const Messages = lazyPage(() => import('./pages/Messages'), 'Messages');
 const ExperienceDetail = lazyPage(() => import('./pages/sender/ExperienceDetail'), 'ExperienceDetail');
 const ListDetail = lazyPage(() => import('./pages/sender/ListDetail'), 'ListDetail');
 const MyLists = lazyPage(() => import('./pages/sender/MyLists'), 'MyLists');
+const Contacts = lazyPage(() => import('./pages/sender/Contacts'), 'Contacts');
 const AdminExperiences = lazyPage(() => import('./pages/admin/AdminExperiences'), 'AdminExperiences');
 const SendFlow = lazyPage(() => import('./pages/sender/SendFlow'), 'SendFlow');
 const CustomerDashboard = lazyPage(() => import('./pages/sender/CustomerDashboard'), 'CustomerDashboard');
@@ -150,6 +151,27 @@ export const router = createBrowserRouter([
       { path: 'list/:slug', element: <Lazy><ListDetail /></Lazy> },
       {
         path: 'lists',
+        element: (
+          <ProtectedRoute>
+            <Lazy><MyLists /></Lazy>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        // Private by definition — there is nothing here that is not the
+        // signed-in person's own address book.
+        path: 'contacts',
+        element: (
+          <ProtectedRoute>
+            <Lazy><Contacts /></Lazy>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        // Same page, opened straight onto the create dialog. It is a route
+        // rather than a query flag because "Make a list" is linked to from the
+        // storefront and is worth being a place you can land on.
+        path: 'lists/new',
         element: (
           <ProtectedRoute>
             <Lazy><MyLists /></Lazy>

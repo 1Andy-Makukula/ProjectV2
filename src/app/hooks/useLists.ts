@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { toast } from 'sonner';
 import { parseAuthError } from '../../utils/errorParser';
 import { useAuth } from '../../utils/auth/AuthContext';
-import type { ListSummary, ListVisibility } from '../types/lists';
+import type { ListSummary, ListTarget, ListVisibility } from '../types/lists';
 
 /**
  * The columns every list surface needs. Owner names are joined so a card can be
@@ -15,7 +15,11 @@ const LIST_SELECT = `
   owner_user_id, owner_shop_id, save_count, rating_count, rating_sum, created_at,
   owner:owner_user_id(name),
   shop:owner_shop_id(name),
-  list_items(snapshot_image_url, sort_order, item:item_id(image_url))
+  list_items(
+    entry_kind, snapshot_image_url, sort_order,
+    item:item_id(image_url),
+    shop:shop_id(cover_image_url, logo_url)
+  )
 `;
 
 function toSummary(row: any): ListSummary {
@@ -40,7 +44,11 @@ function toSummary(row: any): ListSummary {
     rating_sum: row.rating_sum ?? 0,
     item_count: entries.length,
     preview_images: entries
-      .map((entry: any) => entry.item?.image_url ?? entry.snapshot_image_url)
+      .map((entry: any) =>
+        entry.entry_kind === 'shop'
+          ? (entry.shop?.cover_image_url ?? entry.shop?.logo_url ?? entry.snapshot_image_url)
+          : (entry.item?.image_url ?? entry.snapshot_image_url),
+      )
       .filter(Boolean)
       .slice(0, 4),
     created_at: row.created_at,
@@ -349,17 +357,15 @@ export function useListActions() {
   );
 
   /**
-   * Adds an item to a list.
+   * Adds an item or a whole shop to a list.
    *
    * The snapshot is captured now so the entry can still be rendered — greyed,
-   * with a reason — if the merchant later deletes the item. Live data always
-   * takes precedence while the item exists; this is only the fallback.
+   * with a reason — if the merchant later deletes the item or the shop leaves.
+   * Live data always takes precedence while the target exists; this is only the
+   * fallback.
    */
-  const addItem = useCallback(
-    async (
-      listId: string,
-      item: { id: string; name: string; image_url?: string | null },
-    ) => {
+  const addEntry = useCallback(
+    async (listId: string, target: ListTarget) => {
       try {
         setBusy(true);
 
@@ -374,16 +380,19 @@ export function useListActions() {
         const { error } = await supabase.from('list_items').insert([
           {
             list_id: listId,
-            item_id: item.id,
-            snapshot_name: item.name,
-            snapshot_image_url: item.image_url ?? null,
+            entry_kind: target.kind,
+            // list_items_single_target_check: an entry carries one id, never both.
+            item_id: target.kind === 'item' ? target.id : null,
+            shop_id: target.kind === 'shop' ? target.id : null,
+            snapshot_name: target.name,
+            snapshot_image_url: target.image_url ?? null,
             sort_order: ((last as any)?.sort_order ?? -1) + 1,
           },
         ]);
 
         if (error) {
-          // list_items_unique_item_idx — already on the list, which is not a
-          // failure worth alarming anyone about.
+          // list_items_unique_item_idx / list_items_unique_shop_idx — already on
+          // the list, which is not a failure worth alarming anyone about.
           if (error.code === '23505') {
             toast.info('Already on that list');
             return true;
@@ -394,7 +403,7 @@ export function useListActions() {
         toast.success('Added to your list');
         return true;
       } catch (error: any) {
-        console.error('[useListActions] addItem failed:', error);
+        console.error('[useListActions] addEntry failed:', error);
         toast.error(parseAuthError(error));
         return false;
       } finally {
@@ -403,6 +412,79 @@ export function useListActions() {
     },
     [],
   );
+
+  /**
+   * Edits the list itself — what it is called, what it says, who can see it.
+   *
+   * The insert path already enforces the ownership rules through RLS; this
+   * deliberately carries no owner fields, so an edit can never move a list
+   * between owners.
+   */
+  const updateList = useCallback(
+    async (
+      listId: string,
+      patch: {
+        title?: string;
+        description?: string | null;
+        visibility?: ListVisibility;
+        is_anonymous?: boolean;
+      },
+    ) => {
+      try {
+        setBusy(true);
+        const { error } = await supabase
+          .from('lists')
+          .update({
+            ...(patch.title !== undefined ? { title: patch.title.trim() } : {}),
+            ...(patch.description !== undefined
+              ? { description: patch.description?.trim() || null }
+              : {}),
+            ...(patch.visibility !== undefined ? { visibility: patch.visibility } : {}),
+            ...(patch.is_anonymous !== undefined ? { is_anonymous: patch.is_anonymous } : {}),
+          })
+          .eq('id', listId);
+
+        if (error) throw error;
+        toast.success('List updated');
+        return true;
+      } catch (error: any) {
+        console.error('[useListActions] updateList failed:', error);
+        toast.error(parseAuthError(error));
+        return false;
+      } finally {
+        setBusy(false);
+      }
+    },
+    [],
+  );
+
+  /**
+   * Writes a new running order.
+   *
+   * sort_order is reassigned from the array's own indices rather than swapping
+   * pairs, so a list that arrived with gaps or duplicates in its ordering comes
+   * out contiguous.
+   */
+  const reorderEntries = useCallback(async (orderedEntryIds: string[]) => {
+    try {
+      setBusy(true);
+      const results = await Promise.all(
+        orderedEntryIds.map((id, index) =>
+          supabase.from('list_items').update({ sort_order: index }).eq('id', id),
+        ),
+      );
+
+      const failed = results.find((result) => result.error);
+      if (failed?.error) throw failed.error;
+      return true;
+    } catch (error: any) {
+      console.error('[useListActions] reorderEntries failed:', error);
+      toast.error(parseAuthError(error));
+      return false;
+    } finally {
+      setBusy(false);
+    }
+  }, []);
 
   const removeItem = useCallback(async (entryId: string) => {
     try {
@@ -435,5 +517,5 @@ export function useListActions() {
     }
   }, []);
 
-  return { busy, toggleSave, rate, copy, addItem, removeItem };
+  return { busy, toggleSave, rate, copy, addEntry, removeItem, updateList, reorderEntries };
 }

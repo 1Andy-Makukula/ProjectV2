@@ -23,6 +23,8 @@
  *   3. Hardcoded safe-harbour rates         ← tertiary (prevents checkout gridlock)
  */
 
+import { getCorsHeaders, jsonWithCors } from "../_shared/cors.ts";
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -154,23 +156,20 @@ const FX_FETCH_TIMEOUT_MS = 5_000 as const;
 // CORS headers — required for supabase.functions.invoke() to work
 // ---------------------------------------------------------------------------
 
-const corsHeaders: HeadersInit = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+// Was `Access-Control-Allow-Origin: "*"`, hand-rolled here rather than taken
+// from _shared/cors.ts, which enforces the ALLOWED_ORIGINS / APP_URL allowlist
+// every other function uses. Auth still gates the work, so this was not a way
+// in -- but a wildcard on a pricing endpoint lets any page on the internet read
+// live quotes from a logged-in user's browser, and defence in depth is the
+// whole reason the shared helper exists.
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 /** Serialise a value as a JSON response with CORS headers attached. */
-function json(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
+function json(req: Request, data: unknown, status = 200): Response {
+  return jsonWithCors(req, data, status);
 }
 
 /**
@@ -518,11 +517,11 @@ async function handleFxRateLock(req: Request): Promise<Response> {
   try {
     rawBody = await req.json();
   } catch {
-    return json({ error: "Request body must be valid JSON." }, 400);
+    return json(req, { error: "Request body must be valid JSON." }, 400);
   }
 
   if (typeof rawBody !== "object" || rawBody === null || Array.isArray(rawBody)) {
-    return json({ error: "Request body must be a JSON object." }, 400);
+    return json(req, { error: "Request body must be a JSON object." }, 400);
   }
 
   // --- 2. Validate the payload ---
@@ -533,7 +532,7 @@ async function handleFxRateLock(req: Request): Promise<Response> {
     const message = validationError instanceof Error
       ? validationError.message
       : "Invalid request payload.";
-    return json({ error: message }, 400);
+    return json(req, { error: message }, 400);
   }
 
   const targetCurrency = (
@@ -579,7 +578,7 @@ async function handleFxRateLock(req: Request): Promise<Response> {
     rate_source: rateSource,
   };
 
-  return json(result);
+  return json(req, result);
 }
 
 // ---------------------------------------------------------------------------
@@ -589,12 +588,13 @@ async function handleFxRateLock(req: Request): Promise<Response> {
 Deno.serve(async (req: Request): Promise<Response> => {
   // Answer CORS preflight immediately.
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders });
+    return new Response(null, { status: 204, headers: getCorsHeaders(req) });
   }
 
   // This function is a calculation endpoint — POST only.
   if (req.method !== "POST") {
     return json(
+      req,
       { error: `Method '${req.method}' is not allowed. Use POST.` },
       405,
     );
@@ -605,6 +605,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
   } catch (unhandled: unknown) {
     const message = unhandled instanceof Error ? unhandled.message : "An unknown error occurred.";
     console.error("[fx-rate-lock] Unhandled exception:", message);
-    return json({ error: "Internal server error." }, 500);
+    return json(req, { error: "Internal server error." }, 500);
   }
 });

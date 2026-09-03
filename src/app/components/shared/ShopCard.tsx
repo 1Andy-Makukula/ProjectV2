@@ -3,6 +3,7 @@
 
 import { MapPin, Star, Store } from 'lucide-react';
 import { shopRating } from '../../types/shops';
+import { SaveToListButton } from './SaveToListButton';
 
 export interface ShopCardProps {
   shop: {
@@ -38,11 +39,9 @@ export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={e => { if (onClick && (e.key === 'Enter' || e.key === ' ')) onClick(); }}
-      className="group relative flex flex-col rounded-2xl border border-orange-100/50 bg-white
-                 overflow-hidden cursor-pointer select-none shadow-sm
-                 transition-all duration-300
-                 hover:border-orange-200 hover:shadow-[0_12px_30px_-10px_rgba(249,115,22,0.15)] hover:-translate-y-1
-                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
+      className="kl-tile kl-lift group relative flex flex-col overflow-hidden
+                 cursor-pointer select-none
+                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       {/* ── Cover image ─────────────────────────────────────────── */}
       <div className="relative w-full h-48 shrink-0 bg-orange-50 overflow-hidden">
@@ -69,6 +68,19 @@ export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
             </span>
           </div>
         )}
+
+        {/* Save the shop itself to a list — the card is a button, so this
+            stops the click from also opening the storefront. */}
+        <div className="absolute top-4 left-4">
+          <SaveToListButton
+            target={{
+              kind: 'shop',
+              id: shop.id,
+              name: shop.name,
+              image_url: shop.cover_image_url ?? shop.image_url ?? shop.logo_url ?? null,
+            }}
+          />
+        </div>
       </div>
 
       {/* ── Logo — overlaps the bottom-left of the cover ────── */}

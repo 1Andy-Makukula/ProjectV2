@@ -11,13 +11,16 @@ export function FloatingHomeButton() {
   const timeoutRef = useRef<any>(null);
 
   // Unconditional Safety: execute role checks as boolean flag constants at the top
-  const isMerchantRole = profile?.role === 'merchant';
+  //
+  // Hidden by *path* for merchants rather than by role: a merchant browsing the
+  // storefront as a customer needs the way back to discovery as much as anyone,
+  // and only the shop console has its own navigation to return to.
   const isAdminRole = profile?.role === 'admin';
   const isMerchantPath = location.pathname.startsWith('/merchant');
   const isAdminPath = location.pathname.startsWith('/admin');
   const isLandingPage = location.pathname === '/';
 
-  const shouldHideButton = isMerchantRole || isAdminRole || isMerchantPath || isAdminPath || isLandingPage;
+  const shouldHideButton = isAdminRole || isMerchantPath || isAdminPath || isLandingPage;
 
   // STEP 2: The Activity/Fade Logic
   useEffect(() => {

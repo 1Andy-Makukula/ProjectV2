@@ -88,10 +88,39 @@ async function authenticateCaller(
   return user;
 }
 
+/**
+ * What currency is this transaction actually owed in?
+ *
+ * A domestic order has no charge_currency and is owed ZMW at total_amount
+ * (minor units -- ngwee). An international order was quoted and charged in the
+ * buyer's currency, and `charge_currency` / `charge_amount_minor` on the
+ * transaction row are the record of that.
+ *
+ * The stored charge is reused verbatim rather than re-quoted. It is the figure
+ * confirm_payment_atomic will validate the gateway's callback against, so any
+ * other number -- including a fresher rate -- produces a payment the platform
+ * then refuses to confirm. Repricing a retry means issuing a new quote and
+ * rewriting the transaction, which is checkout-init's job, not this one's.
+ */
+function resolveCharge(txn: {
+  total_amount: number;
+  charge_currency: string | null;
+  charge_amount_minor: number | null;
+}): { currency: string; amountMinor: number } {
+  if (txn.charge_currency && txn.charge_amount_minor) {
+    return {
+      currency: txn.charge_currency.toUpperCase(),
+      amountMinor: txn.charge_amount_minor,
+    };
+  }
+  return { currency: "ZMW", amountMinor: txn.total_amount };
+}
+
 async function generateFlutterwaveLink(
   transactionId: string,
   gatewayTxRef: string,
-  totalAmount: number,
+  chargeAmountMinor: number,
+  chargeCurrency: string,
   buyerEmail: string,
   buyerPhone: string,
   recipientPhone?: string,
@@ -109,9 +138,15 @@ async function generateFlutterwaveLink(
   const finalPhone = buyerPhone || recipientPhone || "";
 
   const payload = {
+    // Hardcoding "ZMW" here silently dropped the buyer's charge currency on
+    // every international retry. Flutterwave would take, say, a GBP card
+    // payment recorded as ZMW; the webhook then hit the currency gate in
+    // confirm_payment_atomic, which compares the paid currency against
+    // transactions.charge_currency, and threw. Card charged, order never
+    // confirmed, no voucher, manual reconciliation to avoid a chargeback.
     tx_ref: gatewayTxRef, // Must use the brand new unique reference!
-    amount: totalAmount / 100, // Convert from cents/ngwee to ZMW for Flutterwave
-    currency: "ZMW",
+    amount: chargeAmountMinor / 100, // minor units -> major, in the charge currency
+    currency: chargeCurrency,
     redirect_url: `${appUrl}/confirmation/${transactionId}?tx_ref=${gatewayTxRef}`,
     customer: {
       email: buyerEmail,
@@ -193,7 +228,9 @@ Deno.serve(async (req: Request): Promise<Response> => {
     // 1. Fetch transaction and verify it exists and belongs to the buyer
     const { data: txn, error: txnError } = await adminClient
       .from("transactions")
-      .select("transaction_id, total_amount, status, buyer_id, sender_phone")
+      .select(
+        "transaction_id, total_amount, status, buyer_id, sender_phone, charge_currency, charge_amount_minor",
+      )
       .eq("transaction_id", transaction_id)
       .single();
 
@@ -278,10 +315,13 @@ Deno.serve(async (req: Request): Promise<Response> => {
     }
 
     // 4. Generate fresh Flutterwave link
+    const charge = resolveCharge(txn);
+
     const paymentLink = await generateFlutterwaveLink(
       transaction_id,
       newTxRef,
-      txn.total_amount,
+      charge.amountMinor,
+      charge.currency,
       caller.email ?? "customer@kithly.com",
       txn.sender_phone || caller.phone || "",
       recipientPhone
@@ -292,7 +332,9 @@ Deno.serve(async (req: Request): Promise<Response> => {
       transaction_id,
       gateway_tx_ref: newTxRef,
       payment_link: paymentLink,
-      total_amount: txn.total_amount
+      total_amount: txn.total_amount,
+      charge_currency: charge.currency,
+      charge_amount_minor: charge.amountMinor
     });
 
   } catch (unhandled: unknown) {

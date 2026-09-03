@@ -4,6 +4,7 @@ import {
   entryDisplay,
   entryUnavailableReason,
   listAuthorLabel,
+  isBuyableEntry,
   listBuyableTotal,
   listRating,
   listShopCount,
@@ -13,7 +14,10 @@ import {
 function entry(overrides: Partial<ListEntry> = {}): ListEntry {
   return {
     id: 'e1',
+    entry_kind: 'item',
     item_id: 'i1',
+    shop_id: null,
+    shop: null,
     snapshot_name: 'Bag of Cement',
     snapshot_image_url: 'https://cdn/snapshot.webp',
     sort_order: 0,
@@ -25,6 +29,26 @@ function entry(overrides: Partial<ListEntry> = {}): ListEntry {
       is_available: true,
       stock_quantity: null,
       shop: { id: 's1', name: 'Lusaka Hardware' },
+    },
+    ...overrides,
+  };
+}
+
+function shopEntry(overrides: Partial<ListEntry> = {}): ListEntry {
+  return {
+    ...entry(),
+    id: 'e2',
+    entry_kind: 'shop',
+    item_id: null,
+    item: null,
+    shop_id: 's1',
+    snapshot_name: 'Lusaka Hardware Ltd',
+    shop: {
+      id: 's1',
+      name: 'Lusaka Hardware',
+      location: 'Lusaka',
+      logo_url: 'https://cdn/logo.webp',
+      cover_image_url: 'https://cdn/cover.webp',
     },
     ...overrides,
   };
@@ -64,6 +88,38 @@ describe('entryUnavailableReason', () => {
     expect(ENTRY_UNAVAILABLE_TEXT.removed).toBeTruthy();
     expect(ENTRY_UNAVAILABLE_TEXT.delisted).toBeTruthy();
     expect(ENTRY_UNAVAILABLE_TEXT.out_of_stock).toBeTruthy();
+    expect(ENTRY_UNAVAILABLE_TEXT.closed).toBeTruthy();
+  });
+
+  it('is null for a shop that is still trading', () => {
+    expect(entryUnavailableReason(shopEntry())).toBeNull();
+  });
+
+  it('reports a shop that has gone as closed', () => {
+    expect(entryUnavailableReason(shopEntry({ shop: null, shop_id: null }))).toBe('closed');
+  });
+});
+
+// A shop on a list is a place to visit: it renders, it counts as one of the
+// businesses the list spans, and it is never part of the money.
+describe('shop entries', () => {
+  it('never counts towards the total, even while the shop is open', () => {
+    expect(isBuyableEntry(shopEntry())).toBe(false);
+    expect(listBuyableTotal([entry(), shopEntry()])).toBe(25000);
+  });
+
+  it('shows the live shop name, falling back to the snapshot', () => {
+    expect(entryDisplay(shopEntry())).toEqual({
+      name: 'Lusaka Hardware',
+      imageUrl: 'https://cdn/cover.webp',
+    });
+    expect(entryDisplay(shopEntry({ shop: null, shop_id: null })).name).toBe('Lusaka Hardware Ltd');
+  });
+
+  it('counts as one of the businesses the list spans', () => {
+    // Same shop, reached two ways — still one business.
+    expect(listShopCount([entry(), shopEntry()])).toBe(1);
+    expect(listShopCount([entry(), shopEntry({ id: 'e9', shop_id: 's2', shop: { id: 's2', name: 'Other', location: null, logo_url: null, cover_image_url: null } })])).toBe(2);
   });
 });
 

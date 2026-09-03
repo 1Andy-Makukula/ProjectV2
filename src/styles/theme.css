@@ -65,12 +65,39 @@
   --shadow-panel: 0 8px 30px rgba(0,0,0,0.12);
   --shadow-dropdown: 0 4px 20px rgba(0,0,0,0.10);
 
+  /* Floating shell — the rim, lift and halo that make a surface read as
+     present rather than printed on. One definition each, so a tile, a modal
+     and a button are lit by the same light. */
+  --shadow-float: 0 1px 2px rgba(16,16,20,0.04), 0 12px 28px -14px rgba(16,16,20,0.20);
+  --shadow-lift:  0 2px 4px rgba(16,16,20,0.05), 0 22px 44px -18px rgba(16,16,20,0.28);
+  --shadow-glow:  0 4px 14px -4px rgba(232,70,10,0.40);
+  --shadow-glow-strong: 0 8px 24px -6px rgba(232,70,10,0.55);
+
+  /* The hairline rim. A gradient, so an edge catches light along its length
+     instead of sitting flat and grey. */
+  --rim: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.95) 0%,
+    rgba(232,70,10,0.28) 38%,
+    rgba(251,146,60,0.22) 62%,
+    rgba(255,255,255,0.85) 100%
+  );
+  --rim-strong: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.98) 0%,
+    var(--primary) 42%,
+    var(--primary-light) 66%,
+    rgba(255,255,255,0.9) 100%
+  );
+
   /* Radius */
   --radius: 0.625rem;          /* 10px */
   --radius-sm: 0.375rem;       /* 6px  */
   --radius-md: 0.5rem;         /* 8px  */
   --radius-lg: 0.75rem;        /* 12px */
   --radius-xl: 1rem;           /* 16px */
+  --radius-tile: 1.25rem;      /* 20px — cards and tiles */
+  --radius-modal: 1.5rem;      /* 24px — dialogs and sheets */
   --radius-pill: 9999px;
 
   /* Font weights */
@@ -168,6 +195,28 @@
   --shadow-card: 0 1px 3px rgba(0,0,0,0.3);
   --shadow-panel: 0 8px 30px rgba(0,0,0,0.5);
   --shadow-dropdown: 0 4px 20px rgba(0,0,0,0.4);
+
+  /* On a dark ground the lift comes from the rim, not from a shadow nobody
+     can see, so the rim brightens and the shadows deepen. */
+  --shadow-float: 0 1px 2px rgba(0,0,0,0.4), 0 12px 28px -14px rgba(0,0,0,0.7);
+  --shadow-lift:  0 2px 4px rgba(0,0,0,0.45), 0 22px 44px -18px rgba(0,0,0,0.8);
+  --shadow-glow:  0 4px 16px -4px rgba(232,70,10,0.5);
+  --shadow-glow-strong: 0 8px 28px -6px rgba(232,70,10,0.7);
+
+  --rim: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.22) 0%,
+    rgba(232,70,10,0.45) 38%,
+    rgba(251,146,60,0.35) 62%,
+    rgba(255,255,255,0.14) 100%
+  );
+  --rim-strong: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.35) 0%,
+    var(--primary) 42%,
+    var(--primary-light) 66%,
+    rgba(255,255,255,0.25) 100%
+  );
   --sidebar: #141414;
   --sidebar-foreground: #F5F5F5;
   --sidebar-primary: #F26334;
@@ -218,6 +267,8 @@
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
   --radius-xl: var(--radius-xl);
+  --radius-tile: var(--radius-tile);
+  --radius-modal: var(--radius-modal);
   --radius-pill: var(--radius-pill);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -275,6 +326,43 @@
     font-family: var(--font-family);
     font-weight: var(--font-weight-normal);
     letter-spacing: -0.005em;
+  }
+
+  /* ── Scrollbars ────────────────────────────────────────────────────────
+     The browser default is a wide grey slab against a grey track, which is
+     the loudest un-branded thing on the page. Thin, no track, and tinted to
+     the brand. Firefox takes only a flat colour — the gradient is Chromium's,
+     and the animated one is KlScrollIndicator's job. */
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(232, 70, 10, 0.45) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--primary), var(--primary-light));
+    border-radius: var(--radius-pill);
+    /* Transparent border plus content-box clipping is what insets the thumb
+       from the edge without needing a track. */
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--primary-light), var(--primary));
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
   }
 }
 
@@ -354,6 +442,293 @@
 
   .kl-gradient-mode-br {
     background-image: linear-gradient(to bottom right, var(--mode-from), var(--mode-to));
+  }
+
+  /* ── The floating shell ────────────────────────────────────────────────
+     Three classes that compose. Nothing here knows what it is wrapping, so a
+     tile, a modal, a pill button and a round icon button are all lit the same
+     way and there is one place to tune it.
+
+       .kl-rim   a hairline gradient edge
+       .kl-float a resting shadow, so the surface sits above the page
+       .kl-lift  raises on hover, for anything you can click
+
+     The rim is a masked pseudo-element rather than a border: a border cannot
+     carry a gradient, and drawing it as a background would mean insetting the
+     content by a pixel everywhere. It inherits border-radius, so it fits
+     whatever shape it is put on without being told. */
+  .kl-rim,
+  .kl-tile {
+    position: relative;
+  }
+
+  .kl-rim::before,
+  .kl-tile::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--rim);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Brighter edge for the primary call to action. */
+  .kl-rim--strong::before {
+    background: var(--rim-strong);
+  }
+
+  .kl-float {
+    box-shadow: var(--shadow-float);
+  }
+
+  .kl-lift {
+    transition: box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1),
+                transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .kl-lift:hover {
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-2px);
+  }
+
+  /* The halo. Reserved for the primary action on a screen — if everything
+     glows, nothing does. */
+  .kl-glow {
+    box-shadow: var(--shadow-glow);
+    transition: box-shadow 200ms ease;
+  }
+
+  .kl-glow:hover {
+    box-shadow: var(--shadow-glow-strong);
+  }
+
+  /* A tile: the shell every card, product and shop sits in. */
+  .kl-tile {
+    background: var(--card);
+    border-radius: var(--radius-tile);
+    box-shadow: var(--shadow-float);
+  }
+
+  /* ── Scroll indicator ──────────────────────────────────────────────────
+     A slim brand-coloured bar tracking your position down the page. It exists
+     because a real scrollbar thumb cannot be animated — browsers do not run
+     keyframes on scrollbar pseudo-elements — and the drifting gradient is the
+     whole point. The native scrollbar stays underneath, so the wheel, the
+     keyboard and assistive tech all behave exactly as they did. */
+  .kl-scroll-indicator {
+    position: fixed;
+    top: 0;
+    right: 3px;
+    z-index: 60;
+    width: 4px;
+    border-radius: var(--radius-pill);
+    background-image: linear-gradient(
+      180deg,
+      var(--primary-light),
+      var(--primary),
+      var(--primary-light)
+    );
+    background-size: 100% 300%;
+    animation: kl-slide-gradient 6s ease-in-out infinite alternate;
+    opacity: 0;
+    transition: opacity 400ms ease;
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  .kl-scroll-indicator--visible {
+    opacity: 1;
+  }
+
+  @keyframes kl-slide-gradient {
+    from { background-position: 50% 0%; }
+    to   { background-position: 50% 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kl-scroll-indicator {
+      animation: none;
+    }
+  }
+
+  /* ── The stage ─────────────────────────────────────────────────────────
+     The hero, inset from the page rather than bled to its edges. A banner
+     pinned to all four sides reads as a wall; the same picture held inside a
+     rounded, floating frame reads as something placed there. */
+  .kl-stage {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-modal);
+    box-shadow: var(--shadow-lift);
+  }
+
+  /* Slow drift on a still photograph, so the banner breathes instead of
+     sitting there. Long enough that it is felt rather than watched. */
+  @keyframes kl-drift {
+    from { transform: scale(1) translate3d(0, 0, 0); }
+    to   { transform: scale(1.08) translate3d(0, -1.5%, 0); }
+  }
+
+  .kl-drift {
+    animation: kl-drift 18s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  /* Anyone who has asked the system for less movement gets a still frame. */
+  @media (prefers-reduced-motion: reduce) {
+    .kl-drift {
+      animation: none;
+    }
+
+    .kl-lift:hover {
+      transform: none;
+    }
+  }
+
+  /* A rail you can throw. Drag-panned by mouse, swiped by thumb — the cursor
+     is the affordance, so it belongs with the shape rather than in the
+     component. */
+  .kl-rail {
+    cursor: grab;
+    /* The rail scrolls itself to follow the selection, so its own scrollbar is
+       neither needed nor wanted — a horizontal drag is a choice here, not a
+       pan, and the two must not both be happening at once. */
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    /* Ours horizontally, the page's vertically. */
+    touch-action: pan-y;
+  }
+
+  .kl-rail--dragging {
+    cursor: grabbing;
+    scroll-behavior: auto;
+    user-select: none;
+  }
+
+  /* ── Gift ornament ─────────────────────────────────────────────────────
+     A ribbon across one corner, in the active mode's own gradient.
+
+     An accent rather than a wrapper: the alternative was covering the tile in
+     paper and revealing the product on hover, which is charming exactly once,
+     hides the thing you came to look at, and does not exist at all on a
+     touchscreen. This says "gift" without costing legibility.
+
+     Drawn on ::after because ::before is already the tile's rim. */
+  .kl-ornament-gift::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    width: 74px;
+    height: 74px;
+    pointer-events: none;
+    background-image: linear-gradient(
+      225deg,
+      var(--mode-from) 0%,
+      var(--mode-to) 46%,
+      transparent 46.5%
+    );
+    /* The knot: a soft highlight where the ribbon crosses the corner. */
+    box-shadow: inset -14px 14px 22px -16px rgba(255, 255, 255, 0.9);
+  }
+
+  /* The band of the ribbon running down from the knot. */
+  .kl-ornament-gift::after {
+    border-top-right-radius: inherit;
+  }
+
+  /* ── Ticket ornament ───────────────────────────────────────────────────
+     An experience is a date with people, so its tile is a ticket: a
+     perforated tear line with a notch punched out of each edge.
+
+     The notches are cut with a mask rather than drawn with two circles in the
+     page's background colour — a painted-on notch only works while the tile
+     sits on the exact shade it was painted for, and breaks the moment the
+     ground changes. A mask removes the pixels, so the page shows through
+     whatever colour it happens to be. */
+  .kl-ornament-ticket {
+    --kl-tear: 68%;
+    --kl-notch: 9px;
+    -webkit-mask-image:
+      radial-gradient(circle at left var(--kl-tear), transparent var(--kl-notch), #000 calc(var(--kl-notch) + 0.5px)),
+      radial-gradient(circle at right var(--kl-tear), transparent var(--kl-notch), #000 calc(var(--kl-notch) + 0.5px));
+    -webkit-mask-composite: source-in;
+    mask-image:
+      radial-gradient(circle at left var(--kl-tear), transparent var(--kl-notch), #000 calc(var(--kl-notch) + 0.5px)),
+      radial-gradient(circle at right var(--kl-tear), transparent var(--kl-notch), #000 calc(var(--kl-notch) + 0.5px));
+    mask-composite: intersect;
+  }
+
+  .kl-ornament-ticket::after {
+    content: '';
+    position: absolute;
+    top: var(--kl-tear);
+    left: calc(var(--kl-notch) + 4px);
+    right: calc(var(--kl-notch) + 4px);
+    z-index: 2;
+    border-top: 1.5px dashed var(--border-dark);
+    pointer-events: none;
+  }
+
+  /* ── List ornament ─────────────────────────────────────────────────────
+     Ruled paper: faint horizontal rules and a margin line, so a list reads as
+     a list before a single word has been read. */
+  .kl-ornament-list {
+    background-image:
+      linear-gradient(90deg, transparent 22px, var(--primary-tint-mid) 22px, var(--primary-tint-mid) 23px, transparent 23px),
+      repeating-linear-gradient(180deg, transparent 0 27px, var(--border) 27px 28px);
+    background-position: 0 0;
+  }
+
+  /* ── Menu leader ───────────────────────────────────────────────────────
+     The dotted run between a service and its price, set the way a printed
+     menu sets it. It is a flex child that eats the leftover width, which is
+     precisely the space that was sitting empty across a wide screen. */
+  .kl-leader {
+    flex: 1 1 auto;
+    min-width: 1.5rem;
+    align-self: end;
+    margin-bottom: 0.28rem;
+    border-bottom: 1.5px dotted var(--border-dark);
+    opacity: 0.75;
+  }
+
+  /* Scroll areas inside rounded surfaces.
+     A default scrollbar is painted as a rectangle in the corner of its
+     container, which squares off the two right-hand corners of any rounded
+     panel that scrolls — which is why modals looked round on one side only.
+     Thin, inset and transparent-tracked, it no longer touches the edge. */
+  .kl-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-dark) transparent;
+  }
+
+  .kl-scroll::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .kl-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .kl-scroll::-webkit-scrollbar-thumb {
+    background: var(--border-dark);
+    border-radius: var(--radius-pill);
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+
+  .kl-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+    background-clip: content-box;
   }
 
   /* Card with KithLy shadow */

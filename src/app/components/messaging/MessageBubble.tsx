@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { ShieldCheck } from 'lucide-react';
 import { clockTime } from '../../../utils/relativeTime';
+import { resolveChatImageSrc } from '../../../utils/uploadImage';
 import { QuotationCard } from './QuotationCard';
 import {
   displayNameForSender,
@@ -27,6 +29,41 @@ export function MessageBubble({
   showSender,
   onQuotationChanged,
 }: MessageBubbleProps) {
+  // Attachments are private now (migration 20260903020000): messages.image_url
+  // holds a storage path in the `chat-attachments` bucket, and a viewable URL
+  // has to be signed per render. Legacy rows still hold an absolute public URL
+  // and resolveChatImageSrc passes those straight through.
+  //
+  // Declared above the early returns below, because a hook cannot sit after
+  // one. `stored` is read rather than the whole message so the effect does not
+  // re-run on every unrelated re-render of the row.
+  const stored = message.message_type === 'image' ? message.image_url : null;
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+    if (!stored) {
+      setImageSrc(null);
+      setImageError(false);
+      return;
+    }
+
+    // A signed URL arriving after the row has scrolled out of the list would
+    // set state on an unmounted component; `cancelled` drops the late result.
+    let cancelled = false;
+    setImageError(false);
+
+    resolveChatImageSrc(stored).then((src) => {
+      if (cancelled) return;
+      setImageSrc(src);
+      setImageError(src === null);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [stored]);
+
   // System lines are the thread narrating itself — centred, not attributed.
   if (message.message_type === 'system') {
     return (
@@ -80,11 +117,17 @@ export function MessageBubble({
                     }`}
       >
         {message.message_type === 'image' && message.image_url ? (
-          <img
-            src={message.image_url}
-            alt="Shared attachment"
-            className="max-h-72 w-full rounded-xl object-cover"
-          />
+          imageSrc ? (
+            <img
+              src={imageSrc}
+              alt="Shared attachment"
+              className="max-h-72 w-full rounded-xl object-cover"
+            />
+          ) : (
+            <div className="flex h-32 w-full items-center justify-center rounded-xl bg-slate-100 text-xs text-slate-400">
+              {imageError ? 'Attachment unavailable' : 'Loading attachment…'}
+            </div>
+          )
         ) : (
           <p className="whitespace-pre-wrap break-words">{message.body}</p>
         )}

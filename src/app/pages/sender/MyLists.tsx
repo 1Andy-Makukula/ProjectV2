@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { ArrowLeft, Bookmark, ListChecks, Plus, Store, Trash2 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -35,11 +35,21 @@ import { LIST_VISIBILITIES, type ListVisibility } from '../../types/lists';
  */
 export function MyLists() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { profile } = useAuth();
   const { owned, saved, shopOwned, myShopId, loading, createList, deleteList } = useMyLists();
   const [asShop, setAsShop] = useState(false);
 
-  const [open, setOpen] = useState(false);
+  // /lists/new is this page with the dialog already open.
+  const landedOnNew = location.pathname === '/lists/new';
+  const [open, setOpen] = useState(landedOnNew);
+
+  // Closing it puts the URL back where the user actually is, so Back does not
+  // reopen the dialog.
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (!next && landedOnNew) navigate('/lists', { replace: true });
+  };
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [visibility, setVisibility] = useState<ListVisibility>('private');
@@ -193,7 +203,7 @@ export function MyLists() {
         </section>
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>New list</DialogTitle>

@@ -8,6 +8,7 @@ import { useShopDetail } from '../../hooks/useShopDetail';
 import { PageLoader } from '../../components/shared/PageLoader';
 import { ShopOfferingBadge } from '../../components/shared/ShopOfferingBadge';
 import { ListCard } from '../../components/shared/ListCard';
+import { SaveToListButton } from '../../components/shared/SaveToListButton';
 import { useShopLists } from '../../hooks/useLists';
 import { useShopRating } from '../../hooks/useShopRating';
 import { shopRating } from '../../types/shops';
@@ -22,7 +23,7 @@ const opensDetail = (item: Parameters<typeof isService>[0] & Parameters<typeof r
 export function ShopDetail() {
   const { shopId } = useParams<{ shopId: string }>();
   const navigate = useNavigate();
-  const { addToCart, setCartSliderOpen } = useCart();
+  const { addToCart } = useCart();
   const { shop, items, loading } = useShopDetail(shopId);
   const { lists: shopLists } = useShopLists(shopId);
   const { canRate, myRating, saving: savingRating, rate: rateShop } = useShopRating(shopId);
@@ -91,6 +92,19 @@ export function ShopDetail() {
               Verified
             </span>
           )}
+
+          {/* A shop is worth keeping in its own right — you go back to a butcher,
+              not to one cut of meat. */}
+          <SaveToListButton
+            variant="inline"
+            className="shrink-0"
+            target={{
+              kind: 'shop',
+              id: shop.id,
+              name: shop.name,
+              image_url: shop.cover_image_url ?? shop.logo_url ?? shop.image_url ?? null,
+            }}
+          />
         </div>
       </div>
 
@@ -450,7 +464,6 @@ export function ShopDetail() {
                                 onClick={() => {
                                   addToCart(toProduct(item));
                                   toast.success(`${item.name} added to cart`);
-                                  setCartSliderOpen(true);
                                 }}
                                 disabled={!item.is_available}
                                 className="border-primary/25 text-primary hover:bg-primary-tint"

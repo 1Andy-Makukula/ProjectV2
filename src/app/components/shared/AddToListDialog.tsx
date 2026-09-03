@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ListChecks, Plus } from 'lucide-react';
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -11,29 +12,30 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { useListActions, useMyLists } from '../../hooks/useLists';
-import { LIST_VISIBILITIES } from '../../types/lists';
+import { LIST_VISIBILITIES, type ListTarget } from '../../types/lists';
 
 interface AddToListDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  item: { id: string; name: string; image_url?: string | null };
+  /** The item, service or shop being saved. */
+  target: ListTarget;
 }
 
 /**
- * Puts an item on one of the viewer's lists, creating one on the spot if they
- * have none.
+ * Puts an item, a service or a whole shop on one of the viewer's lists,
+ * creating one on the spot if they have none.
  *
  * New lists start private: publishing to the community is a deliberate act
  * taken from the list itself, not a side effect of saving the first thing to it.
  */
-export function AddToListDialog({ open, onOpenChange, item }: AddToListDialogProps) {
+export function AddToListDialog({ open, onOpenChange, target }: AddToListDialogProps) {
   const { owned, loading, createList, reload } = useMyLists();
-  const { busy, addItem } = useListActions();
+  const { busy, addEntry } = useListActions();
   const [newTitle, setNewTitle] = useState('');
   const [creating, setCreating] = useState(false);
 
   const handleAdd = async (listId: string) => {
-    if (await addItem(listId, item)) {
+    if (await addEntry(listId, target)) {
       onOpenChange(false);
       reload();
     }
@@ -54,14 +56,18 @@ export function AddToListDialog({ open, onOpenChange, item }: AddToListDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[80vh] overflow-y-auto">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add to a list</DialogTitle>
+          <DialogTitle>
+            {target.kind === 'shop' ? `Save ${target.name} to a list` : 'Add to a list'}
+          </DialogTitle>
           <DialogDescription>
-            Lists can hold items from any number of shops, and be shared as one link.
+            Lists can hold products, services and whole shops from anywhere on KithLy, and
+            be shared as one link.
           </DialogDescription>
         </DialogHeader>
 
+        <DialogBody>
         {loading ? (
           <p className="py-6 text-center text-sm text-muted-foreground">Loading your lists…</p>
         ) : owned.length === 0 ? (
@@ -91,6 +97,7 @@ export function AddToListDialog({ open, onOpenChange, item }: AddToListDialogPro
             ))}
           </ul>
         )}
+        </DialogBody>
 
         <div className="flex items-center gap-2 border-t border-border pt-4">
           <Input

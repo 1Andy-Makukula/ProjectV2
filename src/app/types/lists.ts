@@ -28,10 +28,21 @@ export const LIST_VISIBILITIES: ReadonlyArray<{
   },
 ];
 
+/**
+ * What an entry points at.
+ *
+ * Stored on the row rather than inferred from which id is set: both foreign
+ * keys are ON DELETE SET NULL, so once the target is gone the kind would be
+ * unknowable and the entry could no longer be rendered as what it was.
+ */
+export type ListEntryKind = 'item' | 'shop';
+
 export interface ListEntry {
   id: string;
+  entry_kind: ListEntryKind;
   item_id: string | null;
-  /** Captured when the entry was added; only used when the item is gone. */
+  shop_id: string | null;
+  /** Captured when the entry was added; only used when the target is gone. */
   snapshot_name: string;
   snapshot_image_url: string | null;
   sort_order: number;
@@ -48,6 +59,30 @@ export interface ListEntry {
     original_price_zmw: number | null;
     shop: { id: string; name: string } | null;
   } | null;
+  /**
+   * Live shop, for a shop entry. A shop is a destination rather than something
+   * with a price, so it is never part of the list's total or its "buy all".
+   */
+  shop: {
+    id: string;
+    name: string;
+    location: string | null;
+    logo_url: string | null;
+    cover_image_url: string | null;
+  } | null;
+}
+
+/**
+ * Something the viewer wants to put on a list.
+ *
+ * The shape every "Save" affordance hands to AddToListDialog, whether it sits
+ * on an item card, an item page or a shop card.
+ */
+export interface ListTarget {
+  kind: ListEntryKind;
+  id: string;
+  name: string;
+  image_url?: string | null;
 }
 
 export interface ListSummary {
@@ -98,7 +133,7 @@ export function listRating(list: Pick<ListSummary, 'rating_count' | 'rating_sum'
   return Math.round((list.rating_sum / list.rating_count) * 10) / 10;
 }
 
-export type EntryUnavailableReason = 'removed' | 'delisted' | 'out_of_stock' | null;
+export type EntryUnavailableReason = 'removed' | 'delisted' | 'out_of_stock' | 'closed' | null;
 
 /**
  * Why an entry cannot be bought right now, or null when it can.
@@ -108,6 +143,7 @@ export type EntryUnavailableReason = 'removed' | 'delisted' | 'out_of_stock' | n
  * the missing ones explained.
  */
 export function entryUnavailableReason(entry: ListEntry): EntryUnavailableReason {
+  if (entry.entry_kind === 'shop') return entry.shop ? null : 'closed';
   if (!entry.item) return 'removed';
   if (entry.item.is_available === false) return 'delisted';
   if (entry.item.stock_quantity != null && entry.item.stock_quantity <= 0) return 'out_of_stock';
@@ -118,10 +154,31 @@ export const ENTRY_UNAVAILABLE_TEXT: Record<Exclude<EntryUnavailableReason, null
   removed: 'No longer sold',
   delisted: 'Unavailable from the shop',
   out_of_stock: 'No available stock yet',
+  closed: 'This shop has left KithLy',
 };
+
+/**
+ * Whether an entry can go in the cart.
+ *
+ * A shop entry is browsable, never buyable — it has no price and no single
+ * thing to add — so every total and the "buy all" button filter on this rather
+ * than on availability alone.
+ */
+export function isBuyableEntry(entry: ListEntry): boolean {
+  // Anything not explicitly a shop is an item, matching the column default:
+  // entries written before shops could be listed carry no kind of their own.
+  return entry.entry_kind !== 'shop' && entryUnavailableReason(entry) === null;
+}
 
 /** What to show for an entry: live values where they exist, snapshot otherwise. */
 export function entryDisplay(entry: ListEntry): { name: string; imageUrl: string | null } {
+  if (entry.entry_kind === 'shop') {
+    return {
+      name: entry.shop?.name ?? entry.snapshot_name,
+      imageUrl: entry.shop?.cover_image_url ?? entry.shop?.logo_url ?? entry.snapshot_image_url,
+    };
+  }
+
   return {
     name: entry.item?.name ?? entry.snapshot_name,
     imageUrl: entry.item?.image_url ?? entry.snapshot_image_url,
@@ -137,7 +194,7 @@ export function entryDisplay(entry: ListEntry): { name: string; imageUrl: string
  */
 export function listSavings(entries: ListEntry[]): number {
   return entries.reduce((total, entry) => {
-    if (entryUnavailableReason(entry) !== null || !entry.item) return total;
+    if (!isBuyableEntry(entry) || !entry.item) return total;
     const { is_discounted, original_price_zmw, price_zmw } = entry.item;
     if (!is_discounted || !original_price_zmw || original_price_zmw <= price_zmw) return total;
     return total + (original_price_zmw - price_zmw);
@@ -147,10 +204,7 @@ export function listSavings(entries: ListEntry[]): number {
 /** Total of the entries that can actually be bought right now. */
 export function listBuyableTotal(entries: ListEntry[]): number {
   return entries.reduce(
-    (total, entry) =>
-      entryUnavailableReason(entry) === null && entry.item
-        ? total + entry.item.price_zmw
-        : total,
+    (total, entry) => (isBuyableEntry(entry) && entry.item ? total + entry.item.price_zmw : total),
     0,
   );
 }
@@ -158,6 +212,10 @@ export function listBuyableTotal(entries: ListEntry[]): number {
 /** How many distinct businesses a list draws from — the thing that makes it a list. */
 export function listShopCount(entries: ListEntry[]): number {
   return new Set(
-    entries.map((entry) => entry.item?.shop?.id).filter((id): id is string => Boolean(id)),
+    entries
+      // A shop saved to the list counts as one of its businesses in its own
+      // right, alongside the shops the items come from.
+      .map((entry) => (entry.entry_kind === 'shop' ? entry.shop?.id : entry.item?.shop?.id))
+      .filter((id): id is string => Boolean(id)),
   ).size;
 }

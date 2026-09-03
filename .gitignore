@@ -27,3 +27,6 @@ data_backup.sql
 kithly_schema.sql
 supabase/clear_shop_data.sql
 *.backup.sql
+
+# JVM crash dumps from Android tooling
+hs_err_pid*.log

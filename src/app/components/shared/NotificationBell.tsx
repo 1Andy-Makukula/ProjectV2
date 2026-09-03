@@ -82,9 +82,11 @@ export function NotificationBell({ tone = 'dark', className = '' }: Notification
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
-        className={`relative rounded-full p-2 transition-colors ${triggerColour} ${className}`}
+        // Same footprint as the header's other tools, so the cluster lines up.
+        className={`relative grid size-9 place-items-center rounded-[var(--radius-pill)]
+                    transition-colors ${triggerColour} ${className}`}
       >
-        <Bell className="h-5 w-5" strokeWidth={1.75} />
+        <Bell className="h-[1.15rem] w-[1.15rem]" strokeWidth={1.75} />
         {unreadCount > 0 && (
           <span
             className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center

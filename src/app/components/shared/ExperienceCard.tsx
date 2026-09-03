@@ -13,17 +13,39 @@ interface ExperienceCardProps {
   onOpen: () => void;
 }
 
+/**
+ * How long is left, in the words someone would actually use.
+ *
+ * Null once the deadline is far enough away that counting days is noise — the
+ * card falls back to the date, which is the useful form at that distance.
+ */
+function countdownLabel(expiresAt: string | null): string | null {
+  if (!expiresAt) return null;
+
+  const ms = new Date(expiresAt).getTime() - Date.now();
+  if (ms <= 0) return 'Closed';
+
+  const hours = Math.floor(ms / 3_600_000);
+  if (hours < 1) return 'Closes within the hour';
+  if (hours < 24) return `Closes in ${hours} hour${hours === 1 ? '' : 's'}`;
+
+  const days = Math.floor(hours / 24);
+  if (days <= 14) return `Closes in ${days} day${days === 1 ? '' : 's'}`;
+  return null;
+}
+
 export function ExperienceCard({ experience, onOpen }: ExperienceCardProps) {
   const total = experienceTotal(experience);
   const shops = participatingShops(experience);
   const available = experienceIsAvailable(experience) && !experienceHasLapsed(experience);
   const itemCount = (experience.experience_items ?? []).reduce((n, l) => n + l.quantity, 0);
+  const closesIn = countdownLabel(experience.expires_at);
 
   return (
     <article
       onClick={onOpen}
-      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-slate-100
-                 bg-white transition-all duration-300 hover:border-slate-200 hover:shadow-md"
+      className="kl-tile kl-lift kl-ornament-ticket group relative flex cursor-pointer flex-col
+                 overflow-hidden"
     >
       <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-slate-50">
         {experience.image_url ? (
@@ -76,7 +98,9 @@ export function ExperienceCard({ experience, onOpen }: ExperienceCardProps) {
           {experience.expires_at && (
             <span className="flex items-center gap-1">
               <CalendarClock className="h-3 w-3 shrink-0 text-slate-400" strokeWidth={2} />
-              {new Date(experience.expires_at).toLocaleDateString('en-US', {
+              {/* A deadline is the thing that makes an experience urgent, and a
+                  date alone makes nobody count the days. */}
+              {closesIn ?? new Date(experience.expires_at).toLocaleDateString('en-US', {
                 day: 'numeric',
                 month: 'short',
               })}

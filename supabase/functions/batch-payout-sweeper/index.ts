@@ -42,13 +42,27 @@
 
 import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
 import { isServiceRoleCaller } from "../_shared/auth.ts";
+import { getCorsHeaders } from "../_shared/cors.ts";
 
-const corsHeaders: HeadersInit = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-sweeper-secret",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-};
+/**
+ * Was `Access-Control-Allow-Origin: "*"`, hand-rolled here instead of using
+ * _shared/cors.ts and its ALLOWED_ORIGINS / APP_URL allowlist. The auth guard
+ * below is what actually stops an unauthorised sweep, so this was not a way to
+ * move money -- but a wildcard on the payout trigger means any page on the
+ * internet can read its JSON response from a browser that holds service-role
+ * rights, and this endpoint's response enumerates pending merchant withdrawals.
+ *
+ * x-sweeper-secret is added back on top of the shared list: the manual
+ * out-of-band trigger sends it, and the shared helper does not know about it.
+ */
+function sweeperCors(req: Request): Record<string, string> {
+  return {
+    ...getCorsHeaders(req),
+    "Access-Control-Allow-Headers":
+      "authorization, x-client-info, apikey, content-type, x-sweeper-secret",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  };
+}
 
 interface ClaimedWithdrawal {
   withdrawal_id: string;
@@ -233,10 +247,10 @@ async function resolveUnverifiedWithdrawals(
   return summary;
 }
 
-function json(data: unknown, status = 200): Response {
+function json(req: Request, data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...sweeperCors(req), "Content-Type": "application/json" },
   });
 }
 
@@ -266,15 +280,15 @@ function normaliseAccount(category: string | null, rawDetails: string): string {
 
 Deno.serve(async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders });
+    return new Response(null, { status: 204, headers: sweeperCors(req) });
   }
 
   if (req.method === "GET") {
-    return json({ status: "ok", service: "batch-payout-sweeper" });
+    return json(req, { status: "ok", service: "batch-payout-sweeper" });
   }
 
   if (req.method !== "POST") {
-    return json({ error: `Method '${req.method}' is not allowed. Use POST.` }, 405);
+    return json(req, { error: `Method '${req.method}' is not allowed. Use POST.` }, 405);
   }
 
   // The out-of-band header stays: it lets this be triggered manually without a
@@ -290,10 +304,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
     // now than it did: until Vault was populated, pg_cron could not reach this
     // function at all, so no payout had ever actually been dispatched and the
     // guard had never been exercised against a real scheduled call.
-    const authorised = isServiceRoleCaller(req, "BATCH_PAYOUT_SWEEPER_SECRET");
+    const authorised = await isServiceRoleCaller(req, "BATCH_PAYOUT_SWEEPER_SECRET");
     if (!authorised.ok) {
       console.error(`[batch-payout-sweeper] Unauthorized payout sweep: ${authorised.reason}`);
-      return json({ error: "Unauthorized." }, 401);
+      return json(req, { error: "Unauthorized." }, 401);
     }
   }
 
@@ -302,13 +316,13 @@ Deno.serve(async (req: Request): Promise<Response> => {
     supabase = getAdminClient();
   } catch (err: unknown) {
     console.error(err instanceof Error ? err.message : String(err));
-    return json({ error: "Server configuration error." }, 500);
+    return json(req, { error: "Server configuration error." }, 500);
   }
 
   const flutterwaveSecretKey = Deno.env.get("FLUTTERWAVE_SECRET_KEY");
   if (!flutterwaveSecretKey) {
     console.error("[batch-payout-sweeper] FLUTTERWAVE_SECRET_KEY is not configured.");
-    return json({ error: "Flutterwave keys not configured." }, 500);
+    return json(req, { error: "Flutterwave keys not configured." }, 500);
   }
 
   // Resolve anything parked as `unverified` before dispatching new work.
@@ -326,13 +340,13 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     if (claimError) {
       console.error("[batch-payout-sweeper] Failed to claim withdrawals:", claimError.message);
-      return json({ error: "Failed to claim withdrawals." }, 500);
+      return json(req, { error: "Failed to claim withdrawals." }, 500);
     }
 
     const withdrawals = (claimed ?? []) as ClaimedWithdrawal[];
 
     if (withdrawals.length === 0) {
-      return json({
+      return json(req, {
         success: true,
         claimed: 0,
         paid: 0,
@@ -519,7 +533,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       }
     }
 
-    return json({
+    return json(req, {
       success: true,
       claimed: withdrawals.length,
       paid,
@@ -532,6 +546,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
   } catch (unhandled: unknown) {
     const message = unhandled instanceof Error ? unhandled.message : String(unhandled);
     console.error("[batch-payout-sweeper] Unhandled exception:", message);
-    return json({ error: "Internal server error." }, 500);
+    return json(req, { error: "Internal server error." }, 500);
   }
 });

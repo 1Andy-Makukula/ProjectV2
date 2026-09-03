@@ -44,21 +44,30 @@ function ussdResponse(message: string, status = 200): Response {
 }
 
 /**
- * Extracts the 8-character uppercase claim code from a USSD string.
+ * Extracts the claim code from a USSD string.
  *
  * Telecom gateways pass the dialled string in various formats depending on
  * the gateway and session state.
  * Examples:
- *   - "*130*758*A1B2C3D4#"
- *   - "130*758*A1B2C3D4"
- *   - "A1B2C3D4"
+ *   - "*130*758*BNDL-7QK2M4XR9WZP#"
+ *   - "130*758*BNDL-A1B2C3"        (legacy 6-char body, still live)
+ *   - "A1B2C3D4"                   (bare 8-char code)
  *
- * We strictly look for exactly 8 alphanumeric characters right at the end
- * of the string, optionally followed by a trailing hash.
+ * The code is read from the END of the string, optionally past a trailing hash.
+ *
+ * The prefixed alternative is deliberately listed FIRST. Alternation is tried
+ * left to right at each position, and a bare `[A-Z0-9]{8}` anchored to `$`
+ * happily matches the last eight characters of "BNDL-7QK2M4XR9WZP" -- so with
+ * the old ordering a 12-char code would be silently truncated to a fragment
+ * that matches no voucher, and the merchant would be told the gift code was
+ * invalid.
+ *
+ * The 6..16 body range accepts both the 6-char codes already in circulation and
+ * the 12-char ones checkout-init issues now (see CLAIM_CODE_LENGTH there).
  */
 function extractClaimCode(text: string): string | null {
   const normalisedText = text.trim().toUpperCase();
-  const match = normalisedText.match(/([A-Z0-9]{8}|[A-Z0-9]{4}-[A-Z0-9]{6})#?$/);
+  const match = normalisedText.match(/([A-Z0-9]{4}-[A-Z0-9]{6,16}|[A-Z0-9]{8})#?$/);
   return match ? match[1] : null;
 }
 
@@ -134,7 +143,7 @@ async function handleUssdRequest(req: Request): Promise<Response> {
   // --- 2. Extract claim code ---
   const claimCode = extractClaimCode(text);
   if (!claimCode) {
-    console.error("[ussd-gateway] Could not extract 8-char claim code from USSD text.");
+    console.error("[ussd-gateway] Could not extract a claim code from USSD text.");
     return ussdResponse("END DECLINED: Invalid gift code format", 400);
   }
 
@@ -160,28 +169,60 @@ async function handleUssdRequest(req: Request): Promise<Response> {
     .eq("phone", normalisedPhone)
     .maybeSingle<{ id: string }>();
 
+  // maybeSingle() used to be able to see two rows here and fail with PGRST116,
+  // because users.phone had no UNIQUE constraint: any app user could set their
+  // number to a merchant's and knock that till offline from their profile
+  // screen. Migration 20260903010000 makes the number unique, so a second row
+  // can no longer exist and this branch means genuinely unregistered.
+  //
+  // The number is redacted in this log line. It was printed in full, which put
+  // merchant MSISDNs into the log store on every failed dial -- the rest of
+  // this function already uses redactPhone.
   if (userError || !userRow) {
-    console.error(`[ussd-gateway] Phone lookup failed or unregistered | phone=${normalisedPhone}`);
+    console.error(
+      `[ussd-gateway] Phone lookup failed or unregistered | phone=${redactPhone(normalisedPhone)}`,
+    );
     return ussdResponse("END Unregistered Merchant Device");
   }
 
   // 4b. Find Shop Assignment
-  const { data: shopRow, error: shopError } = await adminClient
+  //
+  // Was `.limit(1).maybeSingle()`, which silently picked whichever row the
+  // planner returned first for a merchant assigned to more than one shop. That
+  // shop_id is then handed to atomic_fulfill_voucher, which validates the
+  // voucher against it -- so a multi-store merchant either had a valid gift
+  // rejected, or redeemed it against the wrong store's books, with the
+  // settlement following the wrong shop.
+  //
+  // Two rows is now an explicit refusal. There is no signal in a USSD session
+  // that says which till is dialling, so guessing is the one thing this must
+  // not do with a redemption. Multi-store merchants need a per-device binding
+  // (a merchant_devices table keyed by MSISDN) before USSD can serve them;
+  // until then they fulfil through the app, where the shop is chosen
+  // explicitly.
+  const { data: shopRows, error: shopError } = await adminClient
     .from("merchant_shops")
     .select("shop_id")
     .eq("user_id", userRow.id)
-    .limit(1)
-    .maybeSingle<{ shop_id: string }>();
+    .limit(2)
+    .returns<{ shop_id: string }[]>();
 
-  if (shopError || !shopRow) {
+  if (shopError || !shopRows || shopRows.length === 0) {
     console.error(`[ussd-gateway] Shop assignment lookup failed | user=${userRow.id}`);
     return ussdResponse("END Unregistered Merchant Device");
   }
 
-  const shopId = shopRow.shop_id;
+  if (shopRows.length > 1) {
+    console.error(
+      `[ussd-gateway] Refusing to guess a shop: user=${userRow.id} is assigned to multiple shops. USSD cannot disambiguate.`,
+    );
+    return ussdResponse("END DECLINED: This number serves multiple shops. Please redeem in the KithLy app.");
+  }
+
+  const shopId = shopRows[0].shop_id;
   const merchantUserId = userRow.id;
 
-  console.log(`[ussd-gateway] Device registered | phone=${normalisedPhone} | shop=${shopId}`);
+  console.log(`[ussd-gateway] Device registered | phone=${redactPhone(normalisedPhone)} | shop=${shopId}`);
 
   // --- 5. Execute Atomic Fulfillment RPC ---
   const { data: rpcResult, error: rpcError } = await adminClient.rpc(

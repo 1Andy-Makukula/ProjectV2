@@ -1,6 +1,7 @@
 import { Eye, EyeOff } from 'lucide-react';
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -52,7 +53,7 @@ export function ItemPreviewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Eye className="size-4" strokeWidth={2} />
@@ -63,6 +64,7 @@ export function ItemPreviewDialog({
           </DialogDescription>
         </DialogHeader>
 
+        <DialogBody className="space-y-4">
         {!isAvailable && (
           <p className="flex items-start gap-1.5 rounded-md bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
             <EyeOff className="mt-0.5 size-3.5 shrink-0" strokeWidth={2} />
@@ -126,6 +128,7 @@ export function ItemPreviewDialog({
             </p>
           )}
         </div>
+        </DialogBody>
       </DialogContent>
     </Dialog>
   );

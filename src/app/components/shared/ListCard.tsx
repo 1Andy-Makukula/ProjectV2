@@ -28,8 +28,7 @@ export function ListCard({ list, onOpen, shopCount }: ListCardProps) {
   return (
     <button
       onClick={onOpen}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white text-left
-                 transition-all duration-300 hover:border-slate-200 hover:shadow-md"
+      className="kl-tile kl-lift group flex flex-col overflow-hidden text-left"
     >
       {/* Collage — one large image with a stack beside it, degrading to
           whatever the list actually has. */}
@@ -60,7 +59,10 @@ export function ListCard({ list, onOpen, shopCount }: ListCardProps) {
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-1 px-4 py-3">
+      {/* Ruled paper under the text, so a list reads as a list before a word
+          of it has been read. Only the body carries it — behind the collage it
+          would be invisible anyway. */}
+      <div className="kl-ornament-list flex flex-1 flex-col gap-1 px-4 py-3">
         <div className="flex items-center gap-1.5">
           {list.is_platform ? (
             <Badge variant="tint" className="gap-1">

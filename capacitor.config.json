@@ -1,5 +1,35 @@
 {
   "appId": "com.kithly.app",
   "appName": "KithLy",
-  "webDir": "dist"
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false,
+      "backgroundColor": "#E8460A",
+      "androidSpinnerStyle": "small",
+      "spinnerColor": "#FFFFFF"
+    },
+    "Keyboard": {
+      "resize": "native"
+    },
+    "StatusBar": {
+      "style": "LIGHT",
+      "backgroundColor": "#E8460A",
+      "overlaysWebView": false
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_kithly",
+      "iconColor": "#E8460A"
+    },
+    "PushNotifications": {
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
+    }
+  }
 }

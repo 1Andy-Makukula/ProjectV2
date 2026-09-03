@@ -42,7 +42,7 @@ function SelectTrigger({
       data-size={size}
       className={cn(
         // Match Input: transparent bg, simple border, orange focus ring
-        "flex w-full items-center justify-between gap-2 rounded-lg border border-border",
+        "flex w-full items-center justify-between gap-2 rounded-[var(--radius-xl)] border border-border",
         "bg-transparent px-3 text-sm whitespace-nowrap",
         "transition-[border-color,box-shadow] duration-150 outline-none",
         "focus-visible:border-primary/60 focus-visible:ring-2 focus-visible:ring-ring",
@@ -79,7 +79,7 @@ function SelectContent({
         className={cn(
           "bg-popover text-popover-foreground z-50 origin-(--radix-select-content-transform-origin)",
           "max-h-(--radix-select-content-available-height) min-w-[8rem] overflow-hidden",
-          "rounded-xl border border-border shadow-[var(--shadow-dropdown)]",
+          "kl-rim rounded-[var(--radius-tile)] shadow-[var(--shadow-panel)]",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           "data-[state=closed]:zoom-out-97 data-[state=open]:zoom-in-97",

@@ -12,6 +12,7 @@ import {
   servicePriceLabel,
   type CatalogItem,
 } from '../../types/items';
+import { SaveToListButton } from './SaveToListButton';
 
 export type StorefrontItem = CatalogItem;
 
@@ -20,13 +21,27 @@ interface StorefrontProductCardProps {
   onGift?: () => void;
   onView?: () => void;
   onAddToCart?: () => void;
+  /** A per-mode tile treatment, drawn by theme.css. */
+  ornament?: 'gift';
+  /** What the active mode calls adding to the cart. */
+  addLabel?: string;
+  /** The glyph for that action, so the tile agrees with the navbar. */
+  addIcon?: typeof ShoppingCart;
 }
 
 function formatZmw(ngwee: number | null | undefined): string {
   return ngwee != null ? (ngwee / 100).toFixed(2) : '—';
 }
 
-export function StorefrontProductCard({ item, onGift, onView, onAddToCart }: StorefrontProductCardProps) {
+export function StorefrontProductCard({
+  item,
+  onGift,
+  onView,
+  onAddToCart,
+  ornament,
+  addLabel = 'Add',
+  addIcon: AddGlyph = ShoppingCart,
+}: StorefrontProductCardProps) {
   const service = isService(item);
   const outOfStock = isOutOfStock(item);
 
@@ -56,9 +71,8 @@ export function StorefrontProductCard({ item, onGift, onView, onAddToCart }: Sto
 
   return (
     <article
-      className="group relative flex flex-col rounded-2xl border border-slate-100 bg-white
-                 overflow-hidden transition-all duration-300
-                 hover:border-slate-200 hover:shadow-md"
+      className={`kl-tile kl-lift group relative flex flex-col overflow-hidden
+                  ${ornament === 'gift' ? 'kl-ornament-gift' : ''}`}
     >
       {/* ── Image block ─────────────────────────────────────────── */}
       {/* Sold out is greyed rather than hidden: the buyer can see the shop
@@ -113,6 +127,14 @@ export function StorefrontProductCard({ item, onGift, onView, onAddToCart }: Sto
             </span>
           </div>
         )}
+
+        {/* Save to a list — bottom-right, clear of the badge, the service
+            marker and the escrow shield. */}
+        <div className="absolute bottom-2.5 right-2.5">
+          <SaveToListButton
+            target={{ kind: 'item', id: item.id, name: item.name, image_url: item.image_url }}
+          />
+        </div>
 
         {/* Escrow shield — bottom-left */}
         <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1
@@ -187,13 +209,13 @@ export function StorefrontProductCard({ item, onGift, onView, onAddToCart }: Sto
           {showAddToCart && onAddToCart && (
             <button
               onClick={e => { e.stopPropagation(); onAddToCart(); }}
-              className="flex-1 flex items-center justify-center gap-1 rounded-xl border border-orange-200 py-2 text-xs font-semibold
-                         text-orange-600 tracking-wide
-                         hover:border-orange-400 hover:bg-orange-50
+              className="kl-rim flex-1 flex items-center justify-center gap-1 rounded-[var(--radius-pill)] py-2 text-xs font-semibold
+                         text-mode-accent tracking-wide
+                         hover:bg-mode-tint
                          active:scale-[0.98] transition-all duration-200"
             >
-              <ShoppingCart className="h-3.5 w-3.5" />
-              Add
+              <AddGlyph className="h-3.5 w-3.5" />
+              {addLabel}
             </button>
           )}
           {handle && (

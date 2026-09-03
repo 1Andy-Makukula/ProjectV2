@@ -5,7 +5,8 @@
 // is laid out, and — through `data-mode` on the root element — what the whole
 // thing is tinted. Switching mode refetches nothing.
 //
-// Authenticated merchants and admins are redirected to their own hubs.
+// Authenticated admins are redirected to their own console; merchants browse
+// here as customers.
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router';
@@ -20,20 +21,39 @@ import { ExperienceCard } from '../components/shared/ExperienceCard';
 import { ListCard } from '../components/shared/ListCard';
 import { Header } from '../components/layout/Header';
 import { ModeSwitcher } from '../components/storefront/ModeSwitcher';
+import {
+  StorefrontRail,
+  StorefrontStatusRibbon,
+} from '../components/storefront/StorefrontRail';
+import { RailDrawer } from '../components/storefront/RailDrawer';
+import { hapticTap } from '../../utils/native';
 import { ItemFeed, SectionHeading } from '../components/storefront/ItemFeed';
 import { useCart, toProduct } from '../hooks/useCart';
 import { useExperiences } from '../hooks/useExperiences';
 import { useStorefrontData } from '../hooks/useStorefrontData';
 import { useStorefrontMode } from '../hooks/useStorefrontMode';
-import { modeDefinition } from '../types/storefrontModes';
+import { useScrollDirection } from '../hooks/useScrollDirection';
+import {
+  modeCartIcon,
+  modeDefinition,
+  modeDensity,
+  modeLexicon,
+} from '../types/storefrontModes';
 import { isService, requiresConversation, type CatalogItem } from '../types/items';
 import { toast } from 'sonner';
 
 const SLIDE_MS = 5000;
 
+/**
+ * Who gets sent somewhere else instead of the storefront.
+ *
+ * Merchants are deliberately absent: they shop here like anyone else, and
+ * bouncing them to the console the moment they touched '/' was what made
+ * buying as a customer impossible for them. They reach the console through
+ * "Enter Shop" in the header.
+ */
 const ROLE_MAP: Record<string, string> = {
   admin: '/admin',
-  merchant: '/merchant',
 };
 
 function ShopCardSkeleton() {
@@ -57,6 +77,10 @@ export function ConsumerStorefront() {
   const { experiences, loading: experiencesLoading } = useExperiences({ limit: 6 });
   const { mode } = useStorefrontMode();
   const definition = modeDefinition(mode);
+
+  // One reading of the scroll, two bars: the header slides away and the mode
+  // rail rises into the slot it left.
+  const headerCollapsed = useScrollDirection();
 
   const [slide, setSlide] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -110,10 +134,13 @@ export function ConsumerStorefront() {
   );
 
   const addItemToCart = useCallback((item: CatalogItem) => {
-    const { addToCart, setCartSliderOpen } = useCart.getState();
+    hapticTap();
+    // The count in the header is the confirmation. Throwing the slider open
+    // over the page is an interruption to someone who is still browsing —
+    // opening the cart stays a deliberate click on the cart.
+    const { addToCart } = useCart.getState();
     addToCart(toProduct({ ...item, shop_id: item.shop?.id ?? '' }));
     toast.success(`${item.name} added to cart`);
-    setCartSliderOpen(true);
   }, []);
 
   // ── Sections, rendered in the order this mode asks for ───────────────────
@@ -136,6 +163,10 @@ export function ConsumerStorefront() {
           items={visibleItems}
           loading={dataLoading}
           layout={definition.layout}
+          density={modeDensity(mode)}
+          addLabel={modeLexicon(mode).add}
+          addIcon={modeCartIcon(mode)}
+          ornament={definition.ornament === 'gift' ? 'gift' : undefined}
           onGift={openItem}
           onAddToCart={profile ? addItemToCart : undefined}
         />
@@ -284,11 +315,36 @@ export function ConsumerStorefront() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      <Header onProfileClick={() => navigate('/settings')} onLogoClick={() => navigate('/')} />
+      <Header
+        collapsed={headerCollapsed}
+        onProfileClick={() => navigate('/settings')}
+        onLogoClick={() => navigate('/')}
+      />
+
+      {/* ── Mode switcher ─────────────────────────────────────────────────────
+          Above the banner rather than below it: it is how you choose what the
+          page is, so it should be the first thing under the header, and it
+          stays put while the hero scrolls away beneath it. */}
+      <div
+        className={cn(
+          'sticky z-40 border-b backdrop-blur-md',
+          'transition-[top,background-color,border-color] duration-300 ease-out',
+          headerCollapsed
+            // Holding the header's place, and wearing its glass so the top of
+            // the page looks the same whichever bar is up there.
+            ? 'top-0 border-white/20 bg-white/60'
+            : 'top-14 border-slate-100 bg-white/90 md:top-16',
+        )}
+      >
+        <div className="mx-auto max-w-7xl px-5 py-3 sm:px-8">
+          <ModeSwitcher />
+        </div>
+      </div>
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       {definition.sections.includes('campaigns') ? (
-        <section className="relative h-[420px] w-full overflow-hidden bg-slate-900 sm:h-[520px]">
+        <section className="mx-auto w-full max-w-7xl px-4 pt-4 sm:px-8 sm:pt-6 xl:max-w-[100rem]">
+        <div className="kl-stage h-[300px] w-full bg-slate-900 sm:h-[380px]">
           {dataLoading ? (
             <div className="h-full w-full animate-pulse bg-slate-100" />
           ) : (
@@ -311,7 +367,7 @@ export function ConsumerStorefront() {
                     <img
                       src={activeCampaign.image_url}
                       alt={activeCampaign.title}
-                      className="h-full w-full object-cover"
+                      className="kl-drift h-full w-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-br from-slate-900/70 via-slate-900/40 to-slate-900/70" />
                   </motion.div>
@@ -365,14 +421,14 @@ export function ConsumerStorefront() {
                   <button
                     onClick={() => goSlide((slide - 1 + totalSlides) % totalSlides)}
                     aria-label="Previous slide"
-                    className="absolute left-4 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+                    className="absolute left-4 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-[var(--radius-pill)] border border-white/25 bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/25"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => goSlide((slide + 1) % totalSlides)}
                     aria-label="Next slide"
-                    className="absolute right-4 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+                    className="absolute right-4 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-[var(--radius-pill)] border border-white/25 bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/25"
                   >
                     <ChevronRight className="h-4 w-4" />
                   </button>
@@ -380,11 +436,13 @@ export function ConsumerStorefront() {
               )}
             </>
           )}
+        </div>
         </section>
       ) : (
         // Modes without the carousel still need a header block, tinted to match.
-        <section className="kl-gradient-mode">
-          <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-16">
+        <section className="mx-auto w-full max-w-7xl px-4 pt-4 sm:px-8 sm:pt-6 xl:max-w-[100rem]">
+        <div className="kl-stage kl-gradient-mode">
+          <div className="px-6 py-9 sm:px-10 sm:py-12">
             <motion.div
               key={mode}
               initial={{ opacity: 0, y: 12 }}
@@ -399,35 +457,41 @@ export function ConsumerStorefront() {
               </p>
             </motion.div>
           </div>
+        </div>
         </section>
       )}
 
-      {/* ── Mode switcher ─────────────────────────────────────────────────── */}
-      <div className="sticky top-14 z-40 border-b border-slate-100 bg-white/90 backdrop-blur-md md:top-16">
-        <div className="mx-auto max-w-7xl px-5 py-3 sm:px-8">
-          <ModeSwitcher />
-        </div>
-      </div>
-
       {/* ── Trust bar ─────────────────────────────────────────────────────── */}
-      <div className="border-b border-slate-100 bg-slate-50">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-6 px-5 py-4 sm:gap-12 sm:px-8">
+      <div className="border-b border-slate-100 bg-slate-50/70">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-6 gap-y-1 px-5 py-2 sm:gap-x-10 sm:px-8 xl:max-w-[100rem]">
           {[
             { icon: Shield, label: '100% Escrow Protected' },
             { icon: Package, label: 'In-Store Collection' },
             { icon: Store, label: 'Verified Local Merchants' },
           ].map(({ icon: Icon, label }) => (
-            <div key={label} className="flex items-center gap-2 text-slate-500">
-              <Icon className="h-4 w-4 shrink-0 text-mode-accent" strokeWidth={1.5} />
-              <span className="text-xs font-medium">{label}</span>
+            <div key={label} className="flex items-center gap-1.5 text-slate-500">
+              <Icon className="h-3.5 w-3.5 shrink-0 text-mode-accent" strokeWidth={1.5} />
+              <span className="text-[0.6875rem] font-medium">{label}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* ── Sections, in this mode's order ────────────────────────────────── */}
-      <div className="mx-auto max-w-7xl space-y-20 px-5 py-14 sm:px-8">
-        {definition.sections.map((key) => sections[key]).filter(Boolean)}
+      <div className="mx-auto flex max-w-7xl gap-8 px-5 py-10 sm:px-8 xl:max-w-[100rem]">
+        <StorefrontRail
+          shops={data?.shops ?? []}
+          items={data?.items ?? []}
+          lists={communityLists}
+        />
+
+        <div className="min-w-0 flex-1 space-y-16">
+          {/* What is waiting on you stays in the feed on a phone: it should
+              never need a gesture to be discovered. The browse modules moved
+              into the drawer. */}
+          <StorefrontStatusRibbon />
+
+          {definition.sections.map((key) => sections[key]).filter(Boolean)}
 
         {!profile && (
           <section className="kl-gradient-mode rounded-3xl p-10 text-center sm:p-14">
@@ -448,7 +512,15 @@ export function ConsumerStorefront() {
             </button>
           </section>
         )}
+        </div>
       </div>
+
+      {/* Pulled in from the left edge, below 1280px. */}
+      <RailDrawer
+        shops={data?.shops ?? []}
+        items={data?.items ?? []}
+        lists={communityLists}
+      />
     </div>
   );
 }

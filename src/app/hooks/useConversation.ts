@@ -153,11 +153,15 @@ export function useConversation(conversationId?: string) {
       if (!conversationId) return false;
       setUploadingImage(true);
       try {
-        const { publicUrl } = await uploadChatImage(file, conversationId);
+        // The storage PATH is persisted, not a URL. Chat attachments live in a
+        // private bucket now (migration 20260903020000) and are viewed through
+        // a signed URL minted per render -- a stored one would simply expire,
+        // and a stored public one is the leak being closed.
+        const { path } = await uploadChatImage(file, conversationId);
         const { error } = await supabase.rpc('send_message', {
           p_conversation_id: conversationId,
           p_message_type: 'image',
-          p_image_url: publicUrl,
+          p_image_url: path,
         });
         if (error) throw error;
         return true;

@@ -28,12 +28,16 @@ export function Login() {
   // Redirect already-authenticated users with a valid profile
   useEffect(() => {
     if (user && profile) {
-      // Merchants land on the buyer side and step into the shop deliberately.
-      // Running a shop does not stop you being a customer, and dropping
-      // straight into the merchant console made the storefront feel like
-      // somewhere they were not allowed. Admins still go to their console.
+      // Signing in lands you where there is something to look at.
+      //
+      // Both a shopper and a merchant arrive on the discovery storefront rather
+      // than on a dashboard: the dashboard is where you go to check on orders
+      // you have already placed, which is not what most sessions start as.
+      // Merchants step into the shop console deliberately, through "Enter Shop"
+      // in the header — running a shop does not stop you being a customer.
+      // Admins still go to their console.
       if (profile.role === 'admin') navigate('/admin');
-      else navigate('/dashboard');
+      else navigate('/');
     }
   }, [user, profile, navigate]);
 

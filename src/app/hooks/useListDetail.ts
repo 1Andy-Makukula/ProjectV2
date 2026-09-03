@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../utils/auth/AuthContext';
+import { entryDisplay } from '../types/lists';
 import type { ListDetail, ListEntry, ListVisibility } from '../types/lists';
 
 /**
@@ -33,12 +34,13 @@ export function useListDetail(slug: string | undefined) {
            owner:owner_user_id(name),
            shop:owner_shop_id(name),
            list_items(
-             id, item_id, snapshot_name, snapshot_image_url, sort_order,
+             id, entry_kind, item_id, shop_id, snapshot_name, snapshot_image_url, sort_order,
              item:item_id(
                id, name, price_zmw, image_url, is_available, stock_quantity,
                is_discounted, original_price_zmw,
                shop:shop_id(id, name)
-             )
+             ),
+             shop:shop_id(id, name, location, logo_url, cover_image_url)
            )`,
         )
         .eq('slug', slug)
@@ -56,10 +58,21 @@ export function useListDetail(slug: string | undefined) {
         .sort((a: any, b: any) => a.sort_order - b.sort_order)
         .map((entry: any) => ({
           id: entry.id,
+          entry_kind: (entry.entry_kind ?? 'item') as ListEntry['entry_kind'],
           item_id: entry.item_id,
+          shop_id: entry.shop_id ?? null,
           snapshot_name: entry.snapshot_name,
           snapshot_image_url: entry.snapshot_image_url,
           sort_order: entry.sort_order,
+          shop: entry.shop
+            ? {
+                id: entry.shop.id,
+                name: entry.shop.name,
+                location: entry.shop.location ?? null,
+                logo_url: entry.shop.logo_url ?? null,
+                cover_image_url: entry.shop.cover_image_url ?? null,
+              }
+            : null,
           item: entry.item
             ? {
                 id: entry.item.id,
@@ -92,7 +105,7 @@ export function useListDetail(slug: string | undefined) {
         rating_sum: row.rating_sum ?? 0,
         item_count: entries.length,
         preview_images: entries
-          .map((entry) => entry.item?.image_url ?? entry.snapshot_image_url)
+          .map((entry) => entryDisplay(entry).imageUrl)
           .filter((url): url is string => Boolean(url))
           .slice(0, 4),
         created_at: row.created_at,

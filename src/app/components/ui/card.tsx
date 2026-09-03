@@ -8,8 +8,10 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="card"
       className={cn(
         "bg-card text-card-foreground flex flex-col gap-0",
-        "rounded-xl border border-border",
-        "shadow-[var(--shadow-card)]",
+        // Tile radius and a gradient rim, matching every other surface. The
+        // border is gone rather than doubled: kl-rim draws the edge.
+        "kl-rim rounded-[var(--radius-tile)]",
+        "shadow-[var(--shadow-float)]",
         className,
       )}
       {...props}

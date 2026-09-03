@@ -63,7 +63,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     // were set and Vault was populated, neither the credentials nor the
     // scheduler existed, so this guard had never been exercised by an actual
     // expiry-reminder run. It is now, every fifteen minutes.
-    const authorised = isServiceRoleCaller(req, "SEND_NOTIFICATION_SECRET");
+    const authorised = await isServiceRoleCaller(req, "SEND_NOTIFICATION_SECRET");
     if (!authorised.ok) {
       console.error(`[send-notification] Unauthorized notification request: ${authorised.reason}`);
       return jsonWithCors(req, { error: "Unauthorized." }, 401);
@@ -123,11 +123,37 @@ Deno.serve(async (req: Request): Promise<Response> => {
     const accountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
     const authToken = Deno.env.get("TWILIO_AUTH_TOKEN");
 
+    // The sender is configuration, not a constant.
+    //
+    // This was hardcoded to whatsapp:+14155238886 -- Twilio's shared WhatsApp
+    // SANDBOX number. The sandbox only delivers to handsets that have first
+    // texted a join keyword to that US number, so in production every ordinary
+    // Zambian gift recipient silently receives nothing: Twilio accepts the API
+    // call, returns 201, and drops the message. A green log line and no gift.
+    //
+    // Deliberately no fallback to the sandbox. Falling back would restore
+    // exactly the failure it is here to prevent, and hide it behind a working
+    // request. Set TWILIO_WHATSAPP_FROM to the approved WhatsApp Business
+    // sender (`supabase secrets set TWILIO_WHATSAPP_FROM=whatsapp:+260...`);
+    // the sandbox number remains a legitimate value for staging.
+    const whatsappFrom = Deno.env.get("TWILIO_WHATSAPP_FROM")?.trim();
+
     if (!accountSid || !authToken) {
       console.error("[send-notification] TWILIO_ACCOUNT_SID or TWILIO_AUTH_TOKEN is not configured.");
       return jsonWithCors(
         req,
         { error: "Twilio service configuration error. Environment variables are missing." },
+        500,
+      );
+    }
+
+    if (!whatsappFrom) {
+      console.error(
+        "[send-notification] TWILIO_WHATSAPP_FROM is not configured. Refusing to send from the shared Twilio sandbox number, which only delivers to pre-opted-in handsets.",
+      );
+      return jsonWithCors(
+        req,
+        { error: "WhatsApp sender is not configured. Notifications are disabled until TWILIO_WHATSAPP_FROM is set." },
         500,
       );
     }
@@ -161,7 +187,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
     const params = new URLSearchParams();
     params.set("To", formattedPhone);
-    params.set("From", "whatsapp:+14155238886"); // Twilio WhatsApp Sandbox Sender Number
+    params.set("From", whatsappFrom.startsWith("whatsapp:") ? whatsappFrom : `whatsapp:${whatsappFrom}`);
     params.set("Body", bodyMessage);
 
     // 5. Send POST request using Basic Authentication
