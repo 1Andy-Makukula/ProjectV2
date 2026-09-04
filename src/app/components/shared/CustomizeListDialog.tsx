@@ -52,6 +52,69 @@ const TEMPLATE_ICONS: Record<ListTemplate, typeof LayoutList> = {
   storyboard: Sparkles,
 };
 
+/**
+ * A miniature of the first stop, as the storyboard will render it.
+ *
+ * Deliberately built from the list's own first entry rather than from a stock
+ * example: the question somebody is actually asking is "what will MY list look
+ * like", and a preview of someone else's braai answers a different one.
+ *
+ * It reuses the paper classes rather than reimplementing them at a smaller
+ * size, so it cannot drift away from what the real page does.
+ */
+function StoryboardPreview({ entries }: { entries: ListEntry[] }) {
+  const first = entries[0];
+
+  return (
+    <div className="kl-paper mt-3 rounded-[var(--radius-tile)] border border-border p-4">
+      <p className="kl-paper-display mb-3 text-center text-[0.6875rem] uppercase tracking-[0.18em] text-[var(--paper-ink-soft)]">
+        Preview
+      </p>
+
+      {!first ? (
+        <p className="kl-hand text-center text-[1.05rem]">
+          Save a few things to this list and they become the stops.
+        </p>
+      ) : (
+        <div className="flex gap-3">
+          <div className="flex flex-col items-center">
+            <div className="kl-seal">1</div>
+            <div className="kl-route" />
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="kl-tilt-1 kl-photo">
+              <span aria-hidden className="kl-tape kl-tape--tl" />
+              <div className="aspect-[4/3] w-full overflow-hidden bg-[var(--paper-deep)]">
+                {entryDisplay(first).imageUrl ? (
+                  <img
+                    src={entryDisplay(first).imageUrl as string}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="grid h-full w-full place-items-center">
+                    <Store className="size-6 text-[var(--paper-ink-soft)]/40" strokeWidth={1.25} />
+                  </div>
+                )}
+              </div>
+              <p className="kl-paper-display mt-1.5 truncate px-1 text-sm">
+                {entryDisplay(first).name}
+              </p>
+            </div>
+
+            {/* The note, or the invitation to write one. */}
+            <p className="kl-hand kl-margin-note mt-3 text-[1.05rem]">
+              {first.note?.trim() ||
+                'Your note goes here — ask for the thick cut, tell them who sent you.'}
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function CustomizeListDialog({
   open,
   onOpenChange,
@@ -165,6 +228,12 @@ export function CustomizeListDialog({
               );
             })}
           </div>
+
+          {/* What you are choosing, shown rather than described.
+              Built from this list's own first entry, so it previews the real
+              thing — a template picker showing somebody else's content teaches
+              you nothing about your own. */}
+          {template === 'storyboard' && <StoryboardPreview entries={entries} />}
         </div>
 
         <form onSubmit={save} className="space-y-4 border-t border-border pt-4">
@@ -230,7 +299,19 @@ export function CustomizeListDialog({
 
         {/* ── Entries ───────────────────────────────────────────────────── */}
         <div className="space-y-2 border-t border-border pt-4">
-          <Label>On this list ({entries.length})</Label>
+          <div className="flex items-baseline gap-2">
+            <Label>On this list ({entries.length})</Label>
+          </div>
+
+          {/* The notes are the whole point of a storyboard, and a pen icon on
+              its own never says so. */}
+          {template === 'storyboard' && entries.length > 0 && (
+            <p className="pb-1 text-xs font-light text-muted-foreground">
+              Tap the <PenLine className="mx-0.5 inline size-3" strokeWidth={2} /> beside anything
+              here to write about it — why it is on the list, what to ask for, who to mention. Your
+              words sit beside it on the journey, in your own hand.
+            </p>
+          )}
 
           {entries.length === 0 ? (
             <p className="py-4 text-center text-sm font-light text-muted-foreground">
