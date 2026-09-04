@@ -956,6 +956,7 @@ export type Database = {
           id: string
           item_id: string | null
           list_id: string
+          note: string | null
           shop_id: string | null
           snapshot_image_url: string | null
           snapshot_name: string
@@ -978,6 +979,7 @@ export type Database = {
           id?: string
           item_id?: string | null
           list_id?: string
+          note?: string | null
           shop_id?: string | null
           snapshot_image_url?: string | null
           snapshot_name?: string
@@ -1025,6 +1027,7 @@ export type Database = {
         Update: {
           created_at?: string
           list_id?: string
+          note?: string | null
           rating?: number
           updated_at?: string
           user_id?: string
@@ -1092,6 +1095,7 @@ export type Database = {
           rating_sum: number
           save_count: number
           slug: string
+          template: string
           title: string
           updated_at: string
           visibility: string
@@ -1124,6 +1128,7 @@ export type Database = {
           rating_sum?: number
           save_count?: number
           slug?: string
+          template?: string
           title?: string
           updated_at?: string
           visibility?: string

@@ -30,11 +30,11 @@ export function useListDetail(slug: string | undefined) {
         .from('lists')
         .select(
           `id, slug, title, description, visibility, is_anonymous, is_platform,
-           owner_user_id, owner_shop_id, save_count, rating_count, rating_sum, created_at,
+           owner_user_id, owner_shop_id, save_count, rating_count, rating_sum, template, created_at,
            owner:owner_user_id(name),
            shop:owner_shop_id(name),
            list_items(
-             id, entry_kind, item_id, shop_id, snapshot_name, snapshot_image_url, sort_order,
+             id, entry_kind, item_id, shop_id, snapshot_name, snapshot_image_url, sort_order, note,
              item:item_id(
                id, name, price_zmw, image_url, is_available, stock_quantity,
                is_discounted, original_price_zmw,
@@ -64,6 +64,7 @@ export function useListDetail(slug: string | undefined) {
           snapshot_name: entry.snapshot_name,
           snapshot_image_url: entry.snapshot_image_url,
           sort_order: entry.sort_order,
+          note: entry.note ?? null,
           shop: entry.shop
             ? {
                 id: entry.shop.id,
@@ -103,6 +104,7 @@ export function useListDetail(slug: string | undefined) {
         save_count: row.save_count ?? 0,
         rating_count: row.rating_count ?? 0,
         rating_sum: row.rating_sum ?? 0,
+        template: (row.template ?? 'standard') as ListDetail['template'],
         item_count: entries.length,
         preview_images: entries
           .map((entry) => entryDisplay(entry).imageUrl)

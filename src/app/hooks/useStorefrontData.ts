@@ -118,7 +118,7 @@ export function useStorefrontData() {
             .from('lists')
             .select(
               'id, slug, title, description, visibility, is_anonymous, is_platform, ' +
-                'owner_user_id, owner_shop_id, save_count, rating_count, rating_sum, created_at, ' +
+                'owner_user_id, owner_shop_id, save_count, rating_count, rating_sum, template, created_at, ' +
                 'owner:owner_user_id(name), shop:owner_shop_id(name), ' +
                 'list_items(snapshot_image_url, sort_order, item:item_id(image_url))',
             )
@@ -191,6 +191,7 @@ export function useStorefrontData() {
             save_count: row.save_count ?? 0,
             rating_count: row.rating_count ?? 0,
             rating_sum: row.rating_sum ?? 0,
+            template: (row.template ?? 'standard') as ListSummary['template'],
             item_count: entries.length,
             preview_images: entries
               .map((entry: any) => entry.item?.image_url ?? entry.snapshot_image_url)

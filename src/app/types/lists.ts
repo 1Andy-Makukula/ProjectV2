@@ -6,6 +6,32 @@
 
 export type ListVisibility = 'private' | 'link' | 'community';
 
+/**
+ * How a list is read.
+ *
+ * The same rows, presented two ways: `standard` is the shop view -- pictures,
+ * prices, a running total -- and `storyboard` is the journey, laid out on paper
+ * one stop at a time with the curator's own words beside each.
+ */
+export type ListTemplate = 'standard' | 'storyboard';
+
+export const LIST_TEMPLATES: ReadonlyArray<{
+  value: ListTemplate;
+  label: string;
+  description: string;
+}> = [
+  {
+    value: 'standard',
+    label: 'Standard',
+    description: 'Pictures, prices and a running total.',
+  },
+  {
+    value: 'storyboard',
+    label: 'Storyboard',
+    description: 'A paper journey — one stop at a time, in your own words.',
+  },
+];
+
 export const LIST_VISIBILITIES: ReadonlyArray<{
   value: ListVisibility;
   label: string;
@@ -46,6 +72,8 @@ export interface ListEntry {
   snapshot_name: string;
   snapshot_image_url: string | null;
   sort_order: number;
+  /** The curator's words about this stop, shown in the storyboard. */
+  note: string | null;
   /** Live item, absent once the merchant deletes it. */
   item: {
     id: string;
@@ -100,6 +128,7 @@ export interface ListSummary {
   save_count: number;
   rating_count: number;
   rating_sum: number;
+  template: ListTemplate;
   item_count: number;
   /** First few item pictures, for the collage tile. */
   preview_images: string[];

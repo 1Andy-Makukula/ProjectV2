@@ -3,7 +3,12 @@ import { supabase } from '../../lib/supabaseClient';
 import { toast } from 'sonner';
 import { parseAuthError } from '../../utils/errorParser';
 import { useAuth } from '../../utils/auth/AuthContext';
-import type { ListSummary, ListTarget, ListVisibility } from '../types/lists';
+import type {
+  ListSummary,
+  ListTarget,
+  ListTemplate,
+  ListVisibility,
+} from '../types/lists';
 
 /**
  * The columns every list surface needs. Owner names are joined so a card can be
@@ -12,7 +17,7 @@ import type { ListSummary, ListTarget, ListVisibility } from '../types/lists';
  */
 const LIST_SELECT = `
   id, slug, title, description, visibility, is_anonymous, is_platform,
-  owner_user_id, owner_shop_id, save_count, rating_count, rating_sum, created_at,
+  owner_user_id, owner_shop_id, save_count, rating_count, rating_sum, template, created_at,
   owner:owner_user_id(name),
   shop:owner_shop_id(name),
   list_items(
@@ -42,6 +47,7 @@ function toSummary(row: any): ListSummary {
     save_count: row.save_count ?? 0,
     rating_count: row.rating_count ?? 0,
     rating_sum: row.rating_sum ?? 0,
+    template: (row.template ?? 'standard') as ListSummary['template'],
     item_count: entries.length,
     preview_images: entries
       .map((entry: any) =>
@@ -428,6 +434,7 @@ export function useListActions() {
         description?: string | null;
         visibility?: ListVisibility;
         is_anonymous?: boolean;
+        template?: ListTemplate;
       },
     ) => {
       try {
@@ -441,6 +448,7 @@ export function useListActions() {
               : {}),
             ...(patch.visibility !== undefined ? { visibility: patch.visibility } : {}),
             ...(patch.is_anonymous !== undefined ? { is_anonymous: patch.is_anonymous } : {}),
+            ...(patch.template !== undefined ? { template: patch.template } : {}),
           })
           .eq('id', listId);
 
@@ -486,6 +494,32 @@ export function useListActions() {
     }
   }, []);
 
+  /**
+   * What the curator says about one stop.
+   *
+   * Saved on its own rather than with the rest of the panel: a note is written
+   * while looking at the thing it is about, and losing it to a failed save of
+   * something unrelated would be the worst possible moment to lose words.
+   */
+  const setEntryNote = useCallback(async (entryId: string, note: string) => {
+    try {
+      setBusy(true);
+      const { error } = await supabase
+        .from('list_items')
+        .update({ note: note.trim() || null })
+        .eq('id', entryId);
+
+      if (error) throw error;
+      return true;
+    } catch (error: any) {
+      console.error('[useListActions] setEntryNote failed:', error);
+      toast.error(parseAuthError(error));
+      return false;
+    } finally {
+      setBusy(false);
+    }
+  }, []);
+
   const removeItem = useCallback(async (entryId: string) => {
     try {
       setBusy(true);
@@ -517,5 +551,15 @@ export function useListActions() {
     }
   }, []);
 
-  return { busy, toggleSave, rate, copy, addEntry, removeItem, updateList, reorderEntries };
+  return {
+    busy,
+    toggleSave,
+    rate,
+    copy,
+    addEntry,
+    removeItem,
+    updateList,
+    reorderEntries,
+    setEntryNote,
+  };
 }

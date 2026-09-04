@@ -21,6 +21,7 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { PageLoader } from '../../components/shared/PageLoader';
 import { CustomizeListDialog } from '../../components/shared/CustomizeListDialog';
+import { JourneyView } from '../../components/shared/JourneyView';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { useCart, toProduct } from '../../hooks/useCart';
 import { useListDetail } from '../../hooks/useListDetail';
@@ -285,6 +286,16 @@ export function ListDetail() {
           )}
         </motion.div>
 
+        {list.template === 'storyboard' ? (
+          <JourneyView
+            list={list}
+            onAdd={(entry) => {
+              addEntry(entry);
+              toast.success(`${entryDisplay(entry).name} added to cart`);
+            }}
+            onVisitShop={(shopId) => navigate(`/shop/${shopId}`)}
+          />
+        ) : (
         <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white">
           {visible.length === 0 ? (
             <div className="py-16 text-center text-slate-400">
@@ -411,6 +422,7 @@ export function ListDetail() {
             })
           )}
         </div>
+        )}
       </div>
 
       {isOwner && (

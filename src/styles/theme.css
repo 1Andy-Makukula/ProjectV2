@@ -8,6 +8,11 @@
   /* Base */
   --font-size: 15px;
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* The paper skin's voices. Both fall back to something reasonable, because a
+     journey has to stay readable while a font is still arriving over a slow
+     connection -- or never arrives at all. */
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-hand: 'Caveat', 'Segoe Script', 'Bradley Hand', cursive;
 
   /* Surface */
   --background: #ffffff;
@@ -89,6 +94,18 @@
     var(--primary-light) 66%,
     rgba(255,255,255,0.9) 100%
   );
+
+  /* ── Paper ──────────────────────────────────────────────────────────────
+     The memory skin: a warm ground for journeys and unboxings, where the job
+     is to feel made rather than merchandised. Kept as tokens so the whole
+     surface retints from one place, exactly like the mode palettes. */
+  --paper: #FBF6EC;
+  --paper-deep: #F3EADA;
+  --paper-ink: #2E2A25;
+  --paper-ink-soft: #6B6154;
+  --paper-line: rgba(46, 42, 37, 0.14);
+  --paper-tape: rgba(226, 199, 143, 0.55);
+  --paper-seal: #C0491F;
 
   /* Radius */
   --radius: 0.625rem;          /* 10px */
@@ -569,6 +586,131 @@
     .kl-scroll-indicator {
       animation: none;
     }
+  }
+
+  /* ── The paper skin ────────────────────────────────────────────────────
+     A journey is a scrapbook someone made, not a product grid, so it gets its
+     own ground, its own type and a small kit of drawn furniture: tape, photo
+     corners, a wax seal, a route threading between the stops.
+
+     All of it is CSS and inline SVG. Nothing here is an image file, which is
+     deliberate: a paper texture as a JPEG is a hundred kilobytes that has to
+     arrive before the page stops looking broken, and on a slow Android
+     connection that is the whole first impression. The grain below is a
+     repeating gradient measured in bytes.
+
+     Nothing animates. Not because it could not, but because this is a long
+     scrolling page full of photographs on cheap hardware, and a page that
+     stutters while you read it feels worse than one that never moved. */
+  .kl-paper {
+    background-color: var(--paper);
+    color: var(--paper-ink);
+    /* Grain: two barely-there crossing gradients. Cheap to paint, tiles
+       forever, and survives any zoom level. */
+    background-image:
+      repeating-linear-gradient(
+        104deg,
+        rgba(46, 42, 37, 0.018) 0 2px,
+        transparent 2px 5px
+      ),
+      repeating-linear-gradient(
+        14deg,
+        rgba(46, 42, 37, 0.014) 0 3px,
+        transparent 3px 7px
+      );
+  }
+
+  .kl-paper-display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-variation-settings: 'SOFT' 30, 'WONK' 1;
+    letter-spacing: -0.02em;
+    color: var(--paper-ink);
+  }
+
+  .kl-hand {
+    font-family: var(--font-hand);
+    font-size: 1.15em;
+    line-height: 1.45;
+    color: var(--paper-ink-soft);
+  }
+
+  /* ── The seal ──────────────────────────────────────────────────────────
+     The number of the stop, stamped. Slightly irregular on purpose: a border
+     radius that differs corner to corner reads as pressed wax rather than as
+     a circle, and it costs nothing. */
+  .kl-seal {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-shrink: 0;
+    border-radius: 48% 52% 51% 49% / 50% 49% 51% 50%;
+    background: radial-gradient(circle at 34% 30%, #D2603A 0%, var(--paper-seal) 62%);
+    color: #FDF6EC;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 5px rgba(122, 43, 16, 0.32);
+  }
+
+  /* ── Tape ──────────────────────────────────────────────────────────────
+     A strip holding a photo down. Rotated with a transform, which the
+     compositor handles for free, rather than with anything that repaints. */
+  .kl-tape {
+    position: absolute;
+    z-index: 3;
+    width: 5.5rem;
+    height: 1.35rem;
+    background: linear-gradient(
+      100deg,
+      rgba(226, 199, 143, 0.28),
+      var(--paper-tape) 45%,
+      rgba(226, 199, 143, 0.28)
+    );
+    box-shadow: 0 1px 2px rgba(46, 42, 37, 0.12);
+    /* Torn ends rather than cut ones. */
+    clip-path: polygon(3% 0, 97% 4%, 100% 96%, 1% 100%);
+  }
+
+  .kl-tape--tl { top: -0.6rem; left: 1.25rem; transform: rotate(-6deg); }
+  .kl-tape--tr { top: -0.6rem; right: 1.25rem; transform: rotate(5deg); }
+
+  /* ── A photograph, on paper ────────────────────────────────────────────
+     White margin, ink hairline, and a hint of a lift. The tilt is applied per
+     stop from a small rotation set, so a column of them looks placed by hand
+     rather than laid out by a machine. */
+  .kl-photo {
+    position: relative;
+    background: #FFFDF8;
+    padding: 0.5rem 0.5rem 0.75rem;
+    border: 1px solid var(--paper-line);
+    box-shadow: 0 1px 2px rgba(46, 42, 37, 0.08), 0 10px 22px -14px rgba(46, 42, 37, 0.35);
+  }
+
+  .kl-tilt-1 { transform: rotate(-1.1deg); }
+  .kl-tilt-2 { transform: rotate(0.8deg); }
+  .kl-tilt-3 { transform: rotate(-0.5deg); }
+  .kl-tilt-4 { transform: rotate(1.3deg); }
+
+  /* ── The route ─────────────────────────────────────────────────────────
+     The dotted line threading one stop to the next, drawn down the gutter
+     beside the seals. It is a border rather than an SVG because a border can
+     stretch to whatever height the card next to it happens to be. */
+  .kl-route {
+    width: 0;
+    flex: 1 0 auto;
+    min-height: 1.5rem;
+    margin: 0.25rem 0;
+    border-left: 2px dashed var(--paper-seal);
+    opacity: 0.55;
+  }
+
+  /* A note pinned in the margin, the way an annotation actually sits. */
+  .kl-margin-note {
+    border-left: 2px solid var(--paper-seal);
+    padding-left: 0.75rem;
+    opacity: 0.9;
   }
 
   /* ── The stage ─────────────────────────────────────────────────────────
