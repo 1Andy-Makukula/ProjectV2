@@ -15,6 +15,8 @@ interface ScreenSwipeOptions {
    * fight both.
    */
   edgeGuard?: number;
+  /** Accumulated horizontal wheel travel before a trackpad swipe counts. */
+  wheelThreshold?: number;
 }
 
 /**
@@ -34,8 +36,9 @@ interface ScreenSwipeOptions {
  *     the tree below hands the gesture over;
  *   * the screen edges, which belong to the drawer and to the system.
  *
- * Listeners are passive: this never calls preventDefault, so it cannot make
- * the page feel sticky even when it decides the gesture was not for it.
+ * The touch listeners are passive: they never call preventDefault, so they
+ * cannot make the page feel sticky even when they decide a gesture was not for
+ * them. The trackpad listener is the one exception, and has to be — see below.
  */
 export function useScreenSwipe({
   onNext,
@@ -43,6 +46,7 @@ export function useScreenSwipe({
   enabled = true,
   threshold = 64,
   edgeGuard = 28,
+  wheelThreshold = 60,
 }: ScreenSwipeOptions) {
   const gesture = useRef<{ x: number; y: number; drifted: boolean } | null>(null);
 
@@ -93,17 +97,65 @@ export function useScreenSwipe({
       else onPrev();
     };
 
+    /**
+     * Two fingers on a trackpad — the same gesture, on a laptop.
+     *
+     * This lived on the mode rail until the rail became a scrollable menu
+     * again, where a horizontal wheel event now means "scroll the chips" and
+     * nothing else. It belongs here with its twin: one rule, one place, and the
+     * same exclusions apply, so scrolling a ribbon sideways still scrolls the
+     * ribbon.
+     *
+     * The listener is native and non-passive because it must call
+     * preventDefault: without it, the browser reads a horizontal trackpad
+     * swipe as "go back" and navigates off the page mid-gesture. It bails on
+     * the first line for anything vertical, which is almost every wheel event,
+     * so the cost on ordinary scrolling is a comparison.
+     */
+    let travel = 0;
+    let locked = false;
+    let settle: ReturnType<typeof setTimeout> | null = null;
+
+    const onWheel = (event: WheelEvent) => {
+      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+      if (startsInsideHorizontalScroller(event.target)) return;
+
+      event.preventDefault();
+
+      if (settle) clearTimeout(settle);
+      settle = setTimeout(() => {
+        travel = 0;
+        locked = false;
+      }, 220);
+
+      if (locked) return;
+
+      // One flick is dozens of events of a few pixels each, so they accumulate
+      // — and once a step is taken the gesture stays deaf until it settles,
+      // otherwise a single swipe races through every mode.
+      travel += event.deltaX;
+      if (Math.abs(travel) < wheelThreshold) return;
+
+      locked = true;
+      if (travel > 0) onNext();
+      else onPrev();
+      travel = 0;
+    };
+
+    window.addEventListener('wheel', onWheel, { passive: false });
     window.addEventListener('touchstart', onStart, { passive: true });
     window.addEventListener('touchmove', onMove, { passive: true });
     window.addEventListener('touchend', onEnd, { passive: true });
     window.addEventListener('touchcancel', () => (gesture.current = null), { passive: true });
 
     return () => {
+      window.removeEventListener('wheel', onWheel);
       window.removeEventListener('touchstart', onStart);
       window.removeEventListener('touchmove', onMove);
       window.removeEventListener('touchend', onEnd);
+      if (settle) clearTimeout(settle);
     };
-  }, [enabled, onNext, onPrev, threshold, edgeGuard]);
+  }, [enabled, onNext, onPrev, threshold, edgeGuard, wheelThreshold]);
 }
 
 /**

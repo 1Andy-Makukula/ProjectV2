@@ -752,13 +752,35 @@
      component. */
   .kl-rail {
     cursor: grab;
-    /* The rail scrolls itself to follow the selection, so its own scrollbar is
-       neither needed nor wanted — a horizontal drag is a choice here, not a
-       pan, and the two must not both be happening at once. */
-    overflow-x: hidden;
+    /* Scrollable, because it is a menu: every chip has to be reachable by
+       hand, not only by stepping through the ones before it. Briefly this was
+       overflow-hidden so a swipe could change mode -- which made the last
+       option unreachable without visiting every option in front of it.
+       Changing mode by gesture is the page's job now; this just scrolls. */
+    overflow-x: auto;
     scroll-behavior: smooth;
-    /* Ours horizontally, the page's vertically. */
-    touch-action: pan-y;
+    /* Scrolling to the end of the rail must not hand the gesture on to the
+       browser's back-navigation. */
+    overscroll-behavior-x: contain;
+    /* Its own bar is hidden here rather than left to the caller: the rail is
+       short, the chips are the affordance, and the app's scrollbars are a
+       10px orange now, which under a row of chips reads as a mistake. */
+    scrollbar-width: none;
+  }
+
+  .kl-rail::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Referenced in the markup since long before this file styled scrollbars,
+     and never actually defined -- so it has been doing nothing wherever it
+     appears. Defined now, because two places ask for it and both mean it. */
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 
   .kl-rail--dragging {

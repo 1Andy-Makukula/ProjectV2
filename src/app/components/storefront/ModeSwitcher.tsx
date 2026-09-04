@@ -6,12 +6,17 @@ import { hapticTick } from '../../../utils/native';
 import { STOREFRONT_MODES } from '../../types/storefrontModes';
 
 /**
- * The faces the storefront can wear, as a rail you can throw.
+ * The faces the storefront can wear, as a menu.
  *
- * Clicking a chip was the only way in, which reads as a toolbar rather than as
- * something you move through. It now also answers a thumb swipe, a click-drag
- * and the arrow keys — all three from `useDragRail`, so the gesture logic is
- * not tangled into the markup and any other rail can have the same behaviour.
+ * Everything here is aimed at reaching a chip and pressing it: scroll the rail
+ * with a thumb, a trackpad or a mouse drag, walk it with the arrow keys, and
+ * click what you want. On every screen, by every means.
+ *
+ * Changing face by *gesture* is deliberately not this component's job — a
+ * sideways swipe anywhere on the page does that, and `useScreenSwipe` ignores
+ * anything starting inside a horizontal scroller like this one. That division
+ * is what lets the rail be scrolled without every scroll also changing the
+ * page underneath it.
  *
  * The active chip is filled with the mode's own gradient, so the control both
  * indicates state and previews what the shopper is about to see.
@@ -60,9 +65,8 @@ export function ModeSwitcher() {
       aria-label="Browse by"
       tabIndex={0}
       {...handlers}
-      // No overflow utility here: kl-rail owns the overflow, and now that it
-      // is a component class a utility would win and turn the carousel back
-      // into a scroller.
+      // No overflow utility here: kl-rail owns it, and as a component class a
+      // utility on the element would win and override it.
       className={`kl-rail scrollbar-none -mx-4 flex gap-2 px-4 py-1
                   outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
                   sm:mx-0 sm:px-0 ${dragging ? 'kl-rail--dragging' : ''}`}
