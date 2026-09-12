@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+#
+# Run the SQL migration tests against a throwaway PostgreSQL cluster.
+#
+# `pnpm typecheck` excludes supabase/ and Deno is not installed here, so
+# migrations are otherwise covered by nothing. This is what covers them.
+#
+#   pnpm sql:test          # apply twice, then assert
+#   pnpm sql:test --keep   # leave the cluster running afterwards
+#
+# Nothing here touches Supabase or any deployed database. The cluster lives in
+# a temp directory and is destroyed on exit unless --keep is passed.
+set -euo pipefail
+
+PGBIN="${PGBIN:-/c/Program Files/PostgreSQL/18/bin}"
+PORT="${PGPORT_TEST:-54399}"
+SCRATCH="${SCRATCH_DIR:-/c/Users/Owner/AppData/Local/Temp/kithlypg}"
+KEEP=0
+[[ "${1:-}" == "--keep" ]] && KEEP=1
+
+if [[ ! -x "$PGBIN/psql" ]]; then
+  echo "No PostgreSQL at $PGBIN. Set PGBIN to your installation's bin directory." >&2
+  exit 2
+fi
+export PATH="$PGBIN:$PATH"
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+# The migrations under test, in order. Add new ones here as stages land.
+MIGRATIONS=(
+  20260912060000_countries_and_holidays
+  20260912070000_contact_groups
+  20260912080000_shop_collections
+  20260912090000_reco_signals
+)
+SUITES=(
+  assert_countries_and_holidays
+  assert_contact_groups
+  assert_shop_collections
+  assert_reco_signals
+)
+
+cleanup() {
+  if [[ $KEEP -eq 0 ]]; then
+    pg_ctl -D "$SCRATCH/data" stop -m immediate >/dev/null 2>&1 || true
+    rm -rf "$SCRATCH" 2>/dev/null || true
+  else
+    echo "Cluster left running on port $PORT."
+  fi
+}
+trap cleanup EXIT
+
+if ! pg_isready -h localhost -p "$PORT" >/dev/null 2>&1; then
+  echo "Starting a throwaway cluster on port $PORT..."
+  rm -rf "$SCRATCH"; mkdir -p "$SCRATCH"
+  initdb -D "$SCRATCH/data" -U postgres -A trust -E UTF8 >/dev/null
+  # unix_socket_directories is emptied deliberately: the scratch path exceeds
+  # the 107-byte socket limit and the cluster will not start otherwise.
+  pg_ctl -D "$SCRATCH/data" \
+    -o "-p $PORT -c listen_addresses=localhost -c unix_socket_directories=" \
+    -l "$SCRATCH/log" start >/dev/null
+fi
+
+P=(psql -h localhost -p "$PORT" -U postgres -d kithly -v ON_ERROR_STOP=1 -q)
+
+psql -h localhost -p "$PORT" -U postgres -q \
+  -c "DROP DATABASE IF EXISTS kithly;" -c "CREATE DATABASE kithly;"
+
+"${P[@]}" -f tests/sql/scaffold.sql
+
+# The shared date engine, taken from the migration that defines it rather than
+# copied, so the tests exercise the shipped function.
+sed -n '57,129p' supabase/migrations/20260904010000_occasion_reminders.sql | "${P[@]}"
+
+# Applied twice. Migrations get replayed, and a migration that only works once
+# is a migration that fails in production.
+for pass in 1 2; do
+  for m in "${MIGRATIONS[@]}"; do
+    "${P[@]}" -f "supabase/migrations/$m.sql" >/dev/null
+  done
+  echo "migrations applied (pass $pass)"
+done
+
+failed=0
+passed=0
+for s in "${SUITES[@]}"; do
+  out="$(psql -h localhost -p "$PORT" -U postgres -d kithly -f "tests/sql/$s.sql" 2>&1 || true)"
+  n=$(grep -c "PASS:" <<<"$out" || true)
+  e=$(grep -cE "FAIL:|^psql.*ERROR" <<<"$out" || true)
+  passed=$((passed + n)); failed=$((failed + e))
+  printf '  %-34s %2d passed  %d failed\n' "$s" "$n" "$e"
+  [[ $e -gt 0 ]] && grep -E "FAIL:|ERROR" <<<"$out" | sed 's/^/      /'
+done
+
+echo
+echo "  TOTAL: $passed passed, $failed failed"
+[[ $failed -eq 0 ]] || exit 1

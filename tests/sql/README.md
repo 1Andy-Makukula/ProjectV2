@@ -11,34 +11,24 @@ rather than trusting it by eye.
 
 ## Running
 
-Needs a local PostgreSQL 18 (`C:\Program Files\PostgreSQL\18\bin` on this
-machine). Nothing here touches Supabase or any deployed database.
-
 ```bash
-export PATH="/c/Program Files/PostgreSQL/18/bin:$PATH"
-SCRATCH=/c/Users/Owner/AppData/Local/Temp/kithlypg
-
-initdb -D "$SCRATCH/data" -U postgres -A trust -E UTF8
-pg_ctl -D "$SCRATCH/data" \
-  -o "-p 54399 -c listen_addresses=localhost -c unix_socket_directories=" \
-  -l "$SCRATCH/log" start
-
-psql -h localhost -p 54399 -U postgres -c "CREATE DATABASE kithly;"
-psql -h localhost -p 54399 -U postgres -d kithly -v ON_ERROR_STOP=1 \
-  -f tests/sql/scaffold.sql
-
-# the shared date engine, extracted from the migration that defines it
-sed -n '57,129p' supabase/migrations/20260904010000_occasion_reminders.sql \
-  | psql -h localhost -p 54399 -U postgres -d kithly -v ON_ERROR_STOP=1
-
-psql -h localhost -p 54399 -U postgres -d kithly -v ON_ERROR_STOP=1 \
-  -f supabase/migrations/20260912060000_countries_and_holidays.sql
-psql -h localhost -p 54399 -U postgres -d kithly \
-  -f tests/sql/assert_countries_and_holidays.sql
+pnpm sql:test           # spin up, apply twice, assert, tear down
+pnpm sql:test --keep    # leave the cluster running to poke at it
 ```
 
-`unix_socket_directories=` is empty deliberately: a scratch path here exceeds
-the 107-byte socket limit and the cluster will not start without it.
+Needs a local PostgreSQL 18. `scripts/sql-test.sh` looks in
+`C:\Program Files\PostgreSQL\18\bin`; override with `PGBIN`. Nothing here
+touches Supabase or any deployed database — the cluster lives in a temp
+directory and is destroyed on exit.
+
+Migrations are applied **twice** on every run. A migration that only works once
+is a migration that fails in production, and this repo replays them.
+
+Add new migrations and suites to the two arrays at the top of the script.
+
+One implementation note that will bite anyone re-deriving this by hand:
+`unix_socket_directories=` is emptied deliberately, because the scratch path
+exceeds the 107-byte socket limit and the cluster will not start without it.
 
 ## scaffold.sql
 
