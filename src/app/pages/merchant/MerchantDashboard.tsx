@@ -5,7 +5,7 @@ import { claimCodeForMerchant, canRevealClaimCode } from '../../../utils/claimCo
 import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { formatCurrency } from '../../../utils/currency';
-import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles, MessageSquare, Wallet, ShieldAlert, Search, Download, ListChecks, ArrowLeft, ShoppingBag } from 'lucide-react';
+import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles, MessageSquare, Wallet, ShieldAlert, Search, Download, ListChecks, ArrowLeft, ShoppingBag, Megaphone } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { NotificationBell } from '../../components/shared/NotificationBell';
@@ -318,6 +318,12 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                 description: 'List a new item in your shop',
                 icon: PackagePlus,
                 path: '/merchant/items/new',
+              },
+              {
+                label: 'Posts',
+                description: 'Advertise what you have, and sell from it',
+                icon: Megaphone,
+                path: '/merchant/posts',
               },
               {
                 label: 'Edit Shop Profile',
