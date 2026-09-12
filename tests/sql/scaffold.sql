@@ -95,3 +95,47 @@ CREATE TABLE public.contact_occasions (
   notes      text,
   last_reminded_on date
 );
+
+-- The reminder job writes here.
+CREATE TABLE public.notifications (
+  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id      uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  message      text NOT NULL,
+  type         text NOT NULL,
+  reference_id text,
+  is_read      boolean NOT NULL DEFAULT false,
+  created_at   timestamptz NOT NULL DEFAULT now()
+);
+
+-- ---------------------------------------------------------------------------
+-- Mirror production's RLS state on the stubbed tables.
+--
+-- WITHOUT THIS EVERY RLS TEST PASSES VACUOUSLY -- the exact inverse of the
+-- missing-GRANT trap above, and harder to notice because a vacuous pass looks
+-- like success. RLS is off by default on a new table, so a stub created here
+-- is wide open while the real table (20260902000000, 20260904000000) has it on.
+--
+-- The policies themselves are NOT recreated here: a migration under test is
+-- expected to create or replace the ones it governs.
+-- ---------------------------------------------------------------------------
+ALTER TABLE public.contacts          ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.contact_occasions ENABLE ROW LEVEL SECURITY;
+
+-- The stubs live in `auth`, so the roles need to reach them.
+GRANT USAGE ON SCHEMA auth TO anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION auth.uid()  TO anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION auth.jwt()  TO anon, authenticated, service_role;
+
+-- The policy production has on `contacts` (20260902000000).
+--
+-- It must be here, not just RLS-enabled. `contact_occasions_owner_all` decides
+-- ownership with an EXISTS against `contacts`, and a policy's subqueries are
+-- themselves subject to RLS -- so a contacts table with RLS on and no policy
+-- denies that subquery, and every contact occasion silently disappears for its
+-- own owner. Enabling RLS without the policy is less faithful than not
+-- enabling it at all.
+DROP POLICY IF EXISTS contacts_owner_all ON public.contacts;
+CREATE POLICY contacts_owner_all ON public.contacts
+  FOR ALL TO authenticated
+  USING (owner_user_id = auth.uid())
+  WITH CHECK (owner_user_id = auth.uid());

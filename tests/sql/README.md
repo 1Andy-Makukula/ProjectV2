@@ -60,6 +60,19 @@ the scaffold has to reproduce it.
 **Conditional role creation.** Roles are cluster-level and survive
 `DROP DATABASE`, so a plain `CREATE ROLE` aborts the second run.
 
+**RLS enabled *and* the policy, on every stubbed table.** This one bites twice.
+RLS is off by default on a new table, so a stub is wide open while the real
+table has it on — and an RLS test against a wide-open table passes vacuously,
+which looks exactly like success. But enabling RLS *without* also creating the
+policy production has is worse than leaving it off: a policy's subqueries are
+themselves subject to RLS, so `contact_occasions_owner_all` — which decides
+ownership with an `EXISTS` against `contacts` — silently returns nothing when
+`contacts` has RLS on and no policy. Every contact occasion disappears for its
+own owner, and the migration under test looks broken when it is not.
+
+Both were live in this harness and both produced a confident, wrong answer
+before they were found. If a stub carries RLS, it carries its policy too.
+
 ## What an assertion file should cover
 
 The four things reading cannot confirm:
