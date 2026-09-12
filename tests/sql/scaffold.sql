@@ -139,3 +139,33 @@ CREATE POLICY contacts_owner_all ON public.contacts
   FOR ALL TO authenticated
   USING (owner_user_id = auth.uid())
   WITH CHECK (owner_user_id = auth.uid());
+
+-- Merchant ownership, as posts_merchant_write and shop_collections use it.
+CREATE TABLE public.merchant_shops (
+  user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  shop_id uuid NOT NULL REFERENCES public.shops(id) ON DELETE CASCADE,
+  PRIMARY KEY (user_id, shop_id)
+);
+ALTER TABLE public.merchant_shops ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS merchant_shops_own ON public.merchant_shops;
+CREATE POLICY merchant_shops_own ON public.merchant_shops
+  FOR SELECT TO authenticated USING (user_id = auth.uid());
+
+-- items, as 20260525140000 governs it. shop_item_groups() runs SECURITY
+-- INVOKER precisely so this policy decides what a caller sees, so the stub
+-- carries the policy and not just the flag -- see the README.
+ALTER TABLE public.items ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS items_public_read ON public.items;
+CREATE POLICY items_public_read ON public.items
+  FOR SELECT TO anon, authenticated
+  USING (is_available IS NOT FALSE);
+
+ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS categories_public_read ON public.categories;
+CREATE POLICY categories_public_read ON public.categories
+  FOR SELECT TO anon, authenticated USING (true);
+
+ALTER TABLE public.shops ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS shops_public_read ON public.shops;
+CREATE POLICY shops_public_read ON public.shops
+  FOR SELECT TO anon, authenticated USING (is_active IS NOT FALSE);
