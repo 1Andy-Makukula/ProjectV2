@@ -30,11 +30,13 @@ enabled = true
 
 # `supabase functions deploy` defaults every function to verify_jwt = true --
 # it will reject a caller that isn't sending a validly-signed Supabase JWT.
-# These three don't: Flutterwave signs its webhook with its own verif-hash
+# These four don't: Flutterwave signs its webhook with its own verif-hash
 # header (flutterwave-webhook/index.ts), the USSD aggregator authenticates
-# with its own shared-secret/HMAC headers (_shared/ussd-auth.ts), and health
-# is an intentionally unauthenticated liveness probe. Without this, the first
-# automated deploy would silently 401 all three at the platform gateway,
+# with its own shared-secret/HMAC headers (_shared/ussd-auth.ts), health
+# is an intentionally unauthenticated liveness probe, and og renders link
+# preview cards for Facebook's and WhatsApp's crawlers, which send no
+# credentials of any kind and cannot be asked to. Without this, the first
+# automated deploy would silently 401 all four at the platform gateway,
 # before the request ever reaches the function's own code.
 [functions.flutterwave-webhook]
 verify_jwt = false
@@ -43,4 +45,10 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.health]
+verify_jwt = false
+
+# Unauthenticated at the gateway, but not unguarded: og reads with the anon
+# key, so RLS decides what it can describe, and it never looks up a gift claim
+# code at all. See the decision block at the top of og/index.ts.
+[functions.og]
 verify_jwt = false

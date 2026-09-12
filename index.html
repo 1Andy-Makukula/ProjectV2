@@ -4,17 +4,68 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KithLyTest</title>
+  <title>KithLy</title>
 
-  <!-- The paper skin's two voices: a display serif with a little wonk in it for
-       headings, and a hand for the annotations that make a journey read as
-       something a person made. Loaded only at the weights actually used, and
-       swapped in rather than blocking the first paint. -->
+  <!-- What a KithLy link looks like when it is pasted somewhere.
+
+       Facebook's and WhatsApp's crawlers do not execute JavaScript, so nothing
+       React sets at runtime is ever seen by them. Whatever is in this file at
+       build time is the entire preview card for every link this app shares --
+       and until now this file said nothing at all, which is why gift, list and
+       shop links have been arriving in WhatsApp as bare blue URLs.
+
+       These are the FALLBACK, deliberately generic and true of any page. They
+       stay correct for routes no crawler should see the contents of, and they
+       are what a per-route server layer would override for the handful of
+       pages worth describing individually. The words are the product's own,
+       lifted from the Discover and Gifting modes in storefrontModes.ts, so the
+       card and the storefront say the same thing.
+
+       og:image is the brand mark -- the same lucide Gift glyph the header logo
+       uses, white on the brand gradient, at the 1200x630 every consumer wants.
+       It is served from the public `storefront-assets` bucket rather than from
+       this app's own domain on purpose: og:image must be an absolute URL, and
+       a Supabase Storage URL is one we know at build time whichever front end
+       is serving the page. The same file is in public/og.png; replacing the
+       artwork means replacing both. -->
+  <meta name="description"
+    content="Gifts, experiences and services from shops across Zambia. Chosen by you, collected by them, held safely in between." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="KithLy" />
+  <meta property="og:title" content="KithLy — send something that means something" />
+  <meta property="og:description"
+    content="Gifts, experiences and services from shops across Zambia. Chosen by you, collected by them, held safely in between." />
+  <meta property="og:locale" content="en_ZM" />
+  <meta property="og:image"
+    content="https://mbjbrdhpjgfhhycijodz.supabase.co/storage/v1/object/public/storefront-assets/brand/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="KithLy" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image"
+    content="https://mbjbrdhpjgfhhycijodz.supabase.co/storage/v1/object/public/storefront-assets/brand/og.png" />
+  <meta name="twitter:title" content="KithLy — send something that means something" />
+  <meta name="twitter:description"
+    content="Gifts, experiences and services from shops across Zambia. Chosen by you, collected by them, held safely in between." />
+
+  <!-- The two voices: a display serif with a little wonk in it for headings,
+       and a hand for the annotations that make a journey read as something a
+       person made. Swapped in rather than blocking the first paint.
+
+       FIXED 2026-09-12: this request had declared four Fraunces axes
+       (opsz,wght,SOFT,WONK) while supplying only two values per tuple, which
+       Google answers with `400: Invalid selector`. The stylesheet never
+       loaded, so every --font-display surface in the app had been quietly
+       falling back to Georgia since the day it was written — including the
+       paper storyboard and the wax seal, the two places it was added for.
+
+       Now requested as the full variable range so SOFT and WONK can actually
+       be varied, which is the entire reason this face was chosen. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400;9..144,600;9..144,700&family=Caveat:wght@500;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,100..900,0..100,0..1&family=Caveat:wght@500;600&display=swap"
   />
   <style>
     html,
