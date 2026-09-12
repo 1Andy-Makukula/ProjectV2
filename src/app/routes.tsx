@@ -63,6 +63,8 @@ const Settings = lazyPage(() => import('./pages/sender/Settings'), 'Settings');
 const MerchantOnboarding = lazyPage(() => import('./pages/MerchantOnboarding'), 'MerchantOnboarding');
 const MerchantDashboard = lazyPage(() => import('./pages/merchant/MerchantDashboard'), 'MerchantDashboard');
 const MerchantFulfill = lazyPage(() => import('./pages/merchant/MerchantFulfill'), 'MerchantFulfill');
+const MerchantPosts = lazyPage(() => import('./pages/merchant/MerchantPosts'), 'MerchantPosts');
+const PostDetail = lazyPage(() => import('./pages/PostDetail'), 'PostDetail');
 const AdminDashboard = lazyPage(() => import('./pages/admin/AdminDashboard'), 'AdminDashboard');
 const AdminMerchandising = lazyPage(() => import('./pages/admin/AdminMerchandising'), 'AdminMerchandising');
 const AdminCatalog = lazyPage(() => import('./pages/admin/AdminCatalog'), 'AdminCatalog');
@@ -149,6 +151,7 @@ export const router = createBrowserRouter([
 
       // Public: a shared link has to open for someone who is not signed in.
       { path: 'list/:slug', element: <Lazy><ListDetail /></Lazy> },
+      { path: 'post/:postId', element: <Lazy><PostDetail /></Lazy> },
       {
         path: 'lists',
         element: (
@@ -295,6 +298,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['merchant']}>
             <Lazy><MerchantFulfill /></Lazy>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'merchant/posts',
+        element: (
+          <ProtectedRoute allowedRoles={['merchant']}>
+            <Lazy><MerchantPosts /></Lazy>
           </ProtectedRoute>
         ),
       },

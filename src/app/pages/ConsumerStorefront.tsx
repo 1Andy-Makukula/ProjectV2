@@ -28,6 +28,14 @@ import {
 import { RailDrawer } from '../components/storefront/RailDrawer';
 import { hapticTap, hapticTick } from '../../utils/native';
 import { ItemFeed, SectionHeading } from '../components/storefront/ItemFeed';
+import { PostCard } from '../components/storefront/PostCard';
+import { usePosts } from '../hooks/usePosts';
+import { PostBuySheet } from '../components/storefront/PostBuySheet';
+import { ItemQuickView } from '../components/storefront/ItemQuickView';
+import { WishDialog } from '../components/storefront/WishDialog';
+import { useWishes } from '../hooks/useWishes';
+import { isPurchasable, postActionLabel, postMatchesFilter } from '../types/posts';
+import type { PostSummary } from '../types/posts';
 import { useCart, toProduct } from '../hooks/useCart';
 import { useExperiences } from '../hooks/useExperiences';
 import { useStorefrontData } from '../hooks/useStorefrontData';
@@ -40,6 +48,7 @@ import {
   modeDefinition,
   modeDensity,
   modeLexicon,
+  modePostPresentation,
 } from '../types/storefrontModes';
 import { isService, requiresConversation, type CatalogItem } from '../types/items';
 import { toast } from 'sonner';
@@ -76,6 +85,19 @@ export function ConsumerStorefront() {
 
   const { data, loading: dataLoading } = useStorefrontData();
   const communityLists = data?.lists ?? [];
+
+  // Held in a hook of its own so a like or a save lands immediately rather than
+  // waiting on the storefront's next fetch.
+  const sourcePosts = useMemo(() => data?.posts ?? [], [data?.posts]);
+  const { posts, toggleLike, toggleSave, sharePost } = usePosts(sourcePosts);
+
+  // Which post's Buy sheet is open. The sheet reads prices live when it
+  // opens, so holding the post here is enough — there is nothing to prefetch.
+  const [buyingPost, setBuyingPost] = useState<PostSummary | null>(null);
+
+  // Wishes: what this person has asked for, and what their contacts have.
+  const { mine: myWishes, saveWish, removeWish } = useWishes();
+  const [wishingPostId, setWishingPostId] = useState<string | null>(null);
   const { experiences, loading: experiencesLoading } = useExperiences({ limit: 6 });
   const { mode } = useStorefrontMode();
   const definition = modeDefinition(mode);
@@ -143,6 +165,13 @@ export function ConsumerStorefront() {
     return all.filter((i) => (i.item_type ?? 'product') === definition.itemFilter);
   }, [data?.items, definition.itemFilter]);
 
+  // Posts appear in every mode; which posts is sliced the same way items are,
+  // from the character of what each post attaches.
+  const visiblePosts = useMemo(
+    () => posts.filter((post) => postMatchesFilter(post, definition.itemFilter)),
+    [posts, definition.itemFilter],
+  );
+
   // ── Item actions ─────────────────────────────────────────────────────────
   const openItem = useCallback(
     (item: CatalogItem) => {
@@ -194,6 +223,49 @@ export function ConsumerStorefront() {
         />
       </section>
     ),
+
+    posts:
+      visiblePosts.length > 0 ? (
+        <section key="posts">
+          <SectionHeading kicker="From the shops" title="Posted recently" />
+          {modePostPresentation(mode) === 'card' ? (
+            <div className="mx-auto grid max-w-2xl grid-cols-1 gap-5">
+              {visiblePosts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  onOpenShop={(shopId) => navigate(profile ? `/shop/${shopId}` : '/signup')}
+                  onLike={() => toggleLike(post.id)}
+                  onSave={() => toggleSave(post.id)}
+                  onShare={() => sharePost(post)}
+                  onBuy={isPurchasable(post) ? () => setBuyingPost(post) : undefined}
+                  buyLabel={postActionLabel(post.author)}
+                  onWish={() => setWishingPostId(post.id)}
+                />
+              ))}
+            </div>
+          ) : (
+            // Shopping and Services are dense by design — a full-bleed photo
+            // card down the middle of either is the wrong instrument. Same
+            // cards, moved sideways and out of the way.
+            <div className="kl-scroll -mx-4 flex gap-4 overflow-x-auto px-4 pb-2 [&>*]:w-[19rem] [&>*]:shrink-0">
+              {visiblePosts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  onOpenShop={(shopId) => navigate(profile ? `/shop/${shopId}` : '/signup')}
+                  onLike={() => toggleLike(post.id)}
+                  onSave={() => toggleSave(post.id)}
+                  onShare={() => sharePost(post)}
+                  onBuy={isPurchasable(post) ? () => setBuyingPost(post) : undefined}
+                  buyLabel={postActionLabel(post.author)}
+                  onWish={() => setWishingPostId(post.id)}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+      ) : null,
 
     lists: (
       <section key="lists">
@@ -501,7 +573,9 @@ export function ConsumerStorefront() {
 
       {/* ── Sections, in this mode's order ────────────────────────────────── */}
       <div className="mx-auto flex max-w-7xl gap-8 px-5 py-10 sm:px-8 xl:max-w-[100rem]">
+        {/* The platform's side: what is popular, what is selling. */}
         <StorefrontRail
+          side="left"
           shops={data?.shops ?? []}
           items={data?.items ?? []}
           lists={communityLists}
@@ -535,6 +609,20 @@ export function ConsumerStorefront() {
           </section>
         )}
         </div>
+
+        {/* Your side — but only when there is a feed worth flanking.
+            Three columns with nothing in the middle is a worse page than two,
+            so on a day with no posts this simply is not rendered and the feed
+            widens back out. Both rails are xl-only; below that the modules are
+            ribbons in the feed and the drawer, which know nothing about sides. */}
+        {profile && visiblePosts.length > 0 && (
+          <StorefrontRail
+            side="right"
+            shops={data?.shops ?? []}
+            items={data?.items ?? []}
+            lists={communityLists}
+          />
+        )}
       </div>
 
       {/* Pulled in from the left edge, below 1280px. */}
@@ -542,6 +630,28 @@ export function ConsumerStorefront() {
         shops={data?.shops ?? []}
         items={data?.items ?? []}
         lists={communityLists}
+      />
+
+      {/* Where a post's price finally appears. One sheet for the whole feed:
+          it reads the live rows for whichever post opened it. */}
+      <WishDialog
+        open={wishingPostId !== null}
+        onOpenChange={(next) => !next && setWishingPostId(null)}
+        postId={wishingPostId}
+        existing={wishingPostId ? (myWishes[wishingPostId] ?? null) : null}
+        onSave={saveWish}
+        onRemove={removeWish}
+      />
+
+      {/* A closer look at whatever tile was tapped in the rail. One dialog for
+          the whole page; the tiles only say which item. */}
+      <ItemQuickView />
+
+      <PostBuySheet
+        post={buyingPost}
+        open={buyingPost !== null}
+        onOpenChange={(next) => !next && setBuyingPost(null)}
+        actionLabel={buyingPost ? postActionLabel(buyingPost.author) : 'Buy'}
       />
     </div>
   );

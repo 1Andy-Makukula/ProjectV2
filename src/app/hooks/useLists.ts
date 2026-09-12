@@ -15,7 +15,12 @@ import type {
  * attributed without a second round trip; list_items is counted and sampled for
  * the collage tile in the same query.
  */
-const LIST_SELECT = `
+/**
+ * The columns a list card needs. The one definition — the storefront and the
+ * shop page read lists through this too, so a card cannot end up missing a
+ * field somewhere else in the app.
+ */
+export const LIST_SELECT = `
   id, slug, title, description, visibility, is_anonymous, is_platform,
   owner_user_id, owner_shop_id, save_count, rating_count, rating_sum, template, created_at,
   owner:owner_user_id(name),
@@ -27,7 +32,9 @@ const LIST_SELECT = `
   )
 `;
 
-function toSummary(row: any): ListSummary {
+/** One list row, as a card reads it. Exported alongside LIST_SELECT: the
+ *  select and the mapping only make sense as a pair. */
+export function toSummary(row: any): ListSummary {
   const entries = (row.list_items ?? [])
     .slice()
     .sort((a: any, b: any) => a.sort_order - b.sort_order);

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import type { CatalogItem } from '../types/items';
-import type { ListSummary, ListVisibility } from '../types/lists';
+import type { ListSummary } from '../types/lists';
+import { LIST_SELECT, toSummary } from './useLists';
+import type { PostAttachment, PostImage, PostStatus, PostSummary } from '../types/posts';
 
 export interface Campaign {
   id: string;
@@ -30,6 +32,14 @@ export interface StorefrontData {
   items: CatalogItem[];
   /** The community feed behind the Lists mode. */
   lists: ListSummary[];
+  /**
+   * Shop posts, newest first.
+   *
+   * Fetched once like everything else here. Every mode shows posts, and that
+   * costs nothing extra precisely because it is this one read being re-sliced
+   * rather than a per-mode query.
+   */
+  posts: PostSummary[];
 }
 
 export const FALLBACK_CAMPAIGNS: Campaign[] = [
@@ -60,6 +70,90 @@ export const FALLBACK_CAMPAIGNS: Campaign[] = [
 ];
 
 /**
+ * The columns a post card needs, in one place.
+ *
+ * Shared with PostDetail so a post fetched on its own page is the same shape as
+ * one fetched for the feed. Two select strings for one card is how a field ends
+ * up present in one view and undefined in the other.
+ *
+ * Images and attached items are embedded rather than fetched per post: a post
+ * carries up to ten photographs, so a per-row query would be an N+1 on the
+ * heaviest payload the storefront loads.
+ *
+ * post_likes and post_saves are embedded for the same round trip, and RLS does
+ * the work — both tables only ever return the reader's own rows, so a non-empty
+ * array means "you have already done this" and an anonymous reader simply gets
+ * nothing. No extra query, and no way to read anybody else's.
+ */
+export const POST_SELECT =
+  'id, caption, location_label, status, published_at, like_count, save_count, ' +
+  'shop:shop_id(id, name, logo_url, location, verification_status, ' +
+  'offers_products, offers_services), ' +
+  'post_images(id, image_url, sort_order, alt_text, width, height), ' +
+  'post_items(id, item_id, snapshot_name, snapshot_image_url, sort_order, is_primary, ' +
+  'item:item_id(item_type)), ' +
+  'post_likes(post_id), post_saves(post_id)';
+
+/**
+ * One post row, as the UI reads it.
+ *
+ * Returns null when the shop did not come back: the card is built around who
+ * posted it, and RLS is the usual reason — an inactive shop's posts stop being
+ * readable along with the shop itself.
+ */
+export function mapPostRow(row: any): PostSummary | null {
+  if (!row?.shop) return null;
+
+  const images: PostImage[] = (row.post_images ?? [])
+    .slice()
+    .sort((a: any, b: any) => a.sort_order - b.sort_order)
+    .map((image: any) => ({
+      id: image.id,
+      image_url: image.image_url,
+      sort_order: image.sort_order ?? 0,
+      alt_text: image.alt_text ?? null,
+      width: image.width ?? null,
+      height: image.height ?? null,
+    }));
+
+  const attachments: PostAttachment[] = (row.post_items ?? [])
+    .slice()
+    .sort((a: any, b: any) => a.sort_order - b.sort_order)
+    .map((attachment: any) => ({
+      id: attachment.id,
+      item_id: attachment.item_id ?? null,
+      snapshot_name: attachment.snapshot_name,
+      snapshot_image_url: attachment.snapshot_image_url ?? null,
+      sort_order: attachment.sort_order ?? 0,
+      is_primary: attachment.is_primary ?? false,
+      item_type: attachment.item?.item_type ?? null,
+    }));
+
+  return {
+    id: row.id,
+    author: {
+      id: row.shop.id,
+      name: row.shop.name,
+      logo_url: row.shop.logo_url ?? null,
+      location: row.shop.location ?? null,
+      is_verified: row.shop.verification_status === 'approved',
+      offers_products: row.shop.offers_products ?? true,
+      offers_services: row.shop.offers_services ?? false,
+    },
+    caption: row.caption ?? null,
+    location_label: row.location_label ?? null,
+    status: (row.status ?? 'published') as PostStatus,
+    published_at: row.published_at ?? null,
+    images,
+    attachments,
+    like_count: row.like_count ?? 0,
+    save_count: row.save_count ?? 0,
+    liked_by_me: (row.post_likes ?? []).length > 0,
+    saved_by_me: (row.post_saves ?? []).length > 0,
+  };
+}
+
+/**
  * The storefront's data, fetched once regardless of which face is showing.
  *
  * Every mode reads from this same result and differs only in what it renders
@@ -80,7 +174,7 @@ export function useStorefrontData() {
     async function load() {
       setLoading(true);
       try {
-        const [bannersRes, shopsRes, itemsRes, listsRes] = await Promise.all([
+        const [bannersRes, shopsRes, itemsRes, listsRes, postsRes] = await Promise.all([
           supabase
             .from('marketing_campaigns')
             .select('id, image_url, title, target_route, sort_order')
@@ -104,8 +198,8 @@ export function useStorefrontData() {
               'id, name, description, price_zmw, image_url, item_type, requires_scheduling, ' +
                 'lead_time_days, allow_custom_quote, price_is_minimum, is_discounted, ' +
                 'original_price_zmw, is_weekly_pick, promo_badge_text, stock_quantity, ' +
-                // location feeds the menu layout's per-business header.
-                'shop:shops(id, name, location)',
+                // location and mark feed the menu layout's per-business header.
+                'shop:shops(id, name, location, logo_url)',
             )
             .eq('is_available', true)
             .eq('is_quote_only', false)
@@ -116,14 +210,16 @@ export function useStorefrontData() {
           // the KithLy Rating shows on the card without steering the order.
           supabase
             .from('lists')
-            .select(
-              'id, slug, title, description, visibility, is_anonymous, is_platform, ' +
-                'owner_user_id, owner_shop_id, save_count, rating_count, rating_sum, template, created_at, ' +
-                'owner:owner_user_id(name), shop:owner_shop_id(name), ' +
-                'list_items(snapshot_image_url, sort_order, item:item_id(image_url))',
-            )
+            .select(LIST_SELECT)
             .eq('visibility', 'community')
             .order('created_at', { ascending: false })
+            .limit(12),
+
+          supabase
+            .from('posts')
+            .select(POST_SELECT)
+            .eq('status', 'published')
+            .order('published_at', { ascending: false })
             .limit(12),
         ]);
 
@@ -171,40 +267,18 @@ export function useStorefrontData() {
           stock_quantity: i.stock_quantity ?? null,
         })) as CatalogItem[];
 
-        const lists: ListSummary[] = (listsRes.data ?? []).map((row: any) => {
-          const entries = (row.list_items ?? [])
-            .slice()
-            .sort((a: any, b: any) => a.sort_order - b.sort_order);
+        const lists: ListSummary[] = (listsRes.data ?? []).map(toSummary);
 
-          return {
-            id: row.id,
-            slug: row.slug,
-            title: row.title,
-            description: row.description,
-            visibility: row.visibility as ListVisibility,
-            is_anonymous: row.is_anonymous ?? false,
-            is_platform: row.is_platform ?? false,
-            owner_user_id: row.owner_user_id,
-            owner_shop_id: row.owner_shop_id,
-            owner_name: row.owner?.name ?? null,
-            shop_name: row.shop?.name ?? null,
-            save_count: row.save_count ?? 0,
-            rating_count: row.rating_count ?? 0,
-            rating_sum: row.rating_sum ?? 0,
-            template: (row.template ?? 'standard') as ListSummary['template'],
-            item_count: entries.length,
-            preview_images: entries
-              .map((entry: any) => entry.item?.image_url ?? entry.snapshot_image_url)
-              .filter(Boolean)
-              .slice(0, 4),
-            created_at: row.created_at,
-          };
-        });
+        const posts: PostSummary[] = (postsRes.data ?? [])
+          .map(mapPostRow)
+          .filter((post): post is PostSummary => post !== null);
 
-        if (!cancelled) setData({ campaigns, shops, items, lists });
+        if (!cancelled) setData({ campaigns, shops, items, lists, posts });
       } catch (err) {
         console.error('[useStorefrontData] load error:', err);
-        if (!cancelled) setData({ campaigns: FALLBACK_CAMPAIGNS, shops: [], items: [], lists: [] });
+        if (!cancelled) {
+          setData({ campaigns: FALLBACK_CAMPAIGNS, shops: [], items: [], lists: [], posts: [] });
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
