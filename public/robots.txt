@@ -1,0 +1,12 @@
+# Gift claim links are credentials.
+#
+# A claim code is a bearer instrument — whoever holds the link collects the
+# gift — so a /gift/<code> URL must never end up in a search index. The `og`
+# Edge Function also sends `noindex, nofollow` as both a meta tag and an
+# X-Robots-Tag for these paths; this is the third layer, and the only one that
+# stops a crawler fetching the URL in the first place.
+#
+# Nothing else is disallowed: shops, items, posts and lists are meant to be
+# found.
+User-agent: *
+Disallow: /gift/
