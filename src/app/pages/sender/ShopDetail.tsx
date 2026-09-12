@@ -10,6 +10,10 @@ import { ShopOfferingBadge } from '../../components/shared/ShopOfferingBadge';
 import { ListCard } from '../../components/shared/ListCard';
 import { SaveToListButton } from '../../components/shared/SaveToListButton';
 import { useShopLists } from '../../hooks/useLists';
+import { PostCard } from '../../components/storefront/PostCard';
+import { EdgeDrawer } from '../../components/storefront/EdgeDrawer';
+import { usePosts } from '../../hooks/usePosts';
+import { isPurchasable, postActionLabel } from '../../types/posts';
 import { useShopRating } from '../../hooks/useShopRating';
 import { shopRating } from '../../types/shops';
 import { toast } from 'sonner';
@@ -24,7 +28,10 @@ export function ShopDetail() {
   const { shopId } = useParams<{ shopId: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const { shop, items, loading } = useShopDetail(shopId);
+  const { shop, items, posts: shopPosts, loading } = useShopDetail(shopId);
+  // Same engagement behaviour as the storefront feed — one hook, so a like
+  // here and a like there do not become two implementations.
+  const { posts, toggleLike, toggleSave, sharePost } = usePosts(shopPosts);
   const { lists: shopLists } = useShopLists(shopId);
   const { canRate, myRating, saving: savingRating, rate: rateShop } = useShopRating(shopId);
 
@@ -109,7 +116,7 @@ export function ShopDetail() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 md:px-6 py-6 md:py-8 space-y-6 md:space-y-8">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-8 space-y-6 md:space-y-8">
         {/* Shop Banner */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -320,24 +327,33 @@ export function ShopDetail() {
           </div>
         </motion.div>
 
-        {/* Lists this shop has put together. Only the published ones —
-            RLS returns drafts to the owner, and they do not belong here. */}
-        {publishedShopLists.length > 0 && (
+        {/* Two columns from `lg` up: what the shop is saying and selling on the
+            left, what it has put together beside it. Below that the aside has
+            nowhere to go, so it becomes the same edge drawer the storefront
+            uses rather than a third pattern to learn. */}
+        <div className="lg:flex lg:items-start lg:gap-8">
+          <div className="min-w-0 space-y-6 md:space-y-8 lg:flex-1">
+
+        {/* What the shop has posted. */}
+        {posts.length > 0 && (
           <div>
             <div className="mb-4">
-              <h3 className="text-xs font-medium uppercase tracking-[0.06em] text-muted-foreground">
-                Lists from this shop
-              </h3>
+              <h3 className="kl-display text-xl font-semibold">From this shop</h3>
               <p className="mt-1 text-sm font-light text-muted-foreground/80">
-                Save one to your own lists, or buy the whole thing at once.
+                What they are telling people about.
               </p>
             </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {publishedShopLists.map((list) => (
-                <ListCard
-                  key={list.id}
-                  list={list}
-                  onOpen={() => navigate(`/list/${list.slug}`)}
+            <div className="space-y-5">
+              {posts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  onOpenShop={() => undefined}
+                  onLike={() => toggleLike(post.id)}
+                  onSave={() => toggleSave(post.id)}
+                  onShare={() => sharePost(post)}
+                  onBuy={isPurchasable(post) ? () => navigate(`/post/${post.id}`) : undefined}
+                  buyLabel={postActionLabel(post.author)}
                 />
               ))}
             </div>
@@ -491,7 +507,50 @@ export function ShopDetail() {
             </div>
           )}
         </div>
+
+          </div>
+
+          <SideColumn />
+        </div>
       </div>
+
+      {/* The aside, on the widths where it cannot be a column. */}
+      <EdgeDrawer
+        title="About this shop"
+        description="What they have put together."
+        hiddenFrom="lg"
+      >
+        <SideColumn inDrawer />
+      </EdgeDrawer>
     </div>
   );
+
+  /**
+   * What sits beside the catalogue.
+   *
+   * Declared once and rendered twice — as a sticky column on a wide screen and
+   * inside the drawer on a narrow one — so the two can never end up showing
+   * different things.
+   */
+  function SideColumn({ inDrawer = false }: { inDrawer?: boolean }) {
+    if (publishedShopLists.length === 0) return null;
+
+    return (
+      <aside
+        className={
+          inDrawer
+            ? 'space-y-3'
+            : 'kl-scroll sticky top-24 hidden max-h-[calc(100vh-8rem)] w-[20rem] shrink-0 space-y-3 overflow-y-auto lg:block'
+        }
+      >
+        <h3 className="kl-display text-lg font-semibold">Lists from this shop</h3>
+        <p className="-mt-2 text-sm font-light text-muted-foreground/80">
+          Save one to your own, or buy the whole thing at once.
+        </p>
+        {publishedShopLists.map((list) => (
+          <ListCard key={list.id} list={list} onOpen={() => navigate(`/list/${list.slug}`)} />
+        ))}
+      </aside>
+    );
+  }
 }

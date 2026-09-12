@@ -22,6 +22,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!--
+                Links into the app.
+
+                The JS half of this already exists: useNativeShell listens for
+                `appUrlOpen` and routes the path internally. Without this filter
+                Android never hands it the URL in the first place, so every
+                KithLy link a user taps — a gift claim, a shared post — opened
+                the browser instead of the app they already had installed.
+
+                android:autoVerify asks Android to check
+                /.well-known/assetlinks.json on the host. Until that file is
+                served, the link still works but Android may show a chooser
+                rather than opening KithLy directly.
+            -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https"
+                      android:host="project-h48n1.vercel.app" />
+            </intent-filter>
+
         </activity>
 
         <provider

@@ -69,6 +69,9 @@ const DEFAULT_LEXICON: ModeLexicon = {
 export type RailModuleKey =
   | 'status'
   | 'occasions'
+  | 'wishes'
+  | 'mostBought'
+  | 'specialDeals'
   | 'trending'
   | 'picks'
   | 'myLists'
@@ -76,6 +79,9 @@ export type RailModuleKey =
 
 const DEFAULT_RAIL: RailModuleKey[] = [
   'status',
+  'wishes',
+  'specialDeals',
+  'mostBought',
   'trending',
   'picks',
   'myLists',
@@ -106,11 +112,17 @@ export interface ModeDefinition {
   /**
    * Which sections appear, in order.
    *
-   * `lists` is the one section that is not a re-slice of the item/shop data
-   * every other mode shares — see useStorefrontData, which loads the community
-   * feed alongside them so switching into Lists still refetches nothing.
+   * `lists` and `posts` are the two sections that are not a re-slice of the
+   * item/shop data every other mode shares — see useStorefrontData, which loads
+   * both alongside the rest so switching mode still refetches nothing.
+   *
+   * Posts appear in every mode. That costs almost nothing, because modes are
+   * not six pages: they re-order and re-weight one fetch. What each mode does
+   * change is *which* posts — sliced by the character of their attached items,
+   * the same way `itemFilter` slices items — and how they are drawn, which is
+   * `postPresentation` below.
    */
-  sections: Array<'campaigns' | 'experiences' | 'items' | 'shops' | 'lists'>;
+  sections: Array<'campaigns' | 'experiences' | 'items' | 'shops' | 'lists' | 'posts'>;
   /** Filters the item feed. `null` means everything. */
   itemFilter: 'product' | 'service' | null;
   /** Copy for the item section heading. */
@@ -118,6 +130,19 @@ export interface ModeDefinition {
   itemsKicker: string;
   /** Grid classes for the item feed. Falls back to the standard ladder. */
   density?: string;
+  /**
+   * How posts are drawn here.
+   *
+   * `card` is the full post — a big photograph, the caption, the action row.
+   * `strip` is a compact scrollable row.
+   *
+   * The distinction is not decoration. Shopping is a dense list "for people who
+   * know what they want" and Services reads as "a name and a price, not a
+   * photograph" — dropping a full-bleed photo card into either breaks exactly
+   * what those modes were built to be. So they get the strip, and the modes
+   * people browse in get the card.
+   */
+  postPresentation?: 'card' | 'strip';
   /** Words this mode uses. Anything omitted keeps the plain one. */
   lexicon?: Partial<ModeLexicon>;
   /** The glyph on the cart control while this mode is active. */
@@ -136,7 +161,7 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     tagline: 'Gifts, experiences and services from shops across Zambia.',
     icon: Compass,
     layout: 'grid',
-    sections: ['campaigns', 'experiences', 'items', 'shops'],
+    sections: ['campaigns', 'posts', 'experiences', 'items', 'shops'],
     itemFilter: null,
     itemsHeading: 'Featured Picks',
     itemsKicker: 'Curated Selection',
@@ -151,7 +176,7 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     // denser than it was: two-up on a desktop meant four products filled a
     // screen, which is a lookbook rather than a shop.
     layout: 'editorial',
-    sections: ['campaigns', 'items', 'experiences', 'shops'],
+    sections: ['campaigns', 'items', 'posts', 'experiences', 'shops'],
     itemFilter: 'product',
     itemsHeading: 'Ready to send',
     itemsKicker: 'For someone you like',
@@ -166,7 +191,7 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     ornament: 'gift',
     // What is already on its way matters most when you are giving; the
     // catalogue can wait until further down the rail.
-    rail: ['status', 'occasions', 'myLists', 'trending', 'communityLists'],
+    rail: ['status', 'occasions', 'wishes', 'myLists', 'trending', 'communityLists'],
   },
   {
     value: 'experiences',
@@ -175,7 +200,7 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     tagline: 'Several shops, one gift, one deadline.',
     icon: Sparkles,
     layout: 'showcase',
-    sections: ['experiences', 'campaigns', 'shops'],
+    sections: ['experiences', 'campaigns', 'posts', 'shops'],
     itemFilter: null,
     itemsHeading: 'Also worth a look',
     itemsKicker: 'Single items',
@@ -194,11 +219,12 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     // under each business reads like the price list on a shop wall, and shows
     // far more of what a provider actually offers than a grid of cards did.
     layout: 'menu',
-    sections: ['items', 'shops', 'experiences'],
+    sections: ['items', 'posts', 'shops', 'experiences'],
     itemFilter: 'service',
     itemsHeading: 'Available to book',
     itemsKicker: 'Arranged with the shop',
     lexicon: { add: 'Book', addAll: 'Book all' },
+    postPresentation: 'strip',
     cartIcon: ConciergeBell,
     rail: ['status', 'trending', 'myLists'],
   },
@@ -211,10 +237,11 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     // Unused here: this mode's feed is lists, not items. Kept at the default
     // rather than reshaping ModeDefinition for a single case.
     layout: 'grid',
-    sections: ['lists', 'shops'],
+    sections: ['lists', 'shops', 'posts'],
     itemFilter: null,
     itemsHeading: 'Lists',
     itemsKicker: 'Built by people and shops',
+    postPresentation: 'strip',
     cartIcon: ListChecks,
     ornament: 'list',
     rail: ['status', 'communityLists', 'myLists', 'trending'],
@@ -225,15 +252,19 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     title: 'Everything, quickly',
     tagline: 'The full catalogue, straight to the point.',
     icon: ShoppingBag,
-    // Dense list — this mode is for people who know what they want.
-    layout: 'list',
-    sections: ['items', 'shops'],
+    // Cards, the same ladder Discover uses. This was a dense text list on the
+    // reasoning that somebody restocking knows what they want and wants to
+    // scan — but a shop where nothing has a picture is a spreadsheet, and the
+    // thing people actually recognise a product by is the packet.
+    layout: 'grid',
+    sections: ['items', 'posts', 'shops'],
     itemFilter: null,
     itemsHeading: 'All items',
     itemsKicker: 'Full catalogue',
     lexicon: { cart: 'Basket' },
+    postPresentation: 'strip',
     cartIcon: ShoppingCart,
-    rail: ['status', 'picks', 'trending', 'myLists'],
+    rail: ['status', 'specialDeals', 'mostBought', 'picks', 'trending', 'myLists'],
   },
 ];
 
@@ -255,6 +286,38 @@ export function modeLexicon(mode: StorefrontMode): ModeLexicon {
 
 export function modeDensity(mode: StorefrontMode): string {
   return modeDefinition(mode).density ?? DEFAULT_DENSITY;
+}
+
+/** How this mode draws posts. Card unless the mode is a dense one. */
+export function modePostPresentation(mode: StorefrontMode): 'card' | 'strip' {
+  return modeDefinition(mode).postPresentation ?? 'card';
+}
+
+/**
+ * Which modules sit to the right of the feed when there is room for two rails.
+ *
+ * The split is by what a module is *about*, not by what it looks like: the left
+ * rail is the platform talking — what is popular, what is selling, who is
+ * trading. The right rail is about you — what is waiting on you, what is in
+ * your bag, whose birthday is coming, what your people have wished for.
+ */
+const RIGHT_RAIL_MODULES: ReadonlySet<RailModuleKey> = new Set<RailModuleKey>([
+  'status',
+  'occasions',
+  'wishes',
+  'myLists',
+]);
+
+/**
+ * One side's worth of modules.
+ *
+ * Deliberately a filter over `modeRail`, not a second list. The rail's own rule
+ * is that its presentations must never become two lists that can drift — a mode
+ * still names its modules once, and this only decides which column each lands
+ * in. Narrow screens ignore the split entirely and render the whole set.
+ */
+export function modeRailSide(mode: StorefrontMode, side: 'left' | 'right'): RailModuleKey[] {
+  return modeRail(mode).filter((key) => RIGHT_RAIL_MODULES.has(key) === (side === 'right'));
 }
 
 export function modeRail(mode: StorefrontMode): RailModuleKey[] {

@@ -11,6 +11,8 @@ import { useNavigate } from 'react-router';
 import {
   ArrowRight,
   Flame,
+  Gift,
+  BadgePercent,
   ListChecks,
   Package,
   PackageCheck,
@@ -24,15 +26,25 @@ import { useCart } from '../../hooks/useCart';
 import { useMyLists } from '../../hooks/useLists';
 import { useShopperStatus } from '../../hooks/useShopperStatus';
 import { useContacts } from '../../hooks/useContacts';
+import { useWishes } from '../../hooks/useWishes';
+import { useMostBought } from '../../hooks/useMostBought';
+import { useItemQuickView } from './ItemQuickView';
 import { countdownLabel, occasionTitle, upcomingOccasions } from '../../types/contacts';
 import { formatCurrency } from '../../../utils/currency';
 import { useStorefrontMode } from '../../hooks/useStorefrontMode';
-import { OCCASION_ICON, modeLexicon, modeRail } from '../../types/storefrontModes';
+import {
+  OCCASION_ICON,
+  modeLexicon,
+  modeRail,
+  modeRailSide,
+} from '../../types/storefrontModes';
 import type { StorefrontShop } from '../../hooks/useStorefrontData';
-import type { CatalogItem } from '../../types/items';
+import { discountPercentage, type CatalogItem } from '../../types/items';
 import type { ListSummary } from '../../types/lists';
 
 type Layout = 'column' | 'ribbon';
+/** Which flank of the feed a rail is drawn on. */
+type Side = 'left' | 'right';
 type RailKeys = ReturnType<typeof modeRail>;
 
 interface RailProps {
@@ -58,9 +70,16 @@ function Module({
 }) {
   return (
     <section className={layout === 'column' ? 'kl-tile p-4' : ''}>
-      <header className="mb-3 flex items-center gap-1.5">
-        <Icon className="size-3.5 text-primary" strokeWidth={2} />
-        <h3 className="text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+      {/* The heading used to be 11px uppercase in muted grey. Every label on the
+          page whispering at the same volume is what made the rail read as
+          texture rather than as a set of things: nothing led the eye, so
+          nothing was worth looking at first. This is the same title at a weight
+          a heading should carry, in the foreground colour, and title-case
+          rather than uppercase — at this size uppercase is shouting, and it is
+          the size doing the work. */}
+      <header className="mb-3 flex items-center gap-2">
+        <Icon className="size-4 shrink-0 text-primary" strokeWidth={2} />
+        <h3 className="kl-display text-[1.0625rem] font-semibold leading-tight text-foreground">
           {title}
         </h3>
         {action && (
@@ -85,11 +104,33 @@ function Module({
  * cards. The distinction is only ever made here, so no module has to think
  * about it.
  */
-function ModuleBody({ layout, children }: { layout: Layout; children: React.ReactNode }) {
-  return layout === 'column' ? (
-    <div className="space-y-1">{children}</div>
-  ) : (
-    <div className="kl-scroll -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 [&>*]:w-44 [&>*]:shrink-0">
+function ModuleBody({
+  layout,
+  variant = 'list',
+  children,
+}: {
+  layout: Layout;
+  /**
+   * `list` is the plain row; `feature` gives the entry a larger picture and a
+   * rank. Spacing only — the modules underneath are the same modules.
+   *
+   * Both now sit as cards inside the module's own card rather than flat against
+   * it. That is the shape the reference designs use, and it is what separates
+   * one entry from the next without a divider doing the work.
+   */
+  variant?: 'list' | 'feature';
+  children: React.ReactNode;
+}) {
+  if (layout === 'column') {
+    return <div className="space-y-2">{children}</div>;
+  }
+
+  return (
+    <div
+      className={`kl-scroll -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 [&>*]:shrink-0 ${
+        variant === 'feature' ? '[&>*]:w-40' : '[&>*]:w-44'
+      }`}
+    >
       {children}
     </div>
   );
@@ -114,9 +155,9 @@ function Row({
   return (
     <button
       onClick={onClick}
-      className={`group flex items-center gap-2.5 rounded-[var(--radius-lg)] p-1.5 text-left
-                  transition-colors hover:bg-accent
-                  ${layout === 'ribbon' ? 'kl-rim kl-float bg-background' : 'w-full'}`}
+      className={`kl-rim kl-float group flex items-center gap-2.5 rounded-[var(--radius-lg)]
+                  bg-card p-2 text-left transition-colors hover:bg-accent
+                  ${layout === 'ribbon' ? '' : 'w-full'}`}
     >
       <div className="size-10 shrink-0 overflow-hidden rounded-[var(--radius-md)] bg-muted">
         {image ? (
@@ -130,6 +171,77 @@ function Row({
       <div className="min-w-0 flex-1">
         <p className="truncate text-[0.8125rem] font-medium">{name}</p>
         <p className="truncate text-[0.6875rem] font-light text-muted-foreground">{detail}</p>
+      </div>
+    </button>
+  );
+}
+
+/**
+ * The same line, ranked and given a bigger picture.
+ *
+ * Briefly this was a full-width 4:3 photograph per entry. It was too much: three
+ * of them filled the rail and pushed everything below it out of reach, and a
+ * rail is meant to sit beside the feed rather than compete with it. So the
+ * picture is a 56px square — half again the plain row's 40px, enough to
+ * recognise a shop by, and nowhere near a lookbook.
+ *
+ * It stays a presentation of the same Row data rather than a second kind of
+ * module, so a feature module still comes from the registry and still renders
+ * in both the column and the ribbon.
+ *
+ * `rank` is the position in the module's own ordering and nothing more. The
+ * module title says what that ordering means — the badge deliberately carries a
+ * bare number rather than "1st place", which would imply a popularity contest
+ * the underlying data has not been asked to run.
+ */
+function FeatureRow({
+  image,
+  name,
+  detail,
+  rank,
+  fallbackIcon: Fallback,
+  onClick,
+  layout,
+}: {
+  image: string | null;
+  name: string;
+  detail: string;
+  rank?: number;
+  fallbackIcon: typeof Store;
+  onClick: () => void;
+  layout: Layout;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`kl-rim kl-float group flex items-center gap-2.5 rounded-[var(--radius-lg)]
+                  bg-card p-2 text-left transition-colors hover:bg-accent
+                  ${layout === 'ribbon' ? '' : 'w-full'}`}
+    >
+      <div className="relative size-14 shrink-0 overflow-hidden rounded-[var(--radius-md)] bg-muted">
+        {image ? (
+          <img src={image} alt="" loading="lazy" className="h-full w-full object-cover" />
+        ) : (
+          <div className="grid h-full w-full place-items-center">
+            <Fallback className="size-5 text-muted-foreground/30" strokeWidth={1.25} />
+          </div>
+        )}
+        {rank !== undefined && (
+          <span
+            aria-hidden
+            className="absolute left-0.5 top-0.5 grid size-4 place-items-center rounded-full
+                       bg-card/90 text-[0.625rem] font-semibold tabular-nums
+                       text-foreground shadow-sm"
+          >
+            {rank}
+          </span>
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[0.8125rem] font-medium leading-tight">{name}</p>
+        <p className="mt-0.5 truncate text-[0.6875rem] font-light text-muted-foreground">
+          {detail}
+        </p>
       </div>
     </button>
   );
@@ -281,12 +393,83 @@ function Occasions({ layout }: { layout: Layout }) {
   );
 }
 
+/**
+ * What people close to you have asked for.
+ *
+ * The surface that makes Secret Santa work: a wish is useless if the people who
+ * would act on it never see it. Only ever shows wishes the reader is actually
+ * allowed — `wishes_from_my_contacts` applies the wish's own visibility, and the
+ * name shown is the one the reader filed them under, so it reads as "Mum" rather
+ * than whatever is on their account.
+ */
+function Wishes({ layout }: { layout: Layout }) {
+  const navigate = useNavigate();
+  const { profile } = useAuth();
+  const { fromContacts } = useWishes();
+
+  if (!profile || fromContacts.length === 0) return null;
+
+  return (
+    <Module title="Wishes from people you know" icon={Gift} layout={layout}>
+      <ModuleBody layout={layout}>
+        {fromContacts.slice(0, 4).map((wish) => (
+          <Row
+            key={wish.wish_id}
+            layout={layout}
+            image={null}
+            name={`${wish.wisher_name} made a wish`}
+            detail={wish.note ?? 'Wanna have a look?'}
+            fallbackIcon={Gift}
+            onClick={() => navigate(`/post/${wish.post_id}`)}
+          />
+        ))}
+      </ModuleBody>
+    </Module>
+  );
+}
+
+/**
+ * What people actually bought.
+ *
+ * The only trending number this platform can state honestly. Nothing records a
+ * visit anywhere in the schema, so the "Most Visited" the reference designs ask
+ * for is not here and is not invented — this is counted from real SUCCESS
+ * transactions, and it renders nothing at all until enough of them exist.
+ */
+function MostBought({ layout }: { layout: Layout }) {
+  const openItem = useItemQuickView((state) => state.open);
+  const { items } = useMostBought();
+
+  if (items.length === 0) return null;
+
+  return (
+    <Module title="Most bought" icon={ShoppingBag} layout={layout}>
+      <ModuleBody layout={layout} variant="feature">
+        {items.map((item, index) => (
+          <FeatureRow
+            key={item.item_id}
+            layout={layout}
+            rank={index + 1}
+            image={item.image_url}
+            name={item.name}
+            detail={`${item.bought_count} bought · ${item.shop_name}`}
+            fallbackIcon={Package}
+            onClick={() => openItem(item.item_id)}
+          />
+        ))}
+      </ModuleBody>
+    </Module>
+  );
+}
+
 function TrendingShops({ shops, layout }: { shops: StorefrontShop[]; layout: Layout }) {
   const navigate = useNavigate();
   const { profile } = useAuth();
 
   // Busiest first, by what the storefront already knows: how much they stock.
-  const top = [...shops].sort((a, b) => b.itemCount - a.itemCount).slice(0, 4);
+  // Three rather than four now these carry real pictures — four of them down a
+  // sticky column pushes everything below the rail out of reach.
+  const top = [...shops].sort((a, b) => b.itemCount - a.itemCount).slice(0, 3);
   if (top.length === 0) return null;
 
   return (
@@ -296,12 +479,15 @@ function TrendingShops({ shops, layout }: { shops: StorefrontShop[]; layout: Lay
       layout={layout}
       action={{ label: 'All shops', onClick: () => navigate('/shops') }}
     >
-      <ModuleBody layout={layout}>
-        {top.map((shop) => (
-          <Row
+      <ModuleBody layout={layout} variant="feature">
+        {top.map((shop, index) => (
+          <FeatureRow
             key={shop.id}
             layout={layout}
-            image={shop.logo_url ?? shop.cover_image_url ?? shop.image_url}
+            rank={index + 1}
+            // Cover first now the picture is large. A logo is drawn to sit in a
+            // 40px square; stretched across a feature card it reads as a mistake.
+            image={shop.cover_image_url ?? shop.image_url ?? shop.logo_url}
             name={shop.name}
             detail={`${shop.itemCount} item${shop.itemCount === 1 ? '' : 's'}${
               shop.location ? ` · ${shop.location}` : ''
@@ -315,25 +501,66 @@ function TrendingShops({ shops, layout }: { shops: StorefrontShop[]; layout: Lay
   );
 }
 
-function TopPicks({ items, layout }: { items: CatalogItem[]; layout: Layout }) {
-  const navigate = useNavigate();
+/**
+ * What is on promotion.
+ *
+ * Fed entirely from items the storefront has already fetched — is_discounted
+ * with a real original_price_zmw above the current one. No query, no separate
+ * "promos" concept to keep in step with the catalogue, and no way for a deal to
+ * advertise a saving the item does not actually offer: discountPercentage is
+ * the same function the product tiles use, and it returns null when the numbers
+ * do not support a claim.
+ */
+function SpecialDeals({ items, layout }: { items: CatalogItem[]; layout: Layout }) {
+  const openItem = useItemQuickView((state) => state.open);
 
-  const picks = items.filter((item) => item.is_weekly_pick);
-  const shown = (picks.length > 0 ? picks : items).slice(0, 4);
-  if (shown.length === 0) return null;
+  const deals = items
+    .map((item) => ({ item, off: discountPercentage(item) }))
+    .filter((entry): entry is { item: CatalogItem; off: number } => entry.off !== null)
+    .sort((a, b) => b.off - a.off)
+    .slice(0, 3);
+
+  if (deals.length === 0) return null;
 
   return (
-    <Module title="This week's picks" icon={Sparkles} layout={layout}>
-      <ModuleBody layout={layout}>
-        {shown.map((item) => (
-          <Row
+    <Module title="Special deals" icon={BadgePercent} layout={layout}>
+      <ModuleBody layout={layout} variant="feature">
+        {deals.map(({ item, off }) => (
+          <FeatureRow
             key={item.id}
             layout={layout}
             image={item.image_url ?? null}
             name={item.name}
+            detail={`${off}% off · ${formatCurrency(item.price_zmw, 'ZMW')}`}
+            fallbackIcon={Package}
+            onClick={() => openItem(item.id)}
+          />
+        ))}
+      </ModuleBody>
+    </Module>
+  );
+}
+
+function TopPicks({ items, layout }: { items: CatalogItem[]; layout: Layout }) {
+  const openItem = useItemQuickView((state) => state.open);
+
+  const picks = items.filter((item) => item.is_weekly_pick);
+  const shown = (picks.length > 0 ? picks : items).slice(0, 3);
+  if (shown.length === 0) return null;
+
+  return (
+    <Module title="This week's picks" icon={Sparkles} layout={layout}>
+      <ModuleBody layout={layout} variant="feature">
+        {shown.map((item, index) => (
+          <FeatureRow
+            key={item.id}
+            layout={layout}
+            rank={index + 1}
+            image={item.image_url ?? null}
+            name={item.name}
             detail={formatCurrency(item.price_zmw, 'ZMW')}
             fallbackIcon={Package}
-            onClick={() => navigate(`/item/${item.id}`)}
+            onClick={() => openItem(item.id)}
           />
         ))}
       </ModuleBody>
@@ -419,6 +646,12 @@ function renderModules(keys: RailKeys, layout: Layout, props: RailProps) {
         return <StatusModule key={key} layout={layout} />;
       case 'occasions':
         return <Occasions key={key} layout={layout} />;
+      case 'wishes':
+        return <Wishes key={key} layout={layout} />;
+      case 'specialDeals':
+        return <SpecialDeals key={key} items={props.items} layout={layout} />;
+      case 'mostBought':
+        return <MostBought key={key} layout={layout} />;
       case 'trending':
         return <TrendingShops key={key} shops={props.shops} layout={layout} />;
       case 'picks':
@@ -447,16 +680,36 @@ export function StorefrontRailModules({
   return <>{renderModules(modeRail(mode), layout, props)}</>;
 }
 
-export function StorefrontRail(props: RailProps) {
+/**
+ * One rail, on one side of the feed.
+ *
+ * `left` is the platform talking — what is popular, what is selling. `right` is
+ * about you, and only appears when there is a feed worth flanking: the
+ * storefront renders it when there are posts and leaves it out when there are
+ * not, so an empty day collapses back to two columns rather than showing a
+ * skinny column of nothing.
+ *
+ * Both are `xl:block` — below that the modules become ribbons in the feed and
+ * the drawer, which take the whole set and know nothing about sides.
+ */
+export function StorefrontRail({ side = 'left', ...props }: RailProps & { side?: Side }) {
   const { mode } = useStorefrontMode();
+  const keys = modeRailSide(mode, side);
+
+  if (keys.length === 0) return null;
 
   return (
     <aside
-      aria-label="Around the shop"
+      aria-label={side === 'left' ? 'Around the shop' : 'Waiting on you'}
+      // empty:!hidden because a module deciding it has nothing to say is normal
+      // — StatusModule hides its zeroes, Wishes hides when nobody has wished —
+      // and a rail whose every module opted out would otherwise still reserve
+      // 19rem of nothing beside the feed. The `!` is deliberate: it has to beat
+      // the xl:block that put the column there in the first place.
       className="kl-scroll sticky top-32 hidden max-h-[calc(100vh-9rem)] w-[19rem] shrink-0
-                 space-y-4 overflow-y-auto pb-8 xl:block"
+                 space-y-4 overflow-y-auto pb-8 empty:!hidden xl:block"
     >
-      {renderModules(modeRail(mode), 'column', props)}
+      {renderModules(keys, 'column', props)}
     </aside>
   );
 }

@@ -3,6 +3,8 @@ import { supabase } from '../../lib/supabaseClient';
 import { parseAuthError } from '../../utils/errorParser';
 import { toast } from 'sonner';
 import type { CatalogItem } from '../types/items';
+import type { PostSummary } from '../types/posts';
+import { POST_SELECT, mapPostRow } from './useStorefrontData';
 
 export interface Shop {
   id: string;
@@ -47,6 +49,11 @@ export interface Item extends CatalogItem {
 export function useShopDetail(shopId: string | undefined) {
   const [shop, setShop] = useState<Shop | null>(null);
   const [items, setItems] = useState<Item[]>([]);
+  // A shop page that shows only a grid of products is a catalogue, not a shop.
+  // These are what it is actually doing: what it has posted, and what it has
+  // put together. Both ride the same Promise.all, so the page still costs one
+  // round trip.
+  const [posts, setPosts] = useState<PostSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -55,7 +62,7 @@ export function useShopDetail(shopId: string | undefined) {
 
       try {
         setLoading(true);
-        const [shopResponse, itemsResponse] = await Promise.all([
+        const [shopResponse, itemsResponse, postsResponse] = await Promise.all([
           supabase
             .from('shops')
             .select('*')
@@ -67,7 +74,14 @@ export function useShopDetail(shopId: string | undefined) {
             .select('*')
             .eq('shop_id', shopId)
             .eq('is_quote_only', false)
-            .order('created_at', { ascending: false })
+            .order('created_at', { ascending: false }),
+          supabase
+            .from('posts')
+            .select(POST_SELECT)
+            .eq('shop_id', shopId)
+            .eq('status', 'published')
+            .order('published_at', { ascending: false })
+            .limit(20),
         ]);
 
         if (shopResponse.error) throw shopResponse.error;
@@ -75,6 +89,13 @@ export function useShopDetail(shopId: string | undefined) {
 
         setShop(shopResponse.data);
         setItems(itemsResponse.data || []);
+        // Posts and lists are the page being richer, never the reason it fails:
+        // an error on either leaves the shop and its catalogue intact.
+        setPosts(
+          ((postsResponse.data ?? []) as any[])
+            .map(mapPostRow)
+            .filter((post): post is PostSummary => post !== null),
+        );
       } catch (error: any) {
         console.error('[useShopDetail] Error fetching shop details:', error);
         toast.error(parseAuthError(error));
@@ -89,6 +110,7 @@ export function useShopDetail(shopId: string | undefined) {
   return {
     shop,
     items,
+    posts,
     loading,
   };
 }

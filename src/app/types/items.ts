@@ -64,7 +64,7 @@ export interface CatalogItem {
   image_url?: string | null;
   is_weekly_pick?: boolean | null;
   promo_badge_text?: string | null;
-  shop?: { id: string; name: string; location?: string | null } | null;
+  shop?: { id: string; name: string; location?: string | null; logo_url?: string | null } | null;
 
   item_type?: ItemType | null;
   requires_scheduling?: boolean | null;

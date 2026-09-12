@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { Minus, Package, Plus, ShoppingCart } from 'lucide-react';
+import { Minus, Package, Plus, ShoppingCart, Store } from 'lucide-react';
 import { cartLineKey, useCart } from '../../hooks/useCart';
 import { StorefrontProductCard } from '../shared/StorefrontProductCard';
 import { Skeleton } from '../ui/skeleton';
@@ -45,14 +45,20 @@ function CardSkeleton() {
 }
 
 /**
- * A dense row for the shopping face — the shopper already knows what they want,
- * so the priority is scanning many items and reaching the cart quickly.
+ * One entry in a row-shaped feed.
+ *
+ * Two shapes, one set of controls. `row` is the dense line a shopper scanning a
+ * catalogue wants. `card` gives the entry a picture worth looking at and moves
+ * the controls to its foot — which is what a service needs, because a name like
+ * "Deep clean" tells you nothing and the thing has to be read before anyone
+ * decides. The cart logic below is shared rather than written twice.
  */
 function ItemRow({
   item,
   onGift,
   onAddToCart,
   hideShopName,
+  variant = 'row',
   addLabel = 'Add',
   addIcon: AddGlyph = ShoppingCart,
 }: {
@@ -61,6 +67,7 @@ function ItemRow({
   onAddToCart?: () => void;
   /** The menu layout already names the business in its group header. */
   hideShopName?: boolean;
+  variant?: 'row' | 'card';
   addLabel?: string;
   addIcon?: typeof ShoppingCart;
 }) {
@@ -82,71 +89,17 @@ function ItemRow({
   const updateQuantity = useCart((state) => state.updateQuantity);
   const steppable = Boolean(onAddToCart) && !conversationFirst && !outOfStock && !hasOptions;
 
-  return (
-    <div
-      className={`flex break-inside-avoid items-center gap-3 border-b border-slate-100 px-1 py-3
-                  transition-colors last:border-0 hover:bg-slate-50/70
-                  ${outOfStock ? 'opacity-55' : ''}`}
-    >
-      <button
-        onClick={onGift}
-        className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-slate-50"
-        aria-label={item.name}
-      >
-        {item.image_url ? (
-          <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            <Package className="h-5 w-5 text-slate-300" strokeWidth={1.5} />
-          </div>
-        )}
-      </button>
-
-      <button onClick={onGift} className="flex min-w-0 flex-1 items-end gap-2 text-left">
-        <span className="min-w-0 flex-1">
-        {!hideShopName && item.shop?.name && (
-          <p className="truncate text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-            {item.shop.name}
-          </p>
-        )}
-        <p className="truncate text-sm font-medium text-slate-900">{item.name}</p>
-        <div className="mt-0.5 flex items-baseline gap-2">
-          {priceLabel.prefix && (
-            <span className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-              {priceLabel.prefix}
-            </span>
-          )}
-          <span className="text-sm font-semibold tabular-nums text-slate-900">
-            {formatCurrency(item.price_zmw, 'ZMW')}
-          </span>
-          {discount !== null && item.original_price_zmw != null && (
-            <span className="text-[11px] text-slate-400 line-through">
-              {formatCurrency(item.original_price_zmw, 'ZMW')}
-            </span>
-          )}
-        </div>
-        {outOfStock && (
-          <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-            {OUT_OF_STOCK_REASON}
-          </p>
-        )}
-        </span>
-
-        {/* The run of dots between a service and its price, the way a printed
-            menu sets it — and the honest way to fill the width a wide screen
-            leaves between the two. */}
-        {service && <span aria-hidden className="kl-leader" />}
-      </button>
-
-      {/* Saving is offered even when it is sold out — that is often exactly
-          when someone wants to keep track of it. */}
+  /* Saving is offered even when it is sold out — that is often exactly when
+     someone wants to keep track of it. */
+  const actions = (
+    <>
       <SaveToListButton
         className="shrink-0"
         target={{ kind: 'item', id: item.id, name: item.name, image_url: item.image_url }}
       />
 
       {steppable && quantity > 0 ? (
-        <div className="kl-rim flex shrink-0 items-center gap-1 rounded-[var(--radius-pill)] bg-background p-0.5">
+        <div className="kl-rim flex shrink-0 items-center gap-1 rounded-[var(--radius-pill)] bg-card p-0.5">
           <button
             onClick={() => updateQuantity(lineKey, quantity - 1)}
             aria-label={`One fewer ${item.name}`}
@@ -187,6 +140,116 @@ function ItemRow({
           </button>
         )
       )}
+    </>
+  );
+
+  const price = (
+    <div className="flex items-baseline gap-2">
+      {priceLabel.prefix && (
+        <span className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+          {priceLabel.prefix}
+        </span>
+      )}
+      <span className="text-sm font-semibold tabular-nums text-slate-900">
+        {formatCurrency(item.price_zmw, 'ZMW')}
+      </span>
+      {discount !== null && item.original_price_zmw != null && (
+        <span className="text-[11px] text-slate-400 line-through">
+          {formatCurrency(item.original_price_zmw, 'ZMW')}
+        </span>
+      )}
+    </div>
+  );
+
+  const shopLine = !hideShopName && item.shop?.name && (
+    <p className="truncate text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+      {item.shop.name}
+    </p>
+  );
+
+  const soldOutLine = outOfStock && (
+    <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+      {OUT_OF_STOCK_REASON}
+    </p>
+  );
+
+  if (variant === 'card') {
+    return (
+      <div
+        className={`flex gap-3 border-b border-slate-100 py-3 last:border-0 ${
+          outOfStock ? 'opacity-55' : ''
+        }`}
+      >
+        <button
+          onClick={onGift}
+          className="size-24 shrink-0 overflow-hidden rounded-xl bg-slate-50"
+          aria-label={item.name}
+        >
+          {item.image_url ? (
+            <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center">
+              <Package className="h-6 w-6 text-slate-300" strokeWidth={1.5} />
+            </div>
+          )}
+        </button>
+
+        <div className="flex min-w-0 flex-1 flex-col">
+          <button onClick={onGift} className="min-w-0 text-left">
+            {shopLine}
+            <p className="truncate text-sm font-medium text-slate-900">{item.name}</p>
+            {item.description && (
+              <p className="mt-0.5 line-clamp-2 text-[11px] font-light leading-snug text-slate-500">
+                {item.description}
+              </p>
+            )}
+            <div className="mt-1">{price}</div>
+            {soldOutLine}
+          </button>
+
+          {/* The foot of the card: where the eye finishes, and the only place
+              these two do not compete with the price for the same line. */}
+          <div className="mt-auto flex items-center justify-end gap-2 pt-2">{actions}</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`flex break-inside-avoid items-center gap-3 border-b border-slate-100 px-1 py-3
+                  transition-colors last:border-0 hover:bg-slate-50/70
+                  ${outOfStock ? 'opacity-55' : ''}`}
+    >
+      <button
+        onClick={onGift}
+        className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-slate-50"
+        aria-label={item.name}
+      >
+        {item.image_url ? (
+          <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <Package className="h-5 w-5 text-slate-300" strokeWidth={1.5} />
+          </div>
+        )}
+      </button>
+
+      <button onClick={onGift} className="flex min-w-0 flex-1 items-end gap-2 text-left">
+        <span className="min-w-0 flex-1">
+          {shopLine}
+          <p className="truncate text-sm font-medium text-slate-900">{item.name}</p>
+          <div className="mt-0.5">{price}</div>
+          {soldOutLine}
+        </span>
+
+        {/* The run of dots between a service and its price, the way a printed
+            menu sets it — and the honest way to fill the width a wide screen
+            leaves between the two. */}
+        {service && <span aria-hidden className="kl-leader" />}
+      </button>
+
+      {actions}
     </div>
   );
 }
@@ -264,7 +327,10 @@ export function ItemFeed({
   // Insertion order is preserved so the feed's own ordering still decides which
   // provider appears first.
   if (layout === 'menu') {
-    const byShop = new Map<string, { name: string; location?: string | null; items: CatalogItem[] }>();
+    const byShop = new Map<
+      string,
+      { name: string; location?: string | null; logo?: string | null; items: CatalogItem[] }
+    >();
     for (const item of items) {
       const key = item.shop?.id ?? 'unknown';
       const group = byShop.get(key);
@@ -274,6 +340,7 @@ export function ItemFeed({
         byShop.set(key, {
           name: item.shop?.name ?? 'Other providers',
           location: item.shop?.location,
+          logo: item.shop?.logo_url,
           items: [item],
         });
       }
@@ -283,8 +350,20 @@ export function ItemFeed({
       <div className="space-y-5">
         {Array.from(byShop.entries()).map(([shopId, group]) => (
           <section key={shopId} className="overflow-hidden rounded-2xl border border-slate-100 bg-white">
-            <header className="flex items-baseline justify-between gap-3 border-b border-slate-100 px-4 py-3">
-              <div className="min-w-0">
+            {/* Who is offering, with their mark. A price list on a shop wall is
+                read under the sign above it — without one, every group here
+                looked like the same anonymous business. */}
+            <header className="flex items-center gap-3 border-b border-slate-100 px-4 py-3">
+              <div className="size-9 shrink-0 overflow-hidden rounded-[var(--radius-md)] bg-slate-50">
+                {group.logo ? (
+                  <img src={group.logo} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="grid h-full w-full place-items-center">
+                    <Store className="size-4 text-slate-300" strokeWidth={1.5} />
+                  </div>
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
                 <h3 className="truncate text-sm font-semibold text-slate-900">{group.name}</h3>
                 {group.location && (
                   <p className="truncate text-[11px] font-light text-slate-400">{group.location}</p>
@@ -301,6 +380,7 @@ export function ItemFeed({
                   key={item.id}
                   item={item}
                   hideShopName
+                  variant="card"
                   addLabel={addLabel}
                   addIcon={addIcon}
                   onGift={() => onGift(item)}
@@ -363,7 +443,9 @@ export function SectionHeading({
         <p className="mb-1 text-xs font-bold uppercase tracking-widest text-mode-accent">
           {kicker}
         </p>
-        <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{title}</h2>
+        <h2 className="kl-display text-[1.75rem] font-semibold text-foreground sm:text-[2.125rem]">
+          {title}
+        </h2>
         {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
       </div>
       {action}
