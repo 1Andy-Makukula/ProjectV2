@@ -9,7 +9,7 @@
 // browse query would put a correlated subquery on the hottest path in the app;
 // asking once, for a short list, keeps it off.
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../utils/auth/AuthContext';
@@ -21,7 +21,15 @@ export function useWishes() {
   const [fromContacts, setFromContacts] = useState<ContactWish[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Each load takes a token and only the newest may write state. `load` is also
+  // called imperatively after a save or a delete, so a flag scoped to the
+  // effect would leave those unguarded — a slower earlier read could land last
+  // and quietly undo what the write just did.
+  const request = useRef(0);
+
   const load = useCallback(async () => {
+    const token = ++request.current;
+
     if (!profile) {
       setMine({});
       setFromContacts([]);
@@ -49,12 +57,13 @@ export function useWishes() {
           audience: (row.post_wish_audience ?? []).map((entry: any) => entry.phone),
         };
       }
+      if (token !== request.current) return;
       setMine(byPost);
       setFromContacts((theirsRes.data ?? []) as ContactWish[]);
     } catch (err) {
       console.error('[useWishes] load error:', err);
     } finally {
-      setLoading(false);
+      if (token === request.current) setLoading(false);
     }
   }, [profile]);
 
@@ -81,32 +90,19 @@ export function useWishes() {
       }
 
       try {
-        const { data: saved, error } = await supabase
-          .from('post_wishes')
-          .upsert(
-            {
-              post_id: postId,
-              user_id: profile.id,
-              note: note.trim() || null,
-              visibility,
-            },
-            { onConflict: 'post_id,user_id' },
-          )
-          .select('id')
-          .single();
+        // One call, one transaction. This used to be an upsert, then a delete
+        // of every audience row, then an insert of the new set — and if the
+        // insert failed after the delete on an 'except' wish, the deny-list was
+        // left empty and the excluded person could see it. A privacy control
+        // must not fail open, so the whole save happens in save_post_wish.
+        const { error } = await supabase.rpc('save_post_wish', {
+          p_post_id: postId,
+          p_note: note,
+          p_visibility: visibility,
+          p_phones: visibility === 'all' ? [] : audience,
+        });
 
         if (error) throw error;
-
-        await supabase.from('post_wish_audience').delete().eq('wish_id', saved.id);
-
-        // Only 'except' and 'only' read the list; storing one for 'all' would
-        // be a rule nothing applies, waiting to surprise somebody later.
-        if (visibility !== 'all' && audience.length > 0) {
-          const { error: audienceError } = await supabase
-            .from('post_wish_audience')
-            .insert(audience.map((phone) => ({ wish_id: saved.id, phone })));
-          if (audienceError) throw audienceError;
-        }
 
         toast.success('Wish saved', {
           description:
