@@ -98,6 +98,20 @@ interface Card {
   title: string;
   description: string;
   image: string | null;
+  /**
+   * Keep this page out of search results.
+   *
+   * Only gift links set it, and they must. A claim code is a bearer
+   * instrument — whoever holds the link collects the gift — and Googlebot is
+   * in CRAWLER_PATTERN, so without this a /gift/<code> URL is a credential
+   * being offered to a search index. Social preview crawlers are not indexers
+   * and ignore the directive, so WhatsApp and Facebook cards are unaffected.
+   *
+   * It is deliberately NOT set on the other routes: this function answers at
+   * the app's own URLs, so a blanket noindex would deindex the real shop, item
+   * and post pages along with it.
+   */
+  noindex?: boolean;
 }
 
 const DEFAULT_CARD: Card = {
@@ -192,6 +206,7 @@ async function buildCard(path: string): Promise<Card> {
       description:
         "Tap to see what you have received and collect it in person. Held safely by KithLy until you do.",
       image: null,
+      noindex: true,
     };
   }
 
@@ -307,6 +322,9 @@ async function buildCard(path: string): Promise<Card> {
 }
 
 function renderHtml(card: Card, canonical: string | null): string {
+  const robots = card.noindex
+    ? `\n  <meta name="robots" content="noindex, nofollow" />`
+    : "";
   const title = escapeHtml(card.title);
   const description = escapeHtml(card.description);
   // Every card gets an image: the subject's own, or the brand mark. A card with
@@ -329,7 +347,7 @@ function renderHtml(card: Card, canonical: string | null): string {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${title}</title>
-  <meta name="description" content="${description}" />
+  <meta name="description" content="${description}" />${robots}
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="${SITE_NAME}" />
   <meta property="og:title" content="${title}" />
@@ -364,17 +382,20 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   const card = path ? await buildCard(path) : DEFAULT_CARD;
 
-  return new Response(renderHtml(card, canonical), {
-    status: 200,
-    headers: {
-      "Content-Type": "text/html; charset=utf-8",
-      // Crawlers re-fetch on their own schedule and cache hard either way.
-      // Five minutes keeps an edited shop name from being wrong for a day
-      // without making every share a database read.
-      "Cache-Control": "public, max-age=300, s-maxage=300",
-      // The path may carry an identifier; keep it out of third-party referers.
-      "Referrer-Policy": "no-referrer",
-      "X-Content-Type-Options": "nosniff",
-    },
-  });
+  const headers: Record<string, string> = {
+    "Content-Type": "text/html; charset=utf-8",
+    // Crawlers re-fetch on their own schedule and cache hard either way.
+    // Five minutes keeps an edited shop name from being wrong for a day
+    // without making every share a database read.
+    "Cache-Control": "public, max-age=300, s-maxage=300",
+    // The path may carry an identifier; keep it out of third-party referers.
+    "Referrer-Policy": "no-referrer",
+    "X-Content-Type-Options": "nosniff",
+  };
+
+  // Belt and braces: a header is obeyed by crawlers that never parse the body,
+  // and by anything fetching this as a resource rather than a page.
+  if (card.noindex) headers["X-Robots-Tag"] = "noindex, nofollow";
+
+  return new Response(renderHtml(card, canonical), { status: 200, headers });
 });
