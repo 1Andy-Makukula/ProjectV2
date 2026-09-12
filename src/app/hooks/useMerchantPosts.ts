@@ -5,7 +5,7 @@
 // published ones, because a draft the author cannot see is a draft they will
 // write twice.
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '../../lib/supabaseClient';
 import { uploadItemImage } from '../../utils/uploadImage';
@@ -67,7 +67,14 @@ export function useMerchantPosts(shopId: string | null) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // Each load takes a token and only the newest may write state. `load` runs
+  // again after every create, edit, publish and delete, so a flag scoped to the
+  // effect would leave those unguarded.
+  const request = useRef(0);
+
   const load = useCallback(async () => {
+    const token = ++request.current;
+
     if (!shopId) {
       setPosts([]);
       setItems([]);
@@ -100,6 +107,7 @@ export function useMerchantPosts(shopId: string | null) {
           .limit(200),
       ]);
 
+      if (token !== request.current) return;
       if (postsRes.error) throw postsRes.error;
 
       setPosts(
@@ -123,7 +131,7 @@ export function useMerchantPosts(shopId: string | null) {
       console.error('[useMerchantPosts] load error:', err);
       toast.error('Could not load your posts', { description: err?.message });
     } finally {
-      setLoading(false);
+      if (token === request.current) setLoading(false);
     }
   }, [shopId]);
 

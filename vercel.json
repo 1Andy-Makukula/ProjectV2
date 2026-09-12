@@ -1,6 +1,18 @@
 {
     "rewrites": [
         {
+            "_comment": "Crawlers get a described page; everyone else falls through to the SPA below. Facebook's and WhatsApp's crawlers do not execute JavaScript, so without this every shared link unfurls as a bare URL. Order matters: this must precede the catch-all, which matches everything. See docs/og-previews.md.",
+            "source": "/:kind(shop|item|post|list|experience|gift)/:id",
+            "has": [
+                {
+                    "type": "header",
+                    "key": "user-agent",
+                    "value": ".*(facebookexternalhit|facebookcatalog|WhatsApp|Twitterbot|LinkedInBot|Slackbot|TelegramBot|Discordbot|Pinterest|redditbot|Googlebot|bingbot|Applebot|SkypeUriPreview|embedly|Iframely|Bluesky|Mastodon).*"
+                }
+            ],
+            "destination": "https://mbjbrdhpjgfhhycijodz.supabase.co/functions/v1/og?path=/:kind/:id"
+        },
+        {
             "source": "/(.*)",
             "destination": "/index.html"
         }

@@ -57,6 +57,11 @@ export function useShopDetail(shopId: string | undefined) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Navigating shop to shop fires this again before the first answer lands.
+    // Without the guard the slower response wins whichever order it arrives in,
+    // and the page shows the shop you just left.
+    let cancelled = false;
+
     async function fetchShopDetails() {
       if (!shopId) return;
 
@@ -84,6 +89,7 @@ export function useShopDetail(shopId: string | undefined) {
             .limit(20),
         ]);
 
+        if (cancelled) return;
         if (shopResponse.error) throw shopResponse.error;
         if (itemsResponse.error) throw itemsResponse.error;
 
@@ -97,14 +103,18 @@ export function useShopDetail(shopId: string | undefined) {
             .filter((post): post is PostSummary => post !== null),
         );
       } catch (error: any) {
+        if (cancelled) return;
         console.error('[useShopDetail] Error fetching shop details:', error);
         toast.error(parseAuthError(error));
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
 
     fetchShopDetails();
+    return () => {
+      cancelled = true;
+    };
   }, [shopId]);
 
   return {

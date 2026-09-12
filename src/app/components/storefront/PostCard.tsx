@@ -89,9 +89,15 @@ function Collage({ images, caption }: { images: PostImage[]; caption: string | n
     );
   }
 
+  // Three tiles fit: the hero, and two stacked beside it. The count of what is
+  // left over has to be measured against those two, not against some larger
+  // slice — it was `rest.slice(0, 4)`, so with five images `hidden` came out as
+  // zero, no badge rendered at all, and two photographs simply vanished.
   const [hero, ...rest] = images;
-  const shown = rest.slice(0, 4);
-  const hidden = rest.length - shown.length;
+  const shown = rest.slice(0, 2);
+  // The second tile carries the overlay, so its own image is obscured too and
+  // counts among the ones you are being told about.
+  const extra = images.length - 2;
 
   return (
     <div className="grid aspect-[3/2] w-full grid-cols-3 gap-1.5 overflow-hidden rounded-[var(--radius-md)]">
@@ -102,8 +108,8 @@ function Collage({ images, caption }: { images: PostImage[]; caption: string | n
         className="col-span-2 h-full w-full object-cover"
       />
       <div className="grid grid-rows-2 gap-1.5">
-        {shown.slice(0, 2).map((image, index) => {
-          const isLast = index === 1 && hidden > 0;
+        {shown.map((image, index) => {
+          const isLast = index === shown.length - 1 && rest.length > shown.length;
           return (
             <div key={image.id} className="relative overflow-hidden">
               <img
@@ -114,7 +120,7 @@ function Collage({ images, caption }: { images: PostImage[]; caption: string | n
               />
               {isLast && (
                 <div className="absolute inset-0 grid place-items-center bg-foreground/55 text-sm font-medium text-background">
-                  +{hidden + 1}
+                  +{extra}
                 </div>
               )}
             </div>
