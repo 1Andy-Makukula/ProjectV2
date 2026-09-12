@@ -1,0 +1,47 @@
+{
+  "measuredAt": "2026-09-12",
+  "criticalPath": {
+    "gzip": 496471,
+    "raw": 1850867,
+    "files": [
+      {
+        "name": "index-Cxbpx4xA.js",
+        "url": "/assets/index-Cxbpx4xA.js",
+        "raw": 715725,
+        "gzip": 185871
+      },
+      {
+        "name": "vendor-ui-B9Kd_1Dw.js",
+        "url": "/assets/vendor-ui-B9Kd_1Dw.js",
+        "raw": 517273,
+        "gzip": 156910
+      },
+      {
+        "name": "vendor-supabase-eAnTY_9t.js",
+        "url": "/assets/vendor-supabase-eAnTY_9t.js",
+        "raw": 207532,
+        "gzip": 53621
+      },
+      {
+        "name": "vendor-react-CeFRA1wR.js",
+        "url": "/assets/vendor-react-CeFRA1wR.js",
+        "raw": 122774,
+        "gzip": 41768
+      },
+      {
+        "name": "index-CJRp4wdI.css",
+        "url": "/assets/index-CJRp4wdI.css",
+        "raw": 207352,
+        "gzip": 30919
+      },
+      {
+        "name": "vendor-radix-BDA97Pgh.js",
+        "url": "/assets/vendor-radix-BDA97Pgh.js",
+        "raw": 80211,
+        "gzip": 27382
+      }
+    ]
+  },
+  "ceiling": 512000,
+  "target": 256000
+}
