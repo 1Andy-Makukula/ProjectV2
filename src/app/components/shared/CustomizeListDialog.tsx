@@ -211,7 +211,7 @@ export function CustomizeListDialog({
                     ${
                       active
                         ? 'kl-rim kl-rim--strong kl-float bg-primary-tint'
-                        : 'kl-rim bg-background hover:bg-accent'
+                        : 'kl-rim bg-card hover:bg-accent'
                     }`}
                 >
                   <div className="mb-1 flex items-center gap-1.5">

@@ -93,7 +93,7 @@ export function ModeSwitcher() {
                         ${
                           isActive
                             ? 'kl-glow text-white'
-                            : 'kl-rim kl-float bg-background text-muted-foreground hover:text-foreground'
+                            : 'kl-rim kl-float bg-card text-muted-foreground hover:text-foreground'
                         }`}
           >
             {isActive && (

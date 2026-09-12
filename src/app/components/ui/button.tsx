@@ -35,7 +35,7 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive text-destructive-foreground shadow-[var(--shadow-float)] hover:bg-destructive/90",
         outline:
-          "kl-rim bg-background text-foreground shadow-[var(--shadow-float)] hover:bg-accent hover:text-accent-foreground",
+          "kl-rim bg-card text-foreground shadow-[var(--shadow-float)] hover:bg-accent hover:text-accent-foreground",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/70",
         // Ghost stays flat on purpose — it is the one that must disappear.

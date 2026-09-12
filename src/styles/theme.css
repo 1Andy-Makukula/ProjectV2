@@ -14,8 +14,25 @@
   --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
   --font-hand: 'Caveat', 'Segoe Script', 'Bradley Hand', cursive;
 
-  /* Surface */
-  --background: #ffffff;
+  /* Surface
+     --------
+     The page is NOT the card colour, and that distinction is load-bearing.
+
+     Until 2026-09-12 both were #ffffff, so every card in the app sat on a
+     surface identical to itself and was separated only by --border at 7%
+     opacity. There was nothing to see: panels melted into the page and the
+     whole thing read as one flat plane rather than objects on a ground. The
+     dark theme below had always drawn the distinction (#0D0D0D page, #141414
+     card) — light mode simply never did, which is what marked it out as an
+     oversight rather than a decision.
+
+     Warm rather than a cool grey, because the brand is orange and a blue-grey
+     ground fights it. A real grey rather than an off-white: at #F7F6F4 the
+     separation was technically present and perceptually absent, which is the
+     worst of both — the page still read as one plane and the change bought
+     nothing. This is far enough from #ffffff that a card is unmistakably an
+     object sitting on something. */
+  --background: #EAE8E3;
   --foreground: #0D0D0D;
   --card: #ffffff;
   --card-foreground: #0D0D0D;
@@ -73,8 +90,13 @@
   /* Floating shell — the rim, lift and halo that make a surface read as
      present rather than printed on. One definition each, so a tile, a modal
      and a button are lit by the same light. */
-  --shadow-float: 0 1px 2px rgba(16,16,20,0.04), 0 12px 28px -14px rgba(16,16,20,0.20);
-  --shadow-lift:  0 2px 4px rgba(16,16,20,0.05), 0 22px 44px -18px rgba(16,16,20,0.28);
+  /* Two shadows per surface, and the near one is what stops things looking like
+     paper cut-outs. The far shadow alone (which is all these used to have,
+     at 4% and -14px) reads as a glow under a flat shape; the tight 1-3px
+     contact shadow is what the eye uses to decide something is physically
+     resting on the page rather than printed onto it. */
+  --shadow-float: 0 1px 3px rgba(16,16,20,0.10), 0 10px 24px -10px rgba(16,16,20,0.30);
+  --shadow-lift:  0 3px 8px rgba(16,16,20,0.12), 0 24px 48px -16px rgba(16,16,20,0.38);
   --shadow-glow:  0 4px 14px -4px rgba(232,70,10,0.40);
   --shadow-glow-strong: 0 8px 24px -6px rgba(232,70,10,0.55);
 
@@ -493,6 +515,25 @@
     position: relative;
   }
 
+  /* A tile paints its own surface; a rim does not.
+     .kl-tile is only ever used on a card — see ShopCard, ListCard, PostCard,
+     the rail modules — and it drew no background at all, which worked only for
+     as long as the page happened to be the same white the card wanted to be.
+     Now that the page is a ground, the card has to say so itself.
+     .kl-rim stays surfaceless: it is composed onto pills, icon buttons and
+     things that sit on top of images, and giving it a fill would paint over
+     them. */
+  .kl-tile {
+    background: var(--card);
+    /* A resting shadow, not just a hover one.
+       .kl-lift only ever applied a shadow on :hover, so every card in the app
+       sat completely flat until a mouse touched it — and on a phone, where
+       there is no hover, permanently. A rim alone is an outline, and an outline
+       is a drawing of an edge rather than evidence of one. This is what the
+       tiles were missing. */
+    box-shadow: var(--shadow-float);
+  }
+
   .kl-rim::before,
   .kl-tile::before {
     content: '';
@@ -618,6 +659,24 @@
         rgba(46, 42, 37, 0.014) 0 3px,
         transparent 3px 7px
       );
+  }
+
+  /* ── The display voice ─────────────────────────────────────────────────
+     Fraunces was loaded for the paper storyboard and used nowhere else, so the
+     app paid for a distinctive serif on every page load and then spoke in the
+     system sans everywhere a reader could see it. This lets any heading use it.
+
+     SOFT and WONK are Fraunces' own axes: a little softening on the terminals
+     and the wonky variants on the letters that have them. That irregularity is
+     the point — it is what stops a serif reading as institutional.
+
+     Deliberately headings only. Body text in a display serif is a magazine,
+     not a shop, and prices in it are unreadable. */
+  .kl-display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    font-variation-settings: 'SOFT' 40, 'WONK' 1;
+    letter-spacing: -0.025em;
   }
 
   .kl-paper-display {

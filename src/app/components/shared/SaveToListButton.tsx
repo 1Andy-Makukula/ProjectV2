@@ -53,10 +53,10 @@ export function SaveToListButton({
   const base =
     variant === 'overlay'
       ? `kl-rim kl-float grid size-9 place-items-center rounded-[var(--radius-pill)]
-         bg-background/85 text-muted-foreground backdrop-blur-sm
+         bg-card/85 text-muted-foreground backdrop-blur-sm
          transition-colors hover:text-primary`
       : `kl-rim kl-float inline-flex items-center gap-1.5 rounded-[var(--radius-pill)]
-         bg-background px-4 h-9 text-[0.8125rem] font-medium text-foreground
+         bg-card px-4 h-9 text-[0.8125rem] font-medium text-foreground
          transition-colors hover:text-primary`;
 
   return (
