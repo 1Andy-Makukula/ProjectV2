@@ -94,7 +94,10 @@ CREATE TABLE public.contacts (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   owner_user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   name          text NOT NULL,
-  phone         text NOT NULL
+  phone         text NOT NULL,
+  -- Free text on purpose (20260902000000). relationship_tier is added
+  -- alongside it by 20260913030000; both exist, and both are read.
+  relationship  text
 );
 
 CREATE TABLE public.contact_occasions (
@@ -183,3 +186,12 @@ ALTER TABLE public.shops ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS shops_public_read ON public.shops;
 CREATE POLICY shops_public_read ON public.shops
   FOR SELECT TO anon, authenticated USING (is_active IS NOT FALSE);
+
+-- shop_orders, as much of it as refresh_observed_preferences reads.
+CREATE TABLE public.shop_orders (
+  shop_order_id   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  shop_id         uuid NOT NULL REFERENCES public.shops(id) ON DELETE CASCADE,
+  recipient_phone text,
+  claim_status    text NOT NULL DEFAULT 'PENDING'
+);
+ALTER TABLE public.shop_orders ENABLE ROW LEVEL SECURITY;

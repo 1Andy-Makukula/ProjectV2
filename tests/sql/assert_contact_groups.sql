@@ -126,8 +126,9 @@ BEGIN
 END $$;
 
 \echo '--- 4. REGRESSION: the reminder job must not drop group occasions ---'
--- The grocery run is monthly on the 25th. Pinning today to the 18th puts it
--- exactly seven days out, which is one of the two windows the job fires in.
+-- The grocery run is monthly on the 25th. Since 20260913020000 gave each kind
+-- its own lead times, `groceries` fires at 2 days and on the day -- not at
+-- seven. Pinning today to the 23rd puts it exactly two days out.
 DO $$
 DECLARE
   sent integer;
@@ -136,7 +137,7 @@ BEGIN
   DELETE FROM public.notifications;
   UPDATE public.contact_occasions SET last_reminded_on = NULL;
 
-  sent := public.dispatch_occasion_reminders('2026-09-18'::date);
+  sent := public.dispatch_occasion_reminders('2026-09-23'::date);
 
   SELECT count(*) INTO group_notes
   FROM public.notifications
@@ -159,11 +160,11 @@ BEGIN
   DELETE FROM public.notifications;
   UPDATE public.contact_occasions SET last_reminded_on = NULL;
 
-  PERFORM public.dispatch_occasion_reminders('2026-09-12'::date);
+  PERFORM public.dispatch_occasion_reminders('2026-09-16'::date);
 
   SELECT count(*) INTO n FROM public.notifications WHERE message LIKE 'Mercy%';
   IF n <> 1 THEN
-    RAISE EXCEPTION 'FAIL: Mercy''s birthday a week out produced % reminders, expected 1', n;
+    RAISE EXCEPTION 'FAIL: Mercy''s birthday 3 days out produced % reminders, expected 1', n;
   END IF;
   RAISE NOTICE 'PASS: contact occasion unaffected by the change';
 END $$;
@@ -173,7 +174,7 @@ DO $$
 DECLARE before_n integer; after_n integer;
 BEGIN
   SELECT count(*) INTO before_n FROM public.notifications;
-  PERFORM public.dispatch_occasion_reminders('2026-09-12'::date);
+  PERFORM public.dispatch_occasion_reminders('2026-09-16'::date);
   SELECT count(*) INTO after_n FROM public.notifications;
 
   IF after_n <> before_n THEN
