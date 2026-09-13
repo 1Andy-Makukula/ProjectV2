@@ -195,3 +195,40 @@ CREATE TABLE public.shop_orders (
   claim_status    text NOT NULL DEFAULT 'PENDING'
 );
 ALTER TABLE public.shop_orders ENABLE ROW LEVEL SECURITY;
+
+-- Wallets and their ledger, as 20260525100000 / 20260615000000 shape them.
+CREATE TABLE public.kithly_wallets (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id    uuid NOT NULL UNIQUE REFERENCES public.users(id),
+  balance    integer NOT NULL DEFAULT 0 CHECK (balance >= 0),
+  currency   text NOT NULL DEFAULT 'ZMW',
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
+
+CREATE TABLE public.wallet_ledger (
+  id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  wallet_id      uuid NOT NULL REFERENCES public.kithly_wallets(id) ON DELETE CASCADE,
+  amount         integer NOT NULL,
+  transaction_id uuid,
+  description    text,
+  reversal_of    uuid,
+  created_at     timestamptz NOT NULL DEFAULT now()
+);
+
+-- The immutability the real ledger has, and that CI check 1 pins. Without it a
+-- test could "prove" the provenance column backfillable when production
+-- refuses the UPDATE outright.
+DROP TRIGGER IF EXISTS enforce_immutable_wallet_ledger ON public.wallet_ledger;
+CREATE TRIGGER enforce_immutable_wallet_ledger
+BEFORE UPDATE OR DELETE ON public.wallet_ledger
+FOR EACH ROW EXECUTE FUNCTION public.enforce_immutable_ledger();
+
+ALTER TABLE public.kithly_wallets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.wallet_ledger  ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS wallet_ledger_select ON public.wallet_ledger;
+CREATE POLICY wallet_ledger_select ON public.wallet_ledger
+  FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM public.kithly_wallets w
+                 WHERE w.id = wallet_ledger.wallet_id AND w.user_id = auth.uid()));
