@@ -9,6 +9,8 @@ export interface AppNotification {
   is_read: boolean;
   created_at: string;
   reference_id?: string | null;
+  /** Ordered one-tap paths. Unknown to older rows, which carry none. */
+  actions?: unknown;
 }
 
 /**
@@ -41,7 +43,7 @@ export function useNotifications() {
     try {
       const { data, error } = await supabase
         .from('notifications')
-        .select('id, message, type, is_read, created_at, reference_id')
+        .select('id, message, type, is_read, created_at, reference_id, actions')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(50);

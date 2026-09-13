@@ -4,6 +4,7 @@
 import { MapPin, Star, Store } from 'lucide-react';
 import { shopRating } from '../../types/shops';
 import { SaveToListButton } from './SaveToListButton';
+import { WatchButton } from './WatchButton';
 
 export interface ShopCardProps {
   shop: {
@@ -71,7 +72,7 @@ export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
 
         {/* Save the shop itself to a list — the card is a button, so this
             stops the click from also opening the storefront. */}
-        <div className="absolute top-4 left-4">
+        <div className="absolute top-4 left-4 flex items-center gap-1.5">
           <SaveToListButton
             target={{
               kind: 'shop',
@@ -80,6 +81,9 @@ export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
               image_url: shop.cover_image_url ?? shop.image_url ?? shop.logo_url ?? null,
             }}
           />
+          {/* A shop watch covers everything it sells, which is the point:
+              you rarely know which item will be the one to drop. */}
+          <WatchButton shopId={shop.id} />
         </div>
       </div>
 

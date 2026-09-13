@@ -13,6 +13,7 @@ import {
   type CatalogItem,
 } from '../../types/items';
 import { SaveToListButton } from './SaveToListButton';
+import { WatchButton } from './WatchButton';
 
 export type StorefrontItem = CatalogItem;
 
@@ -128,9 +129,11 @@ export function StorefrontProductCard({
           </div>
         )}
 
-        {/* Save to a list — bottom-right, clear of the badge, the service
-            marker and the escrow shield. */}
-        <div className="absolute bottom-2.5 right-2.5">
+        {/* Save and watch — bottom-right, clear of the badge, the service
+            marker and the escrow shield. Two gestures about the same thing:
+            saving is wanting it, watching is waiting for it to get cheaper. */}
+        <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5">
+          <WatchButton itemId={item.id} />
           <SaveToListButton
             target={{ kind: 'item', id: item.id, name: item.name, image_url: item.image_url }}
           />

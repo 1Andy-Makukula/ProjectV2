@@ -6,6 +6,7 @@ import { supabase } from '../../../lib/supabaseClient';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { relativeTime, absoluteTime } from '../../../utils/relativeTime';
 import { Button } from '../ui/button';
+import { actionHref, isInlineAction, parseActions, usableActions } from '../../types/notificationActions';
 
 export interface AppNotification {
   id: string;
@@ -15,6 +16,8 @@ export interface AppNotification {
   created_at: string;
   /** Nullable in the schema, so modelled as null rather than absent. */
   reference_id: string | null;
+  /** Ordered one-tap paths, or null on anything written before they existed. */
+  actions?: unknown;
 }
 
 interface NotificationSliderProps {
@@ -333,21 +336,64 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
                                   <span className="text-[11px] text-slate-300">{absTime}</span>
                                 </div>
 
-                                {/* Expandable reference */}
-                                {isExpanded && notification.reference_id && (
-                                  <motion.div
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: 'auto' }}
-                                    className="mt-2"
-                                  >
-                                    <button
-                                      onClick={(e) => { e.stopPropagation(); navigate(`/order/${notification.reference_id}`); onClose(); }}
-                                      className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-200 transition-colors"
+                                {/* What this notification can actually do.
+                                    Notifications that carry actions render
+                                    those; anything older keeps the single
+                                    order link it has always had. The two are
+                                    exclusive on purpose -- reference_id means
+                                    different things to different types, and
+                                    sending an occasion reminder to /order/ was
+                                    the bug that made actions necessary. */}
+                                {isExpanded && (() => {
+                                  const actions = usableActions(parseActions(notification.actions));
+
+                                  if (actions.length > 0) {
+                                    return (
+                                      <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        className="mt-2 flex flex-wrap gap-1.5"
+                                      >
+                                        {actions.map((action, i) => (
+                                          <button
+                                            key={`${action.type}-${i}`}
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              if (isInlineAction(action)) {
+                                                // Nothing to navigate to; the
+                                                // row itself is the outcome.
+                                                return;
+                                              }
+                                              const href = actionHref(action);
+                                              if (href) { navigate(href); onClose(); }
+                                            }}
+                                            className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-200 transition-colors"
+                                          >
+                                            {action.label}
+                                            {!isInlineAction(action) && <ArrowRight className="h-3 w-3" />}
+                                          </button>
+                                        ))}
+                                      </motion.div>
+                                    );
+                                  }
+
+                                  if (!notification.reference_id) return null;
+
+                                  return (
+                                    <motion.div
+                                      initial={{ opacity: 0, height: 0 }}
+                                      animate={{ opacity: 1, height: 'auto' }}
+                                      className="mt-2"
                                     >
-                                      View Details <ArrowRight className="h-3 w-3" />
-                                    </button>
-                                  </motion.div>
-                                )}
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); navigate(`/order/${notification.reference_id}`); onClose(); }}
+                                        className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-200 transition-colors"
+                                      >
+                                        View Details <ArrowRight className="h-3 w-3" />
+                                      </button>
+                                    </motion.div>
+                                  );
+                                })()}
                               </div>
 
                               {/* Per-item dismiss */}

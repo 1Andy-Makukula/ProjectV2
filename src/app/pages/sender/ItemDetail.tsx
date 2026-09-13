@@ -46,6 +46,7 @@ import {
   CarouselPrevious,
 } from '../../components/ui/carousel';
 import { AddToListDialog } from '../../components/shared/AddToListDialog';
+import { WatchButton } from '../../components/shared/WatchButton';
 import { ItemOptionPicker } from '../../components/shared/ItemOptionPicker';
 import {
   initialSelection,
@@ -420,6 +421,16 @@ export function ItemDetail() {
                 <ListChecks className="h-3.5 w-3.5" strokeWidth={2} />
                 Add to a list
               </button>
+            )}
+
+            {/* Watching is the patient sibling of adding to a list: the same
+                interest, expressed as "not at this price". Inline here rather
+                than the card's overlay because there is room to say what it
+                does. */}
+            {profile && (
+              <div className="mt-3 self-start">
+                <WatchButton itemId={item.id} variant="inline" />
+              </div>
             )}
 
             {!item.allow_custom_quote && item.shop?.id && (
