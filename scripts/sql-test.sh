@@ -33,12 +33,15 @@ MIGRATIONS=(
   20260912070000_contact_groups
   20260912080000_shop_collections
   20260912090000_reco_signals
+  20260913000000_notification_actions
+  20260913010000_price_events_and_watches
 )
 SUITES=(
   assert_countries_and_holidays
   assert_contact_groups
   assert_shop_collections
   assert_reco_signals
+  assert_price_watches
 )
 
 cleanup() {

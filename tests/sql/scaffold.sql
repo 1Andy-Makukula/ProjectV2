@@ -69,12 +69,26 @@ CREATE TABLE public.categories (
 );
 
 CREATE TABLE public.items (
-  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  shop_id      uuid NOT NULL REFERENCES public.shops(id) ON DELETE CASCADE,
-  category_id  uuid REFERENCES public.categories(id) ON DELETE SET NULL,
-  name         text NOT NULL,
-  is_available boolean NOT NULL DEFAULT true
+  id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  shop_id             uuid NOT NULL REFERENCES public.shops(id) ON DELETE CASCADE,
+  category_id         uuid REFERENCES public.categories(id) ON DELETE SET NULL,
+  name                text NOT NULL,
+  is_available        boolean NOT NULL DEFAULT true,
+  -- Prices are in ngwee throughout this codebase, never kwacha.
+  price_zmw           integer NOT NULL DEFAULT 0,
+  is_discounted       boolean,
+  original_price_zmw  integer
 );
+
+-- The immutability guard the real ledgers carry (baseline snapshot). Stubbed
+-- here because item_price_events attaches it too, and a test that skipped it
+-- would prove the price log immutable when it is not.
+CREATE OR REPLACE FUNCTION public.enforce_immutable_ledger()
+RETURNS trigger LANGUAGE plpgsql AS $immutable$
+BEGIN
+  RAISE EXCEPTION 'DCIMe Protocol Violation: Event ledger records cannot be modified or deleted.';
+END;
+$immutable$;
 
 CREATE TABLE public.contacts (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
