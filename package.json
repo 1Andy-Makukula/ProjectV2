@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:integration": "vitest run --config vitest.integration.config.ts",
-    "perf": "node scripts/perf-baseline.mjs"
+    "perf": "node scripts/perf-baseline.mjs",
+    "sql:test": "bash scripts/sql-test.sh"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.4",

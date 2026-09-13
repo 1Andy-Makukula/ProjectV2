@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { useCustomerDashboard } from '../../hooks/useCustomerDashboard';
 import { motion, AnimatePresence } from 'motion/react';
-import { TrendingUp, Gift, Store, ArrowLeft, Sparkles, Bell, X, Clock, AlertCircle, ChevronRight, CreditCard, Receipt, Send, Inbox, Package, CheckCircle2, QrCode, Coins, Lock, PhoneOff, ListChecks } from 'lucide-react';
+import { TrendingUp, Gift, Store, ArrowLeft, Sparkles, Bell, X, Clock, AlertCircle, ChevronRight, CreditCard, Receipt, Send, Inbox, Package, CheckCircle2, QrCode, Coins, Lock, PhoneOff, ListChecks, PiggyBank } from 'lucide-react';
 
 import {
   Card,
@@ -14,6 +14,7 @@ import {
 import { Button } from '../../components/ui/button';
 import { Skeleton } from '../../components/ui/skeleton';
 import { formatCurrency } from '../../../utils/currency';
+import { BudgetPanel } from '../../components/shared/BudgetPanel';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../components/ui/tabs';
 import {
   Dialog,
@@ -176,16 +177,21 @@ export function CustomerDashboard() {
     handleConvert,
   } = useCustomerDashboard();
 
-  // Top-level panel: 'sending' | 'receiving' — persisted to localStorage
+  // Top-level panel — persisted to localStorage.
+  //
+  // Budgeting is a third thing: not sending, not receiving, but preparing.
+  // Squeezing it into either would have made one of them mean two things.
   const LS_KEY = 'kithly_active_dashboard_view';
-  const [activePanel, setActivePanelState] = useState<'sending' | 'receiving'>(() => {
+  type DashboardPanel = 'sending' | 'receiving' | 'preparing';
+  const [activePanel, setActivePanelState] = useState<DashboardPanel>(() => {
     try {
       const stored = localStorage.getItem(LS_KEY);
-      return stored === 'receiving' ? 'receiving' : 'sending';
+      if (stored === 'receiving' || stored === 'preparing') return stored;
+      return 'sending';
     } catch { return 'sending'; }
   });
 
-  const setActivePanel = useCallback((panel: 'sending' | 'receiving') => {
+  const setActivePanel = useCallback((panel: DashboardPanel) => {
     setActivePanelState(panel);
     try { localStorage.setItem(LS_KEY, panel); } catch { /* ignore */ }
   }, []);
@@ -324,7 +330,7 @@ export function CustomerDashboard() {
 
         {/* ── Top-level P2P panel toggle ── */}
         <div className="flex w-full items-center gap-1 rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur-md p-1 shadow-sm mb-2">
-          {([['sending', Send, 'Sending Details'], ['receiving', Inbox, 'Receiving Details']] as const).map(([panel, Icon, label]) => (
+          {([['sending', Send, 'Sending Details'], ['receiving', Inbox, 'Receiving Details'], ['preparing', PiggyBank, 'Budgets & Watches']] as const).map(([panel, Icon, label]) => (
             <button
               key={panel}
               id={`dashboard-panel-${panel}`}
@@ -747,6 +753,19 @@ export function CustomerDashboard() {
                 </div>
               );
             })()}
+          </motion.div>
+        )}
+
+        {activePanel === 'preparing' && (
+          <motion.div
+            key="preparing"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.22 }}
+            className="mx-auto max-w-4xl px-6 py-6"
+          >
+            <BudgetPanel />
           </motion.div>
         )}
         </AnimatePresence>
