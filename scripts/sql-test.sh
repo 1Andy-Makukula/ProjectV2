@@ -39,6 +39,8 @@ MIGRATIONS=(
   20260913030000_contact_tiers_and_preferences
   20260913040000_wallet_provenance_and_budgets
   20260913050000_checkout_respects_reservations
+  20260914000000_item_governance_fields
+  20260914010000_shop_vitality
 )
 SUITES=(
   assert_countries_and_holidays
@@ -48,6 +50,7 @@ SUITES=(
   assert_price_watches
   assert_lead_times_and_preferences
   assert_budget_goals
+  assert_shop_vitality
 )
 
 cleanup() {

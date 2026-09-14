@@ -232,3 +232,45 @@ CREATE POLICY wallet_ledger_select ON public.wallet_ledger
   FOR SELECT TO authenticated
   USING (EXISTS (SELECT 1 FROM public.kithly_wallets w
                  WHERE w.id = wallet_ledger.wallet_id AND w.user_id = auth.uid()));
+
+-- Columns Stage 3 reads that the earlier stubs did not need.
+ALTER TABLE public.items ADD COLUMN IF NOT EXISTS image_url text;
+ALTER TABLE public.items ADD COLUMN IF NOT EXISTS is_weekly_pick boolean DEFAULT false;
+ALTER TABLE public.items ADD COLUMN IF NOT EXISTS promo_badge_text text;
+ALTER TABLE public.shops ADD COLUMN IF NOT EXISTS opening_hours jsonb;
+ALTER TABLE public.shops ADD COLUMN IF NOT EXISTS rating_count integer NOT NULL DEFAULT 0;
+ALTER TABLE public.shops ADD COLUMN IF NOT EXISTS rating_sum integer NOT NULL DEFAULT 0;
+
+CREATE TABLE IF NOT EXISTS public.item_images (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  item_id    uuid NOT NULL REFERENCES public.items(id) ON DELETE CASCADE,
+  image_url  text NOT NULL,
+  sort_order integer NOT NULL DEFAULT 0,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.item_images ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS item_images_read ON public.item_images;
+CREATE POLICY item_images_read ON public.item_images
+  FOR SELECT TO anon, authenticated USING (true);
+
+-- items_merchant_write, as 20260802020000 defines it. The governance trigger in
+-- 20260914000000 is tested against this exact policy, so the stub must match.
+DROP POLICY IF EXISTS items_merchant_write ON public.items;
+CREATE POLICY items_merchant_write ON public.items
+  FOR ALL TO authenticated
+  USING (
+    EXISTS (SELECT 1 FROM public.merchant_shops ms
+            JOIN public.shops s ON s.id = ms.shop_id
+            WHERE ms.shop_id = items.shop_id AND ms.user_id = auth.uid() AND s.is_active = true)
+  )
+  WITH CHECK (
+    EXISTS (SELECT 1 FROM public.merchant_shops ms
+            JOIN public.shops s ON s.id = ms.shop_id
+            WHERE ms.shop_id = items.shop_id AND ms.user_id = auth.uid() AND s.is_active = true)
+  );
+
+DROP POLICY IF EXISTS items_admin_write ON public.items;
+CREATE POLICY items_admin_write ON public.items
+  FOR ALL TO authenticated
+  USING (public.current_user_role() = 'admin')
+  WITH CHECK (public.current_user_role() = 'admin');
