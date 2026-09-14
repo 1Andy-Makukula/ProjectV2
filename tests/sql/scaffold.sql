@@ -300,3 +300,5 @@ CREATE TABLE IF NOT EXISTS public.shop_ratings (
   created_at timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (shop_id, user_id)
 );
+
+ALTER TABLE public.items ADD COLUMN IF NOT EXISTS is_quote_only boolean NOT NULL DEFAULT false;

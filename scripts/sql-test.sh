@@ -42,6 +42,8 @@ MIGRATIONS=(
   20260914000000_item_governance_fields
   20260914010000_shop_vitality
   20260914020000_pulse
+  20260914030000_composer
+  20260914040000_record_signals
 )
 SUITES=(
   assert_countries_and_holidays
@@ -53,6 +55,7 @@ SUITES=(
   assert_budget_goals
   assert_shop_vitality
   assert_pulse
+  assert_composer
 )
 
 cleanup() {
