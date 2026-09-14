@@ -276,7 +276,11 @@ CREATE POLICY items_admin_write ON public.items
   WITH CHECK (public.current_user_role() = 'admin');
 
 -- Columns and tables the Pulse counts over.
-ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
+-- Real columns only. An earlier version of this scaffold invented
+-- shop_orders.updated_at because a migration under test wanted one, which
+-- made the migration pass here and fail in production. See the drift test.
+ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS fulfilled_at timestamptz;
+ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();
 
 CREATE TABLE IF NOT EXISTS public.lists (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),

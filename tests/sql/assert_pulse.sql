@@ -30,7 +30,7 @@ BEGIN
 
   -- Two collections. In a town where a shopkeeper knows their customers, "2
   -- people collected" plus a shop name is a sentence about identifiable people.
-  INSERT INTO public.shop_orders (shop_id, claim_status, updated_at)
+  INSERT INTO public.shop_orders (shop_id, claim_status, fulfilled_at)
   SELECT 'eeee5555-0000-0000-0000-000000000001', 'REDEEMED', now()
   FROM generate_series(1, 2);
 
@@ -46,7 +46,7 @@ END $$;
 DO $$
 DECLARE q integer; k text;
 BEGIN
-  INSERT INTO public.shop_orders (shop_id, claim_status, updated_at)
+  INSERT INTO public.shop_orders (shop_id, claim_status, fulfilled_at)
   VALUES ('eeee5555-0000-0000-0000-000000000001', 'REDEEMED', now());
 
   SELECT kind, quantity INTO k, q FROM public.pulse_statements(12)
@@ -66,7 +66,7 @@ DECLARE q integer;
 BEGIN
   -- Ten orders that expired. Counting these would be the easiest possible way
   -- to look busy, and would be a lie about what the platform achieved.
-  INSERT INTO public.shop_orders (shop_id, claim_status, updated_at)
+  INSERT INTO public.shop_orders (shop_id, claim_status, fulfilled_at)
   SELECT 'eeee5555-0000-0000-0000-000000000002', 'EXPIRED', now()
   FROM generate_series(1, 10);
 
@@ -84,7 +84,7 @@ DECLARE q integer;
 BEGIN
   -- Backdated beyond the seven-day window. Still real, no longer news.
   UPDATE public.shop_orders
-     SET updated_at = now() - interval '30 days'
+     SET fulfilled_at = now() - interval '30 days'
    WHERE shop_id = 'eeee5555-0000-0000-0000-000000000001';
 
   SELECT quantity INTO q FROM public.pulse_statements(12)
@@ -99,7 +99,7 @@ END $$;
 DO $$
 DECLARE q integer;
 BEGIN
-  UPDATE public.shop_orders SET updated_at = now()
+  UPDATE public.shop_orders SET fulfilled_at = now()
    WHERE shop_id = 'eeee5555-0000-0000-0000-000000000001';
   UPDATE public.shops SET is_active = false
    WHERE id = 'eeee5555-0000-0000-0000-000000000001';

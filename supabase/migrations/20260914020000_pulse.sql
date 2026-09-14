@@ -80,8 +80,13 @@ AS $$
       1.00::numeric     AS weight
     FROM public.shop_orders so
     JOIN public.shops s ON s.id = so.shop_id
-    WHERE so.claim_status = 'REDEEMED'
-      AND so.updated_at >= now() - interval '7 days'
+    -- fulfilled_at, not claim_status. It is stamped at the moment the
+    -- shopkeeper hands the thing over, which IS the event being counted --
+    -- somebody turned up and collected. REDEEMED is settlement, which happens
+    -- later, after the no-dispute window, and is a fact about money rather
+    -- than about a person walking into a shop.
+    WHERE so.fulfilled_at >= now() - interval '7 days'
+      AND so.claim_status NOT IN ('CANCELLED', 'EXPIRED')
       AND s.is_active
     GROUP BY s.name
     HAVING count(*) >= public.pulse_min_cohort()
