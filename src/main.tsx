@@ -26,19 +26,43 @@ if (!sentryDsn) {
   );
 }
 
+// 100% tracing is fine at zero users and expensive and noisy at any real
+// volume. Sample hard in production, keep full traces in development where the
+// whole point is to see the transaction you just triggered.
+//
+// Parsed defensively, because `??` alone is not enough here. Vite injects env
+// vars as strings, so `VITE_SENTRY_TRACES_SAMPLE_RATE=` — the most natural way
+// to write "leave this unset" — yields "" rather than undefined, sails past the
+// nullish coalescing, and `Number("")` is 0. That silently disables tracing
+// entirely, which is the opposite of what an empty value is meant to express.
+// A non-numeric value would likewise have produced NaN.
+//
+// An out-of-range number is clamped rather than rejected: Sentry expects 0..1,
+// and someone writing `50` meant half, not fifty times.
+const DEFAULT_TRACES_SAMPLE_RATE = import.meta.env.PROD ? 0.1 : 1.0;
+
+function resolveTracesSampleRate(): number {
+  const raw = import.meta.env.VITE_SENTRY_TRACES_SAMPLE_RATE;
+  if (raw === undefined || raw === null || String(raw).trim() === '') {
+    return DEFAULT_TRACES_SAMPLE_RATE;
+  }
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed)) {
+    console.warn(
+      `[sentry] VITE_SENTRY_TRACES_SAMPLE_RATE=${JSON.stringify(raw)} is not a number — falling back to ${DEFAULT_TRACES_SAMPLE_RATE}.`,
+    );
+    return DEFAULT_TRACES_SAMPLE_RATE;
+  }
+  return Math.min(1, Math.max(0, parsed));
+}
+
 Sentry.init({
   dsn: sentryDsn,
   integrations: [
     Sentry.browserTracingIntegration(),
     Sentry.replayIntegration(),
   ],
-  // 100% tracing is fine at zero users and expensive and noisy at any real
-  // volume. Sample hard in production, keep full traces in development where
-  // the whole point is to see the transaction you just triggered.
-  // Override per-environment with VITE_SENTRY_TRACES_SAMPLE_RATE.
-  tracesSampleRate: Number(
-    import.meta.env.VITE_SENTRY_TRACES_SAMPLE_RATE ?? (import.meta.env.PROD ? 0.1 : 1.0),
-  ),
+  tracesSampleRate: resolveTracesSampleRate(),
   replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%
   replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur
 });
