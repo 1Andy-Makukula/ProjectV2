@@ -10,8 +10,10 @@ import {
   isService,
   requiresConversation,
   servicePriceLabel,
+  galleryUrls,
   type CatalogItem,
 } from '../../types/items';
+import { BreathingImage } from './BreathingImage';
 import { SaveToListButton } from './SaveToListButton';
 import { WatchButton } from './WatchButton';
 
@@ -83,11 +85,16 @@ export function StorefrontProductCard({
                     ${outOfStock ? 'opacity-45 grayscale' : ''}`}
       >
         {item.image_url ? (
-          <img
-            src={item.image_url}
+          /* Breathes through the item's gallery when it has one, and is a
+             plain picture when it does not -- galleryUrls returns just the
+             cover in that case, and the Conductor refuses a single slot. */
+          <BreathingImage
+            id={item.id}
+            sources={galleryUrls(item)}
             alt={item.name}
-            className="w-full h-full object-cover
-                       transition-transform duration-500 group-hover:scale-[1.03]"
+            className="w-full h-full"
+            imageClassName="w-full h-full object-cover
+                            transition-transform duration-500 group-hover:scale-[1.03]"
           />
         ) : (
           /* Gradient placeholder — no image */

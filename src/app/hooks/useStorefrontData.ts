@@ -21,6 +21,8 @@ export interface StorefrontShop {
   image_url: string | null;
   logo_url: string | null;
   cover_image_url: string | null;
+  /** Drives the open/closed state on the card. Null when never published. */
+  opening_hours: unknown | null;
   itemCount: number;
   rating_count: number | null;
   rating_sum: number | null;
@@ -185,7 +187,7 @@ export function useStorefrontData() {
           supabase
             .from('shops')
             .select(
-              'id, name, description, location, image_url, logo_url, cover_image_url, ' +
+              'id, name, description, location, image_url, logo_url, cover_image_url, opening_hours, ' +
                 'rating_count, rating_sum',
             )
             .eq('is_active', true)
@@ -198,6 +200,9 @@ export function useStorefrontData() {
               'id, name, description, price_zmw, image_url, item_type, requires_scheduling, ' +
                 'lead_time_days, allow_custom_quote, price_is_minimum, is_discounted, ' +
                 'original_price_zmw, is_weekly_pick, promo_badge_text, stock_quantity, ' +
+                // The gallery a tile breathes through. Capped at five by
+                // item_images' own constraint, so this cannot run away.
+                'item_images(image_url, sort_order), ' +
                 // location and mark feed the menu layout's per-business header.
                 'shop:shops(id, name, location, logo_url)',
             )
@@ -249,6 +254,7 @@ export function useStorefrontData() {
               image_url: s.image_url ?? null,
               logo_url: s.logo_url ?? null,
               cover_image_url: s.cover_image_url ?? null,
+              opening_hours: s.opening_hours ?? null,
               itemCount: count ?? 0,
               rating_count: s.rating_count ?? null,
               rating_sum: s.rating_sum ?? null,

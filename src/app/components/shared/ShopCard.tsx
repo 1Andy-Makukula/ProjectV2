@@ -2,6 +2,7 @@
 // Usage: <ShopCard shop={shop} onClick={() => navigate(`/shops/${shop.id}`)} />
 
 import { MapPin, Star, Store } from 'lucide-react';
+import { shopOpenState } from '../../../utils/openingHours';
 import { shopRating } from '../../types/shops';
 import { SaveToListButton } from './SaveToListButton';
 import { WatchButton } from './WatchButton';
@@ -19,6 +20,8 @@ export interface ShopCardProps {
     /** KithLy Rating aggregate; absent or zero means nobody has rated yet. */
     rating_count?: number | null;
     rating_sum?: number | null;
+    /** Published trading hours. Absent means nothing is claimed either way. */
+    opening_hours?: unknown | null;
   };
   onClick?: () => void;
   /** Optional item count badge */
@@ -32,6 +35,13 @@ function shopInitial(name: string) {
 export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
   const rating = shopRating(shop);
   const cover = shop.cover_image_url ?? shop.image_url ?? null;
+
+  // The city waking up. A shop that has published hours looks different at
+  // 7am and at 11pm -- honest, daily motion that needs no new data and no
+  // animation at all. A shop that has published none renders exactly as
+  // before: shopOpenState returns null, and claiming "closed" about a shop
+  // that never said would be worse than saying nothing.
+  const openState = shopOpenState(shop.opening_hours);
   const logo = shop.logo_url ?? null;
 
   return (
@@ -50,11 +60,30 @@ export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
           <img
             src={cover}
             alt={`${shop.name} cover`}
-            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            className={`w-full h-full object-cover transition-[transform,filter,opacity] duration-700 ease-out group-hover:scale-105
+                        ${openState?.isOpen === false ? 'brightness-[0.72] saturate-[0.6]' : ''}`}
           />
         ) : (
           /* Gradient placeholder */
           <div className="w-full h-full bg-gradient-to-br from-orange-50 via-orange-100/50 to-amber-50" />
+        )}
+
+        {/* Open or shut, said plainly. Only ever rendered when the shop has
+            actually published hours. */}
+        {openState && (
+          <span
+            className={`absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full
+                        px-2.5 py-1 text-[0.6875rem] font-medium backdrop-blur-sm
+                        ${openState.isOpen
+                          ? 'bg-white/90 text-[var(--success)]'
+                          : 'bg-slate-900/70 text-white/90'}`}
+          >
+            <span
+              className={`size-1.5 rounded-full ${openState.isOpen ? 'bg-[var(--success)]' : 'bg-white/60'}`}
+              aria-hidden="true"
+            />
+            {openState.label}
+          </span>
         )}
 
         {/* Bottom scrim for legibility */}
