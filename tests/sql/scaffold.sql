@@ -306,3 +306,14 @@ CREATE TABLE IF NOT EXISTS public.shop_ratings (
 );
 
 ALTER TABLE public.items ADD COLUMN IF NOT EXISTS is_quote_only boolean NOT NULL DEFAULT false;
+
+CREATE TABLE IF NOT EXISTS public.transactions (
+  transaction_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  buyer_id       uuid REFERENCES public.users(id) ON DELETE SET NULL
+);
+CREATE TABLE IF NOT EXISTS public.order_items (
+  order_item_id  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  shop_order_id  uuid NOT NULL REFERENCES public.shop_orders(shop_order_id) ON DELETE CASCADE,
+  item_id        uuid NOT NULL REFERENCES public.items(id) ON DELETE CASCADE
+);
+ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS transaction_id uuid;

@@ -44,6 +44,8 @@ MIGRATIONS=(
   20260914020000_pulse
   20260914030000_composer
   20260914040000_record_signals
+  20260914050000_restock_sweep
+  20260914060000_reco_api
 )
 SUITES=(
   assert_countries_and_holidays
@@ -56,6 +58,7 @@ SUITES=(
   assert_shop_vitality
   assert_pulse
   assert_composer
+  assert_restock_sweep
 )
 
 cleanup() {

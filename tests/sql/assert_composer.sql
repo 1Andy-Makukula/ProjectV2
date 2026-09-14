@@ -332,3 +332,48 @@ BEGIN
   PERFORM public.record_signals(NULL);
   RAISE NOTICE 'PASS: empty and null payloads are no-ops rather than errors';
 END $$;
+
+\echo '--- 15. the front door works, and degrades rather than raising ---'
+DO $$
+DECLARE lanes integer; empty_lanes integer;
+BEGIN
+  -- Three budgets, three lanes, even where a lane comes back empty: rendering
+  -- two and implying there are only two would be a quiet lie.
+  SELECT count(*), count(*) FILTER (WHERE items = '[]'::jsonb)
+    INTO lanes, empty_lanes
+  FROM public.bundle_lanes('1a1a1a1a-0000-0000-0000-000000000001',
+                           ARRAY[3000, 30000, 90000],
+                           '2b2b2b2b-0000-0000-0000-000000000001');
+
+  IF lanes <> 3 THEN
+    RAISE EXCEPTION 'FAIL: asked for 3 lanes, got %', lanes;
+  END IF;
+  -- The 3000 budget cannot make a bundle, so that lane must come back empty
+  -- rather than missing.
+  IF empty_lanes < 1 THEN
+    RAISE EXCEPTION 'FAIL: a budget too small to compose still returned items';
+  END IF;
+  RAISE NOTICE 'PASS: % lanes, % of them honestly empty', lanes, empty_lanes;
+END $$;
+
+\echo '--- 16. no public table or view structurally depends on kithly_reco ---'
+DO $$
+DECLARE offenders text;
+BEGIN
+  -- The rule that actually matters: DROP SCHEMA kithly_reco CASCADE must not
+  -- take any public table or view with it. Functions are fine -- they are soft
+  -- and return nothing. A foreign key or a view is not.
+  SELECT string_agg(DISTINCT c.relname, ', ')
+    INTO offenders
+  FROM pg_constraint con
+  JOIN pg_class c ON c.oid = con.conrelid
+  JOIN pg_namespace n ON n.oid = c.relnamespace
+  JOIN pg_class rf ON rf.oid = con.confrelid
+  JOIN pg_namespace rn ON rn.oid = rf.relnamespace
+  WHERE n.nspname = 'public' AND rn.nspname = 'kithly_reco';
+
+  IF offenders IS NOT NULL THEN
+    RAISE EXCEPTION 'FAIL: public tables reference kithly_reco by key: %', offenders;
+  END IF;
+  RAISE NOTICE 'PASS: the recommender can still be dropped wholesale';
+END $$;

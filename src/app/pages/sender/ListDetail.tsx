@@ -22,6 +22,7 @@ import { Badge } from '../../components/ui/badge';
 import { PageLoader } from '../../components/shared/PageLoader';
 import { CustomizeListDialog } from '../../components/shared/CustomizeListDialog';
 import { JourneyView } from '../../components/shared/JourneyView';
+import { SuggestionSlot } from '../../components/shared/SuggestionSlot';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { useCart, toProduct } from '../../hooks/useCart';
 import { useListDetail } from '../../hooks/useListDetail';
@@ -140,6 +141,11 @@ export function ListDetail() {
       </div>
 
       <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 md:px-6 md:py-8">
+        {/* Where a suggestion belongs: beside the list somebody is already
+            looking at, not on a front page they have to go back to. The sweep
+            writes these overnight, so it is usually waiting rather than
+            arriving. Renders nothing when there is nothing to say. */}
+        <SuggestionSlot surface="list" onAccepted={() => void reload()} />
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
