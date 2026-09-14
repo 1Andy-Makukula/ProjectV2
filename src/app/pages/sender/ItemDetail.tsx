@@ -47,6 +47,7 @@ import {
 } from '../../components/ui/carousel';
 import { AddToListDialog } from '../../components/shared/AddToListDialog';
 import { WatchButton } from '../../components/shared/WatchButton';
+import { track } from '../../reco/track';
 import { ItemOptionPicker } from '../../components/shared/ItemOptionPicker';
 import {
   initialSelection,
@@ -88,6 +89,13 @@ export function ItemDetail() {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { item, loading } = useItemDetail(itemId);
+
+  // Opening an item is the strongest interest signal short of buying it.
+  // Keyed on the id so a navigation between two items reports both.
+  useEffect(() => {
+    if (!itemId) return;
+    track({ surface: 'item', action: 'view', subject_type: 'item', subject_id: itemId });
+  }, [itemId]);
   const { addToCart } = useCart();
   const [startingChat, setStartingChat] = useState(false);
   const [addToListOpen, setAddToListOpen] = useState(false);

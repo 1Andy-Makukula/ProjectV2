@@ -9,6 +9,7 @@ import {
   selectionSignature,
   type OptionSelection,
 } from '../types/itemOptions';
+import { track } from '../reco/track';
 
 /**
  * Identifies one configuration of a product in the cart.
@@ -91,6 +92,15 @@ export const useCart = create<CartState>()(
       setApplyCredits: (apply: boolean) => set({ applyCredits: apply }),
 
       addToCart: (product: Product, quantity = 1, selection?: OptionSelection) => {
+        // Recorded here rather than at each call site, so a new surface that
+        // adds to the cart is instrumented by having done so.
+        track({
+          surface: 'cart',
+          action: 'add_to_cart',
+          subject_type: 'item',
+          subject_id: product.id,
+          context: { quantity },
+        });
         const { items } = get();
         const lineKey = cartLineKey(product.id, selection);
         const existingItem = items.find(item => lineKeyOf(item) === lineKey);

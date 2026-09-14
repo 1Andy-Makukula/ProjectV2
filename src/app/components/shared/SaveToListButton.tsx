@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { AddToListDialog } from './AddToListDialog';
+import { track } from '../../reco/track';
 import type { ListTarget } from '../../types/lists';
 
 interface SaveToListButtonProps {
@@ -45,6 +46,12 @@ export function SaveToListButton({
       return;
     }
 
+    track({
+      surface: 'save',
+      action: 'save',
+      subject_type: target.kind === 'shop' ? 'shop' : 'item',
+      subject_id: target.id,
+    });
     setOpen(true);
   };
 

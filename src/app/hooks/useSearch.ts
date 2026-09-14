@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { Product } from '../types';
+import { track } from '../reco/track';
 
 export interface SearchProduct extends Product {
   shopName?: string;
@@ -50,6 +51,17 @@ export function useSearch(query: string) {
         })) as SearchProduct[];
 
         setResults(formattedResults);
+
+        // The one piece of free text recorded anywhere, and only because the
+        // person typed it deliberately. The result count goes with it: a search
+        // that found nothing is the most useful search signal there is, because
+        // it names something the catalogue does not have.
+        track({
+          surface: 'search',
+          action: 'search',
+          subject_type: 'query',
+          context: { q: query.trim().slice(0, 80), results: formattedResults.length },
+        });
       } catch (err: any) {
         console.error("Search Engine Error:", err);
         setError(err.message);

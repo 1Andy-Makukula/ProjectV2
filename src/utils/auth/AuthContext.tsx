@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { identify } from '../../app/reco/track';
 import { useNavigate } from 'react-router';
 import { supabase } from '../../lib/supabaseClient';
 import type { User, Session } from '@supabase/supabase-js';
@@ -86,6 +87,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      // Signals are stamped server-side from auth.uid(); this is only so the
+      // client batch carries the right session shape. Safe on sign-out: null.
+      identify(session?.user?.id ?? null);
       if (session?.user) {
         fetchProfile(session.user.id);
       } else {
@@ -99,6 +103,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      // Signals are stamped server-side from auth.uid(); this is only so the
+      // client batch carries the right session shape. Safe on sign-out: null.
+      identify(session?.user?.id ?? null);
       if (session?.user) {
         fetchProfile(session.user.id);
       } else {
