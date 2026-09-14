@@ -8,6 +8,7 @@ import { calculateTimeRemaining } from '../../../utils/timeHelpers';
 
 import { QRCodeDisplay } from '../../components/shared/QRCodeDisplay';
 import { EmptyState } from '../../components/shared/EmptyState';
+import { ReportGiftIssue } from '../../components/shared/ReportGiftIssue';
 import { Card, CardContent } from '../../components/ui/card';
 import { Separator } from '../../components/ui/separator';
 
@@ -293,8 +294,16 @@ export function GiftPage() {
           </Card>
         </div>
 
-        {/* Footer */}
+        {/* Footer
+            The report link sits here rather than beside the claim code on
+            purpose: it must be findable when something has gone wrong, without
+            competing with the code itself when everything is fine. */}
         <div className="mt-8 text-center pb-8">
+          {claimCode && (
+            <div className="mb-4">
+              <ReportGiftIssue claimCode={claimCode} />
+            </div>
+          )}
           <p className="text-[11px] font-medium tracking-widest text-slate-400 uppercase">
             Powered by KithLy
           </p>

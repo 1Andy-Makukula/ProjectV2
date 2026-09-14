@@ -5,7 +5,7 @@ import { claimCodeForMerchant, canRevealClaimCode } from '../../../utils/claimCo
 import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { formatCurrency } from '../../../utils/currency';
-import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles, MessageSquare, Wallet, ShieldAlert, Search, Download, ListChecks, ArrowLeft, ShoppingBag, Megaphone, ListTree } from 'lucide-react';
+import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles, MessageSquare, Wallet, ShieldAlert, Search, Download, ListChecks, ArrowLeft, ShoppingBag, Megaphone, ListTree, AlertTriangle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { NotificationBell } from '../../components/shared/NotificationBell';
@@ -80,6 +80,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
     fulfilledOrders,
     analytics,
     loading,
+    error,
     withdrawing,
     ledgerData,
     ledgerLoading,
@@ -128,6 +129,34 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
 
   return (
     <div className="min-h-screen bg-gray-50">
+
+      {/* A failed load must not look like a quiet day.
+          Without this the dashboard renders zero orders and an empty ledger
+          when the request failed, and a merchant reads that as "I have not
+          been paid" rather than "this did not load". */}
+      {error && (
+        <div className="bg-amber-50 border-b border-amber-200">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" strokeWidth={1.5} />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-amber-900">
+                Some of this page did not load
+              </p>
+              <p className="text-sm text-amber-800">
+                {error} Any figures shown below may be incomplete.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="shrink-0 border-amber-300 bg-white"
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className="bg-white border-b sticky top-0 z-10">

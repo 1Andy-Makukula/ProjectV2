@@ -17,6 +17,10 @@ export function useCustomerDashboard() {
   const [loadingReceived, setLoadingReceived] = useState(false);
 
   const [metricsLoading, setMetricsLoading] = useState(true);
+  // A toast is transient and a zeroed metric is a false statement. This is the
+  // durable "we could not load this" the page can render instead of quietly
+  // claiming the user has sent nothing.
+  const [error, setError] = useState<string | null>(null);
   const [totalGenerosity, setTotalGenerosity] = useState(0);
   const [giftsDelivered, setGiftsDelivered] = useState(0);
   const [shopsSupported, setShopsSupported] = useState(0);
@@ -85,6 +89,7 @@ export function useCustomerDashboard() {
       setReceivedGifts(data || []);
     } catch (err: any) {
       console.error('[useCustomerDashboard] fetchReceivedGifts error:', err);
+      setError('We could not load the gifts sent to you. Please retry.');
       toast.error(parseAuthError(err));
       setReceivedGifts([]);
     } finally {
@@ -175,9 +180,11 @@ export function useCustomerDashboard() {
     } catch (err: any) {
       console.error('[useCustomerDashboard] fetchOrdersAndMetrics error:', err);
       toast.error(parseAuthError(err));
-      setTotalGenerosity(0);
-      setGiftsDelivered(0);
-      setShopsSupported(0);
+      setError('We could not load your orders just now. What you see may be incomplete.');
+      // Deliberately NOT zeroed. Writing 0 here renders "0 gifts delivered"
+      // and "K0 total generosity" — a confident, wrong answer about someone's
+      // own history, produced by a failed network call. Leaving the previous
+      // values alongside the banner above is honest; zeroing is not.
     } finally {
       setLoadingOrders(false);
       setMetricsLoading(false);
@@ -280,6 +287,7 @@ export function useCustomerDashboard() {
 
   return {
     orders,
+    error,
     loadingOrders,
     floatingItems,
     loadingFloating,

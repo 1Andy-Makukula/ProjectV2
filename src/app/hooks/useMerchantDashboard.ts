@@ -77,6 +77,12 @@ export function useMerchantDashboard(
     availableBalance: 0,
   });
   const [loading, setLoading] = useState(true);
+  // "The request failed" and "there is nothing here" render identically without
+  // this. On a merchant dashboard that distinction is money: a shop owner
+  // checking whether they have been paid sees an empty ledger and concludes
+  // they have not, then telephones support. The empty state is a claim about
+  // the world; it should only be made when the world was actually reachable.
+  const [error, setError] = useState<string | null>(null);
   const [withdrawing, setWithdrawing] = useState(false);
   const [ledgerData, setLedgerData] = useState<any[]>([]);
   const [ledgerLoading, setLedgerLoading] = useState(false);
@@ -135,8 +141,9 @@ export function useMerchantDashboard(
 
       setActiveOrders(active as unknown as Order[]);
       setFulfilledOrders(fulfilled as unknown as Order[]);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+      setError('We could not load your orders. This is a connection problem, not an empty shop — please retry.');
     }
   }, []);
 
@@ -225,8 +232,9 @@ export function useMerchantDashboard(
       if (data?.success) {
         setLedgerData(data.data || []);
       }
-    } catch (error) {
-      console.error('Error fetching merchant ledger:', error);
+    } catch (err) {
+      console.error('Error fetching merchant ledger:', err);
+      setError('We could not load your payment history. Do not treat this as "no payments" — please retry.');
     } finally {
       setLedgerLoading(false);
     }
@@ -237,6 +245,7 @@ export function useMerchantDashboard(
 
     try {
       setLoading(true);
+      setError(null);
 
       let currentShopId: string;
       let shop: any;
@@ -311,8 +320,9 @@ export function useMerchantDashboard(
         fetchLedger(currentShopId),
         fetchExperiences(currentShopId),
       ]);
-    } catch (error) {
-      console.error('Error fetching merchant data:', error);
+    } catch (err) {
+      console.error('Error fetching merchant data:', err);
+      setError('We could not load your dashboard. Please check your connection and retry.');
     } finally {
       setLoading(false);
     }
@@ -431,6 +441,7 @@ export function useMerchantDashboard(
     fulfilledOrders,
     analytics,
     loading,
+    error,
     withdrawing,
     ledgerData,
     ledgerLoading,
