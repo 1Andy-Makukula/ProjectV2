@@ -64,6 +64,7 @@ const MerchantOnboarding = lazyPage(() => import('./pages/MerchantOnboarding'), 
 const MerchantDashboard = lazyPage(() => import('./pages/merchant/MerchantDashboard'), 'MerchantDashboard');
 const MerchantFulfill = lazyPage(() => import('./pages/merchant/MerchantFulfill'), 'MerchantFulfill');
 const MerchantPosts = lazyPage(() => import('./pages/merchant/MerchantPosts'), 'MerchantPosts');
+const MerchantCollections = lazyPage(() => import('./pages/merchant/MerchantCollections'), 'MerchantCollections');
 const PostDetail = lazyPage(() => import('./pages/PostDetail'), 'PostDetail');
 const AdminDashboard = lazyPage(() => import('./pages/admin/AdminDashboard'), 'AdminDashboard');
 const AdminMerchandising = lazyPage(() => import('./pages/admin/AdminMerchandising'), 'AdminMerchandising');
@@ -306,6 +307,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['merchant']}>
             <Lazy><MerchantPosts /></Lazy>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'merchant/collections',
+        element: (
+          <ProtectedRoute allowedRoles={['merchant']}>
+            <Lazy><MerchantCollections /></Lazy>
           </ProtectedRoute>
         ),
       },

@@ -18,6 +18,7 @@ import { useShopRating } from '../../hooks/useShopRating';
 import { shopRating } from '../../types/shops';
 import { toast } from 'sonner';
 import { discountPercentage, isService, requiresConversation } from '../../types/items';
+import { useShopItemGroups } from '../../hooks/useShopItemGroups';
 import { parseOpeningHours, shopOpenState, WEEKDAYS } from '../../../utils/openingHours';
 
 /** Services and quote-first listings need their terms shown before purchase. */
@@ -29,6 +30,9 @@ export function ShopDetail() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { shop, items, posts: shopPosts, loading } = useShopDetail(shopId);
+  // Collections if the shopkeeper made any, else categories, else one flat
+  // list -- decided by shop_item_groups() so every surface agrees.
+  const { groups } = useShopItemGroups(shopId, items);
   // Same engagement behaviour as the storefront feed — one hook, so a like
   // here and a like there do not become two implementations.
   const { posts, toggleLike, toggleSave, sharePost } = usePosts(shopPosts);
@@ -384,8 +388,22 @@ export function ShopDetail() {
               </p>
             </Card>
           ) : (
+            <div className="space-y-8">
+              {groups.map((group) => (
+                <section key={group.key}>
+                  {/* A heading only where the grouping named one. The flat
+                      grouping has no label, and inventing "All items" for a
+                      shop with six things would be noise. */}
+                  {group.label && (
+                    <h4 className="mb-3 text-sm font-medium tracking-tight text-foreground">
+                      {group.label}
+                      <span className="ml-2 text-xs font-normal text-muted-foreground">
+                        {group.items.length}
+                      </span>
+                    </h4>
+                  )}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {items.map((item, index) => (
+              {group.items.map((item, index) => (
                 <motion.div
                   key={item.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -503,6 +521,9 @@ export function ShopDetail() {
                     </div>
                   </Card>
                 </motion.div>
+              ))}
+            </div>
+                </section>
               ))}
             </div>
           )}

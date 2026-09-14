@@ -5,7 +5,7 @@ import { claimCodeForMerchant, canRevealClaimCode } from '../../../utils/claimCo
 import { Button } from '../../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { formatCurrency } from '../../../utils/currency';
-import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles, MessageSquare, Wallet, ShieldAlert, Search, Download, ListChecks, ArrowLeft, ShoppingBag, Megaphone } from 'lucide-react';
+import { QrCode, LogOut, Package, TrendingUp, HelpCircle, PackagePlus, Store, Settings, Sparkles, MessageSquare, Wallet, ShieldAlert, Search, Download, ListChecks, ArrowLeft, ShoppingBag, Megaphone, ListTree } from 'lucide-react';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import { NotificationBell } from '../../components/shared/NotificationBell';
@@ -21,6 +21,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from '../../components/ui/sheet';
+import { VitalityPanel } from '../../components/merchant/VitalityPanel';
 import { cn } from '../../components/ui/utils';
 import { useMerchantDashboard, Order, OrderItem } from '../../hooks/useMerchantDashboard';
 
@@ -301,6 +302,16 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
           </div>
         )}
 
+        {/* Shop strength — the supply side of the aliveness plan. Sits above
+            Shop Management because it is what tells a shopkeeper which of
+            those actions is worth taking first. Hidden in preview along with
+            everything else that navigates into merchant-only routes. */}
+        {!readOnly && (
+          <div className="mb-8">
+            <VitalityPanel shopId={shopId} />
+          </div>
+        )}
+
         {/* Quick Actions Grid — hidden in preview: every entry navigates into a
             merchant-only route, which would eject the admin out of the preview. */}
         <div className={cn('mb-8', readOnly && 'hidden')}>
@@ -324,6 +335,12 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                 description: 'Advertise what you have, and sell from it',
                 icon: Megaphone,
                 path: '/merchant/posts',
+              },
+              {
+                label: 'Collections',
+                description: 'Group what you sell, so the shop reads as a shop',
+                icon: ListTree,
+                path: '/merchant/collections',
               },
               {
                 label: 'Edit Shop Profile',
