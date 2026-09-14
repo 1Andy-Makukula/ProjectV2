@@ -274,3 +274,29 @@ CREATE POLICY items_admin_write ON public.items
   FOR ALL TO authenticated
   USING (public.current_user_role() = 'admin')
   WITH CHECK (public.current_user_role() = 'admin');
+
+-- Columns and tables the Pulse counts over.
+ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
+
+CREATE TABLE IF NOT EXISTS public.lists (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  owner_user_id uuid REFERENCES public.users(id) ON DELETE CASCADE,
+  owner_shop_id uuid REFERENCES public.shops(id) ON DELETE CASCADE,
+  title         text NOT NULL,
+  visibility    text NOT NULL DEFAULT 'private',
+  template      text NOT NULL DEFAULT 'standard',
+  created_at    timestamptz NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS public.list_saves (
+  list_id    uuid NOT NULL REFERENCES public.lists(id) ON DELETE CASCADE,
+  user_id    uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (list_id, user_id)
+);
+CREATE TABLE IF NOT EXISTS public.shop_ratings (
+  shop_id    uuid NOT NULL REFERENCES public.shops(id) ON DELETE CASCADE,
+  user_id    uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  rating     integer NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (shop_id, user_id)
+);

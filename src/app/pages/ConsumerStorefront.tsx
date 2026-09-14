@@ -26,6 +26,7 @@ import {
   StorefrontStatusRibbon,
 } from '../components/storefront/StorefrontRail';
 import { RailDrawer } from '../components/storefront/RailDrawer';
+import { PulseStrip } from '../components/shared/PulseStrip';
 import { hapticTap, hapticTick } from '../../utils/native';
 import { ItemFeed, SectionHeading } from '../components/storefront/ItemFeed';
 import { PostCard } from '../components/storefront/PostCard';
@@ -432,6 +433,10 @@ export function ConsumerStorefront() {
       >
         <div className="mx-auto max-w-7xl px-5 py-3 sm:px-8">
           <ModeSwitcher />
+          {/* One true thing at a time, under the mode rail. Renders nothing at
+              all when nothing has happened, so a quiet week looks quiet rather
+              than padded. */}
+          <PulseStrip className="mt-2" />
         </div>
       </div>
 
