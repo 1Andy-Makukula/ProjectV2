@@ -27,6 +27,7 @@ import {
 } from '../components/storefront/StorefrontRail';
 import { RailDrawer } from '../components/storefront/RailDrawer';
 import { PulseStrip } from '../components/shared/PulseStrip';
+import { applySlate, useSlate } from '../hooks/useSlate';
 import { hapticTap, hapticTick } from '../../utils/native';
 import { ItemFeed, SectionHeading } from '../components/storefront/ItemFeed';
 import { PostCard } from '../components/storefront/PostCard';
@@ -166,6 +167,16 @@ export function ConsumerStorefront() {
     return all.filter((i) => (i.item_type ?? 'product') === definition.itemFilter);
   }, [data?.items, definition.itemFilter]);
 
+  // The Slate reorders what is already here and attaches the reason each thing
+  // is where it is. Strictly additive: with the ranker off, absent or slow,
+  // `entries` is empty and applySlate returns the list untouched -- so this
+  // surface renders exactly what it rendered before. Nothing is ever removed.
+  const { entries: slate } = useSlate('storefront', 12);
+  const rankedItems = useMemo(
+    () => applySlate(visibleItems, slate),
+    [visibleItems, slate],
+  );
+
   // Posts appear in every mode; which posts is sliced the same way items are,
   // from the character of what each post attaches.
   const visiblePosts = useMemo(
@@ -212,7 +223,7 @@ export function ConsumerStorefront() {
           }
         />
         <ItemFeed
-          items={visibleItems}
+          items={rankedItems}
           loading={dataLoading}
           layout={definition.layout}
           density={modeDensity(mode)}

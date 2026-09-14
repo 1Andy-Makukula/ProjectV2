@@ -46,6 +46,8 @@ MIGRATIONS=(
   20260914040000_record_signals
   20260914050000_restock_sweep
   20260914060000_reco_api
+  20260914070000_slate_weights_and_kappa
+  20260914080000_slate
 )
 SUITES=(
   assert_countries_and_holidays
@@ -59,6 +61,7 @@ SUITES=(
   assert_pulse
   assert_composer
   assert_restock_sweep
+  assert_slate
 )
 
 cleanup() {
