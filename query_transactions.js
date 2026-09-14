@@ -28,6 +28,7 @@ async function run() {
       .from('shop_orders')
       .select('*, order_items(*)')
       .eq('transaction_id', txs.map(t => t.transaction_id)[0] || '00000000-0000-0000-0000-000000000000'); // Let's get details for the latest transaction if any
+    if (ordersErr) console.error('shop_orders query failed:', ordersErr.message);
 
     console.log('\n--- Shop Orders for Latest Transaction ---');
     console.log(orders);

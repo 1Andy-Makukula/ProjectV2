@@ -20,6 +20,20 @@ overrides:
   # GHSA advisories reached via @capacitor/cli.
   tar: '^7.5.19'
   brace-expansion: '^5.0.7'
+  # ...except for minimatch 3, which is the one place the "patch within the
+  # major already installed" claim above does not hold.
+  #
+  # minimatch@3 declares `brace-expansion: ^1.1.7` and calls it as
+  # `expand(...)`. brace-expansion changed its export shape after 1.x, so the
+  # blanket ^5 pin above resolved minimatch@3's copy to 5.0.9 and every call
+  # died with "TypeError: expand is not a function". Nothing exercised that
+  # path until ESLint arrived (@eslint/config-array -> minimatch@^3.1.2), which
+  # is why a broken resolution sat in the lockfile unnoticed.
+  #
+  # 1.1.12 is the patched 1.x — it carries the same CVE-2025-5889 ReDoS fix as
+  # 5.0.7 — so this keeps the advisory closed while giving minimatch the major
+  # it was written against.
+  'minimatch@3>brace-expansion': '^1.1.12'
   # Reached via @tailwindcss/vite.
   nanoid: '^3.3.16'
   postcss: '^8.5.23'

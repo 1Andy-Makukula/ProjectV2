@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router';
-import { useAuth } from '../utils/auth/AuthContext';
-import { PageLoader } from '../app/components/shared/PageLoader';
+import { useAuth } from '../../../utils/auth/AuthContext';
+import { PageLoader } from './PageLoader';
 import { ReactNode } from 'react';
 
 interface ProtectedRouteProps {

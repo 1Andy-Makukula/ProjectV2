@@ -515,7 +515,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                               <span>
                                 {aggregatedItems[0].name}{' '}
                                 <span className="text-sm font-normal text-muted-foreground">
-                                  and {order.order_items?.length! - 1} other item{order.order_items?.length! - 1 > 1 ? 's' : ''}
+                                  and {(order.order_items?.length ?? 0) - 1} other item{(order.order_items?.length ?? 0) - 1 > 1 ? 's' : ''}
                                 </span>
                               </span>
                             )}
@@ -662,7 +662,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                               <span>
                                 {aggregatedItems[0].name}{' '}
                                 <span className="text-sm font-normal text-muted-foreground">
-                                  and {order.order_items?.length! - 1} other item{order.order_items?.length! - 1 > 1 ? 's' : ''}
+                                  and {(order.order_items?.length ?? 0) - 1} other item{(order.order_items?.length ?? 0) - 1 > 1 ? 's' : ''}
                                 </span>
                               </span>
                             )}

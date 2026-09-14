@@ -3,7 +3,7 @@
 import { lazy, Suspense, type ComponentType, type ReactNode } from 'react';
 import { createBrowserRouter, useRouteError } from 'react-router';
 import { Root } from './layouts/Root';
-import { ProtectedRoute } from '../components/ProtectedRoute';
+import { ProtectedRoute } from './components/shared/ProtectedRoute';
 
 /**
  * Who may use the buyer surfaces.

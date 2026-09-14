@@ -76,7 +76,6 @@ export function GiftPage() {
     const isPending = shopOrder.claim_status === 'PENDING' || !shopOrder.claim_status;
     if (!isPending) return;
 
-    let pollInterval: any;
 
     const handleSuccess = (newStatus: string) => {
       import('canvas-confetti').then((module) => {
@@ -109,7 +108,7 @@ export function GiftPage() {
       .subscribe();
 
     // 2. Polling Fallback
-    pollInterval = setInterval(async () => {
+    const pollInterval = setInterval(async () => {
       try {
         const { data, error } = await supabase
           .rpc('get_shop_order_by_claim_code', { code: claimCode.toUpperCase() });
@@ -128,7 +127,7 @@ export function GiftPage() {
 
     return () => {
       supabase.removeChannel(channel);
-      if (pollInterval) clearInterval(pollInterval);
+      clearInterval(pollInterval);
     };
   }, [claimCode, shopOrder?.claim_status]);
 

@@ -151,7 +151,7 @@ export function useCheckout() {
       const parsed = parseAuthError(err);
       const msg = isNetworkError ? 'Network error or timeout. Please check your connection and try again.' : parsed;
       setErrorMsg(msg);
-      throw new Error(msg);
+      throw new Error(msg, { cause: err });
     } finally {
       setIsProcessing(false);
     }
