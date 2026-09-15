@@ -94,14 +94,28 @@ CREATE POLICY gift_issue_reports_admin ON public.gift_issue_reports
 
 -- The buyer may read reports against their own orders: they paid, and they are
 -- the one who will be chasing it.
+--
+-- Matched on `transactions`, not `shop_orders`, for two reasons.
+--
+-- First, correctness: `shop_orders` has no buyer_id. One transaction can span
+-- several shops -- that is what the MULT- code is for -- so the buyer is a
+-- property of the payment, not of the per-shop order. An earlier version read
+-- `so.buyer_id` and failed on `supabase db push` with "column so.buyer_id does
+-- not exist".
+--
+-- Second, reach: a policy expression is evaluated with the querying user's own
+-- privileges and under the RLS of every table it touches. Joining through
+-- shop_orders would make a buyer's access to their own complaint depend on
+-- their RLS on a second table as well. `transaction_id` is already denormalised
+-- onto the row above, so one table answers the question.
 DROP POLICY IF EXISTS gift_issue_reports_buyer_read ON public.gift_issue_reports;
 CREATE POLICY gift_issue_reports_buyer_read ON public.gift_issue_reports
   FOR SELECT TO authenticated
   USING (
     EXISTS (
-      SELECT 1 FROM public.shop_orders so
-      WHERE so.shop_order_id = gift_issue_reports.shop_order_id
-        AND so.buyer_id = auth.uid()
+      SELECT 1 FROM public.transactions t
+      WHERE t.transaction_id = gift_issue_reports.transaction_id
+        AND t.buyer_id = auth.uid()
     )
   );
 
@@ -137,9 +151,14 @@ BEGIN
     RAISE EXCEPTION 'Unknown issue type';
   END IF;
 
-  SELECT so.shop_order_id, so.transaction_id, so.shop_id, so.buyer_id
+  -- buyer_id comes from `transactions`; `shop_orders` does not carry one.
+  -- LEFT JOIN rather than JOIN so a shop order whose transaction row is
+  -- missing still produces a report -- the complaint matters more than the
+  -- notification, and create_notification already no-ops on a NULL user.
+  SELECT so.shop_order_id, so.transaction_id, so.shop_id, t.buyer_id
   INTO v_order
   FROM public.shop_orders so
+  LEFT JOIN public.transactions t ON t.transaction_id = so.transaction_id
   WHERE so.claim_code = v_code;
 
   -- Same disclosure the public gift page already makes for this code.
