@@ -1,5 +1,20 @@
 # KithLy MVP — Complete Feature & Element Master List
 
+> **Historical snapshot — 11 May 2026. Do not read this as a current inventory.**
+>
+> This is the original MVP scoping document, preserved verbatim for the intent
+> and vocabulary it records. It has not been maintained since, and the codebase
+> has moved a long way past it.
+>
+> Concretely: the "22 PAGES" figure below is the May count and is now well
+> short, and whole areas built since — lists, service pricing, stock, the
+> catalogue, ratings, purchasable posts, the escrow rebuild and its admin
+> screens — are absent entirely.
+>
+> **The authoritative route list is [`src/app/routes.tsx`](../../src/app/routes.tsx).**
+> Renumbering this document would not make it current; it would only make it
+> look current. If you need an inventory, read the router.
+
 ---
 
 ## ROLES IN THE SYSTEM

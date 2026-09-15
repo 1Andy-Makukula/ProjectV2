@@ -73,5 +73,9 @@ export function createGiftShareMessage(
 
 export function getGiftPageUrl(code: string): string {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  return `${baseUrl}/gift/${code}`;
+  // encodeURIComponent, though gen_claim_code emits only [A-Z0-9] today.
+  // The code is interpolated straight into a path segment, so the safety of
+  // this line depends entirely on an alphabet defined in a migration three
+  // layers away. Encoding costs nothing and removes the coupling.
+  return `${baseUrl}/gift/${encodeURIComponent(code)}`;
 }

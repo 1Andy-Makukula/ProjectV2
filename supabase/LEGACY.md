@@ -71,6 +71,31 @@ credited at settlement.
 `BATCH_PAYOUT_SWEEPER_SECRET` header. It is safe to run frequently — it returns
 immediately when the queue is empty.
 
+## Superseded by `payout-dispatcher` (2026-09-15)
+
+The escrow & settlement model (ADR 0003) removes merchant float and the
+withdrawal path entirely, so the queue this sweeper works can no longer be
+filled once `escrow_mode` reaches `escrow_v2` — `merchant_withdrawals` refuses
+inserts from that point.
+
+`payout-dispatcher` replaces it. The difference is not cosmetic:
+
+| `batch-payout-sweeper` | `payout-dispatcher` |
+|---|---|
+| Pays withdrawal **requests** a merchant made against a balance they held | Pays **instructions** created automatically by a redemption |
+| Requires stored value to exist | Requires no balance at all |
+| Timed by when the merchant asks | Timed by their settlement tier (§5) |
+| Reverses the wallet debit on definite failure | Leaves `MERCHANT_PAYABLE` open — the debt is real and stays visible |
+
+What carries over unchanged is the hard-won rule about ambiguity: a transfer
+whose outcome is UNKNOWN is parked, never retried and never reversed, because
+the money may be in flight. The dispatcher keeps those rows in `SENT` and
+resolves them by asking the rail about the reference.
+
+Do not delete this function until `escrow_mode` has been `escrow_v2` for a full
+cycle and the withdrawal queue has drained to empty. Until then it is still the
+only thing that pays merchants who banked with us under the old model.
+
 ## Removal checklist
 
 1. Confirm production has no rows in `claim_vouchers` with `payout_status = PENDING_BATCH`.

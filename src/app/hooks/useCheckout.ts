@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { getFlatCartPayload, useSendFlowStore } from '../../utils/sendFlowStore';
 import { useCart } from './useCart';
 import { usePlatformPricing } from './usePlatformPricing';
+import { useEscrowMode } from './useEscrowMode';
 import { creditsApplicationFor, CHECKOUT_ORIGIN } from '../../utils/pricing';
 
 export interface ShopOrderResult {
@@ -36,9 +37,18 @@ export function useCheckout() {
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const { storedValueRetired } = useEscrowMode();
 
   const fetchWalletBalance = useCallback(async () => {
     if (!profile?.id) return;
+    // Under escrow_v2 there is no spendable credit. Held at zero here rather
+    // than hidden in the Checkout page, because both the cart panel and the
+    // checkout page read this one number -- gating only the view would leave
+    // the other offering a credit the server then refuses.
+    if (storedValueRetired) {
+      setWalletBalance(0);
+      return;
+    }
     const { data, error } = await supabase
       .from('kithly_wallets')
       .select('balance')
@@ -48,7 +58,7 @@ export function useCheckout() {
     if (!error && data) {
       setWalletBalance(data.balance);
     }
-  }, [profile?.id]);
+  }, [profile?.id, storedValueRetired]);
 
   // Fetch wallet balance
   useEffect(() => {
@@ -151,7 +161,7 @@ export function useCheckout() {
       const parsed = parseAuthError(err);
       const msg = isNetworkError ? 'Network error or timeout. Please check your connection and try again.' : parsed;
       setErrorMsg(msg);
-      throw new Error(msg);
+      throw new Error(msg, { cause: err });
     } finally {
       setIsProcessing(false);
     }

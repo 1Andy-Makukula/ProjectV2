@@ -15,7 +15,7 @@
  */
 import { pathToFileURL } from 'node:url';
 import { randomBytes } from 'node:crypto';
-import { db, placeholder, slugify } from './seed-demo-data.mjs';
+import { db, placeholder } from './seed-demo-data.mjs';
 
 // --- catalogue --------------------------------------------------------------
 

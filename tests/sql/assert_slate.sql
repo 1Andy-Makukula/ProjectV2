@@ -112,12 +112,27 @@ BEGIN
     SELECT sl.item_id AS id, row_number() OVER (ORDER BY sl.score DESC) AS rn
     FROM kithly_reco.slate('8b8b8b8b-0000-0000-0000-000000000001', 'storefront', 12) sl
   )
+  -- The best-placed cake, not one nominated cake.
+  --
+  -- Three of the four cakes live in Slate Shop and max_per_shop is 2, so the
+  -- diversity cap always evicts one of them -- and which one depends on score
+  -- ordering between three near-identical items, which moves run to run. Naming
+  -- a single cake here made this assertion fail roughly one run in four for a
+  -- reason that has nothing to do with what it is testing.
+  --
+  -- What it is testing is that kappa puts cake above hammer for a birthday.
+  -- That is exactly what MIN over the cakes asks. The per-shop cap has its own
+  -- assertion immediately below.
   SELECT
-    (SELECT rn FROM ranked WHERE id = 'bebebebe-0000-0000-0000-000000000001'),
+    (SELECT min(rn) FROM ranked WHERE id IN (
+       'bebebebe-0000-0000-0000-000000000001',
+       'bebebebe-0000-0000-0000-000000000003',
+       'bebebebe-0000-0000-0000-000000000004',
+       'bebebebe-0000-0000-0000-000000000005')),
     (SELECT rn FROM ranked WHERE id = 'bebebebe-0000-0000-0000-000000000002')
   INTO cake_rank, hammer_rank;
 
-  IF cake_rank IS NULL THEN RAISE EXCEPTION 'FAIL: the cake did not appear at all'; END IF;
+  IF cake_rank IS NULL THEN RAISE EXCEPTION 'FAIL: no cake appeared at all'; END IF;
   IF hammer_rank IS NOT NULL AND hammer_rank < cake_rank THEN
     RAISE EXCEPTION 'FAIL: a hammer outranked a cake for a birthday (% vs %)', hammer_rank, cake_rank;
   END IF;

@@ -7,6 +7,7 @@ import { Link, useLocation } from 'react-router';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { useCart } from '../../hooks/useCart';
 import { supabase } from '../../../lib/supabaseClient';
+import { useEscrowMode } from '../../hooks/useEscrowMode';
 import { Badge } from '../ui/badge';
 import { SearchBar } from '../shared/SearchBar';
 import { NotificationBell } from '../shared/NotificationBell';
@@ -68,9 +69,21 @@ export function Header({
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [balance, setBalance] = useState<number | null>(null);
+  const { storedValueRetired } = useEscrowMode();
 
   const fetchWalletBalance = async () => {
     if (!isAuthenticated || !user?.id) return;
+    // Under escrow_v2 there is no spendable balance, so the Credits chip goes
+    // away entirely -- both render sites are gated on `balance !== null`.
+    //
+    // Nothing replaces it here on purpose. Money held in escrow is committed
+    // to specific gifts and cannot be spent or withdrawn, and a figure sitting
+    // in the header where "Credits" used to be would say the opposite. It is
+    // shown on the dashboard instead, where there is room to say what it is.
+    if (storedValueRetired) {
+      setBalance(null);
+      return;
+    }
     try {
       const { data, error } = await supabase
         .from('kithly_wallets')
@@ -87,6 +100,11 @@ export function Header({
 
   useEffect(() => {
     if (!isAuthenticated || !user?.id) {
+      setBalance(null);
+      return;
+    }
+
+    if (storedValueRetired) {
       setBalance(null);
       return;
     }
@@ -115,7 +133,7 @@ export function Header({
       window.removeEventListener('wallet-update', fetchWalletBalance);
       supabase.removeChannel(walletChannel);
     };
-  }, [isAuthenticated, user?.id]);
+  }, [isAuthenticated, user?.id, storedValueRetired]);
 
   // Close mobile menu on route change
   useEffect(() => {

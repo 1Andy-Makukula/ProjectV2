@@ -224,6 +224,41 @@ async function handleUssdRequest(req: Request): Promise<Response> {
 
   console.log(`[ussd-gateway] Device registered | phone=${redactPhone(normalisedPhone)} | shop=${shopId}`);
 
+  // --- 4c. Meter the attempt (20260914093000) ---
+  //
+  // USSD is the cheaper door to hammer: no app, no session, just a handset and
+  // a shared secret. The actor is already resolved from the dialling MSISDN,
+  // which is a stronger identity than the app path's JWT.
+  //
+  // Fails open for the same reason as fulfill-voucher: a merchant standing at
+  // a till with a customer must not be blocked by a limiter that is itself
+  // broken. A failure to check is logged and the redemption proceeds.
+  {
+    const { data: verdict, error: limitErr } = await adminClient.rpc(
+      "check_redemption_rate_limit",
+      { p_code: claimCode, p_shop_id: shopId, p_actor_user_id: merchantUserId },
+    );
+
+    if (limitErr) {
+      console.error("[ussd-gateway] rate limit check failed, allowing attempt:", limitErr.message);
+    } else {
+      const v = verdict as
+        | { allowed: boolean; reason: string | null; retry_after_seconds: number }
+        | null;
+      if (v && !v.allowed) {
+        const mins = Math.max(1, Math.ceil((Number(v.retry_after_seconds) || 60) / 60));
+        console.error(
+          `[ussd-gateway] RATE LIMITED | reason=${v.reason} | user=${merchantUserId} | shop=${shopId} | retry_after=${v.retry_after_seconds}s`,
+        );
+        // USSD replies are plain text on a feature phone: short, no jargon,
+        // and it must be obvious this is a wait rather than a refused gift.
+        return ussdResponse(
+          `END DECLINED: Too many failed attempts. Please try again in ${mins} minute${mins === 1 ? "" : "s"}.`,
+        );
+      }
+    }
+  }
+
   // --- 5. Execute Atomic Fulfillment RPC ---
   const { data: rpcResult, error: rpcError } = await adminClient.rpc(
     "atomic_fulfill_voucher",
@@ -241,6 +276,19 @@ async function handleUssdRequest(req: Request): Promise<Response> {
     if (errorMessage.startsWith(FRAUD_REJECTION_PREFIX)) {
       const rejectionReason = errorMessage.slice(FRAUD_REJECTION_PREFIX.length).trim();
       console.error(`[ussd-gateway] FRAUD_REJECTION | code=${claimCode} | reason=${rejectionReason}`);
+
+      // Feed the rate limiter as well as the audit trail. transaction_events
+      // records what happened; redemption_attempts is what the limiter counts.
+      const { error: recordErr } = await adminClient.rpc("record_redemption_failure", {
+        p_code: claimCode,
+        p_shop_id: shopId,
+        p_actor_user_id: merchantUserId,
+        p_channel: "ussd",
+        p_reason: `fraud_rejection:${rejectionReason}`.slice(0, 200),
+      });
+      if (recordErr) {
+        console.error("[ussd-gateway] could not record failed attempt:", recordErr.message);
+      }
 
       // Log the rejected attempt
       await adminClient.from("transaction_events").insert({

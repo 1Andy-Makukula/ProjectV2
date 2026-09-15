@@ -246,6 +246,16 @@ function PollingView({ attempt, max }: { attempt: number; max: number }) {
 }
 
 function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm; onDone: () => void }) {
+  // Hoisted out of the shop_orders .map() below, where it was a conditional
+  // hook call: React identifies hooks by call order, so a component that calls
+  // useAuth once per shop order changes its own hook count whenever the number
+  // of shop orders changes between renders. One order becoming two is enough to
+  // desync the hook list and throw "rendered more hooks than during the previous
+  // render" -- on the confirmation screen, immediately after the customer has
+  // paid. The value is identical for every row, so calling it once is also what
+  // was meant.
+  const { profile } = useAuth();
+
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} copied`);
@@ -290,7 +300,6 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
       {transaction.shop_orders.map((shopOrder, idx) => {
         const firstItem = shopOrder.order_items?.[0]?.item;
         const giftUrl = getGiftPageUrl(shopOrder.claim_code);
-        const { profile } = useAuth();
 
         // Group identical items for the checklist, extracting prices and image_urls
         const groupedItems = shopOrder.order_items.reduce((acc, curr) => {

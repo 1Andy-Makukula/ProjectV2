@@ -21,7 +21,9 @@ import { Switch } from '../ui/switch';
 import { formatCurrency } from '../../../utils/currency';
 import { nextTier } from '../../types/items';
 import { usePlatformPricing } from '../../hooks/usePlatformPricing';
+import { useEscrowMode } from '../../hooks/useEscrowMode';
 import { creditsApplicationFor, feePercentFor, serviceFeeFor, CHECKOUT_ORIGIN } from '../../../utils/pricing';
+import { CompensationDisclosure } from '../checkout/CompensationDisclosure';
 
 export function CartSlider() {
   const navigate = useNavigate();
@@ -40,9 +42,18 @@ export function CartSlider() {
 
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const { rates } = usePlatformPricing();
+  const { storedValueRetired } = useEscrowMode();
 
   const fetchWalletBalance = async () => {
     if (!user?.id) return;
+    // Under escrow_v2 there is no spendable balance to fetch. Leaving this at
+    // zero removes the entire credits affordance below, which is gated on
+    // `walletBalance > 0` -- one guard rather than a second rendering path
+    // that could drift out of step with the server's refusal.
+    if (storedValueRetired) {
+      setWalletBalance(0);
+      return;
+    }
     try {
       const { data, error } = await supabase
         .from('kithly_wallets')
@@ -61,7 +72,7 @@ export function CartSlider() {
     if (isCartSliderOpen && user?.id) {
       fetchWalletBalance();
     }
-  }, [isCartSliderOpen, user?.id]);
+  }, [isCartSliderOpen, user?.id, storedValueRetired]);
 
   const total = getTotalAmount();
   const count = getTotalItems();
@@ -335,6 +346,15 @@ export function CartSlider() {
                 </span>
               </div>
             </div>
+
+            {/* What happens if the gift is never collected.
+                
+                Placed above the CTA and never behind a link: §7 of the
+                settlement model makes this disclosure mandatory BEFORE
+                payment, because the old behaviour -- splitting an expired
+                gift and telling the sender afterwards -- is what it exists
+                to replace. */}
+            <CompensationDisclosure items={items} className="mt-3" />
 
             {/* CTA */}
             <button

@@ -41,6 +41,18 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      # Catches what tsc structurally cannot: hooks called conditionally, and
+      # pages importing the Supabase client directly instead of going through
+      # src/app/hooks. CLAUDE.md has mandated that layering since the start and
+      # nothing enforced it, so it drifted in 22 files. Those are grandfathered
+      # by name in eslint.config.js; this step stops the 23rd.
+      #
+      # Errors only. The config keeps known, tracked debt (`any` at the
+      # Supabase boundary) at warning level so this gate stays meaningful
+      # instead of being permanently red and therefore ignored.
+      - name: Lint
+        run: pnpm lint
+
       # tsconfig.json sets "exclude": ["supabase"], so `pnpm typecheck` never
       # sees the edge functions -- and those are the code that moves money.
       # They are Deno, not Vite, so they need checking on their own terms

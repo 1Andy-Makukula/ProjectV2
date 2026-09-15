@@ -161,7 +161,12 @@ async function verifyMerchant(
 // shop — the caller has to be identified first to know which part is theirs.
 // ---------------------------------------------------------------------------
 
-const WHOLE_ORDER_CODE = /^MULT-[A-Z0-9]{6}$/;
+// 6 or 8. Codes have been minted at 8 symbols since 20260914094000; the
+// 6-symbol codes issued before then are still in customers' hands and on
+// printed receipts, and transactions_public_code_check accepts both. A regex
+// pinned to {6} here would have rejected every newly minted whole-order code
+// at the counter while the database considered it perfectly valid.
+const WHOLE_ORDER_CODE = /^MULT-([A-Z0-9]{6}|[A-Z0-9]{8})$/;
 
 async function resolveWholeOrderCode(
   httpReq: Request,
@@ -458,6 +463,111 @@ async function writeLedgerEvent(
 // Core handler
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Redemption rate limiting (20260914093000)
+//
+// A claim code is a bearer instrument and the whole-order code is only a few
+// symbols, so redemption is the one endpoint worth metering. Failures are
+// recorded because repeated failures are the fraud signal -- before this,
+// successes were written to transaction_events and failures vanished.
+//
+// FAIL OPEN, DELIBERATELY. If the limiter itself errors, the redemption
+// proceeds and the problem goes to the log. The alternative is a customer
+// standing at a counter unable to collect a gift they have already paid for,
+// because a rate-limiting table was unreachable. The limiter protects against
+// a script; it must not become a way to take the tills offline.
+// ---------------------------------------------------------------------------
+
+/**
+ * The caller's user id, from the JWT alone.
+ *
+ * Deliberately independent of the order: attribution has to work for codes
+ * that resolve to nothing, which is exactly what an enumeration attempt looks
+ * like. verifyMerchant cannot do this job because it needs a shop_id, and a
+ * bad code never produces one.
+ */
+async function resolveCallerId(
+  httpReq: Request,
+  db: ReturnType<typeof getAdminClient>,
+): Promise<string | null> {
+  const authHeader = httpReq.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) return null;
+  try {
+    const { data: { user } } = await db.auth.getUser(authHeader.split(" ")[1]);
+    return user?.id ?? null;
+  } catch (err: unknown) {
+    console.error("[fulfill-voucher] caller lookup failed:", err instanceof Error ? err.message : err);
+    return null;
+  }
+}
+
+/** Returns a 429 Response when the attempt should be refused, else null. */
+async function enforceRedemptionRateLimit(
+  httpReq: Request,
+  db: ReturnType<typeof getAdminClient>,
+  code: string,
+  actorUserId: string | null,
+): Promise<Response | null> {
+  const { data, error } = await db.rpc("check_redemption_rate_limit", {
+    p_code: code,
+    p_shop_id: null,
+    p_actor_user_id: actorUserId,
+  });
+
+  if (error) {
+    console.error("[fulfill-voucher] rate limit check failed, allowing attempt:", error.message);
+    return null;
+  }
+
+  const verdict = data as
+    | { allowed: boolean; reason: string | null; retry_after_seconds: number }
+    | null;
+  if (!verdict || verdict.allowed) return null;
+
+  const retry = Math.max(1, Number(verdict.retry_after_seconds) || 1);
+  console.error(
+    `[fulfill-voucher] RATE LIMITED | reason=${verdict.reason} | actor=${actorUserId ?? "anonymous"} | retry_after=${retry}s`,
+  );
+
+  // Said plainly, because a cashier reads this with a customer in front of
+  // them and needs to know it is a wait rather than a rejected gift.
+  const message = verdict.reason === "code_locked"
+    ? "This code has been tried too many times recently. Please wait a few minutes before trying again, or contact KithLy support."
+    : "Too many failed attempts from this account. Please wait a few minutes before trying again.";
+
+  return new Response(
+    JSON.stringify({ error: message, retry_after_seconds: retry, rate_limited: true }),
+    {
+      status: 429,
+      headers: {
+        ...getCorsHeaders(httpReq),
+        "Content-Type": "application/json",
+        "Retry-After": String(retry),
+      },
+    },
+  );
+}
+
+/** Records one failed attempt. Never throws: logging must not break redemption. */
+async function recordRedemptionFailure(
+  db: ReturnType<typeof getAdminClient>,
+  code: string,
+  shopId: string | null,
+  actorUserId: string | null,
+  reason: string,
+): Promise<void> {
+  const { error } = await db.rpc("record_redemption_failure", {
+    p_code: code,
+    p_shop_id: shopId,
+    p_actor_user_id: actorUserId,
+    p_channel: "app",
+    p_reason: reason,
+  });
+  if (error) {
+    console.error("[fulfill-voucher] could not record failed attempt:", error.message);
+  }
+}
+
 async function handleFulfillVoucher(req: Request): Promise<Response> {
   try {
     // 1. Parse body
@@ -495,34 +605,88 @@ async function handleFulfillVoucher(req: Request): Promise<Response> {
       return json(req, { error: "Server configuration error." }, 500);
     }
 
+    // 3c. Identify the caller and meter the attempt.
+    //
+    // Before the order lookup, because an unknown code is precisely the case
+    // worth limiting, and after the admin client because both need it. The
+    // actor is read from the JWT rather than from the order, so enumeration
+    // attempts that resolve to nothing are still attributable.
+    const actorUserId = await resolveCallerId(req, db);
+
+    const limited = await enforceRedemptionRateLimit(req, db, claim_code, actorUserId);
+    if (limited) return limited;
+
     // 3b. Swap a whole-order code for this merchant's own claim code. A plain
     // per-shop code passes straight through untouched.
     const resolvedCode = await resolveWholeOrderCode(req, db, claim_code);
-    if (resolvedCode instanceof Response) return resolvedCode;
+    if (resolvedCode instanceof Response) {
+      await recordRedemptionFailure(db, claim_code, null, actorUserId, `code_unresolved_${resolvedCode.status}`);
+      return resolvedCode;
+    }
 
     // 4. Read pending order (no lock yet — prevents unauthenticated DoS)
     const pendingResult = await fetchPendingOrder(req, db, resolvedCode);
-    if (pendingResult instanceof Response) return pendingResult;
+    if (pendingResult instanceof Response) {
+      await recordRedemptionFailure(db, claim_code, null, actorUserId, `order_not_pending_${pendingResult.status}`);
+      return pendingResult;
+    }
     const pendingOrder = pendingResult;
 
     // 5. Verify the caller is a merchant assigned to this order's shop
     const merchantResult = await verifyMerchant(req, pendingOrder.shop_id, db);
-    if (merchantResult instanceof Response) return merchantResult;
+    if (merchantResult instanceof Response) {
+      // A valid code presented by someone not assigned to that shop is the
+      // single most interesting row this table will ever hold.
+      await recordRedemptionFailure(
+        db, claim_code, pendingOrder.shop_id, actorUserId, `not_authorised_${merchantResult.status}`,
+      );
+      return merchantResult;
+    }
     const { user_id: merchantUserId } = merchantResult;
 
     console.log(`[fulfill-voucher] Merchant verified | user=${merchantUserId} | shop=${pendingOrder.shop_id}`);
 
     // 6. Atomic financial pipeline (lock + ledger inside Postgres)
+    //
+    // Which pipeline depends on `platform_settings.escrow_mode` (§11):
+    //
+    //   legacy / dual_write -> fulfill_voucher_atomic, exactly as before. In
+    //       dual_write it additionally records the movement in the double-entry
+    //       ledger, inside the same transaction, changing nothing observable.
+    //   escrow_v2           -> escrow_redeem_items, which moves the sender's
+    //       liability to the merchant's payable, accrues the fee, and queues a
+    //       payout timed by the merchant's settlement tier.
+    //
+    // Read here rather than branched in SQL so the failure modes stay legible:
+    // the escrow path refuses a scan outright when the shop cannot be paid, and
+    // that refusal has to reach the cashier as a message they can act on.
+    let escrowMode = "dual_write";
+    {
+      const { data: settings } = await db
+        .from("platform_settings")
+        .select("escrow_mode")
+        .eq("id", 1)
+        .maybeSingle();
+      if (settings?.escrow_mode) escrowMode = settings.escrow_mode;
+    }
+
     let fulfillResult: any;
     try {
-      const { data, error: fulfillError } = await db.rpc("fulfill_voucher_atomic", {
-        // The resolved per-shop code, never the whole-order one: the financial
-        // RPC only knows about shop_orders.claim_code.
-        p_claim_code: resolvedCode,
-        p_present_item_ids: present_item_ids,
-        p_missing_item_ids: missing_item_ids,
-        p_merchant_user_id: merchantUserId,
-      });
+      const { data, error: fulfillError } = escrowMode === "escrow_v2"
+        ? await db.rpc("escrow_redeem_items", {
+          p_claim_code: resolvedCode,
+          p_present_item_ids: present_item_ids,
+          p_missing_item_ids: missing_item_ids,
+          p_merchant_user_id: merchantUserId,
+        })
+        : await db.rpc("fulfill_voucher_atomic", {
+          // The resolved per-shop code, never the whole-order one: the financial
+          // RPC only knows about shop_orders.claim_code.
+          p_claim_code: resolvedCode,
+          p_present_item_ids: present_item_ids,
+          p_missing_item_ids: missing_item_ids,
+          p_merchant_user_id: merchantUserId,
+        });
 
       if (fulfillError) {
         // The whole driver error goes to the log, where an operator can read
@@ -530,7 +694,28 @@ async function handleFulfillVoucher(req: Request): Promise<Response> {
         // `code` is the SQLSTATE, and `hint` is Postgres actively suggesting
         // how to reshape the failing statement. This response is rendered on a
         // cashier's phone, and the cashier can act on none of it.
-        console.error("[fulfill-voucher] fulfill_voucher_atomic database error:", fulfillError);
+        console.error("[fulfill-voucher] fulfillment database error:", fulfillError);
+
+        // Two SQLSTATEs are deliberate, actionable refusals raised by
+        // escrow_redeem_items rather than driver noise, and the cashier is the
+        // only person who can act on them -- they are standing at the counter
+        // with a customer. Everything else stays hidden for the reasons above.
+        //
+        //   42501 insufficient_privilege  -- payout details are not verified
+        //   53000 insufficient_resources  -- the payout rail is down, or the
+        //                                    gift has less left on it than the
+        //                                    items presented
+        const ACTIONABLE = new Set(["42501", "53000"]);
+        if (ACTIONABLE.has(String(fulfillError.code)) && fulfillError.message) {
+          await recordRedemptionFailure(
+            db, claim_code, pendingOrder.shop_id, merchantUserId, `refused_${fulfillError.code}`,
+          );
+          return json(req, { error: fulfillError.message, actionable: true }, 409);
+        }
+
+        await recordRedemptionFailure(
+          db, claim_code, pendingOrder.shop_id, merchantUserId, `db_error_${fulfillError.code ?? "unknown"}`,
+        );
         return json(req, { error: "Database transaction failed." }, 400);
       }
       fulfillResult = data;

@@ -23,7 +23,8 @@ DECLARE
   v_table text;
   v_missing text[] := '{}';
 BEGIN
-  FOREACH v_table IN ARRAY ARRAY['payout_ledger', 'wallet_ledger', 'transaction_events', 'merchant_float_ledger', 'admin_action_log']
+  FOREACH v_table IN ARRAY ARRAY['payout_ledger', 'wallet_ledger', 'transaction_events', 'merchant_float_ledger', 'admin_action_log',
+                              'ledger_entries', 'reconciliation_runs']
   LOOP
     IF NOT EXISTS (
       SELECT 1 FROM pg_trigger t
@@ -37,7 +38,7 @@ BEGIN
   IF array_length(v_missing, 1) > 0 THEN
     RAISE EXCEPTION 'CHECK FAILED: missing enforce_immutable_ledger trigger on: %', v_missing;
   END IF;
-  RAISE NOTICE 'PASS: all 5 ledger tables have their immutability trigger';
+  RAISE NOTICE 'PASS: all 7 ledger tables have their immutability trigger';
 END $$;
 
 -- ---------------------------------------------------------------------------
@@ -113,7 +114,10 @@ BEGIN
     'users','shops','items','transactions','shop_orders','order_items',
     'kithly_wallets','wallet_ledger','transaction_events','merchant_shops',
     'payout_ledger','merchant_withdrawals','payout_bank_codes','admin_action_log',
-    'conversations','messages','quotations','experiences'
+    'conversations','messages','quotations','experiences',
+    'ledger_entries','merchant_payout_destinations','payout_instructions',
+    'payment_rails','settlement_tiers','refund_requests','fee_sweeps',
+    'reconciliation_runs'
   ]
   LOOP
     IF NOT EXISTS (
@@ -166,7 +170,18 @@ BEGIN
         'resolve_shop_merchant_user_id','request_withdrawal_atomic','claim_withdrawal_batch',
         'complete_withdrawal','fail_withdrawal','trigger_daily_payout_sweeper',
         'import_catalog_item_to_shop',
-        'release_abandoned_checkout','reclaim_abandoned_checkouts'
+        'release_abandoned_checkout','reclaim_abandoned_checkouts',
+        -- Escrow & settlement model (20260915*). Every one of these moves
+        -- customer money or decides where it goes.
+        'post_ledger_pair','reverse_ledger_pair','escrow_record_funding',
+        'escrow_redeem_items','escrow_shadow_redemption','escrow_open_balances',
+        'enqueue_payout','claim_due_payouts','mark_payout_sent','complete_payout',
+        'fail_payout','escrow_process_expiries','claim_due_refunds',
+        'complete_refund','fail_refund','propose_fee_sweep','confirm_fee_sweep',
+        'cancel_fee_sweep','escrow_reconcile','set_payout_destination',
+        'mark_destination_verifying','mark_destination_verified',
+        'mark_destination_failed','set_settlement_manual_flag',
+        'refresh_settlement_tier','record_rail_outcome'
       ])
       AND has_function_privilege(r.rolname, p.oid, 'EXECUTE')
   LOOP
@@ -388,6 +403,82 @@ BEGIN
   END IF;
 
   RAISE NOTICE 'PASS: supported currencies agree between function and constraint';
+END $$;
+
+-- ---------------------------------------------------------------------------
+-- 9. The escrow model's own structural invariants (20260915*).
+--
+-- Three things that, if they quietly stopped being true, would not fail any
+-- behavioural test -- because the behavioural tests set escrow_mode themselves.
+-- ---------------------------------------------------------------------------
+DO $$
+DECLARE
+  v_table text;
+  v_missing text[] := '{}';
+  v_mode text;
+  v_writers text[] := '{}';
+  v_fn RECORD;
+BEGIN
+  -- (a) The stored-value guard is attached everywhere a balance can be born.
+  --     Losing one of these re-opens the wallet without anyone noticing: the
+  --     other three still refuse, so a spot check would look fine.
+  FOREACH v_table IN ARRAY ARRAY['wallet_ledger', 'merchant_float_ledger', 'merchant_withdrawals']
+  LOOP
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_trigger t
+      JOIN pg_class c ON c.oid = t.tgrelid
+      WHERE c.relname = v_table AND t.tgfoid = 'public.refuse_stored_value'::regproc
+    ) THEN
+      v_missing := array_append(v_missing, v_table);
+    END IF;
+  END LOOP;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_trigger t
+    JOIN pg_class c ON c.oid = t.tgrelid
+    WHERE c.relname = 'shops' AND t.tgfoid = 'public.refuse_float_increase'::regproc
+  ) THEN
+    v_missing := array_append(v_missing, 'shops.float_balance');
+  END IF;
+
+  IF array_length(v_missing, 1) > 0 THEN
+    RAISE EXCEPTION 'CHECK FAILED: stored-value guard missing from: %', v_missing;
+  END IF;
+
+  -- (b) A fresh deployment must never come up already cut over. escrow_v2 is
+  --     an operational decision taken after a clean reconciliation cycle, and
+  --     a default that drifted to it would cut production over on deploy.
+  SELECT column_default INTO v_mode
+  FROM information_schema.columns
+  WHERE table_schema = 'public' AND table_name = 'platform_settings'
+    AND column_name = 'escrow_mode';
+
+  IF v_mode IS NULL OR v_mode NOT LIKE '%dual_write%' THEN
+    RAISE EXCEPTION 'CHECK FAILED: escrow_mode defaults to % -- it must default to dual_write', v_mode;
+  END IF;
+
+  -- (c) post_ledger_pair is the only writer to ledger_entries.
+  --     The double-entry guarantee is enforced in that one function; a second
+  --     function INSERTing directly could write a single-sided entry, and the
+  --     balance assertion would only catch it after the money had moved.
+  FOR v_fn IN
+    SELECT p.proname, p.oid::regprocedure::text AS sig
+    FROM pg_proc p
+    JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = 'public'
+      AND p.prosrc ~* 'INSERT\s+INTO\s+(public\.)?ledger_entries'
+      AND p.proname <> 'post_ledger_pair'
+  LOOP
+    v_writers := array_append(v_writers, v_fn.sig);
+  END LOOP;
+
+  IF array_length(v_writers, 1) > 0 THEN
+    RAISE EXCEPTION
+      'CHECK FAILED: these functions write ledger_entries directly instead of via post_ledger_pair: %',
+      v_writers;
+  END IF;
+
+  RAISE NOTICE 'PASS: stored-value guard attached, escrow_mode defaults safe, ledger has one writer';
 END $$;
 
 DO $$

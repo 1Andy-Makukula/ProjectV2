@@ -1,5 +1,5 @@
 {
-  "name": "@figma/my-make-file",
+  "name": "kithly-platform",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -11,7 +11,9 @@
     "test:watch": "vitest",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "perf": "node scripts/perf-baseline.mjs",
-    "sql:test": "bash scripts/sql-test.sh"
+    "sql:test": "bash scripts/sql-test.sh",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.4",
@@ -79,6 +81,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^8.5.0",
+    "@eslint/js": "^9.39.5",
     "@supabase/supabase-js": "^2.105.4",
     "@tailwindcss/vite": "4.1.12",
     "@types/canvas-confetti": "^1.6.4",
@@ -86,10 +89,14 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "4.7.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^17.12.0",
     "hono": "^4.13.1",
     "supabase": "^2.98.2",
     "tailwindcss": "4.1.12",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.0",
     "vite": "6.4.3",
     "vitest": "^3.2.7"
   },

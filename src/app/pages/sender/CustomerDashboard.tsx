@@ -27,6 +27,8 @@ import { QRCodeDisplay } from '../../components/shared/QRCodeDisplay';
 import { EmptyState } from '../../components/shared/EmptyState';
 
 import { WalletLedgerView } from '../../components/shared/WalletLedgerView';
+import { SenderEscrowPanel } from '../../components/shared/SenderEscrowPanel';
+import { useEscrowMode } from '../../hooks/useEscrowMode';
 import { ActiveVouchers } from '../../components/features/ActiveVouchers';
 import { ClaimHistory } from '../../components/features/ClaimHistory';
 
@@ -160,6 +162,7 @@ export function CustomerDashboard() {
 
   const {
     orders,
+    error,
     loadingOrders,
     floatingItems,
     loadingFloating,
@@ -197,11 +200,34 @@ export function CustomerDashboard() {
   }, []);
 
   const [activeTab, setActiveTab] = useState('orders');
+  const { storedValueRetired } = useEscrowMode();
   const [selectedClaimCode, setSelectedClaimCode] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-50">
+
+      {/* A failed load is not an empty history. Without this the page shows
+          "0 gifts delivered" against someone's own record of sending them. */}
+      {error && (
+        <div className="bg-amber-50 border-b border-amber-200">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" strokeWidth={1.5} />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-amber-900">Some of this page did not load</p>
+              <p className="text-sm text-amber-800">{error}</p>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="shrink-0 border-amber-300 bg-white"
+              onClick={() => window.location.reload()}
+            >
+              Retry
+            </Button>
+          </div>
+        </div>
+      )}
       <div className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm">
         <div className="mx-auto max-w-4xl px-6 py-4">
           <div className="flex items-center gap-3">
@@ -717,9 +743,16 @@ export function CustomerDashboard() {
 
               return (
                 <div className="space-y-10">
-                  {/* Immutable Wallet Ledger */}
+                  {/* Where the sender's money is.
+                      
+                      Under escrow_v2 the wallet ledger stops receiving rows --
+                      there is no wallet -- so it would render an ever-staler
+                      history of a thing that no longer exists. The escrow
+                      panel answers the same question for the new model, and
+                      carries the one-tap extension that stops gifts expiring
+                      in the first place. */}
                   <section>
-                    <WalletLedgerView />
+                    {storedValueRetired ? <SenderEscrowPanel /> : <WalletLedgerView />}
                   </section>
 
                   {/* Active Vouchers */}
