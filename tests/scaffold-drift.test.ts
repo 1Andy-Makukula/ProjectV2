@@ -25,9 +25,34 @@ import { join } from 'node:path';
 
 const root = join(__dirname, '..');
 
+/**
+ * Read a repo file with line endings normalised to 
+.
+ *
+ * Both parsers below are line-anchored regexes containing literal 
+. On a
+ * Windows checkout with core.autocrlf=true git writes these files as CRLF, so
+ * `{
+` never matches `{
+
+` and the types parser silently finds zero
+ * tables -- which is exactly the vacuous pass the "parsed both sides" case
+ * exists to catch. It did catch it, on 2026-09-15, immediately after these
+ * files were first committed from a Windows working tree.
+ *
+ * CI runs on Linux and would never have seen it, which is the worse version of
+ * the same problem: a test that passes in CI and fails on the machine of the
+ * person who has to fix it.
+ */
+function readNormalised(relativePath: string): string {
+  return readFileSync(join(root, relativePath), 'utf8')
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n');
+}
+
 /** Columns the scaffold declares, per public table. */
 function scaffoldColumns(): Map<string, Set<string>> {
-  const sql = readFileSync(join(root, 'tests/sql/scaffold.sql'), 'utf8');
+  const sql = readNormalised('tests/sql/scaffold.sql');
   const tables = new Map<string, Set<string>>();
 
   const add = (table: string, column: string) => {
@@ -61,7 +86,7 @@ function scaffoldColumns(): Map<string, Set<string>> {
 
 /** Columns the generated types say each table really has. */
 function realColumns(): Map<string, Set<string>> {
-  const source = readFileSync(join(root, 'src/types/database.types.ts'), 'utf8');
+  const source = readNormalised('src/types/database.types.ts');
   const tables = new Map<string, Set<string>>();
 
   // Each table appears as `name: { Row: { ... } ... }`.
