@@ -229,9 +229,35 @@ BEGIN
     END IF;
   END LOOP;
 
+  -- REVOKE FIRST, and this is not defensive noise.
+  --
+  -- A Supabase project ships with
+  --
+  --     ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  --       GRANT ALL ON TABLES TO anon, authenticated, service_role;
+  --
+  -- so a table created in `public` is granted to anon the moment it exists,
+  -- without anything in this file saying so. RLS still denies anon every row --
+  -- there is no policy for that role -- but the table-level privilege is real,
+  -- and relying on RLS alone to cover a grant nobody intended is one policy
+  -- mistake away from exposing the complaints.
+  --
+  -- This is invisible on a bare PostgreSQL cluster, which has no such default
+  -- privileges. That is why the assertion below passed in local verification
+  -- and failed on the first push to the real project. 20260914093000 revokes
+  -- for the same reason; this file did not, and should have.
+  EXECUTE 'REVOKE ALL ON TABLE public.gift_issue_reports FROM PUBLIC';
+
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+    EXECUTE 'REVOKE ALL ON TABLE public.gift_issue_reports FROM anon';
+  END IF;
+
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
-    EXECUTE 'GRANT SELECT ON TABLE public.gift_issue_reports TO authenticated';
-    EXECUTE 'GRANT INSERT, UPDATE ON TABLE public.gift_issue_reports TO authenticated';
+    -- Full revoke then re-grant, so DELETE is not inherited from the default.
+    -- A complaint is a record; admins resolve it by moving `status`, never by
+    -- removing the row.
+    EXECUTE 'REVOKE ALL ON TABLE public.gift_issue_reports FROM authenticated';
+    EXECUTE 'GRANT SELECT, INSERT, UPDATE ON TABLE public.gift_issue_reports TO authenticated';
   END IF;
   IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
     EXECUTE 'GRANT SELECT, INSERT, UPDATE ON TABLE public.gift_issue_reports TO service_role';
@@ -274,6 +300,24 @@ BEGIN
     IF has_table_privilege('anon', 'public.gift_issue_reports', 'SELECT') THEN
       RAISE EXCEPTION 'gift_issue_reports is readable by anon -- other people''s complaints would be exposed';
     END IF;
+  END IF;
+
+  -- Belt as well as braces: even with the grant revoked, a policy naming anon
+  -- would open the table again. Assert the outcome, not only the privilege.
+  IF NOT (
+    SELECT c.relrowsecurity FROM pg_class c
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public' AND c.relname = 'gift_issue_reports'
+  ) THEN
+    RAISE EXCEPTION 'RLS is not enabled on gift_issue_reports';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'gift_issue_reports'
+      AND ('anon' = ANY (roles) OR 'public' = ANY (roles))
+  ) THEN
+    RAISE EXCEPTION 'a policy on gift_issue_reports names anon or PUBLIC -- complaints would be readable by anyone with the endpoint';
   END IF;
 
   RAISE NOTICE 'report_gift_issue: anonymous recipients can report, cannot read, and cannot invent codes or types.';
