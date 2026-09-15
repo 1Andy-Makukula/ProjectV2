@@ -246,8 +246,8 @@ importers:
         specifier: ^17.12.0
         version: 17.12.0
       hono:
-        specifier: ^4.13.1
-        version: 4.13.1
+        specifier: ^4.13.5
+        version: 4.13.5
       supabase:
         specifier: ^2.98.2
         version: 2.98.2
@@ -2332,8 +2332,8 @@ packages:
   hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
 
-  hono@4.13.1:
-    resolution: {integrity: sha512-kdJoFVv2xmayw6cY09H7AbMJMt8Jn5jdlEdXsP7AGBdF2DIptVlKlOLKXP41yPip4/a3yQPv9gVcJYI8YY04dw==}
+  hono@4.13.5:
+    resolution: {integrity: sha512-O6+/eCYRkzzzy0rPWwKLiGBR1nFuUPZynnwjxN1MBA62NNqbT0wQEzQyK2gSO5yDIDB336sXQleAhOHrzlYyKw==}
     engines: {node: '>=16.9.0'}
 
   https-proxy-agent@9.0.0:
@@ -5358,7 +5358,7 @@ snapshots:
     dependencies:
       react-is: 16.13.1
 
-  hono@4.13.1: {}
+  hono@4.13.5: {}
 
   https-proxy-agent@9.0.0:
     dependencies:
