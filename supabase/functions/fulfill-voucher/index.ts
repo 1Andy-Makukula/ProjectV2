@@ -647,16 +647,46 @@ async function handleFulfillVoucher(req: Request): Promise<Response> {
     console.log(`[fulfill-voucher] Merchant verified | user=${merchantUserId} | shop=${pendingOrder.shop_id}`);
 
     // 6. Atomic financial pipeline (lock + ledger inside Postgres)
+    //
+    // Which pipeline depends on `platform_settings.escrow_mode` (§11):
+    //
+    //   legacy / dual_write -> fulfill_voucher_atomic, exactly as before. In
+    //       dual_write it additionally records the movement in the double-entry
+    //       ledger, inside the same transaction, changing nothing observable.
+    //   escrow_v2           -> escrow_redeem_items, which moves the sender's
+    //       liability to the merchant's payable, accrues the fee, and queues a
+    //       payout timed by the merchant's settlement tier.
+    //
+    // Read here rather than branched in SQL so the failure modes stay legible:
+    // the escrow path refuses a scan outright when the shop cannot be paid, and
+    // that refusal has to reach the cashier as a message they can act on.
+    let escrowMode = "dual_write";
+    {
+      const { data: settings } = await db
+        .from("platform_settings")
+        .select("escrow_mode")
+        .eq("id", 1)
+        .maybeSingle();
+      if (settings?.escrow_mode) escrowMode = settings.escrow_mode;
+    }
+
     let fulfillResult: any;
     try {
-      const { data, error: fulfillError } = await db.rpc("fulfill_voucher_atomic", {
-        // The resolved per-shop code, never the whole-order one: the financial
-        // RPC only knows about shop_orders.claim_code.
-        p_claim_code: resolvedCode,
-        p_present_item_ids: present_item_ids,
-        p_missing_item_ids: missing_item_ids,
-        p_merchant_user_id: merchantUserId,
-      });
+      const { data, error: fulfillError } = escrowMode === "escrow_v2"
+        ? await db.rpc("escrow_redeem_items", {
+          p_claim_code: resolvedCode,
+          p_present_item_ids: present_item_ids,
+          p_missing_item_ids: missing_item_ids,
+          p_merchant_user_id: merchantUserId,
+        })
+        : await db.rpc("fulfill_voucher_atomic", {
+          // The resolved per-shop code, never the whole-order one: the financial
+          // RPC only knows about shop_orders.claim_code.
+          p_claim_code: resolvedCode,
+          p_present_item_ids: present_item_ids,
+          p_missing_item_ids: missing_item_ids,
+          p_merchant_user_id: merchantUserId,
+        });
 
       if (fulfillError) {
         // The whole driver error goes to the log, where an operator can read
@@ -664,7 +694,28 @@ async function handleFulfillVoucher(req: Request): Promise<Response> {
         // `code` is the SQLSTATE, and `hint` is Postgres actively suggesting
         // how to reshape the failing statement. This response is rendered on a
         // cashier's phone, and the cashier can act on none of it.
-        console.error("[fulfill-voucher] fulfill_voucher_atomic database error:", fulfillError);
+        console.error("[fulfill-voucher] fulfillment database error:", fulfillError);
+
+        // Two SQLSTATEs are deliberate, actionable refusals raised by
+        // escrow_redeem_items rather than driver noise, and the cashier is the
+        // only person who can act on them -- they are standing at the counter
+        // with a customer. Everything else stays hidden for the reasons above.
+        //
+        //   42501 insufficient_privilege  -- payout details are not verified
+        //   53000 insufficient_resources  -- the payout rail is down, or the
+        //                                    gift has less left on it than the
+        //                                    items presented
+        const ACTIONABLE = new Set(["42501", "53000"]);
+        if (ACTIONABLE.has(String(fulfillError.code)) && fulfillError.message) {
+          await recordRedemptionFailure(
+            db, claim_code, pendingOrder.shop_id, merchantUserId, `refused_${fulfillError.code}`,
+          );
+          return json(req, { error: fulfillError.message, actionable: true }, 409);
+        }
+
+        await recordRedemptionFailure(
+          db, claim_code, pendingOrder.shop_id, merchantUserId, `db_error_${fulfillError.code ?? "unknown"}`,
+        );
         return json(req, { error: "Database transaction failed." }, 400);
       }
       fulfillResult = data;

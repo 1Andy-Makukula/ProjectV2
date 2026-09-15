@@ -48,6 +48,15 @@ MIGRATIONS=(
   20260914060000_reco_api
   20260914070000_slate_weights_and_kappa
   20260914080000_slate
+  20260915000000_ledger_entries
+  20260915010000_payout_destinations
+  20260915020000_payout_instructions
+  20260915030000_settlement_tiers
+  20260915040000_escrow_funding_and_redemption
+  20260915045000_fulfill_voucher_dual_write
+  20260915050000_expiry_refunds_and_compensation
+  20260915060000_fee_sweep_and_reconciliation
+  20260915070000_retire_stored_value
 )
 SUITES=(
   assert_countries_and_holidays
@@ -62,6 +71,9 @@ SUITES=(
   assert_composer
   assert_restock_sweep
   assert_slate
+  assert_escrow_ledger
+  assert_escrow_lifecycle
+  assert_escrow_cutover
 )
 
 cleanup() {
@@ -95,6 +107,11 @@ psql -h localhost -p "$PORT" -U postgres -q \
 # The shared date engine, taken from the migration that defines it rather than
 # copied, so the tests exercise the shipped function.
 sed -n '57,129p' supabase/migrations/20260904010000_occasion_reminders.sql | "${P[@]}"
+
+# The voucher expiry clock, likewise taken from the migration that defines it.
+# The escrow expiry sweep (20260915050000) reads it, and that migration is
+# under test while the one defining this is not.
+sed -n '118,138p' supabase/migrations/20260727030000_pricing_and_expiry_protocol.sql | "${P[@]}"
 
 # Applied twice. Migrations get replayed, and a migration that only works once
 # is a migration that fails in production.

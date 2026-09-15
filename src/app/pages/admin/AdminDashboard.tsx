@@ -182,6 +182,11 @@ export function AdminDashboard() {
                 onClick={() => navigate('/admin/finance')}
               />
               <QuickLink
+                title="Client Funds"
+                description="Escrow position & daily reconciliation"
+                onClick={() => navigate('/admin/escrow')}
+              />
+              <QuickLink
                 title="Merchandising"
                 description="Ads, Banners & Top Picks"
                 onClick={() => navigate('/admin/merchandising')}

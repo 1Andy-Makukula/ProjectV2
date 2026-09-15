@@ -543,6 +543,45 @@ export type Database = {
           },
         ]
       }
+      fee_sweeps: {
+        Row: {
+          amount_ngwee: number
+          bank_reference: string | null
+          cancelled_at: string | null
+          cancelled_reason: string | null
+          confirmed_at: string | null
+          id: string
+          ledger_pair_id: string | null
+          proposed_at: string
+          status: string
+          sweep_date: string
+        }
+        Insert: {
+          amount_ngwee: number
+          bank_reference?: string | null
+          cancelled_at?: string | null
+          cancelled_reason?: string | null
+          confirmed_at?: string | null
+          id?: string
+          ledger_pair_id?: string | null
+          proposed_at?: string
+          status?: string
+          sweep_date: string
+        }
+        Update: {
+          amount_ngwee?: number
+          bank_reference?: string | null
+          cancelled_at?: string | null
+          cancelled_reason?: string | null
+          confirmed_at?: string | null
+          id?: string
+          ledger_pair_id?: string | null
+          proposed_at?: string
+          status?: string
+          sweep_date?: string
+        }
+        Relationships: []
+      }
       fx_quotes: {
         Row: {
           applied_rate: number
@@ -807,6 +846,9 @@ export type Database = {
         Row: {
           allow_custom_quote: boolean
           category_id: string | null
+          compensation_eligible: boolean
+          compensation_percent: number
+          compensation_reason: string | null
           created_at: string | null
           currency: string | null
           description: string | null
@@ -838,6 +880,9 @@ export type Database = {
         Insert: {
           allow_custom_quote?: boolean
           category_id?: string | null
+          compensation_eligible?: boolean
+          compensation_percent?: number
+          compensation_reason?: string | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
@@ -869,6 +914,9 @@ export type Database = {
         Update: {
           allow_custom_quote?: boolean
           category_id?: string | null
+          compensation_eligible?: boolean
+          compensation_percent?: number
+          compensation_reason?: string | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
@@ -946,6 +994,65 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "users"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      ledger_entries: {
+        Row: {
+          account_ref: string | null
+          account_type: string
+          amount_ngwee: number
+          created_at: string
+          direction: string
+          entry_pair_id: string
+          external_ref: string | null
+          id: string
+          idempotency_key: string | null
+          order_item_id: string | null
+          reason: string
+          reverses_pair_id: string | null
+          shop_order_id: string | null
+          transaction_id: string | null
+        }
+        Insert: {
+          account_ref?: string | null
+          account_type: string
+          amount_ngwee: number
+          created_at?: string
+          direction: string
+          entry_pair_id: string
+          external_ref?: string | null
+          id?: string
+          idempotency_key?: string | null
+          order_item_id?: string | null
+          reason: string
+          reverses_pair_id?: string | null
+          shop_order_id?: string | null
+          transaction_id?: string | null
+        }
+        Update: {
+          account_ref?: string | null
+          account_type?: string
+          amount_ngwee?: number
+          created_at?: string
+          direction?: string
+          entry_pair_id?: string
+          external_ref?: string | null
+          id?: string
+          idempotency_key?: string | null
+          order_item_id?: string | null
+          reason?: string
+          reverses_pair_id?: string | null
+          shop_order_id?: string | null
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_shop_order_id_fkey"
+            columns: ["shop_order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["shop_order_id"]
           },
         ]
       }
@@ -1226,6 +1333,86 @@ export type Database = {
           },
         ]
       }
+      merchant_payout_destinations: {
+        Row: {
+          account_identifier: string
+          account_name: string
+          attempt_count: number
+          bank_branch: string | null
+          bank_name: string | null
+          created_at: string
+          created_by: string | null
+          deactivated_at: string | null
+          id: string
+          is_active: boolean
+          last_attempt_at: string | null
+          micro_deposit_ngwee: number | null
+          micro_deposit_sent_at: string | null
+          rail: string
+          shop_id: string
+          verification_error: string | null
+          verification_method: string | null
+          verification_ref: string | null
+          verification_status: string
+          verified_account_name: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          account_identifier: string
+          account_name: string
+          attempt_count?: number
+          bank_branch?: string | null
+          bank_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          deactivated_at?: string | null
+          id?: string
+          is_active?: boolean
+          last_attempt_at?: string | null
+          micro_deposit_ngwee?: number | null
+          micro_deposit_sent_at?: string | null
+          rail: string
+          shop_id: string
+          verification_error?: string | null
+          verification_method?: string | null
+          verification_ref?: string | null
+          verification_status?: string
+          verified_account_name?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          account_identifier?: string
+          account_name?: string
+          attempt_count?: number
+          bank_branch?: string | null
+          bank_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          deactivated_at?: string | null
+          id?: string
+          is_active?: boolean
+          last_attempt_at?: string | null
+          micro_deposit_ngwee?: number | null
+          micro_deposit_sent_at?: string | null
+          rail?: string
+          shop_id?: string
+          verification_error?: string | null
+          verification_method?: string | null
+          verification_ref?: string | null
+          verification_status?: string
+          verified_account_name?: string | null
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merchant_payout_destinations_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       merchant_shops: {
         Row: {
           created_at: string
@@ -1429,6 +1616,7 @@ export type Database = {
         Row: {
           allocated_price: number
           child_claim_code: string | null
+          compensation_percent_at_purchase: number
           created_at: string | null
           fulfilled_at: string | null
           fulfillment_status: string
@@ -1440,6 +1628,7 @@ export type Database = {
         Insert: {
           allocated_price: number
           child_claim_code?: string | null
+          compensation_percent_at_purchase?: number
           created_at?: string | null
           fulfilled_at?: string | null
           fulfillment_status?: string
@@ -1451,6 +1640,7 @@ export type Database = {
         Update: {
           allocated_price?: number
           child_claim_code?: string | null
+          compensation_percent_at_purchase?: number
           created_at?: string | null
           fulfilled_at?: string | null
           fulfillment_status?: string
@@ -1475,6 +1665,51 @@ export type Database = {
             referencedColumns: ["shop_order_id"]
           },
         ]
+      }
+      payment_rails: {
+        Row: {
+          consecutive_failures: number
+          disabled_at: string | null
+          disabled_reason: string | null
+          failure_threshold: number
+          is_available: boolean
+          kind: string
+          last_error: string | null
+          last_failure_at: string | null
+          last_success_at: string | null
+          manually_disabled: boolean
+          rail: string
+          updated_at: string
+        }
+        Insert: {
+          consecutive_failures?: number
+          disabled_at?: string | null
+          disabled_reason?: string | null
+          failure_threshold?: number
+          is_available?: boolean
+          kind: string
+          last_error?: string | null
+          last_failure_at?: string | null
+          last_success_at?: string | null
+          manually_disabled?: boolean
+          rail: string
+          updated_at?: string
+        }
+        Update: {
+          consecutive_failures?: number
+          disabled_at?: string | null
+          disabled_reason?: string | null
+          failure_threshold?: number
+          is_available?: boolean
+          kind?: string
+          last_error?: string | null
+          last_failure_at?: string | null
+          last_success_at?: string | null
+          manually_disabled?: boolean
+          rail?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       payment_webhook_idempotency: {
         Row: {
@@ -1529,6 +1764,100 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      payout_instructions: {
+        Row: {
+          account_identifier: string
+          account_name: string | null
+          amount_ngwee: number
+          attempt_count: number
+          claimed_at: string | null
+          created_at: string
+          destination_id: string
+          external_ref: string | null
+          failed_at: string | null
+          id: string
+          idempotency_key: string
+          last_error: string | null
+          ledger_pair_id: string | null
+          order_item_id: string | null
+          rail: string
+          release_at: string
+          sent_at: string | null
+          settled_at: string | null
+          shop_id: string
+          shop_order_id: string | null
+          status: string
+        }
+        Insert: {
+          account_identifier: string
+          account_name?: string | null
+          amount_ngwee: number
+          attempt_count?: number
+          claimed_at?: string | null
+          created_at?: string
+          destination_id: string
+          external_ref?: string | null
+          failed_at?: string | null
+          id?: string
+          idempotency_key: string
+          last_error?: string | null
+          ledger_pair_id?: string | null
+          order_item_id?: string | null
+          rail: string
+          release_at?: string
+          sent_at?: string | null
+          settled_at?: string | null
+          shop_id: string
+          shop_order_id?: string | null
+          status?: string
+        }
+        Update: {
+          account_identifier?: string
+          account_name?: string | null
+          amount_ngwee?: number
+          attempt_count?: number
+          claimed_at?: string | null
+          created_at?: string
+          destination_id?: string
+          external_ref?: string | null
+          failed_at?: string | null
+          id?: string
+          idempotency_key?: string
+          last_error?: string | null
+          ledger_pair_id?: string | null
+          order_item_id?: string | null
+          rail?: string
+          release_at?: string
+          sent_at?: string | null
+          settled_at?: string | null
+          shop_id?: string
+          shop_order_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_instructions_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "merchant_payout_destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_instructions_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payout_instructions_shop_order_id_fkey"
+            columns: ["shop_order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["shop_order_id"]
+          },
+        ]
       }
       payout_ledger: {
         Row: {
@@ -1606,6 +1935,8 @@ export type Database = {
           abandoned_checkout_timeout_minutes: number | null
           current_usd_zmw_rate: number
           dispute_window_minutes: number
+          escrow_mode: string
+          expiry_extension_days: number
           expiry_reminder_days: number
           expiry_sender_refund_percent: number
           fx_fallback_bank_fee_percent: number
@@ -1616,13 +1947,19 @@ export type Database = {
           international_buyer_fee_percent: number
           local_buyer_fee_percent: number
           low_stock_percent: number
+          max_expiry_extensions: number
           merchant_fee_percent: number
+          payout_max_attempts: number
+          reconciliation_tolerance_ngwee: number
+          settlement_flag_failure_threshold: number
           voucher_grace_days: number
         }
         Insert: {
           abandoned_checkout_timeout_minutes?: number | null
           current_usd_zmw_rate?: number
           dispute_window_minutes?: number
+          escrow_mode?: string
+          expiry_extension_days?: number
           expiry_reminder_days?: number
           expiry_sender_refund_percent?: number
           fx_fallback_bank_fee_percent?: number
@@ -1633,13 +1970,19 @@ export type Database = {
           international_buyer_fee_percent?: number
           local_buyer_fee_percent?: number
           low_stock_percent?: number
+          max_expiry_extensions?: number
           merchant_fee_percent?: number
+          payout_max_attempts?: number
+          reconciliation_tolerance_ngwee?: number
+          settlement_flag_failure_threshold?: number
           voucher_grace_days?: number
         }
         Update: {
           abandoned_checkout_timeout_minutes?: number | null
           current_usd_zmw_rate?: number
           dispute_window_minutes?: number
+          escrow_mode?: string
+          expiry_extension_days?: number
           expiry_reminder_days?: number
           expiry_sender_refund_percent?: number
           fx_fallback_bank_fee_percent?: number
@@ -1650,7 +1993,11 @@ export type Database = {
           international_buyer_fee_percent?: number
           local_buyer_fee_percent?: number
           low_stock_percent?: number
+          max_expiry_extensions?: number
           merchant_fee_percent?: number
+          payout_max_attempts?: number
+          reconciliation_tolerance_ngwee?: number
+          settlement_flag_failure_threshold?: number
           voucher_grace_days?: number
         }
         Relationships: []
@@ -2068,6 +2415,184 @@ export type Database = {
           },
         ]
       }
+      reconciliation_runs: {
+        Row: {
+          as_of: string
+          bank_balance_ngwee: number | null
+          created_at: string
+          drift_ngwee: number | null
+          fees_accrued_ngwee: number
+          id: string
+          internal_imbalance_ngwee: number
+          ledger_client_funds_ngwee: number
+          merchant_payables_ngwee: number
+          movements: Json
+          notes: string | null
+          operating_ngwee: number
+          run_date: string
+          sender_liabilities_ngwee: number
+          status: string
+          tolerance_ngwee: number
+        }
+        Insert: {
+          as_of?: string
+          bank_balance_ngwee?: number | null
+          created_at?: string
+          drift_ngwee?: number | null
+          fees_accrued_ngwee: number
+          id?: string
+          internal_imbalance_ngwee?: number
+          ledger_client_funds_ngwee: number
+          merchant_payables_ngwee: number
+          movements?: Json
+          notes?: string | null
+          operating_ngwee?: number
+          run_date: string
+          sender_liabilities_ngwee: number
+          status: string
+          tolerance_ngwee?: number
+        }
+        Update: {
+          as_of?: string
+          bank_balance_ngwee?: number | null
+          created_at?: string
+          drift_ngwee?: number | null
+          fees_accrued_ngwee?: number
+          id?: string
+          internal_imbalance_ngwee?: number
+          ledger_client_funds_ngwee?: number
+          merchant_payables_ngwee?: number
+          movements?: Json
+          notes?: string | null
+          operating_ngwee?: number
+          run_date?: string
+          sender_liabilities_ngwee?: number
+          status?: string
+          tolerance_ngwee?: number
+        }
+        Relationships: []
+      }
+      refund_requests: {
+        Row: {
+          amount_ngwee: number
+          attempt_count: number
+          buyer_id: string
+          claimed_at: string | null
+          completed_at: string | null
+          created_at: string
+          external_ref: string | null
+          failed_at: string | null
+          id: string
+          idempotency_key: string
+          last_error: string | null
+          ledger_pair_id: string | null
+          order_item_id: string | null
+          original_ref: string | null
+          reason: string
+          release_at: string
+          sent_at: string | null
+          shop_order_id: string | null
+          status: string
+          transaction_id: string | null
+        }
+        Insert: {
+          amount_ngwee: number
+          attempt_count?: number
+          buyer_id: string
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          external_ref?: string | null
+          failed_at?: string | null
+          id?: string
+          idempotency_key: string
+          last_error?: string | null
+          ledger_pair_id?: string | null
+          order_item_id?: string | null
+          original_ref?: string | null
+          reason: string
+          release_at?: string
+          sent_at?: string | null
+          shop_order_id?: string | null
+          status?: string
+          transaction_id?: string | null
+        }
+        Update: {
+          amount_ngwee?: number
+          attempt_count?: number
+          buyer_id?: string
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          external_ref?: string | null
+          failed_at?: string | null
+          id?: string
+          idempotency_key?: string
+          last_error?: string | null
+          ledger_pair_id?: string | null
+          order_item_id?: string | null
+          original_ref?: string | null
+          reason?: string
+          release_at?: string
+          sent_at?: string | null
+          shop_order_id?: string | null
+          status?: string
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refund_requests_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refund_requests_shop_order_id_fkey"
+            columns: ["shop_order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["shop_order_id"]
+          },
+          {
+            foreignKeyName: "refund_requests_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["transaction_id"]
+          },
+        ]
+      }
+      settlement_tiers: {
+        Row: {
+          hold_seconds: number
+          label: string
+          merchant_explanation: string
+          min_successful_redemptions: number
+          requires_manual_review: boolean
+          sort_order: number
+          tier: string
+        }
+        Insert: {
+          hold_seconds: number
+          label: string
+          merchant_explanation: string
+          min_successful_redemptions: number
+          requires_manual_review?: boolean
+          sort_order: number
+          tier: string
+        }
+        Update: {
+          hold_seconds?: number
+          label?: string
+          merchant_explanation?: string
+          min_successful_redemptions?: number
+          requires_manual_review?: boolean
+          sort_order?: number
+          tier?: string
+        }
+        Relationships: []
+      }
       shop_documents: {
         Row: {
           archived_at: string | null
@@ -2115,6 +2640,7 @@ export type Database = {
           disputed_at: string | null
           experience_id: string | null
           expires_at: string | null
+          expiry_extensions: number
           fulfilled_at: string | null
           fulfils_wish_id: string | null
           is_anonymous: boolean
@@ -2139,6 +2665,7 @@ export type Database = {
           disputed_at?: string | null
           experience_id?: string | null
           expires_at?: string | null
+          expiry_extensions?: number
           fulfilled_at?: string | null
           fulfils_wish_id?: string | null
           is_anonymous?: boolean
@@ -2163,6 +2690,7 @@ export type Database = {
           disputed_at?: string | null
           experience_id?: string | null
           expires_at?: string | null
+          expiry_extensions?: number
           fulfilled_at?: string | null
           fulfils_wish_id?: string | null
           is_anonymous?: boolean
@@ -2288,6 +2816,10 @@ export type Database = {
           rating_count: number
           rating_sum: number
           rejection_reason: string | null
+          settlement_flag_reason: string | null
+          settlement_manual_flag: boolean
+          settlement_tier: string
+          settlement_tier_updated_at: string | null
           shop_location: string | null
           successful_deliveries: number
           upfront_payout_percentage: number
@@ -2331,6 +2863,10 @@ export type Database = {
           rating_count?: number
           rating_sum?: number
           rejection_reason?: string | null
+          settlement_flag_reason?: string | null
+          settlement_manual_flag?: boolean
+          settlement_tier?: string
+          settlement_tier_updated_at?: string | null
           shop_location?: string | null
           successful_deliveries?: number
           upfront_payout_percentage?: number
@@ -2374,6 +2910,10 @@ export type Database = {
           rating_count?: number
           rating_sum?: number
           rejection_reason?: string | null
+          settlement_flag_reason?: string | null
+          settlement_manual_flag?: boolean
+          settlement_tier?: string
+          settlement_tier_updated_at?: string | null
           shop_location?: string | null
           successful_deliveries?: number
           upfront_payout_percentage?: number

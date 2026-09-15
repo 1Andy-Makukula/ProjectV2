@@ -78,6 +78,7 @@ const AdminItemForm = lazyPage(() => import('./pages/admin/AdminItemForm'), 'Adm
 const AdminMerchants = lazyPage(() => import('./pages/admin/AdminMerchants'), 'AdminMerchants');
 const AdminOrders = lazyPage(() => import('./pages/admin/AdminOrders'), 'AdminOrders');
 const AdminFinance = lazyPage(() => import('./pages/admin/AdminFinance'), 'AdminFinance');
+const AdminEscrow = lazyPage(() => import('./pages/admin/AdminEscrow'), 'AdminEscrow');
 const AdminOrderDetail = lazyPage(() => import('./pages/admin/AdminOrderDetail'), 'AdminOrderDetail');
 const PrintableReceipt = lazyPage(() => import('./pages/shared/PrintableReceipt'), 'PrintableReceipt');
 
@@ -460,6 +461,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['admin']}>
             <Lazy><AdminFinance /></Lazy>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin/escrow',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><AdminEscrow /></Lazy>
           </ProtectedRoute>
         ),
       },

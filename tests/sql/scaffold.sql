@@ -317,3 +317,190 @@ CREATE TABLE IF NOT EXISTS public.order_items (
   item_id        uuid NOT NULL REFERENCES public.items(id) ON DELETE CASCADE
 );
 ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS transaction_id uuid;
+
+-- ---------------------------------------------------------------------------
+-- Escrow & settlement model (20260915*)
+--
+-- Every column below is checked against src/types/database.types.ts by
+-- tests/scaffold-drift.test.ts. Nothing here may be invented to make a
+-- migration pass -- that is the exact failure mode that test exists to catch.
+-- ---------------------------------------------------------------------------
+
+-- users.role is what current_user_role() reads and what the admin guards check.
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'sender';
+
+-- shops: the legacy payout fields the destination backfill reads, and the
+-- redemption counter the settlement tier derives from.
+ALTER TABLE public.shops ADD COLUMN IF NOT EXISTS payout_method text;
+ALTER TABLE public.shops ADD COLUMN IF NOT EXISTS payout_details text;
+ALTER TABLE public.shops ADD COLUMN IF NOT EXISTS payout_account_name text;
+ALTER TABLE public.shops ADD COLUMN IF NOT EXISTS payout_bank_name text;
+ALTER TABLE public.shops ADD COLUMN IF NOT EXISTS successful_deliveries integer NOT NULL DEFAULT 0;
+ALTER TABLE public.shops ADD COLUMN IF NOT EXISTS float_balance integer NOT NULL DEFAULT 0;
+ALTER TABLE public.shops ADD COLUMN IF NOT EXISTS active_exposure integer NOT NULL DEFAULT 0;
+ALTER TABLE public.shops ADD COLUMN IF NOT EXISTS float_exposure_limit integer NOT NULL DEFAULT 0;
+ALTER TABLE public.shops ADD COLUMN IF NOT EXISTS upfront_payout_percentage integer NOT NULL DEFAULT 0;
+
+-- shop_orders: the redemption and expiry paths read all of these.
+ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS claim_code text;
+ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS subtotal integer NOT NULL DEFAULT 0;
+ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS recipient_name text;
+ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS disputed_at timestamptz;
+ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS fulfilled_at timestamptz;
+ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS settled boolean DEFAULT false;
+ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS settlement_target_time timestamptz;
+ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS expires_at timestamptz;
+ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS target_execution_date timestamptz;
+ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS upfront_paid integer NOT NULL DEFAULT 0;
+ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();
+
+-- order_items: allocated_price is the value that moves at redemption.
+ALTER TABLE public.order_items ADD COLUMN IF NOT EXISTS allocated_price integer NOT NULL DEFAULT 0;
+ALTER TABLE public.order_items ADD COLUMN IF NOT EXISTS fulfillment_status text NOT NULL DEFAULT 'PENDING';
+ALTER TABLE public.order_items ADD COLUMN IF NOT EXISTS fulfilled_at timestamptz;
+ALTER TABLE public.order_items ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();
+
+-- items: the expiry clock reads these.
+ALTER TABLE public.items ADD COLUMN IF NOT EXISTS has_expiry boolean NOT NULL DEFAULT true;
+ALTER TABLE public.items ADD COLUMN IF NOT EXISTS valid_for_days integer;
+ALTER TABLE public.items ADD COLUMN IF NOT EXISTS requires_scheduling boolean NOT NULL DEFAULT false;
+
+-- transactions: the funding leg needs the gateway reference and the amount.
+ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS gateway_tx_ref text;
+ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS total_amount integer NOT NULL DEFAULT 0;
+ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS currency text NOT NULL DEFAULT 'ZMW';
+ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'GATEWAY_PROCESSING';
+ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();
+
+-- platform_settings, as 20260620000000 and its successors shape it. Only the
+-- columns the escrow migrations read; the escrow migrations add their own.
+CREATE TABLE IF NOT EXISTS public.platform_settings (
+  id                             integer PRIMARY KEY DEFAULT 1,
+  current_usd_zmw_rate           numeric(10,2) NOT NULL DEFAULT 26.00,
+  dispute_window_minutes         integer NOT NULL DEFAULT 1440,
+  expiry_sender_refund_percent   integer NOT NULL DEFAULT 80,
+  merchant_fee_percent           numeric NOT NULL DEFAULT 5,
+  local_buyer_fee_percent        numeric NOT NULL DEFAULT 0,
+  international_buyer_fee_percent numeric NOT NULL DEFAULT 0,
+  voucher_grace_days             integer NOT NULL DEFAULT 14,
+  expiry_reminder_days           integer NOT NULL DEFAULT 3,
+  CONSTRAINT platform_settings_one_row CHECK (id = 1)
+);
+INSERT INTO public.platform_settings (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
+ALTER TABLE public.platform_settings ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS platform_settings_read ON public.platform_settings;
+CREATE POLICY platform_settings_read ON public.platform_settings
+  FOR SELECT TO anon, authenticated USING (true);
+
+-- transaction_events: the audit trail every money path writes to.
+CREATE TABLE IF NOT EXISTS public.transaction_events (
+  id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  shop_order_id  uuid REFERENCES public.shop_orders(shop_order_id) ON DELETE SET NULL,
+  transaction_id uuid,
+  event_type     text NOT NULL,
+  payload        jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_at     timestamptz DEFAULT now()
+);
+ALTER TABLE public.transaction_events ENABLE ROW LEVEL SECURITY;
+DROP TRIGGER IF EXISTS enforce_immutable_transaction_events ON public.transaction_events;
+CREATE TRIGGER enforce_immutable_transaction_events
+  BEFORE UPDATE OR DELETE ON public.transaction_events
+  FOR EACH ROW EXECUTE FUNCTION public.enforce_immutable_ledger();
+
+-- admin_action_log, as 20260729050000 shapes it. Note actor_id/payload -- NOT
+-- admin_id/details, which is what a reasonable person writes from memory and
+-- what the real table does not have.
+CREATE TABLE IF NOT EXISTS public.admin_action_log (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  actor_id    uuid REFERENCES public.users(id) ON DELETE SET NULL,
+  action      text NOT NULL,
+  target_type text NOT NULL,
+  target_id   uuid,
+  payload     jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.admin_action_log ENABLE ROW LEVEL SECURITY;
+DROP TRIGGER IF EXISTS enforce_immutable_admin_action_log ON public.admin_action_log;
+CREATE TRIGGER enforce_immutable_admin_action_log
+  BEFORE UPDATE OR DELETE ON public.admin_action_log
+  FOR EACH ROW EXECUTE FUNCTION public.enforce_immutable_ledger();
+
+-- create_notification, taken from 20260727040000. The escrow paths notify
+-- merchants and senders, and a stub that silently swallowed those calls would
+-- let a migration ship that references a column notifications does not have.
+CREATE OR REPLACE FUNCTION public.create_notification(
+  p_user_id      uuid,
+  p_message      text,
+  p_type         text,
+  p_reference_id text DEFAULT NULL
+)
+RETURNS uuid
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public
+AS $$
+DECLARE
+  v_id uuid;
+BEGIN
+  IF p_user_id IS NULL OR btrim(coalesce(p_message, '')) = '' THEN
+    RETURN NULL;
+  END IF;
+
+  INSERT INTO public.notifications (user_id, message, type, is_read, reference_id)
+  VALUES (p_user_id, p_message, p_type, false, p_reference_id)
+  RETURNING id INTO v_id;
+
+  RETURN v_id;
+END;
+$$;
+
+-- The legacy stored-value tables. 20260915070000 attaches its refusal triggers
+-- to these, so they must exist here for that migration to apply. Columns match
+-- src/types/database.types.ts exactly; the scaffold-drift test checks them.
+CREATE TABLE IF NOT EXISTS public.merchant_float_ledger (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  shop_id       uuid NOT NULL REFERENCES public.shops(id) ON DELETE CASCADE,
+  shop_order_id uuid REFERENCES public.shop_orders(shop_order_id) ON DELETE SET NULL,
+  amount        integer NOT NULL,
+  entry_type    text NOT NULL,
+  description   text,
+  created_at    timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.merchant_float_ledger ENABLE ROW LEVEL SECURITY;
+DROP TRIGGER IF EXISTS enforce_immutable_merchant_float_ledger ON public.merchant_float_ledger;
+CREATE TRIGGER enforce_immutable_merchant_float_ledger
+  BEFORE UPDATE OR DELETE ON public.merchant_float_ledger
+  FOR EACH ROW EXECUTE FUNCTION public.enforce_immutable_ledger();
+
+CREATE TABLE IF NOT EXISTS public.merchant_withdrawals (
+  id                   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  shop_id              uuid NOT NULL REFERENCES public.shops(id) ON DELETE CASCADE,
+  amount               integer NOT NULL,
+  status               text NOT NULL DEFAULT 'PENDING',
+  provider             text NOT NULL DEFAULT 'flutterwave',
+  provider_reference   text,
+  provider_transfer_id text,
+  failure_reason       text,
+  ledger_id            uuid,
+  requested_by         uuid REFERENCES public.users(id) ON DELETE SET NULL,
+  processed_at         timestamptz,
+  created_at           timestamptz NOT NULL DEFAULT now(),
+  updated_at           timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.merchant_withdrawals ENABLE ROW LEVEL SECURITY;
+
+CREATE TABLE IF NOT EXISTS public.payout_ledger (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  shop_order_id uuid,
+  shop_id       uuid NOT NULL REFERENCES public.shops(id) ON DELETE CASCADE,
+  credit_amount integer NOT NULL DEFAULT 0,
+  ledger_type   text NOT NULL DEFAULT 'FULFILLMENT_CREDIT',
+  reference     text,
+  amount        integer,
+  commission    integer,
+  status        text,
+  created_at    timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.payout_ledger ENABLE ROW LEVEL SECURITY;
+DROP TRIGGER IF EXISTS enforce_immutable_payout_ledger ON public.payout_ledger;
+CREATE TRIGGER enforce_immutable_payout_ledger
+  BEFORE UPDATE OR DELETE ON public.payout_ledger
+  FOR EACH ROW EXECUTE FUNCTION public.enforce_immutable_ledger();

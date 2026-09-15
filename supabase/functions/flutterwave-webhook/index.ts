@@ -528,6 +528,41 @@ async function handleFlutterwaveWebhook(req: Request): Promise<Response> {
         `[flutterwave-webhook] Payment confirmed | transaction_id=${resolvedTransactionId} | result=${JSON.stringify(confirmResult)}`,
       );
 
+      // --- Escrow funding leg (§4.1) ---------------------------------------
+      //
+      // Credits the sender's liability with the FULL funded amount. No fee is
+      // taken here: until an item is collected, every ngwee belongs to the
+      // sender, which is what makes the refund case correct.
+      //
+      // Idempotent on the transaction inside the RPC, so a redelivered webhook
+      // funds nobody twice.
+      //
+      // Deliberately NOT fatal to the webhook. Flutterwave retries a non-2xx,
+      // and a retry loop would leave a paid-for gift undispatched over a
+      // bookkeeping problem. The failure is logged and recorded as an event
+      // instead, and `escrow_open_balances` repairs any transaction the ledger
+      // missed.
+      const { error: fundingError } = await supabase.rpc("escrow_record_funding", {
+        p_transaction_id: resolvedTransactionId,
+        p_external_ref: String(data.id),
+      });
+
+      if (fundingError) {
+        console.error(
+          `[flutterwave-webhook] ESCROW FUNDING NOT RECORDED for '${resolvedTransactionId}':`,
+          fundingError.message,
+        );
+        await supabase.from("transaction_events").insert({
+          transaction_id: resolvedTransactionId,
+          event_type: "ESCROW_FUNDING_FAILED",
+          payload: {
+            error: fundingError.message,
+            flw_transaction_id: data.id,
+            note: "Repair with escrow_open_balances before this gift is redeemed.",
+          },
+        });
+      }
+
       // Trigger recipient WhatsApp notifications via an IIFE in the background so webhook doesn't block
       (async () => {
         try {

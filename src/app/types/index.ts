@@ -85,6 +85,23 @@ export interface Product {
   category?: string;
   featured?: boolean;
   created_at?: string;
+  /**
+   * Expiry compensation terms (§7 of the settlement model).
+   *
+   * When a merchant genuinely holds or prepares stock for an item -- a
+   * perishable, a made-to-order cake, reserved inventory -- they may keep an
+   * agreed percentage if the gift is never collected. The rest is refunded to
+   * the sender's original payment method.
+   *
+   * These MUST be shown at checkout before payment. The percentage that
+   * applies is snapshotted onto the order line at purchase, so what the sender
+   * sees here is the deal they get, and a later edit to the listing cannot
+   * change it. Applying a split silently was the old behaviour and is exactly
+   * what this replaces.
+   */
+  compensation_eligible?: boolean;
+  compensation_percent?: number;
+  compensation_reason?: string | null;
 }
 
 export interface Transaction {

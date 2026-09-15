@@ -27,6 +27,8 @@ import { QRCodeDisplay } from '../../components/shared/QRCodeDisplay';
 import { EmptyState } from '../../components/shared/EmptyState';
 
 import { WalletLedgerView } from '../../components/shared/WalletLedgerView';
+import { SenderEscrowPanel } from '../../components/shared/SenderEscrowPanel';
+import { useEscrowMode } from '../../hooks/useEscrowMode';
 import { ActiveVouchers } from '../../components/features/ActiveVouchers';
 import { ClaimHistory } from '../../components/features/ClaimHistory';
 
@@ -198,6 +200,7 @@ export function CustomerDashboard() {
   }, []);
 
   const [activeTab, setActiveTab] = useState('orders');
+  const { storedValueRetired } = useEscrowMode();
   const [selectedClaimCode, setSelectedClaimCode] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -740,9 +743,16 @@ export function CustomerDashboard() {
 
               return (
                 <div className="space-y-10">
-                  {/* Immutable Wallet Ledger */}
+                  {/* Where the sender's money is.
+                      
+                      Under escrow_v2 the wallet ledger stops receiving rows --
+                      there is no wallet -- so it would render an ever-staler
+                      history of a thing that no longer exists. The escrow
+                      panel answers the same question for the new model, and
+                      carries the one-tap extension that stops gifts expiring
+                      in the first place. */}
                   <section>
-                    <WalletLedgerView />
+                    {storedValueRetired ? <SenderEscrowPanel /> : <WalletLedgerView />}
                   </section>
 
                   {/* Active Vouchers */}

@@ -22,6 +22,8 @@ import {
   SheetDescription,
 } from '../../components/ui/sheet';
 import { VitalityPanel } from '../../components/merchant/VitalityPanel';
+import { PayoutDestinationPanel } from '../../components/merchant/PayoutDestinationPanel';
+import { useEscrowMode } from '../../hooks/useEscrowMode';
 import { cn } from '../../components/ui/utils';
 import { useMerchantDashboard, Order, OrderItem } from '../../hooks/useMerchantDashboard';
 
@@ -87,6 +89,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
     handleWithdrawRequest,
     exportOrdersToCSV,
   } = useMerchantDashboard(profile?.id, previewShopId ? { shopId: previewShopId } : undefined);
+  const { storedValueRetired } = useEscrowMode();
 
   // Fulfilled history is the tab that grows without bound, so it gets the
   // search and export the admin order list already had.
@@ -247,7 +250,11 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
         {/* ── Trading figures ──────────────────────────────────────────── */}
         <SectionHeading
           title="Your shop"
-          description="Everything handed over, and what is cleared to withdraw."
+          description={
+            storedValueRetired
+              ? 'Everything handed over, and what is on its way to your account.'
+              : 'Everything handed over, and what is cleared to withdraw.'
+          }
         />
         <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
@@ -274,31 +281,48 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
             sub={`${formatCurrency(analytics.weekValue)} handed over`}
             live={analytics.weekFulfilled > 0}
           />
-          <div className="relative">
+          {/* Under escrow_v2 there is nothing to withdraw, because the
+              merchant no longer banks with KithLy: a redemption pays out
+              automatically on their settlement tier. Showing a Withdraw button
+              that calls an RPC the database now refuses would be the worst of
+              both worlds -- so the card becomes a pointer to the panel that
+              actually holds the answer, and the real figures live there. */}
+          {storedValueRetired ? (
             <StatCard
-              label="Available for Withdrawal"
-              value={analytics.availableBalance}
+              label="Collected this week"
+              value={analytics.weekValue}
               animate
               isCurrency
               icon={Wallet}
-              sub={
-                analytics.availableBalance > 0
-                  ? 'Cleared and ready to pay out'
-                  : 'Nothing cleared yet'
-              }
+              sub="Gross, before fees. See “On its way to you” above for what you are owed"
             />
-            {!readOnly && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleWithdrawRequest}
-                disabled={withdrawing || analytics.availableBalance <= 0}
-                className="absolute right-4 bottom-4 h-7 border-primary text-xs text-primary hover:bg-primary-tint"
-              >
-                {withdrawing ? 'Requesting…' : 'Withdraw'}
-              </Button>
-            )}
-          </div>
+          ) : (
+            <div className="relative">
+              <StatCard
+                label="Available for Withdrawal"
+                value={analytics.availableBalance}
+                animate
+                isCurrency
+                icon={Wallet}
+                sub={
+                  analytics.availableBalance > 0
+                    ? 'Cleared and ready to pay out'
+                    : 'Nothing cleared yet'
+                }
+              />
+              {!readOnly && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleWithdrawRequest}
+                  disabled={withdrawing || analytics.availableBalance <= 0}
+                  className="absolute right-4 bottom-4 h-7 border-primary text-xs text-primary hover:bg-primary-tint"
+                >
+                  {withdrawing ? 'Requesting…' : 'Withdraw'}
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Curated bundles carrying this shop's items. Admin-curated without
@@ -335,6 +359,18 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
             Shop Management because it is what tells a shopkeeper which of
             those actions is worth taking first. Hidden in preview along with
             everything else that navigates into merchant-only routes. */}
+        {/* Where the money goes, and whether the scanner is even on.
+            
+            Above shop strength deliberately: an unverified payout destination
+            means this merchant cannot accept a single collection, and no
+            amount of catalogue work matters until that is fixed. It is the
+            one panel that can be blocking. */}
+        {!readOnly && (
+          <div className="mb-8">
+            <PayoutDestinationPanel shopId={shopId} />
+          </div>
+        )}
+
         {!readOnly && (
           <div className="mb-8">
             <VitalityPanel shopId={shopId} />
