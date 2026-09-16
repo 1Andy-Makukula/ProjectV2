@@ -57,6 +57,9 @@ MIGRATIONS=(
   20260915050000_expiry_refunds_and_compensation
   20260915060000_fee_sweep_and_reconciliation
   20260915070000_retire_stored_value
+  20260916000000_buyer_concierge_conversation
+  20260916010000_experience_occasion_kind
+  20260916020000_medical_category_affinity
 )
 SUITES=(
   assert_countries_and_holidays
@@ -74,6 +77,10 @@ SUITES=(
   assert_escrow_ledger
   assert_escrow_lifecycle
   assert_escrow_cutover
+  assert_concierge_thread
+  assert_experience_occasions
+  assert_placeholder_bundles
+  assert_medical_affinity
 )
 
 cleanup() {

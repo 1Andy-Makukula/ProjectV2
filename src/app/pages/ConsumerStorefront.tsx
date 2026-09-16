@@ -30,6 +30,9 @@ import { PulseStrip } from '../components/shared/PulseStrip';
 import { applySlate, useSlate } from '../hooks/useSlate';
 import { hapticTap, hapticTick } from '../../utils/native';
 import { ItemFeed, SectionHeading } from '../components/storefront/ItemFeed';
+import { OccasionMosaic } from '../components/storefront/OccasionMosaic';
+import { WelcomeVideoCard } from '../components/storefront/WelcomeVideoCard';
+import { RecipientStrip } from '../components/storefront/RecipientStrip';
 import { PostCard } from '../components/storefront/PostCard';
 import { usePosts } from '../hooks/usePosts';
 import { PostBuySheet } from '../components/storefront/PostBuySheet';
@@ -40,6 +43,8 @@ import { isPurchasable, postActionLabel, postMatchesFilter } from '../types/post
 import type { PostSummary } from '../types/posts';
 import { useCart, toProduct } from '../hooks/useCart';
 import { useExperiences } from '../hooks/useExperiences';
+import { useOccasionTiles } from '../hooks/useOccasionTiles';
+import { hasSeenWelcome } from './public/welcomeSeen';
 import { useStorefrontData } from '../hooks/useStorefrontData';
 import { useStorefrontMode } from '../hooks/useStorefrontMode';
 import { useScrollDirection } from '../hooks/useScrollDirection';
@@ -101,12 +106,25 @@ export function ConsumerStorefront() {
   const { mine: myWishes, saveWish, removeWish } = useWishes();
   const [wishingPostId, setWishingPostId] = useState<string | null>(null);
   const { experiences, loading: experiencesLoading } = useExperiences({ limit: 6 });
+  const { tiles: occasionTiles, loading: occasionsLoading } = useOccasionTiles();
   const { mode } = useStorefrontMode();
   const definition = modeDefinition(mode);
 
   // One reading of the scroll, two bars: the header slides away and the mode
   // rail rises into the slot it left.
   const headerCollapsed = useScrollDirection();
+
+  // First-time, signed-out visitors get the welcome once.
+  //
+  // Fails open in both directions: a signed-in person never sees it, and if
+  // localStorage is unreadable -- a private window, blocked site data -- the
+  // flag reads as seen. Somebody being sent to the welcome twice is a poor
+  // outcome; somebody trapped in front of it because the flag cannot be
+  // written is a much worse one.
+  useEffect(() => {
+    if (authLoading || user) return;
+    if (!hasSeenWelcome()) navigate('/welcome', { replace: true });
+  }, [authLoading, user, navigate]);
 
   // The whole page answers a sideways swipe, not just the rail at the top of
   // it — by the time somebody is deep in the feed, that rail is long gone.
@@ -233,6 +251,21 @@ export function ConsumerStorefront() {
           onGift={openItem}
           onAddToCart={profile ? addItemToCart : undefined}
         />
+      </section>
+    ),
+
+    // The intent-led way in: pick the situation rather than the product.
+    //
+    // Always rendered, never gated on having tagged bundles. An occasion with
+    // nothing curated simply has no tile -- the mosaic drops it -- but the
+    // trust anchor and the concierge door need no data at all, and a day-one
+    // storefront that can still take a request is the entire point of them.
+    occasions: (
+      <section key="occasions">
+        <SectionHeading kicker="Start here" title="Who are you sending to?" />
+        <WelcomeVideoCard />
+        <RecipientStrip />
+        <OccasionMosaic tiles={occasionTiles} loading={occasionsLoading} />
       </section>
     ),
 

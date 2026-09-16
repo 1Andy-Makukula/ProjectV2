@@ -68,6 +68,18 @@ CREATE TABLE public.categories (
   slug text NOT NULL UNIQUE
 );
 
+-- The health shelves, by slug, because kappa resolves categories that way
+-- and 20260826220000 (the global list) is not in the harness migration set:
+-- seeding all ~100 of it would move the ground under assert_slate.
+INSERT INTO public.categories (name, slug) VALUES
+  ('Health Foods',           'health-foods'),
+  ('Pharmacy',               'pharmacy'),
+  ('Medical Supplies',       'medical-supplies'),
+  ('Vitamins & Supplements', 'vitamins-supplements'),
+  ('Mobility Aids',          'mobility-aids'),
+  ('Personal Care',          'personal-care'),
+  ('Optical',                'optical');
+
 CREATE TABLE public.items (
   id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   shop_id             uuid NOT NULL REFERENCES public.shops(id) ON DELETE CASCADE,
@@ -77,7 +89,12 @@ CREATE TABLE public.items (
   -- Prices are in ngwee throughout this codebase, never kwacha.
   price_zmw           integer NOT NULL DEFAULT 0,
   is_discounted       boolean,
-  original_price_zmw  integer
+  original_price_zmw  integer,
+  -- Read by the placeholder-bundle snippet when it picks a pool to draw
+  -- from and a picture to borrow. Real columns, same names and defaults.
+  image_url           text,
+  is_quote_only       boolean NOT NULL DEFAULT false,
+  created_at          timestamptz DEFAULT now()
 );
 
 -- The immutability guard the real ledgers carry (baseline snapshot). Stubbed
@@ -504,3 +521,105 @@ DROP TRIGGER IF EXISTS enforce_immutable_payout_ledger ON public.payout_ledger;
 CREATE TRIGGER enforce_immutable_payout_ledger
   BEFORE UPDATE OR DELETE ON public.payout_ledger
   FOR EACH ROW EXECUTE FUNCTION public.enforce_immutable_ledger();
+
+-- ---------------------------------------------------------------------------
+-- conversations, as 20260727040000 defines it.
+--
+-- Stubbed rather than imported: the real migration also brings messages,
+-- quotations, line items and eight functions, none of which the concierge
+-- thread needs. The two CHECK constraints are copied verbatim, because
+-- conversations_participants_check is the thing that decides whether an
+-- admin_buyer row with no shop is legal at all -- which is precisely what
+-- start_kithly_conversation depends on. A stub that relaxed it would let the
+-- test pass against a shape production would reject.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.conversations (
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  kind            text NOT NULL,
+  buyer_id        uuid REFERENCES public.users(id) ON DELETE CASCADE,
+  shop_id         uuid REFERENCES public.shops(id) ON DELETE CASCADE,
+  item_id         uuid,
+  shop_order_id   uuid,
+  subject         text,
+  is_closed       boolean NOT NULL DEFAULT false,
+  last_message_at timestamptz NOT NULL DEFAULT now(),
+  created_at      timestamptz NOT NULL DEFAULT now(),
+
+  CONSTRAINT conversations_kind_check
+    CHECK (kind IN ('buyer_merchant', 'admin_buyer', 'admin_shop')),
+
+  -- Each OR sits at the end of its line rather than the start of the next,
+  -- which is the one cosmetic departure from 20260727040000. scaffold-drift
+  -- parses this file line by line and reads any continuation beginning with a
+  -- bare word as a column definition, so a leading OR is reported as a column
+  -- named "OR". Same predicate either way -- do not reflow it back.
+  CONSTRAINT conversations_participants_check CHECK (
+    (kind = 'buyer_merchant' AND buyer_id IS NOT NULL AND shop_id IS NOT NULL) OR
+    (kind = 'admin_buyer' AND buyer_id IS NOT NULL) OR
+    (kind = 'admin_shop'  AND shop_id  IS NOT NULL)
+  )
+);
+ALTER TABLE public.conversations ENABLE ROW LEVEL SECURITY;
+
+-- The policy production has (20260727040000). It has to be here and not just
+-- RLS-enabled, for the same reason contacts_owner_all does above: without it
+-- the visibility assertions pass vacuously, because a table with RLS on and no
+-- policy denies everyone equally -- including the owner the test is checking
+-- can see their own row.
+DROP POLICY IF EXISTS conversations_select ON public.conversations;
+CREATE POLICY conversations_select ON public.conversations
+  FOR SELECT TO authenticated
+  USING (
+    buyer_id = auth.uid()
+    OR EXISTS (
+      SELECT 1 FROM public.merchant_shops ms
+      WHERE ms.shop_id = conversations.shop_id AND ms.user_id = auth.uid()
+    )
+    OR public.current_user_role() = 'admin'
+  );
+
+-- ---------------------------------------------------------------------------
+-- experiences, as 20260727060000 defines it.
+--
+-- Stubbed so 20260916010000 has a table to add a column to. experience_items,
+-- experience_total() and experience_is_available() are left out deliberately:
+-- nothing under test reads them, and a stub that grows past what the tests
+-- touch is a second schema to keep in step with the first.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.experiences (
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name        text NOT NULL,
+  slug        text NOT NULL UNIQUE,
+  tagline     text,
+  description text,
+  image_url   text,
+  is_active   boolean NOT NULL DEFAULT false,
+  is_featured boolean NOT NULL DEFAULT false,
+  expires_at  timestamptz,
+  sort_order  integer NOT NULL DEFAULT 0,
+  created_by  uuid REFERENCES public.users(id) ON DELETE SET NULL,
+  created_at  timestamptz NOT NULL DEFAULT now(),
+  updated_at  timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.experiences ENABLE ROW LEVEL SECURITY;
+
+-- ---------------------------------------------------------------------------
+-- experience_items, as 20260727060000 defines it.
+--
+-- The unique constraint is carried over because the placeholder-bundle
+-- snippet relies on it: it inserts ON CONFLICT DO NOTHING so that a bundle
+-- drawing from a pool smaller than its own line count cannot try to add the
+-- same item twice.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.experience_items (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  experience_id uuid NOT NULL REFERENCES public.experiences(id) ON DELETE CASCADE,
+  item_id       uuid NOT NULL REFERENCES public.items(id) ON DELETE CASCADE,
+  quantity      integer NOT NULL DEFAULT 1,
+  note          text,
+  sort_order    integer NOT NULL DEFAULT 0,
+
+  CONSTRAINT experience_items_quantity_check CHECK (quantity > 0),
+  CONSTRAINT experience_items_unique UNIQUE (experience_id, item_id)
+);
+ALTER TABLE public.experience_items ENABLE ROW LEVEL SECURITY;

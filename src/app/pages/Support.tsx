@@ -1,10 +1,11 @@
 // Support & Help Page
 
 import { useState } from 'react';
-import { MessageCircle, HelpCircle, Mail, Phone } from 'lucide-react';
+import { MessageCircle, HelpCircle, Mail, Phone, PackageSearch } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { toast } from 'sonner';
+import { useConciergeThread } from '../hooks/useConciergeThread';
 
 const faqs = [
   {
@@ -38,6 +39,9 @@ export function Support() {
   const [ticketSubject, setTicketSubject] = useState('');
   const [ticketMessage, setTicketMessage] = useState('');
   const [trackingCode, setTrackingCode] = useState('');
+  const [askSubject, setAskSubject] = useState('');
+
+  const { askKithly, opening } = useConciergeThread();
 
   const handleSubmitTicket = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +55,7 @@ export function Support() {
       toast.info('Order tracking feature coming soon!');
     }
   };
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -183,6 +188,46 @@ export function Support() {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Ask KithLy to source something we do not list yet. */}
+        <div className="kl-tile kl-rim mt-12 p-8">
+          <div className="flex items-start gap-4">
+            <div className="kl-gradient-brand-br flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl">
+              <PackageSearch className="h-5 w-5 text-white" strokeWidth={1.5} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="mb-1 text-xl font-light text-black">
+                Looking for something we don’t stock?
+              </h3>
+              <p className="mb-5 max-w-xl text-sm font-light text-muted-foreground">
+                Tell us what you need and we’ll find it in Lusaka, send you a price to
+                approve, and hold the money in escrow until your person collects it —
+                exactly as we do for every other order.
+              </p>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <input
+                  type="text"
+                  value={askSubject}
+                  onChange={(e) => setAskSubject(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && !opening) askKithly(askSubject); }}
+                  placeholder="A blood pressure monitor, school shoes, a birthday cake…"
+                  aria-label="What you are looking for"
+                  className="min-w-0 flex-1 rounded-full border border-border px-4 py-3 text-sm font-light focus:border-primary focus:outline-none"
+                />
+                <motion.button
+                  whileHover={{ scale: opening ? 1 : 1.02 }}
+                  whileTap={{ scale: opening ? 1 : 0.98 }}
+                  onClick={() => askKithly(askSubject)}
+                  disabled={opening}
+                  className="kl-gradient-brand shrink-0 rounded-full px-8 py-3 text-sm font-light text-white shadow-lg disabled:opacity-60"
+                >
+                  {opening ? 'Opening…' : 'Ask KithLy'}
+                </motion.button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Contact Info */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12">

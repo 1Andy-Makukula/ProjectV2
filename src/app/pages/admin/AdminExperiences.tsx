@@ -31,6 +31,14 @@ import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
 import { useAdminExperiences } from '../../hooks/useExperiences';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/ui/select';
+import { OCCASION_KINDS, type OccasionKind } from '../../types/contacts';
+import {
   experienceTotal,
   participatingShops,
   slugify,
@@ -77,6 +85,7 @@ export function AdminExperiences() {
   const [description, setDescription] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
+  const [occasionKind, setOccasionKind] = useState<OccasionKind | 'none'>('none');
   const [lines, setLines] = useState<DraftLine[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -110,6 +119,7 @@ export function AdminExperiences() {
     setDescription('');
     setImageUrl('');
     setExpiresAt('');
+    setOccasionKind('none');
     setLines([]);
   };
 
@@ -121,6 +131,7 @@ export function AdminExperiences() {
     setDescription(experience.description ?? '');
     setImageUrl(experience.image_url ?? '');
     setExpiresAt(experience.expires_at ? experience.expires_at.slice(0, 10) : '');
+    setOccasionKind(experience.occasion_kind ?? 'none');
     setLines(
       (experience.experience_items ?? [])
         .slice()
@@ -174,6 +185,7 @@ export function AdminExperiences() {
         description: description.trim() || null,
         image_url: imageUrl.trim() || null,
         expires_at: expiresAt ? new Date(`${expiresAt}T23:59:59`).toISOString() : null,
+        occasion_kind: occasionKind === 'none' ? null : occasionKind,
         updated_at: new Date().toISOString(),
       };
 
@@ -212,7 +224,7 @@ export function AdminExperiences() {
     } finally {
       setSaving(false);
     }
-  }, [name, slug, tagline, description, imageUrl, expiresAt, lines, editing, reload]);
+  }, [name, slug, tagline, description, imageUrl, expiresAt, occasionKind, lines, editing, reload]);
 
   const filteredCatalogue = itemQuery
     ? catalogue.filter(
@@ -288,6 +300,30 @@ export function AdminExperiences() {
                         onChange={(e) => setTagline(e.target.value)}
                         placeholder="One line that sells it"
                       />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="exp-occasion">Occasion</Label>
+                      <Select
+                        value={occasionKind}
+                        onValueChange={(v) => setOccasionKind(v as OccasionKind | 'none')}
+                      >
+                        <SelectTrigger id="exp-occasion">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">No occasion</SelectItem>
+                          {OCCASION_KINDS.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-slate-400">
+                        Which tile this appears under. Leave it unset and the experience is
+                        still reachable by link and by search — it just sits under no tile.
+                      </p>
                     </div>
 
                     <div className="space-y-1.5">

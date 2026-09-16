@@ -96,6 +96,15 @@ interface SendFlowState {
   experienceId: string | null;
   setItem: (item: Item) => void;
   setRecipient: (recipient: RecipientDetails) => void;
+  /**
+   * Un-picks the recipient without disturbing anything else.
+   *
+   * `reset` clears the item, the booking date and the experience
+   * provenance too, so it cannot stand in for this: somebody changing
+   * their mind about who they are sending to must not also lose which
+   * curated bundle their cart came from.
+   */
+  clearRecipient: () => void;
   setTargetExecutionDate: (date: string | null) => void;
   setExperience: (experienceId: string | null) => void;
   reset: () => void;
@@ -108,6 +117,7 @@ export const useSendFlowStore = create<SendFlowState>((set) => ({
   experienceId: null,
   setItem: (item) => set({ item }),
   setRecipient: (recipient) => set({ recipient }),
+  clearRecipient: () => set({ recipient: null }),
   setTargetExecutionDate: (targetExecutionDate) => set({ targetExecutionDate }),
   setExperience: (experienceId) => set({ experienceId }),
   reset: () =>

@@ -52,6 +52,8 @@ const ShopDetail = lazyPage(() => import('./pages/sender/ShopDetail'), 'ShopDeta
 const ItemDetail = lazyPage(() => import('./pages/sender/ItemDetail'), 'ItemDetail');
 const Messages = lazyPage(() => import('./pages/Messages'), 'Messages');
 const ExperienceDetail = lazyPage(() => import('./pages/sender/ExperienceDetail'), 'ExperienceDetail');
+const OccasionPage = lazyPage(() => import('./pages/OccasionPage'), 'OccasionPage');
+const Welcome = lazyPage(() => import('./pages/public/Welcome'), 'Welcome');
 const ListDetail = lazyPage(() => import('./pages/sender/ListDetail'), 'ListDetail');
 const MyLists = lazyPage(() => import('./pages/sender/MyLists'), 'MyLists');
 const Contacts = lazyPage(() => import('./pages/sender/Contacts'), 'Contacts');
@@ -150,6 +152,8 @@ export const router = createBrowserRouter([
       { path: 'shops', element: <Lazy><ShopDirectory /></Lazy> },
       { path: 'item/:itemId', element: <Lazy><ItemDetail /></Lazy> },
       { path: 'experience/:slug', element: <Lazy><ExperienceDetail /></Lazy> },
+      { path: 'occasion/:kind', element: <Lazy><OccasionPage /></Lazy> },
+      { path: 'welcome', element: <Lazy><Welcome /></Lazy> },
 
       // Public: a shared link has to open for someone who is not signed in.
       { path: 'list/:slug', element: <Lazy><ListDetail /></Lazy> },

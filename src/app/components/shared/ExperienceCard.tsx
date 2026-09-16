@@ -60,7 +60,7 @@ export function ExperienceCard({ experience, onOpen }: ExperienceCardProps) {
           </div>
         )}
 
-        <div className="absolute left-2.5 top-2.5 flex items-center gap-1 rounded-full border border-primary/20 bg-white/90 px-2 py-0.5 shadow-sm backdrop-blur-sm">
+        <div className="kl-glass kl-rim absolute left-2.5 top-2.5 flex items-center gap-1 rounded-full px-2 py-0.5 shadow-sm">
           <Sparkles className="h-2.5 w-2.5 shrink-0 text-primary" strokeWidth={2} />
           <span className="text-[9px] font-bold uppercase tracking-wide text-primary">
             Experience

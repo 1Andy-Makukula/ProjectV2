@@ -5,6 +5,8 @@
 // terminal (the Smart Bundle Protocol), and reusing the word would make
 // merchant-facing language ambiguous.
 
+import type { OccasionKind } from './contacts';
+
 export interface ExperienceItem {
   id: string;
   experience_id: string;
@@ -34,6 +36,15 @@ export interface Experience {
   is_active: boolean;
   is_featured: boolean;
   expires_at: string | null;
+  /**
+   * Which occasion tile this bundle appears under.
+   *
+   * Null is a real state, not a missing one: an untagged bundle is
+   * reachable by link and by search but sits under no tile, which is where
+   * a one-off belongs. The kinds are the same closed list saved occasions
+   * use, so the two can never drift into separate vocabularies.
+   */
+  occasion_kind: OccasionKind | null;
   sort_order: number;
   created_at: string;
   experience_items?: ExperienceItem[];

@@ -70,3 +70,22 @@ describe('gifting', () => {
     expect(withOccasions.map((mode) => mode.value)).toEqual(['gifting']);
   });
 });
+
+describe('the occasion mosaic', () => {
+  it('sits on the two browsing faces and nowhere else', () => {
+    const withOccasions = STOREFRONT_MODES.filter((mode) =>
+      mode.sections.includes('occasions'),
+    );
+    expect(withOccasions.map((mode) => mode.value)).toEqual(['discover', 'gifting']);
+  });
+
+  it('leaves the direct-shopping faces alone', () => {
+    // Somebody in Lusaka browsing a catalogue is not sending to anybody, so an
+    // intent-led way in would only be in their way. This is the line that keeps
+    // the occasion pivot off the local shopping path structurally, rather than
+    // as an intention somebody has to remember.
+    for (const mode of ['shopping', 'services'] as const) {
+      expect(modeDefinition(mode).sections).not.toContain('occasions');
+    }
+  });
+});
