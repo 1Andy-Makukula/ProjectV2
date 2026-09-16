@@ -173,6 +173,12 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     tagline: 'Gifts, experiences and services from shops across Zambia.',
     icon: Compass,
     layout: 'grid',
+    // Three across at most, against the shared ladder's four at xl and five at
+    // 2xl. Discover leads with services and experiences, whose names are
+    // sentences rather than nouns -- at four columns "Deep Clean (3 Bedrooms)"
+    // renders as "Deep Clean (3 ...", and a card whose title is a shrug is not
+    // a card somebody taps.
+    density: 'grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5',
     sections: ['campaigns', 'posts', 'experiences', 'items', 'shops'],
     itemFilter: null,
     itemsHeading: 'Featured Picks',
