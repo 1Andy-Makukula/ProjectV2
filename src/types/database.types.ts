@@ -498,7 +498,6 @@ export type Database = {
           is_active: boolean
           is_featured: boolean
           name: string
-          occasion_kind: string | null
           slug: string
           sort_order: number
           tagline: string | null
@@ -514,7 +513,6 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           name: string
-          occasion_kind?: string | null
           slug: string
           sort_order?: number
           tagline?: string | null
@@ -530,7 +528,6 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           name?: string
-          occasion_kind?: string | null
           slug?: string
           sort_order?: number
           tagline?: string | null
@@ -543,13 +540,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "experiences_occasion_kind_fkey"
-            columns: ["occasion_kind"]
-            isOneToOne: false
-            referencedRelation: "occasion_lead_times"
-            referencedColumns: ["kind"]
           },
         ]
       }
@@ -3523,10 +3513,6 @@ export type Database = {
       }
       start_conversation: {
         Args: { p_item_id?: string; p_shop_id: string; p_subject?: string }
-        Returns: string
-      }
-      start_kithly_conversation: {
-        Args: { p_subject?: string }
         Returns: string
       }
       trigger_daily_payout_sweeper: { Args: never; Returns: undefined }

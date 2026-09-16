@@ -68,8 +68,6 @@ const DEFAULT_LEXICON: ModeLexicon = {
 /** Which rail modules a mode shows, in the order it shows them. */
 export type RailModuleKey =
   | 'status'
-  /** Dates coming up for people in your contacts. Not the tile mosaic,
-      which is a `sections` member that happens to share the name. */
   | 'occasions'
   | 'wishes'
   | 'mostBought'
@@ -123,16 +121,8 @@ export interface ModeDefinition {
    * change is *which* posts — sliced by the character of their attached items,
    * the same way `itemFilter` slices items — and how they are drawn, which is
    * `postPresentation` below.
-   *
-   * `occasions` is the tile mosaic that leads into /occasion/:kind. Note that
-   * RailModuleKey below also has an `occasions` member and they are not the
-   * same thing: that one lists dates coming up for people in your address
-   * book, while this is a way in to what we sell for an occasion at all. A
-   * mode may show either, both, or neither.
    */
-  sections: Array<
-    'campaigns' | 'occasions' | 'experiences' | 'items' | 'shops' | 'lists' | 'posts'
-  >;
+  sections: Array<'campaigns' | 'experiences' | 'items' | 'shops' | 'lists' | 'posts'>;
   /** Filters the item feed. `null` means everything. */
   itemFilter: 'product' | 'service' | null;
   /** Copy for the item section heading. */
@@ -171,7 +161,7 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     tagline: 'Gifts, experiences and services from shops across Zambia.',
     icon: Compass,
     layout: 'grid',
-    sections: ['campaigns', 'occasions', 'posts', 'experiences', 'items', 'shops'],
+    sections: ['campaigns', 'posts', 'experiences', 'items', 'shops'],
     itemFilter: null,
     itemsHeading: 'Featured Picks',
     itemsKicker: 'Curated Selection',
@@ -186,7 +176,7 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     // denser than it was: two-up on a desktop meant four products filled a
     // screen, which is a lookbook rather than a shop.
     layout: 'editorial',
-    sections: ['campaigns', 'occasions', 'items', 'posts', 'experiences', 'shops'],
+    sections: ['campaigns', 'items', 'posts', 'experiences', 'shops'],
     itemFilter: 'product',
     itemsHeading: 'Ready to send',
     itemsKicker: 'For someone you like',

@@ -3,11 +3,9 @@ import { supabase } from '../../lib/supabaseClient';
 import { toast } from 'sonner';
 import { parseAuthError } from '../../utils/errorParser';
 import type { Experience } from '../types/experiences';
-import type { OccasionKind } from '../types/contacts';
 
 const EXPERIENCE_SELECT = `
   id, name, slug, tagline, description, image_url, is_active, is_featured,
-  occasion_kind,
   expires_at, sort_order, created_at,
   experience_items (
     id, experience_id, item_id, quantity, note, sort_order,
@@ -18,36 +16,9 @@ const EXPERIENCE_SELECT = `
   )
 `;
 
-export interface UseExperiencesOptions {
-  featuredOnly?: boolean;
-  limit?: number;
-  /** One kind, or the several kinds sharing one front-door tile. */
-  occasionKind?: OccasionKind | readonly OccasionKind[];
-}
-
-/**
- * Active experiences for the storefront.
- *
- * `occasionKind` narrows to one tile’s worth — either a single kind, or the
- * several kinds that share one front-door tile (see occasionGroups.ts, where
- * six gift occasions sit behind Celebrations). Passing undefined returns
- * everything rather than nothing, so a caller that has not resolved a kind
- * yet still renders a sensible storefront section.
- */
-export function useExperiences(
-  options: UseExperiencesOptions = {},
-) {
-  const { featuredOnly = false, limit = 12, occasionKind } = options;
-
-  // A stable primitive for the dependency array. An array of kinds built by
-  // the caller is a new identity on every render, and putting it in the deps
-  // directly would refetch the shelf forever.
-  const kindKey =
-    occasionKind === undefined
-      ? ''
-      : typeof occasionKind === 'string'
-        ? occasionKind
-        : [...occasionKind].join(',');
+/** Active experiences for the storefront. */
+export function useExperiences(options: { featuredOnly?: boolean; limit?: number } = {}) {
+  const { featuredOnly = false, limit = 12 } = options;
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -65,9 +36,6 @@ export function useExperiences(
           .limit(limit);
 
         if (featuredOnly) query = query.eq('is_featured', true);
-        const kinds = kindKey ? kindKey.split(',') : [];
-        if (kinds.length === 1) query = query.eq('occasion_kind', kinds[0]);
-        else if (kinds.length > 1) query = query.in('occasion_kind', kinds);
 
         const { data, error } = await query;
         if (error) throw error;
@@ -84,7 +52,7 @@ export function useExperiences(
     return () => {
       cancelled = true;
     };
-  }, [featuredOnly, limit, kindKey]);
+  }, [featuredOnly, limit]);
 
   return { experiences, loading };
 }

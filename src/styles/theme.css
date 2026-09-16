@@ -117,17 +117,6 @@
     rgba(255,255,255,0.9) 100%
   );
 
-  /* ── Glass ──────────────────────────────────────────────────
-     A translucent plate, for a label that has to sit on a photograph.
-
-     --glass-fallback is the opaque stand-in for wherever backdrop-filter is
-     unavailable, and --glass-ink is the one text colour that reads on either
-     of them — which is why it is a token rather than something inherited
-     from whatever the plate happens to be sitting on. */
-  --glass: rgba(255, 255, 255, 0.58);
-  --glass-fallback: rgba(255, 255, 255, 0.90);
-  --glass-ink: #0D0D0D;
-
   /* ── Paper ──────────────────────────────────────────────────────────────
      The memory skin: a warm ground for journeys and unboxings, where the job
      is to feel made rather than merchandised. Kept as tokens so the whole
@@ -267,13 +256,6 @@
     var(--primary-light) 66%,
     rgba(255,255,255,0.25) 100%
   );
-
-  /* Glass on a dark ground is a darker plate, not a lighter one. A pale
-     frost over a night photograph reads as fog rather than as glass. */
-  --glass: rgba(22, 22, 22, 0.52);
-  --glass-fallback: rgba(22, 22, 22, 0.90);
-  --glass-ink: #F5F5F5;
-
   --sidebar: #141414;
   --sidebar-foreground: #F5F5F5;
   --sidebar-primary: #F26334;
@@ -596,59 +578,6 @@
 
   .kl-glow:hover {
     box-shadow: var(--shadow-glow-strong);
-  }
-
-  /* ── Glass ────────────────────────────────────────────────
-     A surface that lets what is behind it through, for a label that has to
-     sit on a photograph.
-
-     Deliberately not a variant of .kl-tile. Glass over a flat ground is just
-     a dirty card and buys nothing, so this paints no radius and no shadow of
-     its own and is only ever composed onto something sitting over an image.
-     It pairs with .kl-rim exactly as every other surface does, which is what
-     keeps a frosted plate lit by the same light as a solid one. */
-  .kl-glass {
-    background: var(--glass);
-    -webkit-backdrop-filter: blur(20px) saturate(155%);
-    backdrop-filter: blur(20px) saturate(155%);
-    color: var(--glass-ink);
-  }
-
-  /* Where the filter is unavailable or has been switched off, fall back to an
-     opaque fill rather than a transparent one. Pale text on an undimmed
-     photograph is a worse outcome than a heavier plate. */
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .kl-glass {
-      background: var(--glass-fallback);
-    }
-  }
-
-  /* The scrim that goes underneath it, on whatever element clips the image.
-
-     Glass alone cannot guarantee contrast: it blurs the photograph without
-     darkening it, so legibility ends up depending on what the photographer
-     shot. The picture is merchandising data and will be swapped by someone
-     who is not looking at the type, which is what makes this mandatory on a
-     photo tile rather than a judgement call.
-
-     Uses ::after, so it cannot be combined with .kl-ornament-gift or
-     .kl-ornament-ticket on the same element — those draw there too. */
-  .kl-scrim {
-    position: relative;
-  }
-
-  .kl-scrim::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background: linear-gradient(
-      to top,
-      rgba(10, 6, 4, 0.78) 0%,
-      rgba(10, 6, 4, 0.34) 38%,
-      transparent 68%
-    );
   }
 
   /* A tile: the shell every card, product and shop sits in. */

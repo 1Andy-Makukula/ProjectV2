@@ -37,7 +37,11 @@ export function Login() {
       // in the header — running a shop does not stop you being a customer.
       // Admins still go to their console.
       if (profile.role === 'admin') navigate('/admin');
-      else navigate('/');
+      // Everyone else is asked which of the two doors they want before they
+      // are shown a shelf. The storefront serves a Lusaka shopper and a
+      // diaspora sender very differently, and guessing which one just arrived
+      // is how both get a front page written for somebody else.
+      else navigate('/welcome');
     }
   }, [user, profile, navigate]);
 

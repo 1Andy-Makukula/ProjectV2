@@ -1,9 +1,14 @@
-// The first thing a new visitor sees, once.
+// The front door: the first thing you see after logging in.
 //
 // Not a marketing page — pages/public/Landing.tsx is that, and it is a signup
-// funnel with a different job. This is orientation: who we are, what happens to
-// your money, and which of the two doors you want. It shows on a first visit
-// and never again, because a welcome screen you cannot get past is a wall.
+// funnel with a different job. This is orientation: who we are, what happens
+// to your money, and which of the two doors you want.
+//
+// It asks the two-market question once, out loud, instead of guessing. A
+// diaspora sender and a Lusaka shopper want almost nothing in common from a
+// front page, and the six mode chips on the storefront were never a fork —
+// six equal options is what not choosing looks like. Both doors lead to the
+// same storefront with the mode already set, so neither answer is a trap.
 
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router';
@@ -149,11 +154,11 @@ export function Welcome() {
             className="kl-tile kl-rim kl-lift group p-6 text-left"
           >
             <span className="mb-1.5 block text-base font-semibold text-slate-900">
-              I am sending to someone in Zambia
+              Send home
             </span>
             <span className="mb-4 block text-sm font-light leading-relaxed text-muted-foreground">
-              Start from the occasion — groceries for the month, a graduation, a
-              pharmacy run — and we will show you what that buys.
+              Somebody in Zambia is collecting it — groceries for the month, a
+              birthday, a pharmacy run. You pay here, they collect there.
             </span>
             <span className="flex items-center gap-1.5 text-sm font-medium text-primary">
               Start sending
@@ -169,11 +174,11 @@ export function Welcome() {
             className="kl-tile kl-rim kl-lift group p-6 text-left"
           >
             <span className="mb-1.5 block text-base font-semibold text-slate-900">
-              I live in Zambia and want to shop
+              I am Zambian
             </span>
             <span className="mb-4 block text-sm font-light leading-relaxed text-muted-foreground">
-              Straight into the catalogue: every shop, every item, nothing about
-              occasions in the way.
+              You are here and shopping for yourself. Straight into the
+              catalogue: every shop, every item, nothing in the way.
             </span>
             <span className="flex items-center gap-1.5 text-sm font-medium text-primary">
               Browse the shops
