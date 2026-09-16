@@ -116,10 +116,18 @@ export interface ModeDefinition {
    * item/shop data every other mode shares — see useStorefrontData, which loads
    * both alongside the rest so switching mode still refetches nothing.
    *
-   * Posts appear in every mode. That costs almost nothing, because modes are
-   * not six pages: they re-order and re-weight one fetch. What each mode does
-   * change is *which* posts — sliced by the character of their attached items,
-   * the same way `itemFilter` slices items — and how they are drawn, which is
+   * Posts appear in Discover only.
+   *
+   * They used to run in all six, on the reasoning that it cost almost nothing:
+   * modes are not six pages, they re-order and re-weight one fetch. But cheap
+   * is not the same as wanted. A merchant post is browsing material, and five
+   * of the six modes are somebody who already knows what they came for —
+   * Shopping is a catalogue, Services is a price list, Lists is somebody
+   * else's errand. Discover is the one mode where a post is the point rather
+   * than something in the way of it.
+   *
+   * Which posts is still sliced by the character of their attached items, the
+   * same way `itemFilter` slices items, and how they are drawn is
    * `postPresentation` below.
    */
   sections: Array<'campaigns' | 'experiences' | 'items' | 'shops' | 'lists' | 'posts'>;
@@ -141,6 +149,10 @@ export interface ModeDefinition {
    * photograph" — dropping a full-bleed photo card into either breaks exactly
    * what those modes were built to be. So they get the strip, and the modes
    * people browse in get the card.
+   *
+   * Dormant while Discover is the only mode carrying posts. Kept on the dense
+   * modes deliberately: putting posts back into one of them should not also
+   * re-introduce the thing this setting exists to prevent.
    */
   postPresentation?: 'card' | 'strip';
   /** Words this mode uses. Anything omitted keeps the plain one. */
@@ -176,7 +188,7 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     // denser than it was: two-up on a desktop meant four products filled a
     // screen, which is a lookbook rather than a shop.
     layout: 'editorial',
-    sections: ['campaigns', 'items', 'posts', 'experiences', 'shops'],
+    sections: ['campaigns', 'items', 'experiences', 'shops'],
     itemFilter: 'product',
     itemsHeading: 'Ready to send',
     itemsKicker: 'For someone you like',
@@ -200,7 +212,7 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     tagline: 'Several shops, one gift, one deadline.',
     icon: Sparkles,
     layout: 'showcase',
-    sections: ['experiences', 'campaigns', 'posts', 'shops'],
+    sections: ['experiences', 'campaigns', 'shops'],
     itemFilter: null,
     itemsHeading: 'Also worth a look',
     itemsKicker: 'Single items',
@@ -219,7 +231,7 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     // under each business reads like the price list on a shop wall, and shows
     // far more of what a provider actually offers than a grid of cards did.
     layout: 'menu',
-    sections: ['items', 'posts', 'shops', 'experiences'],
+    sections: ['items', 'shops', 'experiences'],
     itemFilter: 'service',
     itemsHeading: 'Available to book',
     itemsKicker: 'Arranged with the shop',
@@ -237,7 +249,7 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     // Unused here: this mode's feed is lists, not items. Kept at the default
     // rather than reshaping ModeDefinition for a single case.
     layout: 'grid',
-    sections: ['lists', 'shops', 'posts'],
+    sections: ['lists', 'shops'],
     itemFilter: null,
     itemsHeading: 'Lists',
     itemsKicker: 'Built by people and shops',
@@ -257,7 +269,7 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     // scan — but a shop where nothing has a picture is a spreadsheet, and the
     // thing people actually recognise a product by is the packet.
     layout: 'grid',
-    sections: ['items', 'posts', 'shops'],
+    sections: ['items', 'shops'],
     itemFilter: null,
     itemsHeading: 'All items',
     itemsKicker: 'Full catalogue',

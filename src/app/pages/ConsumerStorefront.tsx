@@ -177,8 +177,10 @@ export function ConsumerStorefront() {
     [visibleItems, slate],
   );
 
-  // Posts appear in every mode; which posts is sliced the same way items are,
-  // from the character of what each post attaches.
+  // Which posts is sliced the same way items are, from the character of what
+  // each post attaches. Only Discover renders the section now, but the slice
+  // stays here because it costs one pass over an array already in memory, and
+  // putting posts back into a mode is then a one-word change.
   const visiblePosts = useMemo(
     () => posts.filter((post) => postMatchesFilter(post, definition.itemFilter)),
     [posts, definition.itemFilter],
