@@ -275,6 +275,11 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     // scan — but a shop where nothing has a picture is a spreadsheet, and the
     // thing people actually recognise a product by is the packet.
     layout: 'grid',
+    // And capped at three across, as Discover is. Written out here rather than
+    // shared from one constant because the ladder belongs beside the mode it
+    // describes; two modes agreeing today is not a reason to make changing one
+    // of them mean editing the other.
+    density: 'grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5',
     sections: ['items', 'shops'],
     itemFilter: null,
     itemsHeading: 'All items',
