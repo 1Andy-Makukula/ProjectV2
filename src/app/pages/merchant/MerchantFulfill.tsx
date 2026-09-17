@@ -275,11 +275,22 @@ export function MerchantFulfill() {
             >
               {/* Order header */}
               <div className="rounded-2xl bg-white border border-slate-100 shadow-sm px-5 py-4 flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-widest text-slate-400 mb-0.5">Claim Code</p>
-                  <p className="font-mono text-lg font-semibold text-slate-900">{shopOrder.claim_code}</p>
+                <div className="min-w-0">
+                  <p className="text-xs font-medium uppercase tracking-widest text-slate-400 mb-0.5">
+                    {shopOrder.recipient_name ? 'Hand over to' : 'Claim Code'}
+                  </p>
+                  {shopOrder.recipient_name ? (
+                    <>
+                      <p className="text-lg font-semibold text-slate-900 truncate">
+                        {shopOrder.recipient_name}
+                      </p>
+                      <p className="font-mono text-xs text-slate-400 mt-0.5">{shopOrder.claim_code}</p>
+                    </>
+                  ) : (
+                    <p className="font-mono text-lg font-semibold text-slate-900">{shopOrder.claim_code}</p>
+                  )}
                 </div>
-                <span className="rounded-full bg-emerald-50 border border-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                <span className="rounded-full bg-emerald-50 border border-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 flex-shrink-0">
                   {items.length} item{items.length !== 1 ? 's' : ''}
                 </span>
               </div>
@@ -327,6 +338,19 @@ export function MerchantFulfill() {
                           )}>
                             {item.item_name}
                           </p>
+                          {/* The variant the buyer chose. Without it a counter
+                              holding three sizes cannot tell which to hand over. */}
+                          {item.selected_options && item.selected_options.length > 0 && (
+                            <p className={cn(
+                              'text-xs mt-0.5 truncate',
+                              isChecked ? 'text-slate-500' : 'text-slate-400',
+                            )}>
+                              {item.selected_options
+                                .map(o => [o.group, o.value].filter(Boolean).join(': '))
+                                .filter(Boolean)
+                                .join(' · ')}
+                            </p>
+                          )}
                           {!isChecked && (
                             <p className="text-xs text-red-500 mt-0.5 font-medium">Marked as missing</p>
                           )}
