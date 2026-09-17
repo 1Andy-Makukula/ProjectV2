@@ -47,7 +47,7 @@ export function ExperienceCard({ experience, onOpen }: ExperienceCardProps) {
       className="kl-tile kl-lift kl-ornament-ticket group relative flex cursor-pointer flex-col
                  overflow-hidden"
     >
-      <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-slate-50">
+      <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-ink-50">
         {experience.image_url ? (
           <img
             src={experience.image_url}
@@ -69,7 +69,7 @@ export function ExperienceCard({ experience, onOpen }: ExperienceCardProps) {
 
         {!available && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-[1px]">
-            <span className="rounded-full bg-slate-900/80 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+            <span className="rounded-full bg-ink-900/80 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
               {experienceHasLapsed(experience) ? 'Ended' : 'Unavailable'}
             </span>
           </div>
@@ -77,19 +77,19 @@ export function ExperienceCard({ experience, onOpen }: ExperienceCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col gap-1 px-4 py-3">
-        <h3 className="truncate text-sm font-semibold leading-snug text-slate-900">
+        <h3 className="truncate text-sm font-semibold leading-snug text-ink-900">
           {experience.name}
         </h3>
 
         {experience.tagline && (
-          <p className="line-clamp-1 text-[11px] leading-snug text-slate-400">
+          <p className="line-clamp-1 text-[11px] leading-snug text-ink-400">
             {experience.tagline}
           </p>
         )}
 
-        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-slate-500">
+        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-ink-500">
           <span className="flex items-center gap-1">
-            <Store className="h-3 w-3 shrink-0 text-slate-400" strokeWidth={2} />
+            <Store className="h-3 w-3 shrink-0 text-ink-400" strokeWidth={2} />
             {shops.length} {shops.length === 1 ? 'shop' : 'shops'}
           </span>
           <span>
@@ -97,7 +97,7 @@ export function ExperienceCard({ experience, onOpen }: ExperienceCardProps) {
           </span>
           {experience.expires_at && (
             <span className="flex items-center gap-1">
-              <CalendarClock className="h-3 w-3 shrink-0 text-slate-400" strokeWidth={2} />
+              <CalendarClock className="h-3 w-3 shrink-0 text-ink-400" strokeWidth={2} />
               {/* A deadline is the thing that makes an experience urgent, and a
                   date alone makes nobody count the days. */}
               {closesIn ?? new Date(experience.expires_at).toLocaleDateString('en-US', {
@@ -108,12 +108,12 @@ export function ExperienceCard({ experience, onOpen }: ExperienceCardProps) {
           )}
         </div>
 
-        <p className="mt-2 text-sm font-semibold text-slate-900">
+        <p className="mt-2 text-sm font-semibold text-ink-900">
           {formatCurrency(total, 'ZMW')}
         </p>
 
-        <div className="mt-2.5 flex items-center gap-1 text-[10px] text-slate-400">
-          <Shield className="h-3 w-3 shrink-0 text-orange-500" strokeWidth={2} />
+        <div className="mt-2.5 flex items-center gap-1 text-[10px] text-ink-400">
+          <Shield className="h-3 w-3 shrink-0 text-brand-500" strokeWidth={2} />
           Escrow protected
         </div>
       </div>

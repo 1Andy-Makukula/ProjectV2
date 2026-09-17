@@ -325,12 +325,12 @@ export function CustomizeListDialog({
                 return (
                   <li key={entry.id} className="py-2">
                   <div className="flex items-center gap-3">
-                    <div className="size-10 shrink-0 overflow-hidden rounded-lg bg-slate-50">
+                    <div className="size-10 shrink-0 overflow-hidden rounded-lg bg-ink-50">
                       {imageUrl ? (
                         <img src={imageUrl} alt="" className="h-full w-full object-cover" />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center">
-                          <Store className="size-4 text-slate-300" strokeWidth={1.5} />
+                          <Store className="size-4 text-ink-300" strokeWidth={1.5} />
                         </div>
                       )}
                     </div>
@@ -354,8 +354,8 @@ export function CustomizeListDialog({
                         onClick={() => setNoteFor(noteFor === entry.id ? null : entry.id)}
                         aria-label={`Write about ${name}`}
                         title="Write about this stop"
-                        className={`rounded-md p-1.5 transition-colors hover:bg-slate-100
-                          ${entry.note ? 'text-primary' : 'text-slate-400 hover:text-slate-700'}`}
+                        className={`rounded-md p-1.5 transition-colors hover:bg-ink-100
+                          ${entry.note ? 'text-primary' : 'text-ink-400 hover:text-ink-700'}`}
                       >
                         <PenLine className="size-3.5" strokeWidth={2} />
                       </button>
@@ -364,7 +364,7 @@ export function CustomizeListDialog({
                         disabled={busy || index === 0}
                         onClick={() => move(index, -1)}
                         aria-label={`Move ${name} up`}
-                        className="rounded-md p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30"
+                        className="rounded-md p-1.5 text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-700 disabled:opacity-30"
                       >
                         <ArrowUp className="size-3.5" strokeWidth={2} />
                       </button>
@@ -373,7 +373,7 @@ export function CustomizeListDialog({
                         disabled={busy || index === entries.length - 1}
                         onClick={() => move(index, 1)}
                         aria-label={`Move ${name} down`}
-                        className="rounded-md p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30"
+                        className="rounded-md p-1.5 text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-700 disabled:opacity-30"
                       >
                         <ArrowDown className="size-3.5" strokeWidth={2} />
                       </button>
@@ -382,7 +382,7 @@ export function CustomizeListDialog({
                         disabled={busy}
                         onClick={() => remove(entry.id)}
                         aria-label={`Remove ${name}`}
-                        className="rounded-md p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-30"
+                        className="rounded-md p-1.5 text-ink-400 transition-colors hover:bg-danger-50 hover:text-danger-600 disabled:opacity-30"
                       >
                         <Trash2 className="size-3.5" strokeWidth={2} />
                       </button>

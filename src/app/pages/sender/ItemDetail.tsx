@@ -73,12 +73,12 @@ function DetailRow({
 }) {
   return (
     <div className="flex gap-3">
-      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" strokeWidth={1.75} />
+      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-ink-400" strokeWidth={1.75} />
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-ink-400">
           {label}
         </p>
-        <p className="mt-0.5 text-sm text-slate-700">{children}</p>
+        <p className="mt-0.5 text-sm text-ink-700">{children}</p>
       </div>
     </div>
   );
@@ -121,7 +121,7 @@ export function ItemDetail() {
     return (
       <div className="flex min-h-screen items-center justify-center px-6">
         <div className="max-w-md text-center">
-          <Package className="mx-auto mb-4 h-10 w-10 text-slate-300" strokeWidth={1} />
+          <Package className="mx-auto mb-4 h-10 w-10 text-ink-300" strokeWidth={1} />
           <h2 className="mb-2 text-2xl font-medium">Item not found</h2>
           <p className="mb-6 text-muted-foreground">
             This listing is no longer available, or the link has expired.
@@ -189,7 +189,7 @@ export function ItemDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-ink-50">
       {/* Header */}
       <div className="sticky top-0 z-10 border-b bg-white">
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-4 md:px-6">
@@ -208,7 +208,7 @@ export function ItemDetail() {
           className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8"
         >
           {/* ── Image ─────────────────────────────────────────────── */}
-          <div className="relative aspect-square overflow-hidden rounded-2xl border border-slate-100 bg-white">
+          <div className="relative aspect-square overflow-hidden rounded-2xl border border-ink-100 bg-white">
             {galleryUrls.length > 1 ? (
               // More than one photograph, so it becomes swipeable. A single
               // image stays a plain <img> — no controls, no embla instance.
@@ -233,26 +233,26 @@ export function ItemDetail() {
             ) : item.image_url ? (
               <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100">
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-ink-100 via-ink-50 to-ink-100">
                 {service ? (
-                  <ConciergeBell className="h-14 w-14 text-slate-200" strokeWidth={1} />
+                  <ConciergeBell className="h-14 w-14 text-ink-200" strokeWidth={1} />
                 ) : (
-                  <Package className="h-14 w-14 text-slate-200" strokeWidth={1} />
+                  <Package className="h-14 w-14 text-ink-200" strokeWidth={1} />
                 )}
               </div>
             )}
 
             {service && (
-              <div className="absolute left-3 top-3 flex items-center gap-1 rounded-full border border-slate-100 bg-white/90 px-2.5 py-1 shadow-sm backdrop-blur-sm">
-                <ConciergeBell className="h-3 w-3 text-slate-500" strokeWidth={2} />
-                <span className="text-[10px] font-bold uppercase tracking-wide text-slate-600">
+              <div className="absolute left-3 top-3 flex items-center gap-1 rounded-full border border-ink-100 bg-white/90 px-2.5 py-1 shadow-sm backdrop-blur-sm">
+                <ConciergeBell className="h-3 w-3 text-ink-500" strokeWidth={2} />
+                <span className="text-[10px] font-bold uppercase tracking-wide text-ink-600">
                   Service
                 </span>
               </div>
             )}
 
             {discount !== null && (
-              <div className="absolute right-3 top-3 rounded-full bg-orange-600 px-2.5 py-1 shadow-sm">
+              <div className="absolute right-3 top-3 rounded-full bg-brand-600 px-2.5 py-1 shadow-sm">
                 <span className="text-[10px] font-bold uppercase tracking-wide text-white">
                   {discount}% off
                 </span>
@@ -265,37 +265,37 @@ export function ItemDetail() {
             {item.shop?.name && (
               <button
                 onClick={() => item.shop?.id && navigate(`/shop/${item.shop.id}`)}
-                className="mb-2 flex items-center gap-1.5 self-start text-[11px] font-semibold uppercase tracking-widest text-slate-400 transition-colors hover:text-slate-700"
+                className="mb-2 flex items-center gap-1.5 self-start text-[11px] font-semibold uppercase tracking-widest text-ink-400 transition-colors hover:text-ink-700"
               >
                 <Store className="h-3 w-3" strokeWidth={2} />
                 {item.shop.name}
               </button>
             )}
 
-            <h2 className="text-2xl font-semibold tracking-tight text-slate-900">{item.name}</h2>
+            <h2 className="text-2xl font-semibold tracking-tight text-ink-900">{item.name}</h2>
 
             {item.description && (
-              <p className="mt-2 text-sm leading-relaxed text-slate-500">{item.description}</p>
+              <p className="mt-2 text-sm leading-relaxed text-ink-500">{item.description}</p>
             )}
 
             {/* Price */}
             <div className="mt-5 flex items-baseline gap-3">
               {priceLabel.prefix && (
-                <span className="text-sm font-medium uppercase tracking-wide text-slate-400">
+                <span className="text-sm font-medium uppercase tracking-wide text-ink-400">
                   {priceLabel.prefix}
                 </span>
               )}
-              <span className="text-3xl font-light tracking-tight text-slate-900">
+              <span className="text-3xl font-light tracking-tight text-ink-900">
                 ZMW {formatZmw(item.price_zmw)}
               </span>
               {discount !== null && (
-                <span className="text-sm text-slate-400 line-through">
+                <span className="text-sm text-ink-400 line-through">
                   ZMW {formatZmw(item.original_price_zmw)}
                 </span>
               )}
             </div>
             {optionsDelta > 0 && (
-              <p className="mt-1.5 text-sm font-medium text-slate-700">
+              <p className="mt-1.5 text-sm font-medium text-ink-700">
                 With your choices: ZMW {formatZmw(item.price_zmw + optionsDelta)}
               </p>
             )}
@@ -309,16 +309,16 @@ export function ItemDetail() {
             )}
 
             {priceLabel.note && (
-              <p className="mt-1.5 text-xs font-light text-slate-500">{priceLabel.note}</p>
+              <p className="mt-1.5 text-xs font-light text-ink-500">{priceLabel.note}</p>
             )}
 
             {/* Quantity breaks. Unlike the wholesale panel this replaces, these
                 are genuinely charged: checkout_init_atomic recomputes the same
                 break server-side from the total quantity of the item. */}
             {tiers.length > 0 && (
-              <div className="mt-3 space-y-1.5 rounded-xl border border-slate-100 bg-white px-3 py-2.5">
-                <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  <Layers className="h-3.5 w-3.5 shrink-0 text-orange-500" strokeWidth={2} />
+              <div className="mt-3 space-y-1.5 rounded-xl border border-ink-100 bg-white px-3 py-2.5">
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-ink-500">
+                  <Layers className="h-3.5 w-3.5 shrink-0 text-brand-500" strokeWidth={2} />
                   Buy more, pay less
                 </p>
                 {tiers.map((tier) => (
@@ -326,15 +326,15 @@ export function ItemDetail() {
                     key={tier.min_quantity}
                     className="flex items-center justify-between gap-4 text-xs"
                   >
-                    <span className="text-slate-600">{tier.min_quantity} or more</span>
+                    <span className="text-ink-600">{tier.min_quantity} or more</span>
                     <span className="flex items-baseline gap-2">
-                      <span className="font-semibold text-slate-900">
+                      <span className="font-semibold text-ink-900">
                         ZMW {formatZmw(tier.unit_price_zmw)}
                       </span>
-                      <span className="text-slate-400">each</span>
+                      <span className="text-ink-400">each</span>
                       <button
                         onClick={() => handleAddToCart(tier.min_quantity)}
-                        className="rounded-md border border-orange-200 px-2 py-0.5 text-[11px] font-semibold text-orange-600 transition-colors hover:bg-orange-50"
+                        className="rounded-md border border-brand-200 px-2 py-0.5 text-[11px] font-semibold text-brand-600 transition-colors hover:bg-brand-50"
                       >
                         Add {tier.min_quantity}
                       </button>
@@ -345,16 +345,16 @@ export function ItemDetail() {
             )}
 
             {/* Escrow reassurance */}
-            <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
-              <Shield className="h-3.5 w-3.5 shrink-0 text-orange-500" strokeWidth={2} />
+            <div className="mt-4 flex items-center gap-2 text-xs text-ink-500">
+              <Shield className="h-3.5 w-3.5 shrink-0 text-brand-500" strokeWidth={2} />
               Held in escrow until the recipient confirms collection.
             </div>
 
             {/* ── CTAs ────────────────────────────────────────────── */}
             {outOfStock ? (
-              <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                <p className="text-sm font-medium text-slate-700">{OUT_OF_STOCK_REASON}</p>
-                <p className="mt-0.5 text-xs font-light text-slate-500">
+              <div className="mt-6 rounded-xl border border-ink-200 bg-ink-50 px-4 py-3">
+                <p className="text-sm font-medium text-ink-700">{OUT_OF_STOCK_REASON}</p>
+                <p className="mt-0.5 text-xs font-light text-ink-500">
                   The shop has been told to restock. This listing stays here so you can come
                   back for it.
                 </p>
@@ -424,7 +424,7 @@ export function ItemDetail() {
             {profile && (
               <button
                 onClick={() => setAddToListOpen(true)}
-                className="mt-3 flex items-center gap-1.5 self-start text-xs font-medium text-slate-500 transition-colors hover:text-slate-900"
+                className="mt-3 flex items-center gap-1.5 self-start text-xs font-medium text-ink-500 transition-colors hover:text-ink-900"
               >
                 <ListChecks className="h-3.5 w-3.5" strokeWidth={2} />
                 Add to a list
@@ -445,7 +445,7 @@ export function ItemDetail() {
               <button
                 onClick={handleAskForQuote}
                 disabled={startingChat}
-                className="mt-3 flex items-center gap-1.5 self-start text-xs font-medium text-slate-500 transition-colors hover:text-slate-900 disabled:opacity-50"
+                className="mt-3 flex items-center gap-1.5 self-start text-xs font-medium text-ink-500 transition-colors hover:text-ink-900 disabled:opacity-50"
               >
                 <MessageSquare className="h-3.5 w-3.5" strokeWidth={2} />
                 Message the shop about this
@@ -453,7 +453,7 @@ export function ItemDetail() {
             )}
 
             {item.requires_scheduling && (
-              <p className="mt-3 text-xs font-light leading-relaxed text-slate-500">
+              <p className="mt-3 text-xs font-light leading-relaxed text-ink-500">
                 You pay now and the date is agreed with the shop. Your money stays in escrow
                 until the work is done.
               </p>
@@ -462,8 +462,8 @@ export function ItemDetail() {
         </motion.div>
 
         {/* ── Terms panel ─────────────────────────────────────────── */}
-        <div className="mt-8 rounded-2xl border border-slate-100 bg-white p-5 sm:p-6">
-          <h3 className="mb-4 text-[11px] font-bold uppercase tracking-widest text-slate-400">
+        <div className="mt-8 rounded-2xl border border-ink-100 bg-white p-5 sm:p-6">
+          <h3 className="mb-4 text-[11px] font-bold uppercase tracking-widest text-ink-400">
             What to expect
           </h3>
 

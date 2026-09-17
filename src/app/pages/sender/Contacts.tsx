@@ -64,7 +64,7 @@ export function Contacts() {
   const [occasionFor, setOccasionFor] = useState<Contact | null>(null);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-ink-50">
       <div className="sticky top-0 z-10 border-b bg-white/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3 md:px-6">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Back">
@@ -93,8 +93,8 @@ export function Contacts() {
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : contacts.length === 0 ? (
             <div className="kl-tile py-12 text-center">
-              <Users className="mx-auto mb-3 size-9 text-slate-300" strokeWidth={1} />
-              <p className="text-sm text-slate-500">Nobody saved yet.</p>
+              <Users className="mx-auto mb-3 size-9 text-ink-300" strokeWidth={1} />
+              <p className="text-sm text-ink-500">Nobody saved yet.</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -201,7 +201,7 @@ function ContactCard({
           onClick={onRemove}
           disabled={busy}
           aria-label={`Remove ${contact.name}`}
-          className="rounded-[var(--radius-pill)] p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
+          className="rounded-[var(--radius-pill)] p-1.5 text-ink-400 transition-colors hover:bg-danger-50 hover:text-danger-600"
         >
           <Trash2 className="size-3.5" strokeWidth={2} />
         </button>
@@ -239,7 +239,7 @@ function ContactCard({
                   onClick={() => onRemoveOccasion(occasion.id)}
                   disabled={busy}
                   aria-label={`Remove ${occasionTitle(occasion)}`}
-                  className="ml-auto shrink-0 rounded-[var(--radius-pill)] p-1 text-slate-300 transition-colors hover:bg-red-50 hover:text-red-600"
+                  className="ml-auto shrink-0 rounded-[var(--radius-pill)] p-1 text-ink-300 transition-colors hover:bg-danger-50 hover:text-danger-600"
                 >
                   <Trash2 className="size-3" strokeWidth={2} />
                 </button>

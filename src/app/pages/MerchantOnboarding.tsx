@@ -173,7 +173,7 @@ export function MerchantOnboarding() {
   // ── Auth check loading state ───────────────────────────────────────────────
   if (authChecking) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-orange-50">
+      <div className="flex items-center justify-center min-h-screen bg-brand-50">
         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary" />
       </div>
     );
@@ -183,7 +183,7 @@ export function MerchantOnboarding() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] flex flex-col">
       {/* Page header */}
-      <div className="kl-gradient-brand text-white shadow-sm">
+      <div className="kl-wash-ember text-white shadow-sm">
         <div className="container mx-auto px-6 py-8 max-w-2xl">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -209,7 +209,7 @@ export function MerchantOnboarding() {
           transition={{ duration: 0.45, delay: 0.1 }}
         >
           {/* Info notice */}
-          <div className="flex items-start gap-3 bg-orange-50 border border-orange-200/80 rounded-2xl px-5 py-4 mb-8">
+          <div className="flex items-start gap-3 bg-brand-50 border border-brand-200/80 rounded-2xl px-5 py-4 mb-8">
             <ShieldAlert className="w-5 h-5 text-primary mt-0.5 shrink-0" />
             <p className="text-sm text-orange-850 leading-relaxed">
               Your shop will be submitted for admin review before it goes live. You will be
@@ -219,12 +219,12 @@ export function MerchantOnboarding() {
           </div>
 
           {/* Card form */}
-          <Card className="border border-slate-200/60 bg-white/70 backdrop-blur-md shadow-sm rounded-3xl overflow-hidden">
+          <Card className="border border-ink-200/60 bg-white/70 backdrop-blur-md shadow-sm rounded-3xl overflow-hidden">
             <CardHeader className="pb-2">
-              <CardTitle className="text-xl font-medium text-slate-900 tracking-tight">
+              <CardTitle className="text-xl font-medium text-ink-900 tracking-tight">
                 Shop Details
               </CardTitle>
-              <CardDescription className="text-slate-500 font-light">
+              <CardDescription className="text-ink-500 font-light">
                 These details will be displayed to customers browsing KithLy.
               </CardDescription>
             </CardHeader>
@@ -234,15 +234,15 @@ export function MerchantOnboarding() {
 
                 {/* Error banner */}
                 {errorMsg && (
-                  <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+                  <div className="bg-danger-50 border border-danger-200 text-danger-700 rounded-xl px-4 py-3 text-sm">
                     {errorMsg}
                   </div>
                 )}
 
                 {/* Business Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="businessName" className="text-sm font-medium text-slate-700">
-                    Business Name <span className="text-red-500">*</span>
+                  <Label htmlFor="businessName" className="text-sm font-medium text-ink-700">
+                    Business Name <span className="text-danger-500">*</span>
                   </Label>
                   <Input
                     id="businessName"
@@ -250,42 +250,42 @@ export function MerchantOnboarding() {
                     value={businessName}
                     onChange={(e) => setBusinessName(e.target.value)}
                     placeholder="e.g., Mama Chibwe Crafts"
-                    className="h-11 rounded-xl border-slate-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                    className="h-11 rounded-xl border-ink-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                     disabled={loading}
                     required
                   />
-                  <p className="text-xs text-slate-400 font-light">
+                  <p className="text-xs text-ink-400 font-light">
                     Use your official trading name as it should appear to customers.
                   </p>
                 </div>
 
                 {/* Location */}
                 <div className="space-y-2">
-                  <Label htmlFor="location" className="text-sm font-medium text-slate-700">
-                    Location/City <span className="text-red-500">*</span>
+                  <Label htmlFor="location" className="text-sm font-medium text-ink-700">
+                    Location/City <span className="text-danger-500">*</span>
                   </Label>
                   <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400 pointer-events-none" />
                     <Input
                       id="location"
                       type="text"
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                       placeholder="e.g., Lusaka, Ndola, Kitwe"
-                      className="h-11 rounded-xl pl-9 border-slate-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                      className="h-11 rounded-xl pl-9 border-ink-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                       disabled={loading}
                       required
                     />
                   </div>
-                  <p className="text-xs text-slate-400 font-light">
+                  <p className="text-xs text-ink-400 font-light">
                     Enter the city or area where your shop is physically located.
                   </p>
                 </div>
 
                 {/* What the shop offers */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-slate-700">
-                    What do you offer? <span className="text-red-500">*</span>
+                  <Label className="text-sm font-medium text-ink-700">
+                    What do you offer? <span className="text-danger-500">*</span>
                   </Label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {OFFERING_CHOICES.map((choice) => {
@@ -302,30 +302,30 @@ export function MerchantOnboarding() {
                                       transition-all duration-200 active:scale-[0.99]
                                       disabled:opacity-50 disabled:cursor-not-allowed
                                       ${selected
-                                        ? 'border-primary bg-orange-50 shadow-sm'
-                                        : 'border-slate-200 hover:border-slate-300'}`}
+                                        ? 'border-primary bg-brand-50 shadow-sm'
+                                        : 'border-ink-200 hover:border-ink-300'}`}
                         >
                           <Icon
-                            className={`w-4 h-4 ${selected ? 'text-primary' : 'text-slate-400'}`}
+                            className={`w-4 h-4 ${selected ? 'text-primary' : 'text-ink-400'}`}
                             strokeWidth={1.75}
                           />
-                          <span className="text-sm font-medium text-slate-900">{choice.label}</span>
-                          <span className="text-xs font-light leading-snug text-slate-500">
+                          <span className="text-sm font-medium text-ink-900">{choice.label}</span>
+                          <span className="text-xs font-light leading-snug text-ink-500">
                             {choice.description}
                           </span>
                         </button>
                       );
                     })}
                   </div>
-                  <p className="text-xs text-slate-400 font-light">
+                  <p className="text-xs text-ink-400 font-light">
                     This decides what you can list. You can change it later from your shop settings.
                   </p>
                 </div>
 
                 {/* Physical Address */}
                 <div className="space-y-2">
-                  <Label htmlFor="physicalAddress" className="text-sm font-medium text-slate-700">
-                    Physical Address <span className="text-red-500">*</span>
+                  <Label htmlFor="physicalAddress" className="text-sm font-medium text-ink-700">
+                    Physical Address <span className="text-danger-500">*</span>
                   </Label>
                   <Input
                     id="physicalAddress"
@@ -333,19 +333,19 @@ export function MerchantOnboarding() {
                     value={physicalAddress}
                     onChange={(e) => setPhysicalAddress(e.target.value)}
                     placeholder="e.g., Plot 1234, Great East Road"
-                    className="h-11 rounded-xl border-slate-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                    className="h-11 rounded-xl border-ink-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                     disabled={loading}
                     required
                   />
-                  <p className="text-xs text-slate-400 font-light">
+                  <p className="text-xs text-ink-400 font-light">
                     Enter the detailed physical address of your shop.
                   </p>
                 </div>
 
                 {/* NRC File Upload */}
                 <div className="space-y-2">
-                  <Label htmlFor="nrcFile" className="text-sm font-medium text-slate-700">
-                    National Registration Card (NRC) <span className="text-red-500">*</span>
+                  <Label htmlFor="nrcFile" className="text-sm font-medium text-ink-700">
+                    National Registration Card (NRC) <span className="text-danger-500">*</span>
                   </Label>
                   <Input
                     id="nrcFile"
@@ -355,25 +355,25 @@ export function MerchantOnboarding() {
                       const file = e.target.files?.[0];
                       if (file) handleFileUpload(file, 'nrc');
                     }}
-                    className="h-11 rounded-xl border-slate-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-primary hover:file:bg-orange-100"
+                    className="h-11 rounded-xl border-ink-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-primary hover:file:bg-brand-100"
                     disabled={loading || uploadingNrc}
                     required
                   />
                   {uploadingNrc && <p className="text-xs text-primary animate-pulse">Uploading NRC document...</p>}
                   {nrcPath && (
-                    <p className="flex items-center gap-1.5 text-xs text-green-600 font-medium">
+                    <p className="flex items-center gap-1.5 text-xs text-ok-600 font-medium">
                       <Check className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} />
                       NRC uploaded: {nrcPath.split('/').pop()}
                     </p>
                   )}
-                  <p className="text-xs text-slate-400 font-light">
+                  <p className="text-xs text-ink-400 font-light">
                     Upload a scan or clear photo of your NRC (PDF or Image).
                   </p>
                 </div>
 
                 {/* PACRA File Upload */}
                 <div className="space-y-2">
-                  <Label htmlFor="pacraFile" className="text-sm font-medium text-slate-700">
+                  <Label htmlFor="pacraFile" className="text-sm font-medium text-ink-700">
                     PACRA Certificate (Optional)
                   </Label>
                   <Input
@@ -384,17 +384,17 @@ export function MerchantOnboarding() {
                       const file = e.target.files?.[0];
                       if (file) handleFileUpload(file, 'pacra');
                     }}
-                    className="h-11 rounded-xl border-slate-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-primary hover:file:bg-orange-100"
+                    className="h-11 rounded-xl border-ink-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200 file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-primary hover:file:bg-brand-100"
                     disabled={loading || uploadingPacra}
                   />
                   {uploadingPacra && <p className="text-xs text-primary animate-pulse">Uploading PACRA document...</p>}
                   {pacraPath && (
-                    <p className="flex items-center gap-1.5 text-xs text-green-600 font-medium">
+                    <p className="flex items-center gap-1.5 text-xs text-ok-600 font-medium">
                       <Check className="w-3.5 h-3.5 shrink-0" strokeWidth={2.5} />
                       PACRA uploaded: {pacraPath.split('/').pop()}
                     </p>
                   )}
-                  <p className="text-xs text-slate-400 font-light">
+                  <p className="text-xs text-ink-400 font-light">
                     Upload your PACRA business registration certificate (PDF or Image).
                   </p>
                 </div>
@@ -441,7 +441,7 @@ export function MerchantOnboarding() {
           </Card>
 
           {/* Back link */}
-          <p className="text-center text-sm text-slate-400 mt-6">
+          <p className="text-center text-sm text-ink-400 mt-6">
             Changed your mind?{' '}
             <button
               type="button"

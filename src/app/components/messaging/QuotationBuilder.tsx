@@ -92,15 +92,15 @@ export function QuotationBuilder({ conversationId, onClose, onSent }: QuotationB
   };
 
   return (
-    <div className="border-t border-slate-200 bg-slate-50/80 px-4 py-4">
+    <div className="border-t border-ink-200 bg-ink-50/80 px-4 py-4">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-500">
+        <h3 className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-ink-500">
           <FileText className="h-3.5 w-3.5 text-primary" strokeWidth={2} />
           Build a quotation
         </h3>
         <button
           onClick={onClose}
-          className="rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-600"
+          className="rounded-full p-1.5 text-ink-400 transition-colors hover:bg-ink-200 hover:text-ink-600"
           aria-label="Close quotation builder"
         >
           <X className="h-4 w-4" />
@@ -112,7 +112,7 @@ export function QuotationBuilder({ conversationId, onClose, onSent }: QuotationB
           <div key={line.key} className="flex items-end gap-2">
             <div className="min-w-0 flex-1">
               {index === 0 && (
-                <Label className="mb-1 block text-[11px] text-slate-500">Description</Label>
+                <Label className="mb-1 block text-[11px] text-ink-500">Description</Label>
               )}
               <Input
                 value={line.description}
@@ -122,7 +122,7 @@ export function QuotationBuilder({ conversationId, onClose, onSent }: QuotationB
               />
             </div>
             <div className="w-16 shrink-0">
-              {index === 0 && <Label className="mb-1 block text-[11px] text-slate-500">Qty</Label>}
+              {index === 0 && <Label className="mb-1 block text-[11px] text-ink-500">Qty</Label>}
               <Input
                 type="number"
                 min="1"
@@ -133,7 +133,7 @@ export function QuotationBuilder({ conversationId, onClose, onSent }: QuotationB
             </div>
             <div className="w-28 shrink-0">
               {index === 0 && (
-                <Label className="mb-1 block text-[11px] text-slate-500">Unit (ZMW)</Label>
+                <Label className="mb-1 block text-[11px] text-ink-500">Unit (ZMW)</Label>
               )}
               <Input
                 type="number"
@@ -149,7 +149,7 @@ export function QuotationBuilder({ conversationId, onClose, onSent }: QuotationB
               type="button"
               onClick={() => setLines((prev) => prev.filter((l) => l.key !== line.key))}
               disabled={lines.length === 1}
-              className="mb-0.5 rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-200 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-30"
+              className="mb-0.5 rounded-lg p-2 text-ink-400 transition-colors hover:bg-ink-200 hover:text-danger-500 disabled:cursor-not-allowed disabled:opacity-30"
               aria-label="Remove line"
             >
               <Trash2 className="h-4 w-4" />
@@ -169,7 +169,7 @@ export function QuotationBuilder({ conversationId, onClose, onSent }: QuotationB
 
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <Label className="mb-1 block text-[11px] text-slate-500">Scheduled for (optional)</Label>
+          <Label className="mb-1 block text-[11px] text-ink-500">Scheduled for (optional)</Label>
           <Input
             type="datetime-local"
             value={targetDate}
@@ -178,7 +178,7 @@ export function QuotationBuilder({ conversationId, onClose, onSent }: QuotationB
           />
         </div>
         <div>
-          <Label className="mb-1 block text-[11px] text-slate-500">Quote valid until (optional)</Label>
+          <Label className="mb-1 block text-[11px] text-ink-500">Quote valid until (optional)</Label>
           <Input
             type="datetime-local"
             value={validUntil}
@@ -189,7 +189,7 @@ export function QuotationBuilder({ conversationId, onClose, onSent }: QuotationB
       </div>
 
       <div className="mt-3">
-        <Label className="mb-1 block text-[11px] text-slate-500">Notes (optional)</Label>
+        <Label className="mb-1 block text-[11px] text-ink-500">Notes (optional)</Label>
         <Textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
@@ -199,10 +199,10 @@ export function QuotationBuilder({ conversationId, onClose, onSent }: QuotationB
         />
       </div>
 
-      <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-3">
+      <div className="mt-4 flex items-center justify-between border-t border-ink-200 pt-3">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Total</p>
-          <p className="text-lg font-light tracking-tight text-slate-900 tabular-nums">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-ink-400">Total</p>
+          <p className="text-lg font-light tracking-tight text-ink-900 tabular-nums">
             ZMW {total.toFixed(2)}
           </p>
         </div>

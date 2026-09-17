@@ -128,19 +128,19 @@ function PollingView({ attemptCount, maxAttempts }: { attemptCount: number; maxA
       <div className="relative flex items-center justify-center" aria-hidden>
         {/* Outer breathing ring */}
         <motion.span
-          className="absolute h-24 w-24 rounded-full border border-slate-200"
+          className="absolute h-24 w-24 rounded-full border border-ink-200"
           animate={{ scale: [1, 1.12, 1], opacity: [0.5, 0.15, 0.5] }}
           transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
         />
         {/* Middle breathing ring */}
         <motion.span
-          className="absolute h-16 w-16 rounded-full border border-slate-300"
+          className="absolute h-16 w-16 rounded-full border border-ink-300"
           animate={{ scale: [1, 1.08, 1], opacity: [0.7, 0.25, 0.7] }}
           transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
         />
         {/* Core dot */}
         <motion.span
-          className="h-8 w-8 rounded-full bg-slate-900"
+          className="h-8 w-8 rounded-full bg-ink-900"
           animate={{ scale: [1, 0.92, 1] }}
           transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', delay: 0.15 }}
         />
@@ -148,10 +148,10 @@ function PollingView({ attemptCount, maxAttempts }: { attemptCount: number; maxA
 
       {/* Copy */}
       <div className="flex flex-col items-center gap-3 text-center">
-        <h1 className="text-xl font-medium tracking-tight text-slate-900">
+        <h1 className="text-xl font-medium tracking-tight text-ink-900">
           Verifying transaction on the secure ledger
         </h1>
-        <p className="max-w-xs text-sm font-normal leading-relaxed text-slate-500">
+        <p className="max-w-xs text-sm font-normal leading-relaxed text-ink-500">
           Your payment is being confirmed by our payment network.
           This typically completes within a few seconds.
         </p>
@@ -160,16 +160,16 @@ function PollingView({ attemptCount, maxAttempts }: { attemptCount: number; maxA
       {/* Progress track */}
       <div className="w-full max-w-xs">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-xs font-normal tabular-nums text-slate-400">
+          <span className="text-xs font-normal tabular-nums text-ink-400">
             Check {attemptCount} of {maxAttempts}
           </span>
-          <span className="text-xs font-normal tabular-nums text-slate-400">
+          <span className="text-xs font-normal tabular-nums text-ink-400">
             {Math.round(progress)}%
           </span>
         </div>
-        <div className="h-px w-full overflow-hidden rounded-full bg-slate-100">
+        <div className="h-px w-full overflow-hidden rounded-full bg-ink-100">
           <motion.div
-            className="h-full bg-slate-900"
+            className="h-full bg-ink-900"
             initial={{ width: '0%' }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -208,8 +208,8 @@ function ClaimCodeDisplay({ code }: { code: string }) {
           }}
           className={cn(
             'flex h-14 w-10 items-center justify-center',
-            'rounded-lg border border-slate-200 bg-slate-50',
-            'text-xl font-semibold tracking-widest text-slate-900',
+            'rounded-lg border border-ink-200 bg-ink-50',
+            'text-xl font-semibold tracking-widest text-ink-900',
             'select-all font-mono',
           )}
         >
@@ -242,7 +242,7 @@ function SuccessView({
     >
       {/* Confirmation mark — thin circle with a check stroke */}
       <motion.div
-        className="flex h-20 w-20 items-center justify-center rounded-full border border-slate-200 bg-white"
+        className="flex h-20 w-20 items-center justify-center rounded-full border border-ink-200 bg-white"
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
@@ -255,7 +255,7 @@ function SuccessView({
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="h-9 w-9 text-slate-900"
+          className="h-9 w-9 text-ink-900"
           animate={{ pathLength: 1 }}
           transition={{ duration: 0.5, ease: 'easeOut' as const, delay: 0.25 }}
         >
@@ -270,7 +270,7 @@ function SuccessView({
       {/* Heading */}
       <div className="flex flex-col items-center gap-2 text-center">
         <motion.h1
-          className="text-2xl font-semibold tracking-tight text-slate-900"
+          className="text-2xl font-semibold tracking-tight text-ink-900"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
@@ -278,7 +278,7 @@ function SuccessView({
           Payment Confirmed
         </motion.h1>
         <motion.p
-          className="max-w-xs text-sm font-normal leading-relaxed text-slate-500"
+          className="max-w-xs text-sm font-normal leading-relaxed text-ink-500"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.3 }}
@@ -296,7 +296,7 @@ function SuccessView({
         transition={{ delay: 0.3 }}
       >
         <div className="text-center px-4">
-          <p className="text-sm font-medium text-slate-700">
+          <p className="text-sm font-medium text-ink-700">
             Your funds are secured in escrow. Share the claim codes below with your recipient.
           </p>
         </div>
@@ -308,10 +308,10 @@ function SuccessView({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 + (idx * 0.1) }}
-              className="flex w-full flex-col items-center gap-5 rounded-2xl border border-slate-100 bg-slate-50 p-6"
+              className="flex w-full flex-col items-center gap-5 rounded-2xl border border-ink-100 bg-ink-50 p-6"
             >
               <div className="text-center">
-                <span className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+                <span className="text-xs font-semibold uppercase tracking-widest text-ink-400">
                   Shop ID: {order.shop_id.slice(0, 8)}
                 </span>
               </div>
@@ -332,7 +332,7 @@ function SuccessView({
       </motion.div>
 
       {/* Divider */}
-      <div className="w-full max-w-xs border-t border-slate-100" />
+      <div className="w-full max-w-xs border-t border-ink-100" />
 
       {/* CTA */}
       <motion.div
@@ -342,7 +342,7 @@ function SuccessView({
         transition={{ duration: 0.4, delay: 0.7 }}
       >
         <Button
-          className="w-full rounded-xl bg-slate-900 py-5 text-sm font-medium tracking-wide text-white hover:bg-slate-800"
+          className="w-full rounded-xl bg-ink-900 py-5 text-sm font-medium tracking-wide text-white hover:bg-ink-800"
           onClick={onComplete}
         >
           Continue
@@ -374,7 +374,7 @@ function TimeoutView({
     >
       {/* Warning mark */}
       <motion.div
-        className="flex h-20 w-20 items-center justify-center rounded-full border border-slate-200 bg-white"
+        className="flex h-20 w-20 items-center justify-center rounded-full border border-ink-200 bg-white"
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
@@ -387,7 +387,7 @@ function TimeoutView({
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="h-9 w-9 text-slate-400"
+          className="h-9 w-9 text-ink-400"
           aria-hidden
         >
           <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
@@ -396,10 +396,10 @@ function TimeoutView({
 
       {/* Copy */}
       <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink-900">
           {isError ? 'Connection Error' : 'Network Delay Detected'}
         </h1>
-        <p className="max-w-sm text-sm font-normal leading-relaxed text-slate-500">
+        <p className="max-w-sm text-sm font-normal leading-relaxed text-ink-500">
           {isError
             ? 'A connection error occurred while verifying your payment. Your funds have not been deducted if no charge appeared. Please try again.'
             : 'Our payment network is taking longer than expected to respond. This is usually a temporary delay.'}
@@ -409,17 +409,17 @@ function TimeoutView({
       {/* Recovery instructions — only shown for TIMEOUT */}
       {!isError && (
         <motion.div
-          className="w-full max-w-sm rounded-xl border border-slate-100 bg-slate-50 p-5"
+          className="w-full max-w-sm rounded-xl border border-ink-100 bg-ink-50 p-5"
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
         >
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-ink-400">
             What to do now
           </p>
-          <ol className="space-y-2.5 text-sm font-normal leading-relaxed text-slate-600">
+          <ol className="space-y-2.5 text-sm font-normal leading-relaxed text-ink-600">
             <li className="flex gap-3">
-              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-slate-300 text-xs font-medium text-slate-500">
+              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-ink-300 text-xs font-medium text-ink-500">
                 1
               </span>
               <span>
@@ -428,7 +428,7 @@ function TimeoutView({
               </span>
             </li>
             <li className="flex gap-3">
-              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-slate-300 text-xs font-medium text-slate-500">
+              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-ink-300 text-xs font-medium text-ink-500">
                 2
               </span>
               <span>
@@ -437,7 +437,7 @@ function TimeoutView({
               </span>
             </li>
             <li className="flex gap-3">
-              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-slate-300 text-xs font-medium text-slate-500">
+              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-ink-300 text-xs font-medium text-ink-500">
                 3
               </span>
               <span>
@@ -457,14 +457,14 @@ function TimeoutView({
         transition={{ delay: 0.4 }}
       >
         <Button
-          className="w-full rounded-xl bg-slate-900 py-5 text-sm font-medium tracking-wide text-white hover:bg-slate-800"
+          className="w-full rounded-xl bg-ink-900 py-5 text-sm font-medium tracking-wide text-white hover:bg-ink-800"
           onClick={onRetry}
         >
           Check Payment Status
         </Button>
         <Button
           variant="ghost"
-          className="w-full rounded-xl py-5 text-sm font-normal text-slate-500 hover:text-slate-700"
+          className="w-full rounded-xl py-5 text-sm font-normal text-ink-500 hover:text-ink-700"
           onClick={() => window.open('mailto:support@kithly.com', '_blank')}
         >
           Contact Support
@@ -541,7 +541,7 @@ export function PaymentProcessingScreen({
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6 }}
         >
-          <span className="text-sm font-medium tracking-[0.25em] text-slate-300 uppercase">
+          <span className="text-sm font-medium tracking-[0.25em] text-ink-300 uppercase">
             KithLy
           </span>
         </motion.div>
@@ -590,17 +590,17 @@ export function PaymentProcessingScreen({
               strokeWidth="1.25"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="h-3.5 w-3.5 text-slate-300"
+              className="h-3.5 w-3.5 text-ink-300"
               aria-hidden
             >
               <rect x="3" y="7" width="10" height="8" rx="1.5" />
               <path d="M5 7V5a3 3 0 0 1 6 0v2" />
             </svg>
-            <span className="text-xs font-normal text-slate-400">
+            <span className="text-xs font-normal text-ink-400">
               Escrow-protected transaction
             </span>
           </div>
-          <span className="text-xs font-normal text-slate-300">
+          <span className="text-xs font-normal text-ink-300">
             Powered by KithLy secure checkout
           </span>
         </motion.div>

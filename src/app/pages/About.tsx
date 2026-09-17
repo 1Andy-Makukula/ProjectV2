@@ -5,7 +5,7 @@ import { motion } from 'motion/react';
 
 export function About() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-ink-50">
       <div className="container mx-auto px-4 md:px-6 py-16 max-w-4xl">
         {/* Hero */}
         <div className="text-center mb-16">
@@ -30,8 +30,8 @@ export function About() {
             animate={{ opacity: 1, x: 0 }}
             className="bg-white rounded-[1.5rem] p-8 border border-border"
           >
-            <div className="w-14 h-14 mb-4 rounded-xl bg-blue-100 flex items-center justify-center">
-              <Target className="w-7 h-7 text-blue-600" strokeWidth={1.5} />
+            <div className="w-14 h-14 mb-4 rounded-xl bg-info-100 flex items-center justify-center">
+              <Target className="w-7 h-7 text-info-600" strokeWidth={1.5} />
             </div>
             <h2 className="text-2xl font-light text-black mb-4">Our Vision</h2>
             <p className="font-light text-muted-foreground leading-relaxed">
@@ -45,7 +45,7 @@ export function About() {
             animate={{ opacity: 1, x: 0 }}
             className="bg-white rounded-[1.5rem] p-8 border border-border"
           >
-            <div className="w-14 h-14 mb-4 rounded-xl bg-orange-100 flex items-center justify-center">
+            <div className="w-14 h-14 mb-4 rounded-xl bg-brand-100 flex items-center justify-center">
               <Lightbulb className="w-7 h-7 text-primary" strokeWidth={1.5} />
             </div>
             <h2 className="text-2xl font-light text-black mb-4">Our Mission</h2>
@@ -93,7 +93,7 @@ export function About() {
                 transition={{ delay: idx * 0.1 }}
                 className="bg-white rounded-[1.5rem] p-6 border border-border text-center"
               >
-                <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-gray-100 flex items-center justify-center">
+                <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-ink-100 flex items-center justify-center">
                   <value.icon className="w-6 h-6 text-primary" strokeWidth={1.5} />
                 </div>
                 <h3 className="font-medium text-black mb-2">{value.title}</h3>
@@ -104,7 +104,7 @@ export function About() {
         </div>
 
         {/* CTA */}
-        <div className="kl-gradient-brand rounded-[1.5rem] p-12 text-center text-white">
+        <div className="kl-wash-ember rounded-[1.5rem] p-12 text-center text-white">
           <h2 className="text-3xl font-light mb-4">Join the KithLy Family</h2>
           <p className="font-light mb-8 max-w-2xl mx-auto">
             Whether you're sending gifts or building your business, KithLy is here to help you succeed.

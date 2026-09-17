@@ -96,16 +96,16 @@ export function Settings() {
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
       {/* Header */}
-      <div className="bg-white/50 border-b border-slate-200/60 sticky top-0 z-10 backdrop-blur-md">
+      <div className="bg-white/50 border-b border-ink-200/60 sticky top-0 z-10 backdrop-blur-md">
         <div className="max-w-4xl mx-auto px-6 py-4">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate('/dashboard')}
-              className="hover:bg-slate-100 active:scale-95 transition-all duration-200 rounded-lg"
+              className="hover:bg-ink-100 active:scale-95 transition-all duration-200 rounded-lg"
             >
-              <ArrowLeft className="w-5 h-5 text-slate-700" />
+              <ArrowLeft className="w-5 h-5 text-ink-700" />
             </Button>
             <h1 className="text-2xl font-bold kl-gradient-brand bg-clip-text text-transparent tracking-tight">
               Settings
@@ -121,7 +121,7 @@ export function Settings() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <Card className="border border-slate-200/60 bg-white/70 backdrop-blur-md shadow-sm rounded-3xl overflow-hidden">
+          <Card className="border border-ink-200/60 bg-white/70 backdrop-blur-md shadow-sm rounded-3xl overflow-hidden">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="w-5 h-5" />
@@ -135,13 +135,13 @@ export function Settings() {
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium text-slate-750">Full Name</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
                   <Input
                     id="name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="pl-10 rounded-xl border-slate-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                    className="pl-10 rounded-xl border-ink-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                     placeholder="Your full name"
                   />
                 </div>
@@ -150,13 +150,13 @@ export function Settings() {
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-slate-750">Email Address</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
                   <Input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 rounded-xl border-slate-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                    className="pl-10 rounded-xl border-ink-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                     placeholder="your.email@example.com"
                   />
                 </div>
@@ -169,9 +169,9 @@ export function Settings() {
                   value={phone}
                   readOnly
                   disabled
-                  className="bg-slate-50 text-slate-500"
+                  className="bg-ink-50 text-ink-500"
                 />
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-ink-500">
                   Your number identifies gifts sent to you, so it can only be changed by
                   contacting support.
                 </p>
@@ -204,22 +204,22 @@ export function Settings() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="border border-slate-200/60 bg-white/70 backdrop-blur-md shadow-sm rounded-3xl overflow-hidden">
+          <Card className="border border-ink-200/60 bg-white/70 backdrop-blur-md shadow-sm rounded-3xl overflow-hidden">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-slate-900">
+              <CardTitle className="flex items-center gap-2 text-ink-900">
                 <Lock className="w-5 h-5" />
                 Security
               </CardTitle>
-              <CardDescription className="text-slate-500">
+              <CardDescription className="text-ink-500">
                 Manage your password and account security
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-start gap-3 p-4 bg-blue-50/50 border border-blue-100 rounded-2xl">
-                <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
+              <div className="flex items-start gap-3 p-4 bg-info-50/50 border border-info-100 rounded-2xl">
+                <AlertCircle className="w-5 h-5 text-info-600 mt-0.5" />
                 <div className="flex-1">
-                  <p className="text-sm text-blue-900 font-medium">Change Password</p>
-                  <p className="text-xs text-blue-700 mt-1">
+                  <p className="text-sm text-info-900 font-medium">Change Password</p>
+                  <p className="text-xs text-info-700 mt-1">
                     We'll send a password reset link to your email address
                   </p>
                 </div>
@@ -228,7 +228,7 @@ export function Settings() {
                 onClick={handleResetPassword}
                 disabled={resetLoading}
                 variant="outline"
-                className="w-full h-11 rounded-xl border-slate-200 hover:bg-slate-50 active:scale-[0.98] transition-all duration-200"
+                className="w-full h-11 rounded-xl border-ink-200 hover:bg-ink-50 active:scale-[0.98] transition-all duration-200"
               >
                 {resetLoading ? (
                   <>
@@ -252,9 +252,9 @@ export function Settings() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <Card className="border border-orange-200/80 bg-gradient-to-br from-orange-50/70 to-amber-50/70 backdrop-blur-md shadow-sm rounded-3xl overflow-hidden">
+          <Card className="border border-brand-200/80 bg-gradient-to-br from-brand-50/70 to-warn-50/70 backdrop-blur-md shadow-sm rounded-3xl overflow-hidden">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-slate-900">
+              <CardTitle className="flex items-center gap-2 text-ink-900">
                 <Store className="w-5 h-5 text-primary" />
                 Own a Hardware Shop?
               </CardTitle>
@@ -265,9 +265,9 @@ export function Settings() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-start gap-3 p-4 bg-white/80 border border-orange-100/60 rounded-2xl mb-4">
+              <div className="flex items-start gap-3 p-4 bg-white/80 border border-brand-100/60 rounded-2xl mb-4">
                 <AlertCircle className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                <p className="text-sm text-slate-700 leading-relaxed">
+                <p className="text-sm text-ink-700 leading-relaxed">
                   Your shop will be reviewed by the KithLy team before going live.
                   Once approved, you can manage inventory and fulfil orders from
                   your merchant dashboard.
@@ -293,10 +293,10 @@ export function Settings() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card className="border border-red-200/80 bg-red-50/20 backdrop-blur-md shadow-sm rounded-3xl overflow-hidden">
+          <Card className="border border-danger-200/80 bg-danger-50/20 backdrop-blur-md shadow-sm rounded-3xl overflow-hidden">
             <CardHeader>
               <CardTitle className="text-red-650">Danger Zone</CardTitle>
-              <CardDescription className="text-slate-500 font-light">
+              <CardDescription className="text-ink-500 font-light">
                 Actions that affect your account access
               </CardDescription>
             </CardHeader>

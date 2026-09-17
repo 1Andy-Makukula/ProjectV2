@@ -22,10 +22,10 @@ import { formatDate } from '../../../utils/relativeTime';
 import { useAdminFinance } from '../../hooks/useAdminFinance';
 
 const WITHDRAWAL_STATUS_STYLES: Record<string, string> = {
-  pending: 'bg-amber-50 text-amber-700 border-amber-200',
-  processing: 'bg-blue-50 text-blue-700 border-blue-200',
-  paid: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  failed: 'bg-red-50 text-red-700 border-red-200',
+  pending: 'bg-warn-50 text-warn-700 border-warn-200',
+  processing: 'bg-info-50 text-info-700 border-info-200',
+  paid: 'bg-ok-50 text-ok-700 border-ok-200',
+  failed: 'bg-danger-50 text-danger-700 border-danger-200',
 };
 
 export function AdminFinance() {
@@ -106,9 +106,9 @@ export function AdminFinance() {
 
         {/* Failed payouts are the reason this page exists — surface them up top. */}
         {totals.failedCount > 0 && (
-          <div className="mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-4">
-            <AlertTriangle className="mt-0.5 size-5 shrink-0 text-red-500" />
-            <p className="text-sm leading-relaxed text-red-800">
+          <div className="mb-6 flex items-start gap-3 rounded-2xl border border-danger-200 bg-danger-50 px-5 py-4">
+            <AlertTriangle className="mt-0.5 size-5 shrink-0 text-danger-500" />
+            <p className="text-sm leading-relaxed text-danger-800">
               <strong>
                 {totals.failedCount} payout{totals.failedCount === 1 ? '' : 's'} failed
               </strong>{' '}
@@ -173,7 +173,7 @@ export function AdminFinance() {
                             {w.status}
                           </Badge>
                           {w.failure_reason && (
-                            <p className="mt-1 max-w-xs text-xs text-red-600">{w.failure_reason}</p>
+                            <p className="mt-1 max-w-xs text-xs text-danger-600">{w.failure_reason}</p>
                           )}
                         </TableCell>
                         <TableCell className="text-muted-foreground">

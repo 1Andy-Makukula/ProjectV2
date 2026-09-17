@@ -32,7 +32,7 @@ export function WhatsAppShareButton({ claimCode, shopName, recipientName, sender
     <Button
       variant="outline"
       onClick={handleShare}
-      className="flex w-full items-center justify-center gap-2 rounded-lg border-emerald-700 text-emerald-800 hover:bg-emerald-50 py-5 text-sm font-medium transition-colors"
+      className="flex w-full items-center justify-center gap-2 rounded-lg border-ok-700 text-ok-800 hover:bg-ok-50 py-5 text-sm font-medium transition-colors"
     >
       <Share className="h-4 w-4" />
       Share via WhatsApp

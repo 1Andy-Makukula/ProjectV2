@@ -87,7 +87,7 @@ export function MyLists() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-ink-50">
       <div className="sticky top-0 z-10 border-b bg-white/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-3 md:px-6">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Back">
@@ -110,9 +110,9 @@ export function MyLists() {
           {loading ? (
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : owned.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-200 py-14 text-center">
-              <ListChecks className="mx-auto mb-3 h-9 w-9 text-slate-300" strokeWidth={1} />
-              <p className="text-sm text-slate-500">
+            <div className="rounded-2xl border border-dashed border-ink-200 py-14 text-center">
+              <ListChecks className="mx-auto mb-3 h-9 w-9 text-ink-300" strokeWidth={1} />
+              <p className="text-sm text-ink-500">
                 Build a list of things you buy often, then share the link.
               </p>
               <Button className="mt-4" onClick={() => setOpen(true)}>
@@ -132,7 +132,7 @@ export function MyLists() {
                     <button
                       onClick={() => deleteList(list.id)}
                       aria-label={`Delete ${list.title}`}
-                      className="rounded-full bg-white/90 p-1.5 text-slate-500 shadow-sm transition-colors hover:text-destructive"
+                      className="rounded-full bg-white/90 p-1.5 text-ink-500 shadow-sm transition-colors hover:text-destructive"
                     >
                       <Trash2 className="size-3.5" strokeWidth={2} />
                     </button>
@@ -166,7 +166,7 @@ export function MyLists() {
                       <button
                         onClick={() => deleteList(list.id)}
                         aria-label={`Delete ${list.title}`}
-                        className="rounded-full bg-white/90 p-1.5 text-slate-500 shadow-sm transition-colors hover:text-destructive"
+                        className="rounded-full bg-white/90 p-1.5 text-ink-500 shadow-sm transition-colors hover:text-destructive"
                       >
                         <Trash2 className="size-3.5" strokeWidth={2} />
                       </button>

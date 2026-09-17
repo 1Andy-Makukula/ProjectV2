@@ -67,7 +67,7 @@ export function ShopDetail() {
   const hasContactPanel = Boolean(shop.maps_link || shop.public_phone || shop.public_email || hours);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-ink-50">
       {/* Header — carries the shop's own identity rather than a generic label,
           so the page still says where you are once the banner scrolls away. */}
       <div className="sticky top-0 z-10 border-b border-[var(--border)] bg-white/85 backdrop-blur-xl">
@@ -129,7 +129,7 @@ export function ShopDetail() {
         >
           {/* Banner Image */}
           {(shop.cover_image_url || shop.image_url) ? (
-            <div className="w-full h-48 sm:h-64 overflow-hidden bg-gray-100 relative">
+            <div className="w-full h-48 sm:h-64 overflow-hidden bg-ink-100 relative">
               <img
                 src={shop.cover_image_url || shop.image_url || ''}
                 alt={shop.name}
@@ -139,7 +139,7 @@ export function ShopDetail() {
               />
             </div>
           ) : (
-            <div className="kl-gradient-brand relative w-full h-32 sm:h-48 opacity-90">
+            <div className="kl-wash-ember relative w-full h-32 sm:h-48 opacity-90">
               <div className="absolute inset-0 flex items-center justify-center">
                 <Store className="size-10 text-white/25" strokeWidth={1.25} />
               </div>
@@ -190,7 +190,7 @@ export function ShopDetail() {
 
               {rating !== null && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground">
-                  <Star className="size-3.5 fill-current text-amber-500" strokeWidth={0} />
+                  <Star className="size-3.5 fill-current text-warn-500" strokeWidth={0} />
                   {rating.toFixed(1)} KithLy Rating
                   <span className="font-normal opacity-75">({shop.rating_count})</span>
                 </span>
@@ -253,8 +253,8 @@ export function ShopDetail() {
                     <Star
                       className={`size-5 ${
                         myRating != null && value <= myRating
-                          ? 'fill-current text-amber-500'
-                          : 'text-slate-300'
+                          ? 'fill-current text-warn-500'
+                          : 'text-ink-300'
                       }`}
                       strokeWidth={myRating != null && value <= myRating ? 0 : 1.5}
                     />

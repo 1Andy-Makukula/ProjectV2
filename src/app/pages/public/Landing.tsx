@@ -47,7 +47,7 @@ export function Landing() {
           {/* Dark overlay for readability */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/65" />
           {/* Orange–red brand colour wash */}
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-900/50 via-red-900/20 to-orange-800/40" />
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-900/50 via-danger-900/20 to-brand-800/40" />
         </div>
 
         {/* ── Top nav ── */}
@@ -68,7 +68,7 @@ export function Landing() {
             {user && profile ? (
               <button
                 onClick={() => navigate('/dashboard')}
-                className="bg-white text-slate-900 text-sm font-semibold px-5 py-2 rounded-full hover:bg-white/90 transition-all shadow-lg"
+                className="bg-white text-ink-900 text-sm font-semibold px-5 py-2 rounded-full hover:bg-white/90 transition-all shadow-lg"
               >
                 Go to Dashboard
               </button>
@@ -82,7 +82,7 @@ export function Landing() {
                 </button>
                 <button
                   onClick={() => navigate('/signup')}
-                  className="bg-white text-orange-700 text-sm font-semibold px-5 py-2 rounded-full hover:bg-white/90 transition-all shadow-lg"
+                  className="bg-white text-brand-700 text-sm font-semibold px-5 py-2 rounded-full hover:bg-white/90 transition-all shadow-lg"
                 >
                   Get Started
                 </button>
@@ -101,7 +101,7 @@ export function Landing() {
             transition={{ delay: 0.1 }}
             className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-8"
           >
-            <Star className="w-4 h-4 text-yellow-300 fill-yellow-300" />
+            <Star className="w-4 h-4 text-warn-300 fill-warn-300" />
             <span className="text-white/90 text-sm font-medium">The #1 gifting app in Zambia</span>
           </motion.div>
 
@@ -114,7 +114,7 @@ export function Landing() {
           >
             Send real gifts to
             <br />
-            <span className="bg-gradient-to-r from-orange-300 via-red-300 to-amber-300 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-brand-300 via-danger-300 to-warn-300 bg-clip-text text-transparent">
               people you love
             </span>
           </motion.h1>
@@ -139,7 +139,7 @@ export function Landing() {
           >
             <Button
               onClick={() => navigate('/signup')}
-              className="px-8 py-6 text-lg rounded-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 border-0 shadow-2xl hover:shadow-orange-500/30 transition-all group"
+              className="px-8 py-6 text-lg rounded-full bg-gradient-to-r from-brand-500 to-danger-500 hover:from-brand-600 hover:to-danger-600 border-0 shadow-2xl hover:shadow-brand-500/30 transition-all group"
             >
               Start gifting free
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -164,7 +164,7 @@ export function Landing() {
               onClick={() => navigate('/signup')}
               className="inline-flex items-center gap-2 text-white/70 hover:text-white text-sm transition-colors group"
             >
-              <Store className="w-4 h-4 text-orange-300 group-hover:text-orange-200" />
+              <Store className="w-4 h-4 text-brand-300 group-hover:text-brand-200" />
               Own a shop?
               <span className="underline underline-offset-2 font-medium">
                 Register as a merchant
@@ -217,15 +217,15 @@ export function Landing() {
       ══════════════════════════════════════ */}
       <section className="bg-white pt-20 px-6">
         <div className="max-w-5xl mx-auto">
-          <div className="bg-gradient-to-r from-orange-500 to-red-600 rounded-xl shadow-2xl p-8 flex flex-col md:flex-row items-center gap-6 md:gap-8 transition-transform hover:scale-[1.01]">
+          <div className="bg-gradient-to-r from-brand-500 to-danger-600 rounded-xl shadow-2xl p-8 flex flex-col md:flex-row items-center gap-6 md:gap-8 transition-transform hover:scale-[1.01]">
             <div className="flex-shrink-0 bg-white/10 p-5 rounded-2xl backdrop-blur-sm border border-white/20">
-              <Shield className="w-12 h-12 text-yellow-300" />
+              <Shield className="w-12 h-12 text-warn-300" />
             </div>
             <div className="text-center md:text-left">
               <h2 className="text-2xl md:text-3xl font-extrabold text-white mb-2">
                 100% Escrow Protected
               </h2>
-              <p className="text-orange-50 text-lg">
+              <p className="text-brand-50 text-lg">
                 Every Kwacha is safely locked in the KithLy vault until the gift is physically collected.
               </p>
             </div>
@@ -244,13 +244,13 @@ export function Landing() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <span className="text-sm font-semibold text-orange-600 uppercase tracking-widest">
+            <span className="text-sm font-semibold text-brand-600 uppercase tracking-widest">
               How KithLy works
             </span>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mt-3 mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-ink-900 mt-3 mb-4">
               Three simple steps
             </h2>
-            <p className="text-gray-500 text-lg max-w-xl mx-auto">
+            <p className="text-ink-500 text-lg max-w-xl mx-auto">
               No logistics. No delivery delays. Just pure joy.
             </p>
           </motion.div>
@@ -259,24 +259,24 @@ export function Landing() {
             {[
               {
                 icon: Gift,
-                color: 'from-orange-500 to-red-500',
-                bg: 'bg-orange-50',
+                color: 'from-brand-500 to-danger-500',
+                bg: 'bg-brand-50',
                 step: '01',
                 title: 'Choose a Gift',
                 desc: 'Browse curated items from local shops near your recipient.',
               },
               {
                 icon: Send,
-                color: 'from-red-500 to-rose-600',
-                bg: 'bg-red-50',
+                color: 'from-danger-500 to-danger-600',
+                bg: 'bg-danger-50',
                 step: '02',
                 title: 'Send It',
                 desc: 'Add a heartfelt message and share the gift link via WhatsApp.',
               },
               {
                 icon: Package,
-                color: 'from-amber-500 to-orange-500',
-                bg: 'bg-amber-50',
+                color: 'from-warn-500 to-brand-500',
+                bg: 'bg-warn-50',
                 step: '03',
                 title: 'They Collect',
                 desc: 'Your recipient walks in, shows the QR code, and picks it up.',
@@ -298,8 +298,8 @@ export function Landing() {
                 >
                   <Icon className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{title}</h3>
-                <p className="text-gray-500 leading-relaxed">{desc}</p>
+                <h3 className="text-xl font-bold text-ink-900 mb-3">{title}</h3>
+                <p className="text-ink-500 leading-relaxed">{desc}</p>
               </motion.div>
             ))}
           </div>
@@ -309,32 +309,32 @@ export function Landing() {
       {/* ══════════════════════════════════════
           MERCHANT CTA SECTION
       ══════════════════════════════════════ */}
-      <section className="bg-gray-50 border-t border-gray-100 py-20 px-6">
+      <section className="bg-ink-50 border-t border-ink-100 py-20 px-6">
         <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <span className="text-sm font-semibold text-orange-600 uppercase tracking-widest">
+            <span className="text-sm font-semibold text-brand-600 uppercase tracking-widest">
               For shop owners
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-3 mb-4 leading-snug">
+            <h2 className="text-3xl md:text-4xl font-bold text-ink-900 mt-3 mb-4 leading-snug">
               Grow your shop with KithLy gifts
             </h2>
-            <p className="text-gray-500 leading-relaxed mb-6">
+            <p className="text-ink-500 leading-relaxed mb-6">
               List your products, receive gift orders from senders across Zambia,
               and let customers redeem them in-store. Zero delivery. Zero hassle.
             </p>
             <Button
               onClick={() => navigate('/signup')}
-              className="bg-gradient-to-r from-orange-500 to-red-500 hover:opacity-90 transition-all shadow-md rounded-xl px-7 py-5 text-base group"
+              className="bg-gradient-to-r from-brand-500 to-danger-500 hover:opacity-90 transition-all shadow-md rounded-xl px-7 py-5 text-base group"
             >
               <Store className="w-5 h-5 mr-2" />
               Register your shop
               <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
-            <p className="text-xs text-gray-400 mt-3">
+            <p className="text-xs text-ink-400 mt-3">
               Create an account, then register your shop from your dashboard.
             </p>
           </motion.div>
@@ -351,10 +351,10 @@ export function Landing() {
               { label: 'Trusted payments', desc: 'Settled via mobile money' },
               { label: 'Full dashboard', desc: 'Manage orders and inventory' },
             ].map(({ label, desc }) => (
-              <div key={label} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-                <div className="w-2 h-2 rounded-full bg-gradient-to-r from-orange-500 to-red-500 mb-3" />
-                <p className="text-sm font-semibold text-gray-800">{label}</p>
-                <p className="text-xs text-gray-400 mt-1">{desc}</p>
+              <div key={label} className="bg-white rounded-2xl p-5 border border-ink-100 shadow-sm">
+                <div className="w-2 h-2 rounded-full bg-gradient-to-r from-brand-500 to-danger-500 mb-3" />
+                <p className="text-sm font-semibold text-ink-800">{label}</p>
+                <p className="text-xs text-ink-400 mt-1">{desc}</p>
               </div>
             ))}
           </motion.div>
@@ -364,7 +364,7 @@ export function Landing() {
       {/* ══════════════════════════════════════
           BOTTOM CTA BANNER
       ══════════════════════════════════════ */}
-      <section className="bg-gradient-to-r from-orange-600 via-red-500 to-orange-500 py-20 px-6 text-white text-center">
+      <section className="bg-gradient-to-r from-brand-600 via-danger-500 to-brand-500 py-20 px-6 text-white text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -381,7 +381,7 @@ export function Landing() {
           </p>
           <Button
             onClick={() => navigate('/signup')}
-            className="px-10 py-6 text-lg rounded-full bg-white text-orange-700 hover:bg-white/90 font-bold shadow-2xl transition-all hover:scale-105"
+            className="px-10 py-6 text-lg rounded-full bg-white text-brand-700 hover:bg-white/90 font-bold shadow-2xl transition-all hover:scale-105"
           >
             Get started — it&apos;s free
           </Button>
@@ -389,7 +389,7 @@ export function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-950 text-gray-500 py-8 text-center text-sm">
+      <footer className="bg-ink-950 text-ink-500 py-8 text-center text-sm">
         <p>KithLy &copy; 2026 &middot; Send experiences, not just gifts</p>
       </footer>
     </div>

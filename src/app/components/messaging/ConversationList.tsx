@@ -22,10 +22,10 @@ export function ConversationList({
       <div className="flex flex-col gap-3 p-4">
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="flex animate-pulse gap-3">
-            <div className="h-10 w-10 shrink-0 rounded-full bg-slate-100" />
+            <div className="h-10 w-10 shrink-0 rounded-full bg-ink-100" />
             <div className="flex-1 space-y-2 py-1">
-              <div className="h-3 w-1/2 rounded bg-slate-100" />
-              <div className="h-2.5 w-3/4 rounded bg-slate-100" />
+              <div className="h-3 w-1/2 rounded bg-ink-100" />
+              <div className="h-2.5 w-3/4 rounded bg-ink-100" />
             </div>
           </div>
         ))}
@@ -36,11 +36,11 @@ export function ConversationList({
   if (conversations.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center">
-        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 shadow-inner">
-          <MessageSquare className="h-6 w-6 text-slate-300" strokeWidth={1.5} />
+        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-ink-50 shadow-inner">
+          <MessageSquare className="h-6 w-6 text-ink-300" strokeWidth={1.5} />
         </div>
-        <p className="text-sm font-semibold text-slate-900">No conversations yet</p>
-        <p className="mt-1 text-sm text-slate-400">
+        <p className="text-sm font-semibold text-ink-900">No conversations yet</p>
+        <p className="mt-1 text-sm text-ink-400">
           {viewerRole === 'merchant'
             ? 'Customer enquiries will appear here.'
             : viewerRole === 'admin'
@@ -52,7 +52,7 @@ export function ConversationList({
   }
 
   return (
-    <div className="divide-y divide-slate-100">
+    <div className="divide-y divide-ink-100">
       {conversations.map((conversation) => {
         const isSelected = conversation.id === selectedId;
         const unread = conversation.unread_count ?? 0;
@@ -67,21 +67,21 @@ export function ConversationList({
               isSelected
                 ? 'bg-primary-tint'
                 : unread > 0
-                  ? 'bg-orange-50/50 hover:bg-orange-50'
-                  : 'hover:bg-slate-50'
+                  ? 'bg-brand-50/50 hover:bg-brand-50'
+                  : 'hover:bg-ink-50'
             }`}
           >
             <div
               className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                isPlatformThread ? 'bg-primary-tint-mid' : 'bg-slate-100'
+                isPlatformThread ? 'bg-primary-tint-mid' : 'bg-ink-100'
               }`}
             >
               {isPlatformThread && viewerRole !== 'admin' ? (
                 <ShieldCheck className="h-4 w-4 text-primary" strokeWidth={2} />
               ) : viewerRole === 'buyer' ? (
-                <Store className="h-4 w-4 text-slate-500" strokeWidth={2} />
+                <Store className="h-4 w-4 text-ink-500" strokeWidth={2} />
               ) : (
-                <User className="h-4 w-4 text-slate-500" strokeWidth={2} />
+                <User className="h-4 w-4 text-ink-500" strokeWidth={2} />
               )}
             </div>
 
@@ -89,18 +89,18 @@ export function ConversationList({
               <div className="flex items-baseline justify-between gap-2">
                 <p
                   className={`truncate text-sm ${
-                    unread > 0 ? 'font-semibold text-slate-900' : 'font-medium text-slate-700'
+                    unread > 0 ? 'font-semibold text-ink-900' : 'font-medium text-ink-700'
                   }`}
                 >
                   {name}
                 </p>
-                <span className="shrink-0 text-[10px] tabular-nums text-slate-400">
+                <span className="shrink-0 text-[10px] tabular-nums text-ink-400">
                   {relativeTime(conversation.last_message_at)}
                 </span>
               </div>
 
               <div className="mt-0.5 flex items-center justify-between gap-2">
-                <p className="truncate text-xs text-slate-400">
+                <p className="truncate text-xs text-ink-400">
                   {conversation.item?.name ?? conversation.subject ?? 'General enquiry'}
                 </p>
                 {unread > 0 && (

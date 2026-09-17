@@ -4,7 +4,7 @@ import { Handshake } from 'lucide-react';
 
 export function MerchantAgreement() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-ink-50">
       <div className="container mx-auto px-4 md:px-6 py-16 max-w-4xl">
         <div className="text-center mb-12">
           <div className="w-16 h-16 mx-auto mb-4 rounded-2xl kl-gradient-brand-br flex items-center justify-center">

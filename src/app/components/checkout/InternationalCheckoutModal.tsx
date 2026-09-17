@@ -171,7 +171,7 @@ function ReceiptRow({
       <span
         className={cn(
           'text-sm font-normal leading-relaxed',
-          subtle ? 'text-slate-400' : 'text-slate-600',
+          subtle ? 'text-ink-400' : 'text-ink-600',
         )}
       >
         {label}
@@ -181,10 +181,10 @@ function ReceiptRow({
           'shrink-0',
           mono && 'font-mono tabular-nums',
           total
-            ? 'text-xl font-semibold text-slate-900'
+            ? 'text-xl font-semibold text-ink-900'
             : subtle
-              ? 'text-sm font-normal text-slate-400'
-              : 'text-sm font-medium text-slate-700',
+              ? 'text-sm font-normal text-ink-400'
+              : 'text-sm font-medium text-ink-700',
         )}
       >
         {value}
@@ -197,7 +197,7 @@ function ReceiptRow({
  * A thin 1px divider consistent with the Apple-style design language.
  */
 function Divider({ className }: { className?: string }) {
-  return <div className={cn('h-px w-full bg-slate-100', className)} />;
+  return <div className={cn('h-px w-full bg-ink-100', className)} />;
 }
 
 /**
@@ -207,7 +207,7 @@ function SafeHarbourBadge() {
   return (
     <motion.div
       className={cn(
-        'flex items-center gap-2 rounded-lg border border-amber-100 bg-amber-50 px-3 py-2',
+        'flex items-center gap-2 rounded-lg border border-warn-100 bg-warn-50 px-3 py-2',
       )}
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
@@ -222,13 +222,13 @@ function SafeHarbourBadge() {
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="h-3.5 w-3.5 shrink-0 text-amber-500"
+        className="h-3.5 w-3.5 shrink-0 text-warn-500"
         aria-hidden
       >
         <circle cx="8" cy="8" r="6.5" />
         <path d="M8 5.5v3m0 2.5h.01" />
       </svg>
-      <p className="text-xs font-normal leading-snug text-amber-700">
+      <p className="text-xs font-normal leading-snug text-warn-700">
         Live rate unavailable. Price shown uses an estimated market rate and
         may differ slightly from the final charge.
       </p>
@@ -293,7 +293,7 @@ export function InternationalCheckoutModal({
       <DialogContent
         className={cn(
           'flex flex-col gap-0 overflow-hidden p-0',
-          'max-w-sm rounded-2xl border border-slate-100 bg-white shadow-xl shadow-slate-200/60',
+          'max-w-sm rounded-2xl border border-ink-100 bg-white shadow-xl shadow-ink-200/60',
           // Override the Shadcn default max-w-lg to a narrower card feel
           'sm:max-w-sm',
         )}
@@ -303,17 +303,17 @@ export function InternationalCheckoutModal({
         {/* ---------------------------------------------------------------- */}
         <div className="flex flex-col gap-1 px-6 pb-4 pt-6">
           {/* Wordmark */}
-          <span className="mb-3 block text-xs font-medium uppercase tracking-[0.25em] text-slate-300">
+          <span className="mb-3 block text-xs font-medium uppercase tracking-[0.25em] text-ink-300">
             KithLy
           </span>
 
           <DialogHeader className="gap-0.5 text-left">
-            <DialogTitle className="text-base font-semibold text-slate-900">
+            <DialogTitle className="text-base font-semibold text-ink-900">
               International Checkout
             </DialogTitle>
-            <DialogDescription className="text-sm font-normal text-slate-500">
+            <DialogDescription className="text-sm font-normal text-ink-500">
               Sending{' '}
-              <span className="font-medium text-slate-700">{itemName}</span>
+              <span className="font-medium text-ink-700">{itemName}</span>
               {' '}— priced in {currency}
             </DialogDescription>
           </DialogHeader>
@@ -346,7 +346,7 @@ export function InternationalCheckoutModal({
           transition={{ duration: 0.4, delay: 0.15 }}
         >
           {/* Eyebrow */}
-          <p className="text-xs font-medium uppercase tracking-widest text-slate-400">
+          <p className="text-xs font-medium uppercase tracking-widest text-ink-400">
             Price breakdown
           </p>
 
@@ -411,7 +411,7 @@ export function InternationalCheckoutModal({
             {isExpired && (
               <motion.p
                 key="expired-notice"
-                className="text-center text-sm font-normal leading-relaxed text-slate-500"
+                className="text-center text-sm font-normal leading-relaxed text-ink-500"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
@@ -428,8 +428,8 @@ export function InternationalCheckoutModal({
             className={cn(
               'w-full rounded-xl py-5 text-sm font-medium tracking-wide',
               isExpired
-                ? 'cursor-not-allowed bg-slate-100 text-slate-400'
-                : 'bg-slate-900 text-white hover:bg-slate-800',
+                ? 'cursor-not-allowed bg-ink-100 text-ink-400'
+                : 'bg-ink-900 text-white hover:bg-ink-800',
             )}
             onClick={isExpired ? undefined : onInitiatePayment}
             disabled={isExpired}
@@ -443,7 +443,7 @@ export function InternationalCheckoutModal({
           {/* Dismiss / secondary action */}
           <Button
             variant="ghost"
-            className="w-full rounded-xl py-5 text-sm font-normal text-slate-400 hover:text-slate-600"
+            className="w-full rounded-xl py-5 text-sm font-normal text-ink-400 hover:text-ink-600"
             onClick={onClose}
           >
             {isExpired ? 'Close and get a new rate' : 'Cancel'}
@@ -458,13 +458,13 @@ export function InternationalCheckoutModal({
               strokeWidth="1.25"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="h-3.5 w-3.5 text-slate-300"
+              className="h-3.5 w-3.5 text-ink-300"
               aria-hidden
             >
               <rect x="3" y="7" width="10" height="8" rx="1.5" />
               <path d="M5 7V5a3 3 0 0 1 6 0v2" />
             </svg>
-            <span className="text-xs font-normal text-slate-400">
+            <span className="text-xs font-normal text-ink-400">
               Escrow-protected · Powered by KithLy
             </span>
           </div>

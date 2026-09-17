@@ -32,10 +32,10 @@ export function ListCard({ list, onOpen, shopCount }: ListCardProps) {
     >
       {/* Collage — one large image with a stack beside it, degrading to
           whatever the list actually has. */}
-      <div className="grid aspect-[4/3] w-full grid-cols-3 gap-0.5 bg-slate-50">
+      <div className="grid aspect-[4/3] w-full grid-cols-3 gap-0.5 bg-ink-50">
         {images.length === 0 ? (
           <div className="col-span-3 flex items-center justify-center">
-            <ListChecks className="size-10 text-slate-200" strokeWidth={1} />
+            <ListChecks className="size-10 text-ink-200" strokeWidth={1} />
           </div>
         ) : (
           <>
@@ -51,7 +51,7 @@ export function ListCard({ list, onOpen, shopCount }: ListCardProps) {
                 url ? (
                   <img key={url} src={url} alt="" className="h-full w-full object-cover" />
                 ) : (
-                  <div key={`empty-${index}`} className="bg-slate-100" />
+                  <div key={`empty-${index}`} className="bg-ink-100" />
                 ),
               )}
             </div>
@@ -75,31 +75,31 @@ export function ListCard({ list, onOpen, shopCount }: ListCardProps) {
               Shop
             </Badge>
           ) : null}
-          <span className="truncate text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+          <span className="truncate text-[10px] font-semibold uppercase tracking-widest text-ink-400">
             {author}
           </span>
         </div>
 
-        <h3 className="truncate text-sm font-semibold leading-snug text-slate-900">
+        <h3 className="truncate text-sm font-semibold leading-snug text-ink-900">
           {list.title}
         </h3>
 
-        <p className="text-[11px] text-slate-500">
+        <p className="text-[11px] text-ink-500">
           {list.item_count} item{list.item_count === 1 ? '' : 's'}
           {shopCount != null && shopCount > 0 && (
             <> · {shopCount} shop{shopCount === 1 ? '' : 's'}</>
           )}
         </p>
 
-        <div className="mt-1 flex items-center gap-3 text-[11px] text-slate-500">
+        <div className="mt-1 flex items-center gap-3 text-[11px] text-ink-500">
           {rating !== null ? (
             <span className="inline-flex items-center gap-1">
-              <Star className="size-3 fill-current text-amber-500" strokeWidth={0} />
-              <span className="font-medium text-slate-700">{rating.toFixed(1)}</span>
-              <span className="text-slate-400">({list.rating_count})</span>
+              <Star className="size-3 fill-current text-warn-500" strokeWidth={0} />
+              <span className="font-medium text-ink-700">{rating.toFixed(1)}</span>
+              <span className="text-ink-400">({list.rating_count})</span>
             </span>
           ) : (
-            <span className="text-slate-400">Not rated yet</span>
+            <span className="text-ink-400">Not rated yet</span>
           )}
 
           {list.save_count > 0 && (

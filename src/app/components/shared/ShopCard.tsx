@@ -55,7 +55,7 @@ export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       {/* ── Cover image ─────────────────────────────────────────── */}
-      <div className="relative w-full h-48 shrink-0 bg-orange-50 overflow-hidden">
+      <div className="relative w-full h-48 shrink-0 bg-brand-50 overflow-hidden">
         {cover ? (
           <img
             src={cover}
@@ -65,7 +65,7 @@ export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
           />
         ) : (
           /* Gradient placeholder */
-          <div className="w-full h-full bg-gradient-to-br from-orange-50 via-orange-100/50 to-amber-50" />
+          <div className="w-full h-full bg-gradient-to-br from-brand-50 via-brand-100/50 to-warn-50" />
         )}
 
         {/* Open or shut, said plainly. Only ever rendered when the shop has
@@ -76,7 +76,7 @@ export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
                         px-2.5 py-1 text-[0.6875rem] font-medium backdrop-blur-sm
                         ${openState.isOpen
                           ? 'bg-white/90 text-[var(--success)]'
-                          : 'bg-slate-900/70 text-white/90'}`}
+                          : 'bg-ink-900/70 text-white/90'}`}
           >
             <span
               className={`size-1.5 rounded-full ${openState.isOpen ? 'bg-[var(--success)]' : 'bg-white/60'}`}
@@ -87,13 +87,13 @@ export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
         )}
 
         {/* Bottom scrim for legibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent opacity-60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink-900/40 via-transparent to-transparent opacity-60" />
 
         {/* Item count badge */}
         {itemCount !== undefined && (
           <div className="absolute top-4 right-4 rounded-full bg-white/95 backdrop-blur-md
-                          border border-orange-100/50 px-3 py-1 shadow-sm transition-transform duration-300 group-hover:-translate-y-0.5">
-            <span className="text-[11px] font-semibold tracking-wide text-orange-700">
+                          border border-brand-100/50 px-3 py-1 shadow-sm transition-transform duration-300 group-hover:-translate-y-0.5">
+            <span className="text-[11px] font-semibold tracking-wide text-brand-700">
               {itemCount} {itemCount === 1 ? 'item' : 'items'}
             </span>
           </div>
@@ -138,41 +138,41 @@ export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
 
       {/* ── Body — top padding clears logo overlap ────────────── */}
       <div className="flex flex-col gap-1.5 px-5 pb-5 pt-9">
-        <h3 className="truncate text-base font-semibold text-slate-900 group-hover:text-primary transition-colors duration-200">
+        <h3 className="truncate text-base font-semibold text-ink-900 group-hover:text-primary transition-colors duration-200">
           {shop.name}
         </h3>
 
         {shop.location && (
-          <div className="flex items-center gap-1.5 text-slate-500">
+          <div className="flex items-center gap-1.5 text-ink-500">
             <MapPin className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
             <span className="truncate text-xs font-medium">{shop.location}</span>
           </div>
         )}
 
         {shop.description && (
-          <p className="mt-1 line-clamp-2 text-xs text-slate-500 leading-relaxed group-hover:text-slate-600 transition-colors">
+          <p className="mt-1 line-clamp-2 text-xs text-ink-500 leading-relaxed group-hover:text-ink-600 transition-colors">
             {shop.description}
           </p>
         )}
 
         {/* Verified pill */}
-        <div className="mt-4 flex items-center justify-between border-t border-slate-50 pt-4">
+        <div className="mt-4 flex items-center justify-between border-t border-ink-50 pt-4">
           <span className="inline-flex items-center gap-1.5 rounded-full
-                           bg-gradient-to-r from-emerald-50 to-green-50 px-2.5 py-1 text-[10px] font-bold uppercase
-                           tracking-wider text-emerald-700 ring-1 ring-emerald-200/50">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+                           bg-gradient-to-r from-ok-50 to-ok-50 px-2.5 py-1 text-[10px] font-bold uppercase
+                           tracking-wider text-ok-700 ring-1 ring-ok-200/50">
+            <span className="h-1.5 w-1.5 rounded-full bg-ok-500 animate-pulse inline-block" />
             Verified Partner
           </span>
           {/* An unrated shop shows the store glyph rather than an empty score:
               it has not been judged badly, it has not been judged at all. */}
           {rating !== null ? (
-            <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600">
-              <Star className="h-3.5 w-3.5 fill-current text-amber-500" strokeWidth={0} />
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-ink-600">
+              <Star className="h-3.5 w-3.5 fill-current text-warn-500" strokeWidth={0} />
               {rating.toFixed(1)}
-              <span className="text-slate-400">({shop.rating_count})</span>
+              <span className="text-ink-400">({shop.rating_count})</span>
             </span>
           ) : (
-            <Store className="h-4 w-4 text-orange-200 group-hover:text-primary transition-colors" strokeWidth={1.5} />
+            <Store className="h-4 w-4 text-brand-200 group-hover:text-primary transition-colors" strokeWidth={1.5} />
           )}
         </div>
       </div>

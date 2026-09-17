@@ -131,28 +131,28 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-ink-50">
 
       {/* A failed load must not look like a quiet day.
           Without this the dashboard renders zero orders and an empty ledger
           when the request failed, and a merchant reads that as "I have not
           been paid" rather than "this did not load". */}
       {error && (
-        <div className="bg-amber-50 border-b border-amber-200">
+        <div className="bg-warn-50 border-b border-warn-200">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" strokeWidth={1.5} />
+            <AlertTriangle className="h-5 w-5 text-warn-600 shrink-0 mt-0.5" strokeWidth={1.5} />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-amber-900">
+              <p className="text-sm font-medium text-warn-900">
                 Some of this page did not load
               </p>
-              <p className="text-sm text-amber-800">
+              <p className="text-sm text-warn-800">
                 {error} Any figures shown below may be incomplete.
               </p>
             </div>
             <Button
               size="sm"
               variant="outline"
-              className="shrink-0 border-amber-300 bg-white"
+              className="shrink-0 border-warn-300 bg-white"
               onClick={() => window.location.reload()}
             >
               Retry
@@ -229,7 +229,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
 
         {/* ── Approval status banner ───────────────────────────────────── */}
         {catalogueLocked && (
-          <div className="mb-8 flex items-start gap-3 rounded-2xl border border-orange-200/80 bg-orange-50 px-5 py-4">
+          <div className="mb-8 flex items-start gap-3 rounded-2xl border border-brand-200/80 bg-brand-50 px-5 py-4">
             <ShieldAlert className="w-5 h-5 text-primary mt-0.5 shrink-0" />
             <p className="text-sm text-orange-850 leading-relaxed">
               {shopVerificationStatus === 'rejected' ? (
@@ -337,12 +337,12 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
               {experiences.map((exp) => (
                 <div
                   key={exp.id}
-                  className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white/80 px-4 py-2.5 shadow-sm"
+                  className="flex items-center gap-2 rounded-xl border border-ink-100 bg-white/80 px-4 py-2.5 shadow-sm"
                 >
-                  <Sparkles className="size-4 shrink-0 text-orange-500" strokeWidth={1.75} />
-                  <span className="text-sm font-medium text-slate-900">{exp.name}</span>
+                  <Sparkles className="size-4 shrink-0 text-brand-500" strokeWidth={1.75} />
+                  <span className="text-sm font-medium text-ink-900">{exp.name}</span>
                   {exp.expires_at && (
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-ink-400">
                       until {new Date(exp.expires_at).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
@@ -380,7 +380,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
         {/* Quick Actions Grid — hidden in preview: every entry navigates into a
             merchant-only route, which would eject the admin out of the preview. */}
         <div className={cn('mb-8', readOnly && 'hidden')}>
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Shop Management</h2>
+          <h2 className="text-lg font-semibold text-ink-900 mb-4">Shop Management</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
               {
@@ -462,18 +462,18 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                   }
                 }}
                 className={cn(
-                  'group flex flex-col items-start rounded-2xl border border-slate-100 bg-white/80 backdrop-blur-xl p-5 text-left shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all',
+                  'group flex flex-col items-start rounded-2xl border border-ink-100 bg-white/80 backdrop-blur-xl p-5 text-left shadow-sm hover:-translate-y-1 hover:shadow-lg transition-all',
                   locked && 'opacity-50 hover:translate-y-0 hover:shadow-sm cursor-not-allowed'
                 )}
               >
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 transition-colors group-hover:bg-orange-100">
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 transition-colors group-hover:bg-brand-100">
                   <action.icon
-                    className="h-6 w-6 text-orange-500 group-hover:bg-gradient-to-r group-hover:from-orange-500 group-hover:to-blue-800 group-hover:bg-clip-text group-hover:text-transparent"
+                    className="h-6 w-6 text-brand-500 group-hover:bg-gradient-to-r group-hover:from-brand-500 group-hover:to-info-800 group-hover:bg-clip-text group-hover:text-transparent"
                     strokeWidth={1.5}
                   />
                 </div>
-                <h3 className="text-base font-semibold text-slate-900">{action.label}</h3>
-                <p className="mt-1 text-xs text-slate-500">{action.description}</p>
+                <h3 className="text-base font-semibold text-ink-900">{action.label}</h3>
+                <p className="mt-1 text-xs text-ink-500">{action.description}</p>
               </motion.button>
               );
             })}
@@ -534,7 +534,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                             {aggregatedItems.slice(0, 3).map((item, idx) => (
                               <div
                                 key={idx}
-                                className="inline-block h-20 w-20 rounded-xl ring-4 ring-white overflow-hidden bg-gray-100 shrink-0 shadow-sm"
+                                className="inline-block h-20 w-20 rounded-xl ring-4 ring-white overflow-hidden bg-ink-100 shrink-0 shadow-sm"
                               >
                                 {item.image_url ? (
                                   <img
@@ -544,19 +544,19 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                                   />
                                 ) : (
                                   <div className="flex h-full w-full items-center justify-center">
-                                    <Package className="h-8 w-8 text-gray-400" />
+                                    <Package className="h-8 w-8 text-ink-400" />
                                   </div>
                                 )}
                               </div>
                             ))}
                             {aggregatedItems.length > 3 && (
-                              <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-slate-200 text-sm font-bold text-slate-600 ring-4 ring-white shrink-0 shadow-sm">
+                              <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-ink-200 text-sm font-bold text-ink-600 ring-4 ring-white shrink-0 shadow-sm">
                                 +{aggregatedItems.length - 3}
                               </div>
                             )}
                           </div>
                         ) : (
-                          <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100">
+                          <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-ink-100">
                             {aggregatedItems[0]?.image_url ? (
                               <img
                                 src={aggregatedItems[0].image_url}
@@ -565,7 +565,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                               />
                             ) : (
                               <div className="flex h-full w-full items-center justify-center">
-                                <Package className="h-8 w-8 text-gray-400" />
+                                <Package className="h-8 w-8 text-ink-400" />
                               </div>
                             )}
                           </div>
@@ -640,7 +640,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                     value={fulfilledQuery}
                     onChange={(e) => setFulfilledQuery(e.target.value)}
                     placeholder="Search by code, recipient or item…"
-                    className="h-10 w-full rounded-md border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    className="h-10 w-full rounded-md border border-ink-200 bg-white pl-9 pr-3 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none focus:ring-2 focus:ring-primary/30"
                   />
                 </div>
                 {!readOnly && (
@@ -681,7 +681,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                             {aggregatedItems.slice(0, 3).map((item, idx) => (
                               <div
                                 key={idx}
-                                className="inline-block h-20 w-20 rounded-xl ring-4 ring-white overflow-hidden bg-gray-100 shrink-0 shadow-sm"
+                                className="inline-block h-20 w-20 rounded-xl ring-4 ring-white overflow-hidden bg-ink-100 shrink-0 shadow-sm"
                               >
                                 {item.image_url ? (
                                   <img
@@ -691,19 +691,19 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                                   />
                                 ) : (
                                   <div className="flex h-full w-full items-center justify-center">
-                                    <Package className="h-8 w-8 text-gray-400" />
+                                    <Package className="h-8 w-8 text-ink-400" />
                                   </div>
                                 )}
                               </div>
                             ))}
                             {aggregatedItems.length > 3 && (
-                              <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-slate-200 text-sm font-bold text-slate-600 ring-4 ring-white shrink-0 shadow-sm">
+                              <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-ink-200 text-sm font-bold text-ink-600 ring-4 ring-white shrink-0 shadow-sm">
                                 +{aggregatedItems.length - 3}
                               </div>
                             )}
                           </div>
                         ) : (
-                          <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-gray-100">
+                          <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-ink-100">
                             {aggregatedItems[0]?.image_url ? (
                               <img
                                 src={aggregatedItems[0].image_url}
@@ -712,7 +712,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                               />
                             ) : (
                               <div className="flex h-full w-full items-center justify-center">
-                                <Package className="h-8 w-8 text-gray-400" />
+                                <Package className="h-8 w-8 text-ink-400" />
                               </div>
                             )}
                           </div>
@@ -745,7 +745,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center justify-end mt-4 pt-4 border-t border-slate-100">
+                    <div className="flex items-center justify-end mt-4 pt-4 border-t border-ink-100">
                       <Button
                         onClick={() => {
                           setSelectedOrder(order);
@@ -784,33 +784,33 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
       {/* View Order Detail Sheet */}
       <Sheet open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <SheetContent className="sm:max-w-md overflow-y-auto max-h-screen">
-          <SheetHeader className="border-b border-slate-100 pb-4">
-            <SheetTitle className="flex items-center gap-2 text-lg font-bold text-slate-900">
-              <Sparkles className="h-5 w-5 text-orange-500" />
+          <SheetHeader className="border-b border-ink-100 pb-4">
+            <SheetTitle className="flex items-center gap-2 text-lg font-bold text-ink-900">
+              <Sparkles className="h-5 w-5 text-brand-500" />
               <span>Order Details</span>
             </SheetTitle>
-            <SheetDescription className="text-slate-500 text-xs">
+            <SheetDescription className="text-ink-500 text-xs">
               Full transaction context for this gift bundle.
             </SheetDescription>
           </SheetHeader>
           {selectedOrder && (
             <div className="space-y-6 py-5">
               {/* Reference and Claim Status - styled like a premium coupon/ticket */}
-              <div className="relative rounded-2xl bg-gradient-to-br from-orange-50/70 to-amber-50/40 border border-orange-100/70 p-5 shadow-sm space-y-4 overflow-hidden">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-orange-200/20 to-amber-200/10 rounded-bl-full pointer-events-none" />
+              <div className="relative rounded-2xl bg-gradient-to-br from-brand-50/70 to-warn-50/40 border border-brand-100/70 p-5 shadow-sm space-y-4 overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-brand-200/20 to-warn-200/10 rounded-bl-full pointer-events-none" />
                 
-                <div className="flex justify-between items-center text-sm border-b border-orange-100/50 pb-3">
+                <div className="flex justify-between items-center text-sm border-b border-brand-100/50 pb-3">
                   <div className="flex items-center gap-2">
-                    <QrCode className="h-4 w-4 text-orange-500" />
-                    <span className="text-slate-500 font-semibold">Claim Code</span>
+                    <QrCode className="h-4 w-4 text-brand-500" />
+                    <span className="text-ink-500 font-semibold">Claim Code</span>
                   </div>
-                  <span className="font-mono font-bold text-orange-600 bg-orange-100/40 border border-orange-200/50 px-2.5 py-1 rounded-xl text-xs select-all tracking-wider shadow-sm">
+                  <span className="font-mono font-bold text-brand-600 bg-brand-100/40 border border-brand-200/50 px-2.5 py-1 rounded-xl text-xs select-all tracking-wider shadow-sm">
                     {claimCodeForMerchant(selectedOrder.code, selectedOrder.claim_status)}
                   </span>
                 </div>
 
                 {!canRevealClaimCode(selectedOrder.claim_status) && (
-                  <p className="text-[11px] text-slate-500 leading-relaxed -mt-2">
+                  <p className="text-[11px] text-ink-500 leading-relaxed -mt-2">
                     The customer presents this code at the counter. Enter it in the
                     Handover Terminal to verify and redeem.
                   </p>
@@ -818,47 +818,47 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
 
                 <div className="grid grid-cols-2 gap-4 text-xs pt-1">
                   <div className="space-y-1">
-                    <span className="text-slate-400 block font-medium">Status</span>
+                    <span className="text-ink-400 block font-medium">Status</span>
                     <span className={cn(
                       "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider text-[10px] border shadow-sm",
                       selectedOrder.claim_status === 'FULFILLED'
-                        ? "bg-green-50 text-green-700 border-green-200"
-                        : "bg-amber-50 text-amber-700 border-amber-200"
+                        ? "bg-ok-50 text-ok-700 border-ok-200"
+                        : "bg-warn-50 text-warn-700 border-warn-200"
                     )}>
-                      <span className={cn("h-1.5 w-1.5 rounded-full", selectedOrder.claim_status === 'FULFILLED' ? "bg-green-500" : "bg-amber-500")} />
+                      <span className={cn("h-1.5 w-1.5 rounded-full", selectedOrder.claim_status === 'FULFILLED' ? "bg-ok-500" : "bg-warn-500")} />
                       {selectedOrder.claim_status}
                     </span>
                   </div>
 
                   <div className="space-y-1">
-                    <span className="text-slate-400 block font-medium">Date</span>
-                    <span className="text-slate-800 font-semibold flex items-center gap-1">
+                    <span className="text-ink-400 block font-medium">Date</span>
+                    <span className="text-ink-800 font-semibold flex items-center gap-1">
                       {selectedOrder.paid_at && new Date(selectedOrder.paid_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
                     </span>
                   </div>
                 </div>
 
-                <div className="border-t border-dashed border-orange-200/60 pt-3 space-y-2.5 text-xs text-slate-700">
+                <div className="border-t border-dashed border-brand-200/60 pt-3 space-y-2.5 text-xs text-ink-700">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 font-medium">Recipient:</span>
-                    <span className="font-semibold text-slate-800">
+                    <span className="text-ink-400 font-medium">Recipient:</span>
+                    <span className="font-semibold text-ink-800">
                       {selectedOrder.recipient_name}
                     </span>
                   </div>
                   
                   {selectedOrder.recipient_phone && (
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-400 font-medium">Phone:</span>
-                      <span className="font-mono font-medium text-slate-800">
+                      <span className="text-ink-400 font-medium">Phone:</span>
+                      <span className="font-mono font-medium text-ink-800">
                         {selectedOrder.recipient_phone}
                       </span>
                     </div>
                   )}
 
                   {selectedOrder.fulfilled_at && (
-                    <div className="flex items-center justify-between border-t border-orange-100/40 pt-2.5">
-                      <span className="text-slate-400 font-medium">Fulfilled At:</span>
-                      <span className="font-semibold text-green-600">
+                    <div className="flex items-center justify-between border-t border-brand-100/40 pt-2.5">
+                      <span className="text-ink-400 font-medium">Fulfilled At:</span>
+                      <span className="font-semibold text-ok-600">
                         {new Date(selectedOrder.fulfilled_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
                       </span>
                     </div>
@@ -874,24 +874,24 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
               {/* Items List */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-slate-900 text-sm">Products in Bundle</h4>
-                  <span className="text-xs font-semibold text-slate-400">{aggregateOrderItems(selectedOrder.order_items).length} Items</span>
+                  <h4 className="font-bold text-ink-900 text-sm">Products in Bundle</h4>
+                  <span className="text-xs font-semibold text-ink-400">{aggregateOrderItems(selectedOrder.order_items).length} Items</span>
                 </div>
                 {/* Product cards list letting it flow naturally inside scrollable SheetContent */}
                 <div className="space-y-2.5">
                   {aggregateOrderItems(selectedOrder.order_items).map((oi, idx) => (
-                    <div key={idx} className="flex items-center gap-3.5 p-3 rounded-2xl border border-slate-100 bg-white/60 hover:bg-slate-50/50 hover:border-slate-200 transition-all duration-200 shadow-sm">
-                      <div className="h-12 w-12 rounded-xl overflow-hidden bg-slate-50 shrink-0 border border-slate-100/70 flex items-center justify-center shadow-inner">
+                    <div key={idx} className="flex items-center gap-3.5 p-3 rounded-2xl border border-ink-100 bg-white/60 hover:bg-ink-50/50 hover:border-ink-200 transition-all duration-200 shadow-sm">
+                      <div className="h-12 w-12 rounded-xl overflow-hidden bg-ink-50 shrink-0 border border-ink-100/70 flex items-center justify-center shadow-inner">
                         {oi.image_url ? (
                           <img src={oi.image_url} alt={oi.name} className="h-full w-full object-cover" />
                         ) : (
-                          <Package className="h-5 w-5 text-slate-400" />
+                          <Package className="h-5 w-5 text-ink-400" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-slate-800 text-sm truncate">{oi.name}</p>
+                        <p className="font-semibold text-ink-800 text-sm truncate">{oi.name}</p>
                         {oi.quantity > 1 && (
-                          <span className="inline-flex items-center mt-1 px-2 py-0.5 rounded-full bg-slate-100 text-[10px] font-bold text-slate-600">
+                          <span className="inline-flex items-center mt-1 px-2 py-0.5 rounded-full bg-ink-100 text-[10px] font-bold text-ink-600">
                             Qty: {oi.quantity}
                           </span>
                         )}
@@ -901,9 +901,9 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                 </div>
               </div>
               
-              <div className="flex justify-between items-center pt-5 border-t border-slate-100">
-                <span className="text-sm font-bold text-slate-900">Total Value:</span>
-                <span className="text-xl font-extrabold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+              <div className="flex justify-between items-center pt-5 border-t border-ink-100">
+                <span className="text-sm font-bold text-ink-900">Total Value:</span>
+                <span className="text-xl font-extrabold bg-gradient-to-r from-brand-600 to-warn-600 bg-clip-text text-transparent">
                   {formatCurrency(selectedOrder.amount)}
                 </span>
               </div>

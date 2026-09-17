@@ -57,7 +57,7 @@ export function ReportGiftIssue({ claimCode }: { claimCode: string }) {
       <DialogTrigger asChild>
         <Button
           variant="ghost"
-          className="text-slate-500 hover:text-slate-800 text-sm font-medium"
+          className="text-ink-500 hover:text-ink-800 text-sm font-medium"
         >
           <LifeBuoy className="mr-2 h-4 w-4" strokeWidth={1.5} />
           Something went wrong?
@@ -67,11 +67,11 @@ export function ReportGiftIssue({ claimCode }: { claimCode: string }) {
       <DialogContent className="sm:max-w-md rounded-3xl">
         {submitted ? (
           <div className="flex flex-col items-center py-6 text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50">
-              <CheckCircle2 className="h-7 w-7 text-emerald-600" strokeWidth={1.5} />
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-ok-50">
+              <CheckCircle2 className="h-7 w-7 text-ok-600" strokeWidth={1.5} />
             </div>
             <DialogTitle className="text-lg">Thank you — we have this</DialogTitle>
-            <DialogDescription className="mt-2 text-sm text-slate-500">
+            <DialogDescription className="mt-2 text-sm text-ink-500">
               Someone will look into it, and the person who sent your gift has been told.
               Your gift is not lost.
             </DialogDescription>
@@ -103,8 +103,8 @@ export function ReportGiftIssue({ claimCode }: { claimCode: string }) {
                       onClick={() => setIssueType(option.value)}
                       className={`rounded-2xl border px-4 py-3 text-left text-sm transition-colors ${
                         issueType === option.value
-                          ? 'border-slate-800 bg-slate-50 font-medium text-slate-900'
-                          : 'border-slate-200 text-slate-600 hover:border-slate-300'
+                          ? 'border-ink-800 bg-ink-50 font-medium text-ink-900'
+                          : 'border-ink-200 text-ink-600 hover:border-ink-300'
                       }`}
                     >
                       {option.label}
@@ -140,7 +140,7 @@ export function ReportGiftIssue({ claimCode }: { claimCode: string }) {
               </div>
 
               {error && (
-                <div className="flex items-start gap-2 rounded-2xl bg-red-50 p-3 text-sm text-red-700">
+                <div className="flex items-start gap-2 rounded-2xl bg-danger-50 p-3 text-sm text-danger-700">
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={1.5} />
                   <span>{error}</span>
                 </div>

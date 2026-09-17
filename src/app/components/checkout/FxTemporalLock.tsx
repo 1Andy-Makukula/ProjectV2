@@ -212,10 +212,10 @@ function CountdownDisplay({
   isExpired: boolean;
 }) {
   const colourClass = isExpired
-    ? 'text-red-500'
+    ? 'text-danger-500'
     : isUrgent
-      ? 'text-orange-500'
-      : 'text-slate-900';
+      ? 'text-brand-500'
+      : 'text-ink-900';
 
   return (
     <span
@@ -343,7 +343,7 @@ export function FxTemporalLock({
       {/* Header label                                                         */}
       {/* ------------------------------------------------------------------ */}
       <motion.p
-        className="text-xs font-medium uppercase tracking-widest text-slate-400"
+        className="text-xs font-medium uppercase tracking-widest text-ink-400"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
@@ -384,10 +384,10 @@ export function FxTemporalLock({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <span className="text-xs font-normal text-slate-400">
+            <span className="text-xs font-normal text-ink-400">
               Locked rate
             </span>
-            <span className="font-mono text-sm font-light tabular-nums text-slate-600">
+            <span className="font-mono text-sm font-light tabular-nums text-ink-600">
               {lockedRateLabel}
             </span>
           </motion.div>
@@ -403,7 +403,7 @@ export function FxTemporalLock({
             key="urgency"
             className={cn(
               'flex items-center gap-2 rounded-full px-3.5 py-1.5',
-              'border border-orange-100 bg-orange-50',
+              'border border-brand-100 bg-brand-50',
             )}
             initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -413,12 +413,12 @@ export function FxTemporalLock({
           >
             {/* Pulsing dot — no emoji */}
             <motion.span
-              className="h-1.5 w-1.5 rounded-full bg-orange-400"
+              className="h-1.5 w-1.5 rounded-full bg-brand-400"
               animate={{ opacity: [1, 0.3, 1] }}
               transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
               aria-hidden
             />
-            <span className="text-xs font-medium text-orange-600">
+            <span className="text-xs font-medium text-brand-600">
               Complete your payment before the rate expires
             </span>
           </motion.div>
@@ -439,9 +439,9 @@ export function FxTemporalLock({
             transition={{ duration: 0.35 }}
             role="alert"
           >
-            <p className="text-sm font-normal leading-relaxed text-slate-500">
+            <p className="text-sm font-normal leading-relaxed text-ink-500">
               Your{' '}
-              <span className="font-medium text-slate-700">{currency}</span>
+              <span className="font-medium text-ink-700">{currency}</span>
               {' '}rate quote has expired. Currency rates fluctuate continuously
               — request a new quote to get the current price.
             </p>
@@ -454,7 +454,7 @@ export function FxTemporalLock({
       {/* ------------------------------------------------------------------ */}
       {!expired && (
         <motion.p
-          className="text-center text-xs font-normal leading-relaxed text-slate-400"
+          className="text-center text-xs font-normal leading-relaxed text-ink-400"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.3 }}

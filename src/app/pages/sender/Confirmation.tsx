@@ -207,12 +207,12 @@ function PollingView({ attempt, max }: { attempt: number; max: number }) {
     <div className="flex flex-col items-center gap-10 text-center">
       <div className="relative flex items-center justify-center" aria-hidden>
         <motion.span
-          className="absolute h-28 w-28 rounded-full border border-orange-100"
+          className="absolute h-28 w-28 rounded-full border border-brand-100"
           animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.1, 0.4] }}
           transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
         />
         <motion.span
-          className="absolute h-20 w-20 rounded-full border border-orange-200"
+          className="absolute h-20 w-20 rounded-full border border-brand-200"
           animate={{ scale: [1, 1.1, 1], opacity: [0.6, 0.2, 0.6] }}
           transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
         />
@@ -223,17 +223,17 @@ function PollingView({ attempt, max }: { attempt: number; max: number }) {
         />
       </div>
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Verifying your payment</h1>
-        <p className="mt-2 max-w-xs text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold text-ink-900">Verifying your payment</h1>
+        <p className="mt-2 max-w-xs text-sm text-ink-500">
           Your payment is being confirmed by the network. This usually takes a few seconds.
         </p>
       </div>
       <div className="w-full max-w-xs">
-        <div className="mb-1.5 flex justify-between text-xs text-slate-400">
+        <div className="mb-1.5 flex justify-between text-xs text-ink-400">
           <span>Check {attempt} of {max}</span>
           <span>{Math.round(progress)}%</span>
         </div>
-        <div className="h-px w-full overflow-hidden rounded-full bg-slate-100">
+        <div className="h-px w-full overflow-hidden rounded-full bg-ink-100">
           <motion.div
             className="h-full bg-primary"
             initial={{ width: '0%' }}
@@ -277,14 +277,14 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="flex h-20 w-20 items-center justify-center rounded-full border border-green-200 bg-green-50"
+        className="flex h-20 w-20 items-center justify-center rounded-full border border-ok-200 bg-ok-50"
       >
-        <CheckCircle2 className="h-10 w-10 text-green-500" strokeWidth={1.5} />
+        <CheckCircle2 className="h-10 w-10 text-ok-500" strokeWidth={1.5} />
       </motion.div>
 
       <div className="text-center">
-        <h1 className="text-2xl font-semibold text-slate-900">Gift Secured!</h1>
-        <p className="mt-2 max-w-sm text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold text-ink-900">Gift Secured!</h1>
+        <p className="mt-2 max-w-sm text-sm text-ink-500">
           Your payment of{' '}
           <span className="font-semibold text-primary">
             {formatCurrency(transaction.total_amount, 'ZMW')}
@@ -292,7 +292,7 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
           is held in escrow. Share the claim code with your recipient.
         </p>
         {creditsApplied > 0 && (
-          <p className="mt-1.5 text-xs font-medium text-orange-600">
+          <p className="mt-1.5 text-xs font-medium text-brand-600">
             Includes {formatCurrency(creditsApplied, 'ZMW')} in wallet credits applied
           </p>
         )}
@@ -324,23 +324,23 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 + idx * 0.1 }}
-            className="w-full overflow-hidden rounded-2xl border border-slate-100 bg-slate-50"
+            className="w-full overflow-hidden rounded-2xl border border-ink-100 bg-ink-50"
           >
             {/* Product row */}
-            <div className="flex items-center gap-3 border-b border-slate-100 p-4">
-              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-slate-200">
+            <div className="flex items-center gap-3 border-b border-ink-100 p-4">
+              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-ink-200">
                 {firstItem?.image_url ? (
                   <img src={firstItem.image_url} alt={firstItem.name ?? ''} className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center">
-                    <Package className="h-6 w-6 text-slate-400" />
+                    <Package className="h-6 w-6 text-ink-400" />
                   </div>
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-slate-900 truncate">{firstItem?.name ?? 'Gift item'}</p>
+                <p className="font-medium text-ink-900 truncate">{firstItem?.name ?? 'Gift item'}</p>
                 {shopOrder.shop && (
-                  <div className="mt-0.5 flex items-center gap-1 text-xs text-slate-500">
+                  <div className="mt-0.5 flex items-center gap-1 text-xs text-ink-500">
                     <MapPin className="h-3 w-3" />
                     {shopOrder.shop.name}
                     {shopOrder.shop.location && ` · ${shopOrder.shop.location}`}
@@ -351,12 +351,12 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
 
             {/* Master Claim Code & QR Code */}
             <div className="px-4 py-4">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400 text-center">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-400 text-center">
                 Master Claim Code
               </p>
               
               <div className="flex flex-col items-center justify-center mb-6">
-                <div className="rounded-2xl border border-orange-200 bg-white p-4 shadow-sm">
+                <div className="rounded-2xl border border-brand-200 bg-white p-4 shadow-sm">
                   <QRCode
                     value={shopOrder.claim_code}
                     size={160}
@@ -367,8 +367,8 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
                 </div>
               </div>
 
-              <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3">
-                <span className="font-mono text-xl font-bold tracking-[0.2em] text-slate-800">
+              <div className="flex items-center justify-between rounded-xl border border-ink-200 bg-white px-4 py-3">
+                <span className="font-mono text-xl font-bold tracking-[0.2em] text-ink-800">
                   {shopOrder.claim_code}
                 </span>
                 <div className="flex gap-1">
@@ -391,37 +391,37 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
             </div>
 
             {/* High-fidelity checklist of Bundle Items with Images & Prices */}
-            <div className="border-t border-slate-100 bg-white px-4 py-4">
-              <p className="text-sm font-semibold text-slate-800 mb-3">Bundle Contents</p>
+            <div className="border-t border-ink-100 bg-white px-4 py-4">
+              <p className="text-sm font-semibold text-ink-800 mb-3">Bundle Contents</p>
               <div className="space-y-3">
                 {groupedItems.map((group, i) => (
                   <div key={i} className="flex items-center gap-3">
                     {/* Item Thumbnail */}
-                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-slate-100 border border-slate-200">
+                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-ink-100 border border-ink-200">
                       {group.item.image_url ? (
                         <img src={group.item.image_url} alt={group.item.name} className="h-full w-full object-cover" />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center">
-                          <Package className="h-4 w-4 text-slate-400" />
+                          <Package className="h-4 w-4 text-ink-400" />
                         </div>
                       )}
                     </div>
                     {/* Item Details */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-700 truncate">
+                      <p className="text-sm font-medium text-ink-700 truncate">
                         {group.item.name}
                       </p>
                       {group.quantity > 1 && (
-                        <p className="text-xs text-slate-400">Qty: {group.quantity}</p>
+                        <p className="text-xs text-ink-400">Qty: {group.quantity}</p>
                       )}
                     </div>
                     {/* Price */}
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-slate-900">
+                      <p className="text-sm font-semibold text-ink-900">
                         {formatCurrency(group.price * group.quantity, 'ZMW')}
                       </p>
                       {group.quantity > 1 && (
-                        <p className="text-[10px] text-slate-400">
+                        <p className="text-[10px] text-ink-400">
                           {formatCurrency(group.price, 'ZMW')} each
                         </p>
                       )}
@@ -433,17 +433,17 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
 
             {/* Recipient info */}
             {(shopOrder.recipient_name || shopOrder.message) && (
-              <div className="border-t border-slate-100 px-4 py-3 space-y-1">
+              <div className="border-t border-ink-100 px-4 py-3 space-y-1">
                 {shopOrder.recipient_name && (
                   <div className="flex items-center gap-2 text-sm">
                     <Gift className="h-3.5 w-3.5 text-primary" />
-                    <span className="text-slate-600">For <span className="font-medium">{shopOrder.recipient_name}</span></span>
+                    <span className="text-ink-600">For <span className="font-medium">{shopOrder.recipient_name}</span></span>
                   </div>
                 )}
                 {shopOrder.message && (
                   <div className="flex items-start gap-2 text-sm">
                     <MessageSquare className="h-3.5 w-3.5 text-primary mt-0.5" />
-                    <span className="text-slate-500 italic">"{shopOrder.message}"</span>
+                    <span className="text-ink-500 italic">"{shopOrder.message}"</span>
                   </div>
                 )}
               </div>
@@ -464,7 +464,7 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
 
       <Button
         onClick={onDone}
-        className="w-full max-w-xs rounded-xl bg-slate-900 py-5 font-medium text-white hover:bg-slate-800"
+        className="w-full max-w-xs rounded-xl bg-ink-900 py-5 font-medium text-white hover:bg-ink-800"
       >
         View All Orders
         <ArrowRight className="ml-2 h-4 w-4" />
@@ -476,12 +476,12 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
 function FailedView({ onVerify, verifying }: { onVerify: () => void; verifying: boolean }) {
   return (
     <div className="flex flex-col items-center gap-8 text-center">
-      <div className="flex h-20 w-20 items-center justify-center rounded-full border border-amber-200 bg-amber-50">
-        <Loader2 className="h-9 w-9 text-amber-500" />
+      <div className="flex h-20 w-20 items-center justify-center rounded-full border border-warn-200 bg-warn-50">
+        <Loader2 className="h-9 w-9 text-warn-500" />
       </div>
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Verification Delayed</h1>
-        <p className="mt-2 max-w-sm text-sm text-slate-500">
+        <h1 className="text-2xl font-semibold text-ink-900">Verification Delayed</h1>
+        <p className="mt-2 max-w-sm text-sm text-ink-500">
           Our system is taking longer than usual to confirm your payment. If you were charged,
           your gift code will appear after manual verification.
         </p>
@@ -490,7 +490,7 @@ function FailedView({ onVerify, verifying }: { onVerify: () => void; verifying: 
         <Button
           onClick={onVerify}
           disabled={verifying}
-          className="w-full rounded-xl bg-slate-900 py-5 font-medium text-white hover:bg-slate-800"
+          className="w-full rounded-xl bg-ink-900 py-5 font-medium text-white hover:bg-ink-800"
         >
           {verifying ? (
             <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Checking...</>
@@ -498,7 +498,7 @@ function FailedView({ onVerify, verifying }: { onVerify: () => void; verifying: 
         </Button>
         <Button
           variant="ghost"
-          className="w-full text-slate-500 hover:text-slate-700"
+          className="w-full text-ink-500 hover:text-ink-700"
           onClick={() => window.open('mailto:support@kithly.com', '_blank')}
         >
           Contact Support
@@ -628,7 +628,7 @@ export function Confirmation() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <span className="text-xs font-medium tracking-[0.28em] text-slate-300 uppercase">KithLy</span>
+        <span className="text-xs font-medium tracking-[0.28em] text-ink-300 uppercase">KithLy</span>
       </motion.div>
 
       <div className="w-full max-w-md py-12">
@@ -668,11 +668,11 @@ export function Confirmation() {
       <div className="absolute bottom-6 flex items-center gap-1.5">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.25"
           strokeLinecap="round" strokeLinejoin="round"
-          className="h-3.5 w-3.5 text-slate-300" aria-hidden>
+          className="h-3.5 w-3.5 text-ink-300" aria-hidden>
           <rect x="3" y="7" width="10" height="8" rx="1.5" />
           <path d="M5 7V5a3 3 0 0 1 6 0v2" />
         </svg>
-        <span className="text-xs text-slate-400">Escrow-protected transaction</span>
+        <span className="text-xs text-ink-400">Escrow-protected transaction</span>
       </div>
     </div>
   );

@@ -68,7 +68,7 @@ export function MessageBubble({
   if (message.message_type === 'system') {
     return (
       <div className="flex justify-center py-1">
-        <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium text-slate-500">
+        <span className="rounded-full bg-ink-100 px-3 py-1 text-[11px] font-medium text-ink-500">
           {message.body}
         </span>
       </div>
@@ -82,7 +82,7 @@ export function MessageBubble({
     return (
       <div className={`flex flex-col gap-1 ${isOwn ? 'items-end' : 'items-start'}`}>
         {showSender && (
-          <span className="px-1 text-[11px] font-semibold text-slate-400">{senderName}</span>
+          <span className="px-1 text-[11px] font-semibold text-ink-400">{senderName}</span>
         )}
         <QuotationCard
           quotation={message.quotation}
@@ -90,7 +90,7 @@ export function MessageBubble({
           shopName={conversation.shop?.name}
           onChanged={onQuotationChanged}
         />
-        <span className="px-1 text-[10px] tabular-nums text-slate-300">
+        <span className="px-1 text-[10px] tabular-nums text-ink-300">
           {clockTime(message.created_at)}
         </span>
       </div>
@@ -100,7 +100,7 @@ export function MessageBubble({
   return (
     <div className={`flex flex-col gap-1 ${isOwn ? 'items-end' : 'items-start'}`}>
       {showSender && (
-        <span className="flex items-center gap-1 px-1 text-[11px] font-semibold text-slate-400">
+        <span className="flex items-center gap-1 px-1 text-[11px] font-semibold text-ink-400">
           {isPlatform && <ShieldCheck className="h-3 w-3 text-primary" strokeWidth={2} />}
           {senderName}
         </span>
@@ -112,8 +112,8 @@ export function MessageBubble({
                       isOwn
                         ? 'rounded-br-md bg-primary text-primary-foreground'
                         : isPlatform
-                          ? 'rounded-bl-md border border-primary/20 bg-primary-tint text-slate-800'
-                          : 'rounded-bl-md border border-slate-200 bg-white text-slate-800'
+                          ? 'rounded-bl-md border border-primary/20 bg-primary-tint text-ink-800'
+                          : 'rounded-bl-md border border-ink-200 bg-white text-ink-800'
                     }`}
       >
         {message.message_type === 'image' && message.image_url ? (
@@ -124,7 +124,7 @@ export function MessageBubble({
               className="max-h-72 w-full rounded-xl object-cover"
             />
           ) : (
-            <div className="flex h-32 w-full items-center justify-center rounded-xl bg-slate-100 text-xs text-slate-400">
+            <div className="flex h-32 w-full items-center justify-center rounded-xl bg-ink-100 text-xs text-ink-400">
               {imageError ? 'Attachment unavailable' : 'Loading attachment…'}
             </div>
           )
@@ -133,7 +133,7 @@ export function MessageBubble({
         )}
       </div>
 
-      <span className="px-1 text-[10px] tabular-nums text-slate-300">
+      <span className="px-1 text-[10px] tabular-nums text-ink-300">
         {clockTime(message.created_at)}
       </span>
     </div>

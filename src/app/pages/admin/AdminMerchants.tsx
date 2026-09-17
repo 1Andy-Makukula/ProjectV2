@@ -300,7 +300,7 @@ export function AdminMerchants() {
                             {/* Password reset */}
                             <Button variant="ghost" size="sm"
                               onClick={() => sendPasswordReset(m.email)}
-                              className="text-slate-500 hover:bg-slate-50">
+                              className="text-ink-500 hover:bg-ink-50">
                               <Mail className="w-3.5 h-3.5" />
                             </Button>
 
@@ -308,7 +308,7 @@ export function AdminMerchants() {
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button variant="ghost" size="sm"
-                                  className="text-rose-500 hover:bg-rose-50">
+                                  className="text-danger-500 hover:bg-danger-50">
                                   <Trash2 className="w-3.5 h-3.5" />
                                 </Button>
                               </AlertDialogTrigger>
@@ -324,7 +324,7 @@ export function AdminMerchants() {
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                                   <AlertDialogAction
                                     onClick={() => handleDelete(m)}
-                                    className="bg-rose-500 hover:bg-rose-600">
+                                    className="bg-danger-500 hover:bg-danger-600">
                                     Remove Merchant
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
@@ -355,7 +355,7 @@ export function AdminMerchants() {
           <div className="w-full max-w-md bg-white shadow-2xl flex flex-col h-full overflow-y-auto">
 
             {/* Panel header */}
-            <div className="kl-gradient-brand text-white px-6 py-5">
+            <div className="kl-wash-ember text-white px-6 py-5">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-light">Edit Merchant</h2>
@@ -403,7 +403,7 @@ export function AdminMerchants() {
                   <div className="space-y-1.5">
                     <Label htmlFor="e-email">Email</Label>
                     <Input id="e-email" value={editMerchant.email} disabled
-                      className="bg-gray-50 text-muted-foreground" />
+                      className="bg-ink-50 text-muted-foreground" />
                     <p className="text-xs text-muted-foreground">Email cannot be changed here.</p>
                   </div>
 
@@ -429,7 +429,7 @@ export function AdminMerchants() {
               {/* ── Shop tab ── */}
               {editTab === 'shop' && (
                 <div className="space-y-5">
-                  <div className="rounded-lg border border-orange-100 bg-orange-50 p-4 text-sm text-orange-700">
+                  <div className="rounded-lg border border-brand-100 bg-brand-50 p-4 text-sm text-brand-700">
                     Currently assigned: <strong>{editMerchant.shop_name ?? 'No shop'}</strong>
                   </div>
 
@@ -513,8 +513,8 @@ export function AdminMerchants() {
                   </div>
 
                   {/* Remove merchant access */}
-                  <div className="rounded-lg border border-rose-100 p-4 space-y-3">
-                    <div className="flex items-center gap-2 font-medium text-sm text-rose-600">
+                  <div className="rounded-lg border border-danger-100 p-4 space-y-3">
+                    <div className="flex items-center gap-2 font-medium text-sm text-danger-600">
                       <Trash2 className="w-4 h-4" />
                       Remove Merchant Access
                     </div>
@@ -536,7 +536,7 @@ export function AdminMerchants() {
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
                           <AlertDialogAction
                             onClick={() => { handleDelete(editMerchant); closeEdit(); }}
-                            className="bg-rose-500 hover:bg-rose-600">
+                            className="bg-danger-500 hover:bg-danger-600">
                             Confirm
                           </AlertDialogAction>
                         </AlertDialogFooter>

@@ -184,18 +184,18 @@ export function AdminShops() {
             <Card>
               <CardContent className="text-center py-12">
                 <p className="text-sm text-muted-foreground mb-1">No pending shop verifications</p>
-                <p className="text-xs text-slate-400 font-light">All submitted merchant applications have been processed.</p>
+                <p className="text-xs text-ink-400 font-light">All submitted merchant applications have been processed.</p>
               </CardContent>
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {pendingShops.map((shop) => (
-                <Card key={shop.id} className="overflow-hidden border border-slate-200 shadow-sm rounded-2xl bg-white p-5 flex flex-col justify-between space-y-4">
+                <Card key={shop.id} className="overflow-hidden border border-ink-200 shadow-sm rounded-2xl bg-white p-5 flex flex-col justify-between space-y-4">
                   <div className="space-y-3">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-semibold text-base text-slate-900 leading-tight">{shop.name}</h3>
-                        <p className="text-[10px] text-slate-400 mt-1">
+                        <h3 className="font-semibold text-base text-ink-900 leading-tight">{shop.name}</h3>
+                        <p className="text-[10px] text-ink-400 mt-1">
                           {shop.created_at
                             ? `Submitted on ${formatDate(shop.created_at)}`
                             : 'Submission date unavailable'}
@@ -209,20 +209,20 @@ export function AdminShops() {
                           className="mt-2"
                         />
                       </div>
-                      <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 text-[10px] py-0 px-2">Pending Review</Badge>
+                      <Badge variant="outline" className="bg-brand-50 text-brand-700 border-brand-200 text-[10px] py-0 px-2">Pending Review</Badge>
                     </div>
 
                     {/* Owner Information */}
-                    <div className="bg-slate-50 rounded-xl p-3 space-y-1 text-xs text-slate-600">
-                      <p className="font-semibold text-slate-800 text-xs mb-1">Owner Details</p>
-                      <p><span className="text-slate-400 font-normal">Name:</span> <span className="font-medium text-slate-700">{shop.owner?.name || 'N/A'}</span></p>
-                      <p><span className="text-slate-400 font-normal">Email:</span> <span className="font-medium text-slate-700">{shop.owner?.email || 'N/A'}</span></p>
-                      <p><span className="text-slate-400 font-normal">Phone:</span> <span className="font-medium text-slate-700">{shop.owner?.phone || 'N/A'}</span></p>
+                    <div className="bg-ink-50 rounded-xl p-3 space-y-1 text-xs text-ink-600">
+                      <p className="font-semibold text-ink-800 text-xs mb-1">Owner Details</p>
+                      <p><span className="text-ink-400 font-normal">Name:</span> <span className="font-medium text-ink-700">{shop.owner?.name || 'N/A'}</span></p>
+                      <p><span className="text-ink-400 font-normal">Email:</span> <span className="font-medium text-ink-700">{shop.owner?.email || 'N/A'}</span></p>
+                      <p><span className="text-ink-400 font-normal">Phone:</span> <span className="font-medium text-ink-700">{shop.owner?.phone || 'N/A'}</span></p>
                     </div>
 
                     {/* Location & Address */}
-                    <div className="space-y-1 text-xs text-slate-600">
-                      <p className="flex items-center gap-1"><MapPin className="size-3 text-slate-400 shrink-0" /> <strong>Location:</strong> {shop.location}</p>
+                    <div className="space-y-1 text-xs text-ink-600">
+                      <p className="flex items-center gap-1"><MapPin className="size-3 text-ink-400 shrink-0" /> <strong>Location:</strong> {shop.location}</p>
                       {shop.physical_address && (
                         <p className="pl-4"><strong>Address:</strong> {shop.physical_address}</p>
                       )}
@@ -234,7 +234,7 @@ export function AdminShops() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleViewDocument(shop.nrc_url)}
-                        className="flex-1 text-[11px] py-1 h-7.5 border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center justify-center gap-1.5"
+                        className="flex-1 text-[11px] py-1 h-7.5 border-ink-200 text-ink-700 hover:bg-ink-50 flex items-center justify-center gap-1.5"
                       >
                         <FileText className="size-3" />
                         View NRC
@@ -244,7 +244,7 @@ export function AdminShops() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleViewDocument(shop.pacra_url)}
-                          className="flex-1 text-[11px] py-1 h-7.5 border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center justify-center gap-1.5"
+                          className="flex-1 text-[11px] py-1 h-7.5 border-ink-200 text-ink-700 hover:bg-ink-50 flex items-center justify-center gap-1.5"
                         >
                           <FileText className="size-3" />
                           View PACRA
@@ -254,7 +254,7 @@ export function AdminShops() {
                           variant="outline"
                           size="sm"
                           disabled
-                          className="flex-1 text-[11px] py-1 h-7.5 border-slate-100 text-slate-300 bg-slate-50 cursor-not-allowed"
+                          className="flex-1 text-[11px] py-1 h-7.5 border-ink-100 text-ink-300 bg-ink-50 cursor-not-allowed"
                         >
                           No PACRA
                         </Button>
@@ -267,14 +267,14 @@ export function AdminShops() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleMessageShop(shop.id, shop.name)}
-                    className="w-full text-[11px] py-1 h-7.5 border-slate-200 text-slate-700 hover:bg-slate-50 flex items-center justify-center gap-1.5"
+                    className="w-full text-[11px] py-1 h-7.5 border-ink-200 text-ink-700 hover:bg-ink-50 flex items-center justify-center gap-1.5"
                   >
                     <MessageSquare className="size-3" />
                     Message this shop
                   </Button>
 
                   {/* Approve/Reject Actions */}
-                  <div className="flex gap-2 pt-3 border-t border-slate-100">
+                  <div className="flex gap-2 pt-3 border-t border-ink-100">
                     <Button
                       onClick={() => {
                         setSelectedShopId(shop.id);
@@ -283,7 +283,7 @@ export function AdminShops() {
                       }}
                       variant="destructive"
                       size="sm"
-                      className="flex-1 h-8.5 rounded-xl font-semibold text-[11px] bg-red-55 text-red-650 hover:bg-red-100 hover:text-red-750 border-none shadow-none flex items-center justify-center gap-1"
+                      className="flex-1 h-8.5 rounded-xl font-semibold text-[11px] bg-red-55 text-red-650 hover:bg-danger-100 hover:text-red-750 border-none shadow-none flex items-center justify-center gap-1"
                     >
                       <X className="size-3" />
                       Reject KYC
@@ -291,7 +291,7 @@ export function AdminShops() {
                     <Button
                       onClick={() => approveShop(shop.id)}
                       size="sm"
-                      className="flex-1 h-8.5 rounded-xl font-semibold text-[11px] bg-emerald-600 hover:bg-emerald-700 text-white border-none flex items-center justify-center gap-1"
+                      className="flex-1 h-8.5 rounded-xl font-semibold text-[11px] bg-ok-600 hover:bg-ok-700 text-white border-none flex items-center justify-center gap-1"
                     >
                       <Check className="size-3" />
                       Approve & Live
@@ -310,14 +310,14 @@ export function AdminShops() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl border border-slate-200/50"
+            className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl border border-ink-200/50"
           >
-            <h3 className="text-base font-semibold text-slate-900 mb-1">Reject KYC Verification</h3>
-            <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+            <h3 className="text-base font-semibold text-ink-900 mb-1">Reject KYC Verification</h3>
+            <p className="text-xs text-ink-500 mb-4 leading-relaxed">
               Please enter the reason for rejecting this shop's KYC. This feedback will be saved to the database and shown to the merchant.
             </p>
             <textarea
-              className="w-full h-28 border border-slate-200 rounded-2xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/60 transition-all resize-none"
+              className="w-full h-28 border border-ink-200 rounded-2xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/60 transition-all resize-none"
               placeholder="e.g., NRC image is blurry or expired. Please upload a clear photo."
               value={rejectionReason}
               onChange={(e) => setRejectionReason(e.target.value)}
@@ -342,7 +342,7 @@ export function AdminShops() {
                     setSelectedShopId(null);
                   }
                 }}
-                className="bg-red-650 hover:bg-red-700 text-white rounded-xl px-4 py-2 text-xs font-semibold h-9 disabled:opacity-50 disabled:cursor-not-allowed border-none"
+                className="bg-red-650 hover:bg-danger-700 text-white rounded-xl px-4 py-2 text-xs font-semibold h-9 disabled:opacity-50 disabled:cursor-not-allowed border-none"
               >
                 Confirm Rejection
               </Button>
@@ -389,7 +389,7 @@ function ShopCard({ shop, onEdit, onToggleActive, onClick, onPreview }: any) {
               {shop.verification_status === 'pending' ? (
                 <Badge
                   variant="outline"
-                  className="border-orange-200 bg-orange-50 px-2 py-0 text-[10px] text-orange-700"
+                  className="border-brand-200 bg-brand-50 px-2 py-0 text-[10px] text-brand-700"
                 >
                   Pending Review
                 </Badge>
@@ -441,7 +441,7 @@ function ShopCard({ shop, onEdit, onToggleActive, onClick, onPreview }: any) {
                 e.stopPropagation();
                 onPreview();
               }}
-              className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+              className="text-ink-600 hover:bg-ink-100 h-7 px-2"
               title="Open this merchant's dashboard read-only"
             >
               <Eye className="size-3.5 mr-1" />
@@ -454,7 +454,7 @@ function ShopCard({ shop, onEdit, onToggleActive, onClick, onPreview }: any) {
                 e.stopPropagation();
                 window.open(`/shop/${shop.id}`, '_blank');
               }}
-              className="text-slate-600 hover:bg-slate-100 h-7 px-2"
+              className="text-ink-600 hover:bg-ink-100 h-7 px-2"
             >
               <Store className="size-3.5 mr-1" />
               Public View

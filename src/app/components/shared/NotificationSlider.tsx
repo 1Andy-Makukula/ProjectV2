@@ -131,8 +131,8 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
 
   const getIcon = (type: string) => {
     switch (type) {
-      case 'success': return <CheckCircle className="h-5 w-5 text-emerald-500" />;
-      default:        return <Bell className="h-5 w-5 text-blue-400" />;
+      case 'success': return <CheckCircle className="h-5 w-5 text-ok-500" />;
+      default:        return <Bell className="h-5 w-5 text-info-400" />;
     }
   };
 
@@ -161,9 +161,9 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
             className="fixed inset-y-0 right-0 z-50 flex w-full max-w-sm flex-col bg-white shadow-2xl"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+            <div className="flex items-center justify-between border-b border-ink-100 px-6 py-4">
               <div className="flex items-center gap-2.5">
-                <h2 className="text-lg font-bold text-gray-900">Notifications</h2>
+                <h2 className="text-lg font-bold text-ink-900">Notifications</h2>
                 {unreadCount > 0 && (
                   <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-white">
                     {unreadCount}
@@ -175,7 +175,7 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
                   <button
                     onClick={markAllRead}
                     title="Mark all as read"
-                    className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+                    className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-ink-500 hover:bg-ink-100 hover:text-ink-700 transition-colors"
                   >
                     <CheckCheck className="h-3.5 w-3.5" />
                     <span>All read</span>
@@ -183,7 +183,7 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
                 )}
                 <button
                   onClick={onClose}
-                  className="rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+                  className="rounded-full p-2 text-ink-400 hover:bg-ink-100 hover:text-ink-600 transition-colors"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -196,23 +196,23 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
                 <div className="flex flex-col gap-3 p-4">
                   {[1, 2, 3].map(i => (
                     <div key={i} className="flex gap-3 animate-pulse">
-                      <div className="h-8 w-8 rounded-full bg-slate-100 shrink-0" />
+                      <div className="h-8 w-8 rounded-full bg-ink-100 shrink-0" />
                       <div className="flex-1 space-y-2">
-                        <div className="h-3 w-3/4 rounded bg-slate-100" />
-                        <div className="h-2.5 w-1/3 rounded bg-slate-100" />
+                        <div className="h-3 w-3/4 rounded bg-ink-100" />
+                        <div className="h-2.5 w-1/3 rounded bg-ink-100" />
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-ink-100">
 
                   {/* ── Gifts Received ── */}
                   {visibleGifts.length > 0 && (
                     <div>
                       <div className="flex items-center gap-2 px-4 pt-4 pb-2">
                         <Gift className="h-3.5 w-3.5 text-primary" />
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Gifts Received</p>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-ink-400">Gifts Received</p>
                       </div>
                       <AnimatePresence>
                         {visibleGifts.map((order) => {
@@ -230,21 +230,21 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
                               animate={{ opacity: 1, x: 0 }}
                               exit={{ opacity: 0, x: 60, height: 0, marginBottom: 0 }}
                               transition={{ duration: 0.22 }}
-                              className="group relative flex cursor-pointer gap-4 px-4 py-3.5 hover:bg-orange-50/50 active:bg-orange-50 transition-colors"
+                              className="group relative flex cursor-pointer gap-4 px-4 py-3.5 hover:bg-brand-50/50 active:bg-brand-50 transition-colors"
                               onClick={() => { navigate(`/gift/${order.claim_code}`); onClose(); }}
                             >
                               {/* Icon */}
                               <div className="shrink-0 pt-0.5">
                                 <div className={`h-9 w-9 rounded-full flex items-center justify-center shadow-sm ${
-                                  isPending ? 'bg-gradient-to-br from-primary/20 to-primary/10' : 'bg-emerald-50'
+                                  isPending ? 'bg-gradient-to-br from-primary/20 to-primary/10' : 'bg-ok-50'
                                 }`}>
-                                  <Gift className={`h-4 w-4 ${isPending ? 'text-primary' : 'text-emerald-500'}`} />
+                                  <Gift className={`h-4 w-4 ${isPending ? 'text-primary' : 'text-ok-500'}`} />
                                 </div>
                               </div>
 
                               {/* Body */}
                               <div className="flex-1 min-w-0 pr-6">
-                                <p className="text-sm text-gray-900 leading-snug">
+                                <p className="text-sm text-ink-900 leading-snug">
                                   <span className="font-semibold">{senderName}</span>
                                   {' sent you '}
                                   {itemName ? <span className="font-semibold">{itemName}</span> : 'a gift'}
@@ -252,10 +252,10 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
 
                                 {/* Time row */}
                                 <div className="flex items-center gap-1.5 mt-1">
-                                  <Clock className="h-3 w-3 text-slate-300 shrink-0" />
-                                  <span className="text-xs text-slate-400 font-medium">{relTime}</span>
-                                  <span className="text-slate-200">·</span>
-                                  <span className="text-[11px] text-slate-300">{absTime}</span>
+                                  <Clock className="h-3 w-3 text-ink-300 shrink-0" />
+                                  <span className="text-xs text-ink-400 font-medium">{relTime}</span>
+                                  <span className="text-ink-200">·</span>
+                                  <span className="text-[11px] text-ink-300">{absTime}</span>
                                 </div>
 
                                 {isPending && (
@@ -271,7 +271,7 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
                               {/* Dismiss */}
                               <button
                                 onClick={(e) => dismissGift(order.shop_order_id, e)}
-                                className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 rounded-full p-1 text-slate-300 hover:bg-slate-100 hover:text-slate-500 transition-all"
+                                className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 rounded-full p-1 text-ink-300 hover:bg-ink-100 hover:text-ink-500 transition-all"
                                 title="Dismiss"
                               >
                                 <X className="h-3.5 w-3.5" />
@@ -287,8 +287,8 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
                   {notifications.length > 0 && (
                     <div>
                       <div className="flex items-center gap-2 px-4 pt-4 pb-2">
-                        <Send className="h-3.5 w-3.5 text-slate-400" />
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Activity</p>
+                        <Send className="h-3.5 w-3.5 text-ink-400" />
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-ink-400">Activity</p>
                       </div>
                       <AnimatePresence>
                         {notifications.map((notification) => {
@@ -307,8 +307,8 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
                               onClick={() => { markAsRead(notification.id, notification.is_read); toggleExpand(notification.id); }}
                               className={`group relative flex cursor-pointer gap-4 px-4 py-3.5 transition-colors ${
                                 !notification.is_read
-                                  ? 'bg-orange-50/60 hover:bg-orange-50'
-                                  : 'hover:bg-gray-50/80'
+                                  ? 'bg-brand-50/60 hover:bg-brand-50'
+                                  : 'hover:bg-ink-50/80'
                               }`}
                             >
                               {/* Unread dot */}
@@ -320,7 +320,7 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
 
                               <div className="flex-1 min-w-0 pr-6">
                                 <div className="flex items-start justify-between gap-2">
-                                  <p className={`text-sm leading-snug ${!notification.is_read ? 'font-medium text-gray-900' : 'text-gray-700'}`}>
+                                  <p className={`text-sm leading-snug ${!notification.is_read ? 'font-medium text-ink-900' : 'text-ink-700'}`}>
                                     {notification.message}
                                   </p>
                                   {!notification.is_read && (
@@ -330,10 +330,10 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
 
                                 {/* Live timer row */}
                                 <div className="flex items-center gap-1.5 mt-1">
-                                  <Clock className="h-3 w-3 text-slate-300 shrink-0" />
-                                  <span className="text-xs text-slate-400 font-medium tabular-nums">{relTime}</span>
-                                  <span className="text-slate-200">·</span>
-                                  <span className="text-[11px] text-slate-300">{absTime}</span>
+                                  <Clock className="h-3 w-3 text-ink-300 shrink-0" />
+                                  <span className="text-xs text-ink-400 font-medium tabular-nums">{relTime}</span>
+                                  <span className="text-ink-200">·</span>
+                                  <span className="text-[11px] text-ink-300">{absTime}</span>
                                 </div>
 
                                 {/* What this notification can actually do.
@@ -367,7 +367,7 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
                                               const href = actionHref(action);
                                               if (href) { navigate(href); onClose(); }
                                             }}
-                                            className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-200 transition-colors"
+                                            className="flex items-center gap-1.5 rounded-lg bg-ink-100 px-3 py-1.5 text-xs font-semibold text-ink-600 hover:bg-ink-200 transition-colors"
                                           >
                                             {action.label}
                                             {!isInlineAction(action) && <ArrowRight className="h-3 w-3" />}
@@ -387,7 +387,7 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
                                     >
                                       <button
                                         onClick={(e) => { e.stopPropagation(); navigate(`/order/${notification.reference_id}`); onClose(); }}
-                                        className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-200 transition-colors"
+                                        className="flex items-center gap-1.5 rounded-lg bg-ink-100 px-3 py-1.5 text-xs font-semibold text-ink-600 hover:bg-ink-200 transition-colors"
                                       >
                                         View Details <ArrowRight className="h-3 w-3" />
                                       </button>
@@ -399,7 +399,7 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
                               {/* Per-item dismiss */}
                               <button
                                 onClick={(e) => dismissNotification(notification.id, e)}
-                                className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 rounded-full p-1 text-slate-300 hover:bg-slate-100 hover:text-slate-500 transition-all"
+                                className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 rounded-full p-1 text-ink-300 hover:bg-ink-100 hover:text-ink-500 transition-all"
                                 title="Dismiss"
                               >
                                 <X className="h-3.5 w-3.5" />
@@ -414,11 +414,11 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
                   {/* Empty state */}
                   {notifications.length === 0 && visibleGifts.length === 0 && (
                     <div className="flex flex-col items-center justify-center p-12 text-center">
-                      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 shadow-inner">
-                        <Bell className="h-6 w-6 text-slate-300" />
+                      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-ink-50 shadow-inner">
+                        <Bell className="h-6 w-6 text-ink-300" />
                       </div>
-                      <p className="text-sm font-semibold text-gray-900">All caught up</p>
-                      <p className="mt-1 text-sm text-gray-400">No notifications right now.</p>
+                      <p className="text-sm font-semibold text-ink-900">All caught up</p>
+                      <p className="mt-1 text-sm text-ink-400">No notifications right now.</p>
                     </div>
                   )}
                 </div>
@@ -426,7 +426,7 @@ export function NotificationSlider({ isOpen, onClose }: NotificationSliderProps)
             </div>
 
             {/* Footer */}
-            <div className="border-t border-slate-100 p-4">
+            <div className="border-t border-ink-100 p-4">
               <Button
                 variant="outline"
                 className="w-full rounded-xl"

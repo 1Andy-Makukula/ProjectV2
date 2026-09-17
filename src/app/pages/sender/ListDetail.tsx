@@ -125,7 +125,7 @@ export function ListDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-ink-50">
       <div className="sticky top-0 z-10 border-b bg-white/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-3 md:px-6">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Back">
@@ -149,7 +149,7 @@ export function ListDetail() {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-slate-100 bg-white p-5 sm:p-6"
+          className="rounded-2xl border border-ink-100 bg-white p-5 sm:p-6"
         >
           <div className="mb-3 flex flex-wrap items-center gap-2">
             {list.is_platform ? (
@@ -163,17 +163,17 @@ export function ListDetail() {
                 {list.shop_name}
               </Badge>
             ) : null}
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-ink-400">
               {listAuthorLabel(list)}
             </span>
           </div>
 
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">{list.title}</h2>
+          <h2 className="text-2xl font-semibold tracking-tight text-ink-900">{list.title}</h2>
           {list.description && (
-            <p className="mt-2 text-sm leading-relaxed text-slate-500">{list.description}</p>
+            <p className="mt-2 text-sm leading-relaxed text-ink-500">{list.description}</p>
           )}
 
-          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500">
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-ink-500">
             <span className="inline-flex items-center gap-1.5">
               <ListChecks className="size-4" strokeWidth={2} />
               {list.item_count} item{list.item_count === 1 ? '' : 's'}
@@ -186,7 +186,7 @@ export function ListDetail() {
             )}
             {rating !== null && (
               <span className="inline-flex items-center gap-1.5">
-                <Star className="size-4 fill-current text-amber-500" strokeWidth={0} />
+                <Star className="size-4 fill-current text-warn-500" strokeWidth={0} />
                 {rating.toFixed(1)} KithLy Rating ({list.rating_count})
               </span>
             )}
@@ -266,8 +266,8 @@ export function ListDetail() {
           </div>
 
           {profile && !isOwner && (
-            <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-4">
-              <span className="text-xs text-slate-500">Rate this list:</span>
+            <div className="mt-4 flex items-center gap-2 border-t border-ink-100 pt-4">
+              <span className="text-xs text-ink-500">Rate this list:</span>
               {[1, 2, 3, 4, 5].map((value) => (
                 <button
                   key={value}
@@ -281,8 +281,8 @@ export function ListDetail() {
                   <Star
                     className={`size-5 ${
                       myRating != null && value <= myRating
-                        ? 'fill-current text-amber-500'
-                        : 'text-slate-300'
+                        ? 'fill-current text-warn-500'
+                        : 'text-ink-300'
                     }`}
                     strokeWidth={myRating != null && value <= myRating ? 0 : 1.5}
                   />
@@ -302,10 +302,10 @@ export function ListDetail() {
             onVisitShop={(shopId) => navigate(`/shop/${shopId}`)}
           />
         ) : (
-        <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white">
+        <div className="overflow-hidden rounded-2xl border border-ink-100 bg-white">
           {visible.length === 0 ? (
-            <div className="py-16 text-center text-slate-400">
-              <Package className="mx-auto mb-3 h-10 w-10 text-slate-300" strokeWidth={1} />
+            <div className="py-16 text-center text-ink-400">
+              <Package className="mx-auto mb-3 h-10 w-10 text-ink-300" strokeWidth={1} />
               {list.entries.length === 0 ? (
                 <>
                   <p className="text-sm">
@@ -332,56 +332,56 @@ export function ListDetail() {
               return (
                 <div
                   key={entry.id}
-                  className={`flex items-center gap-3 border-b border-slate-100 px-4 py-3 last:border-0
-                              ${reason ? 'bg-slate-50/60' : ''}`}
+                  className={`flex items-center gap-3 border-b border-ink-100 px-4 py-3 last:border-0
+                              ${reason ? 'bg-ink-50/60' : ''}`}
                 >
                   <div
-                    className={`size-14 shrink-0 overflow-hidden rounded-xl bg-slate-50
+                    className={`size-14 shrink-0 overflow-hidden rounded-xl bg-ink-50
                                 ${reason ? 'opacity-45 grayscale' : ''}`}
                   >
                     {imageUrl ? (
                       <img src={imageUrl} alt="" className="h-full w-full object-cover" />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center">
-                        <Package className="h-5 w-5 text-slate-300" strokeWidth={1.5} />
+                        <Package className="h-5 w-5 text-ink-300" strokeWidth={1.5} />
                       </div>
                     )}
                   </div>
 
                   <div className={`min-w-0 flex-1 ${reason ? 'opacity-60' : ''}`}>
                     {entry.entry_kind === 'shop' ? (
-                      <p className="truncate text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                      <p className="truncate text-[10px] font-semibold uppercase tracking-widest text-ink-400">
                         Shop
                       </p>
                     ) : (
                       entry.item?.shop?.name && (
-                        <p className="truncate text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                        <p className="truncate text-[10px] font-semibold uppercase tracking-widest text-ink-400">
                           {entry.item.shop.name}
                         </p>
                       )
                     )}
-                    <p className="truncate text-sm font-medium text-slate-900">{name}</p>
+                    <p className="truncate text-sm font-medium text-ink-900">{name}</p>
                     {reason ? (
-                      <p className="text-[11px] font-medium text-slate-500">
+                      <p className="text-[11px] font-medium text-ink-500">
                         {ENTRY_UNAVAILABLE_TEXT[reason]}
                       </p>
                     ) : entry.entry_kind === 'shop' ? (
-                      <p className="truncate text-[11px] font-light text-slate-500">
+                      <p className="truncate text-[11px] font-light text-ink-500">
                         {entry.shop?.location ?? 'Browse everything they sell'}
                       </p>
                     ) : (
                       <div className="flex items-baseline gap-2">
-                        <p className="text-sm font-semibold tabular-nums text-slate-900">
+                        <p className="text-sm font-semibold tabular-nums text-ink-900">
                           {formatCurrency(entry.item!.price_zmw, 'ZMW')}
                         </p>
                         {/* What is on offer this month is most of why a budget
                             list is worth following, so the old price shows. */}
                         {discountPercentage(entry.item!) !== null && (
                           <>
-                            <span className="text-[11px] text-slate-400 line-through">
+                            <span className="text-[11px] text-ink-400 line-through">
                               {formatCurrency(entry.item!.original_price_zmw!, 'ZMW')}
                             </span>
-                            <span className="rounded-full bg-orange-600 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                            <span className="rounded-full bg-brand-600 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
                               {discountPercentage(entry.item!)}% off
                             </span>
                           </>
@@ -398,7 +398,7 @@ export function ListDetail() {
                         setDismissed((current) => new Set(current).add(entry.id))
                       }
                       aria-label={`Dismiss ${name}`}
-                      className="shrink-0 rounded-full p-1.5 text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-700"
+                      className="shrink-0 rounded-full p-1.5 text-ink-400 transition-colors hover:bg-ink-200 hover:text-ink-700"
                     >
                       <X className="size-4" strokeWidth={2} />
                     </button>

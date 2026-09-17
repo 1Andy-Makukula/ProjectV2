@@ -82,10 +82,10 @@ export function ShopDirectory() {
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(251,146,60,0.08),_transparent_40%),linear-gradient(180deg,_#fff7ed_0%,_#ffffff_45%,_#fffaf5_100%)]">
       <div className="container mx-auto px-4 md:px-8 py-8 md:py-10">
         <div className="mb-8 md:mb-10">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-slate-900 mb-3">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-ink-900 mb-3">
             Shop Directory
           </h1>
-          <p className="text-slate-500 text-sm max-w-xl">
+          <p className="text-ink-500 text-sm max-w-xl">
             Discover verified KithLy partners. Browse their featured items and send a gift instantly using our secure escrow service.
           </p>
         </div>
@@ -93,22 +93,22 @@ export function ShopDirectory() {
         {/* Filters */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
           <div className="relative group">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-orange-400 group-focus-within:text-orange-500 transition-colors" strokeWidth={1.5} />
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-400 group-focus-within:text-brand-500 transition-colors" strokeWidth={1.5} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search shops by name, description, or location..."
-              className="w-full pl-12 pr-6 py-4 bg-white/70 backdrop-blur-sm border border-orange-100 rounded-full text-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)] focus:outline-none focus:border-orange-300 focus:ring-4 focus:ring-orange-500/10 transition-all placeholder:text-slate-400"
+              className="w-full pl-12 pr-6 py-4 bg-white/70 backdrop-blur-sm border border-brand-100 rounded-full text-sm shadow-[0_8px_30px_rgb(0,0,0,0.04)] focus:outline-none focus:border-brand-300 focus:ring-4 focus:ring-brand-500/10 transition-all placeholder:text-ink-400"
             />
           </div>
         </div>
 
         {/* Shop Grid */}
         {loading ? (
-          <div className="py-12 text-center text-slate-400">Loading shops...</div>
+          <div className="py-12 text-center text-ink-400">Loading shops...</div>
         ) : filteredShops.length === 0 ? (
-          <div className="py-12 text-center text-slate-400">No shops found matching your criteria.</div>
+          <div className="py-12 text-center text-ink-400">No shops found matching your criteria.</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredShops.map((shop, idx) => (

@@ -56,11 +56,11 @@ function StatusPill({ active }: { active: boolean }) {
     <span
       className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ring-1 ${
         active
-          ? 'bg-green-50 text-green-700 ring-green-200'
-          : 'bg-slate-50 text-slate-500 ring-slate-200'
+          ? 'bg-ok-50 text-ok-700 ring-ok-200'
+          : 'bg-ink-50 text-ink-500 ring-ink-200'
       }`}
     >
-      <span className={`h-1.5 w-1.5 rounded-full ${active ? 'bg-green-500' : 'bg-slate-400'}`} />
+      <span className={`h-1.5 w-1.5 rounded-full ${active ? 'bg-ok-500' : 'bg-ink-400'}`} />
       {active ? 'Live' : 'Draft'}
     </span>
   );
@@ -248,8 +248,8 @@ export function AdminExperiences() {
             >
               {/* Details */}
               <div className="space-y-5 lg:col-span-3">
-                <div className="rounded-xl border border-slate-200 bg-white p-5">
-                  <h2 className="mb-4 text-sm font-semibold text-slate-900">
+                <div className="rounded-xl border border-ink-200 bg-white p-5">
+                  <h2 className="mb-4 text-sm font-semibold text-ink-900">
                     {editing.id ? 'Edit experience' : 'New experience'}
                   </h2>
 
@@ -275,7 +275,7 @@ export function AdminExperiences() {
                         onChange={(e) => setSlug(e.target.value)}
                         placeholder="spa-and-dinner"
                       />
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-ink-400">
                         Appears as /experience/{slug || 'your-address'}
                       </p>
                     </div>
@@ -319,7 +319,7 @@ export function AdminExperiences() {
                         value={expiresAt}
                         onChange={(e) => setExpiresAt(e.target.value)}
                       />
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-ink-400">
                         Every part of the experience expires on this date, whichever shop it
                         comes from. Leave blank to use each item's own expiry.
                       </p>
@@ -328,16 +328,16 @@ export function AdminExperiences() {
                 </div>
 
                 {/* Chosen contents */}
-                <div className="rounded-xl border border-slate-200 bg-white">
-                  <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
-                    <h3 className="text-sm font-semibold text-slate-900">
+                <div className="rounded-xl border border-ink-200 bg-white">
+                  <div className="flex items-center justify-between border-b border-ink-100 px-5 py-3">
+                    <h3 className="text-sm font-semibold text-ink-900">
                       Contents ({lines.length})
                     </h3>
                     <div className="text-right">
-                      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                      <p className="text-[10px] font-semibold uppercase tracking-widest text-ink-400">
                         Total
                       </p>
-                      <p className="text-sm font-medium tabular-nums text-slate-900">
+                      <p className="text-sm font-medium tabular-nums text-ink-900">
                         {formatCurrency(draftTotal, 'ZMW')}
                       </p>
                     </div>
@@ -345,22 +345,22 @@ export function AdminExperiences() {
 
                   {lines.length === 0 ? (
                     <div className="px-5 py-10 text-center">
-                      <Package className="mx-auto mb-2 h-7 w-7 text-slate-200" strokeWidth={1.5} />
-                      <p className="text-sm text-slate-400">
+                      <Package className="mx-auto mb-2 h-7 w-7 text-ink-200" strokeWidth={1.5} />
+                      <p className="text-sm text-ink-400">
                         Pick items from the catalogue on the right.
                       </p>
                     </div>
                   ) : (
-                    <div className="divide-y divide-slate-50">
+                    <div className="divide-y divide-ink-50">
                       {lines.map((line, index) => {
                         const item = catalogue.find((c) => c.id === line.item_id);
                         return (
                           <div key={line.item_id} className="flex items-start gap-3 px-5 py-3">
                             <div className="min-w-0 flex-1">
-                              <p className="truncate text-sm font-medium text-slate-900">
+                              <p className="truncate text-sm font-medium text-ink-900">
                                 {item?.name ?? 'Item'}
                               </p>
-                              <p className="mt-0.5 flex items-center gap-1 text-[11px] text-slate-400">
+                              <p className="mt-0.5 flex items-center gap-1 text-[11px] text-ink-400">
                                 <Store className="h-3 w-3 shrink-0" strokeWidth={2} />
                                 {item?.shop?.name ?? 'Unknown shop'}
                               </p>
@@ -400,7 +400,7 @@ export function AdminExperiences() {
                               onClick={() =>
                                 setLines((prev) => prev.filter((l) => l.item_id !== line.item_id))
                               }
-                              className="mt-1 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-red-500"
+                              className="mt-1 rounded-lg p-1.5 text-ink-400 transition-colors hover:bg-ink-100 hover:text-danger-500"
                               aria-label="Remove item"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -411,8 +411,8 @@ export function AdminExperiences() {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between border-t border-slate-100 px-5 py-3">
-                    <p className="text-xs text-slate-500">
+                  <div className="flex items-center justify-between border-t border-ink-100 px-5 py-3">
+                    <p className="text-xs text-ink-500">
                       {draftShops.size} {draftShops.size === 1 ? 'shop' : 'shops'} taking part
                       {draftShops.size > 1 && ' — one claim code each'}
                     </p>
@@ -430,11 +430,11 @@ export function AdminExperiences() {
 
               {/* Catalogue picker */}
               <div className="lg:col-span-2">
-                <div className="rounded-xl border border-slate-200 bg-white">
-                  <div className="border-b border-slate-100 px-5 py-3">
-                    <h3 className="mb-2 text-sm font-semibold text-slate-900">Catalogue</h3>
+                <div className="rounded-xl border border-ink-200 bg-white">
+                  <div className="border-b border-ink-100 px-5 py-3">
+                    <h3 className="mb-2 text-sm font-semibold text-ink-900">Catalogue</h3>
                     <div className="relative">
-                      <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-slate-400" />
+                      <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-ink-400" />
                       <Input
                         value={itemQuery}
                         onChange={(e) => setItemQuery(e.target.value)}
@@ -444,9 +444,9 @@ export function AdminExperiences() {
                     </div>
                   </div>
 
-                  <div className="max-h-[32rem] divide-y divide-slate-50 overflow-y-auto">
+                  <div className="max-h-[32rem] divide-y divide-ink-50 overflow-y-auto">
                     {filteredCatalogue.length === 0 ? (
-                      <p className="px-5 py-8 text-center text-sm text-slate-400">
+                      <p className="px-5 py-8 text-center text-sm text-ink-400">
                         No items match that search.
                       </p>
                     ) : (
@@ -458,10 +458,10 @@ export function AdminExperiences() {
                             onClick={() => addLine(item.id)}
                             disabled={chosen}
                             className={`flex w-full items-center gap-3 px-5 py-2.5 text-left transition-colors ${
-                              chosen ? 'bg-slate-50 opacity-60' : 'hover:bg-slate-50'
+                              chosen ? 'bg-ink-50 opacity-60' : 'hover:bg-ink-50'
                             }`}
                           >
-                            <div className="h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-slate-100">
+                            <div className="h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-ink-100">
                               {item.image_url ? (
                                 <img
                                   src={item.image_url}
@@ -470,22 +470,22 @@ export function AdminExperiences() {
                                 />
                               ) : (
                                 <div className="flex h-full w-full items-center justify-center">
-                                  <Package className="h-3.5 w-3.5 text-slate-300" strokeWidth={1.5} />
+                                  <Package className="h-3.5 w-3.5 text-ink-300" strokeWidth={1.5} />
                                 </div>
                               )}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <p className="truncate text-xs font-medium text-slate-900">
+                              <p className="truncate text-xs font-medium text-ink-900">
                                 {item.name}
                               </p>
-                              <p className="truncate text-[10px] text-slate-400">
+                              <p className="truncate text-[10px] text-ink-400">
                                 {item.shop?.name} · {formatCurrency(item.price_zmw, 'ZMW')}
                               </p>
                             </div>
                             {chosen ? (
-                              <Check className="h-4 w-4 shrink-0 text-green-500" strokeWidth={2} />
+                              <Check className="h-4 w-4 shrink-0 text-ok-500" strokeWidth={2} />
                             ) : (
-                              <Plus className="h-4 w-4 shrink-0 text-slate-300" strokeWidth={2} />
+                              <Plus className="h-4 w-4 shrink-0 text-ink-300" strokeWidth={2} />
                             )}
                           </button>
                         );
@@ -528,9 +528,9 @@ export function AdminExperiences() {
                     return (
                       <div
                         key={experience.id}
-                        className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white"
+                        className="flex flex-col overflow-hidden rounded-2xl border border-ink-200 bg-white"
                       >
-                        <div className="relative aspect-[16/9] bg-slate-50">
+                        <div className="relative aspect-[16/9] bg-ink-50">
                           {experience.image_url ? (
                             <img
                               src={experience.image_url}
@@ -548,27 +548,27 @@ export function AdminExperiences() {
                         </div>
 
                         <div className="flex flex-1 flex-col p-4">
-                          <h3 className="truncate text-sm font-semibold text-slate-900">
+                          <h3 className="truncate text-sm font-semibold text-ink-900">
                             {experience.name}
                           </h3>
                           {experience.tagline && (
-                            <p className="mt-0.5 line-clamp-1 text-xs text-slate-400">
+                            <p className="mt-0.5 line-clamp-1 text-xs text-ink-400">
                               {experience.tagline}
                             </p>
                           )}
 
-                          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-500">
+                          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-ink-500">
                             <span className="flex items-center gap-1">
-                              <Store className="h-3 w-3 shrink-0 text-slate-400" strokeWidth={2} />
+                              <Store className="h-3 w-3 shrink-0 text-ink-400" strokeWidth={2} />
                               {shops.length}
                             </span>
                             <span className="flex items-center gap-1">
-                              <Package className="h-3 w-3 shrink-0 text-slate-400" strokeWidth={2} />
+                              <Package className="h-3 w-3 shrink-0 text-ink-400" strokeWidth={2} />
                               {(experience.experience_items ?? []).length}
                             </span>
                             {experience.expires_at && (
                               <span className="flex items-center gap-1">
-                                <CalendarClock className="h-3 w-3 shrink-0 text-slate-400" strokeWidth={2} />
+                                <CalendarClock className="h-3 w-3 shrink-0 text-ink-400" strokeWidth={2} />
                                 {new Date(experience.expires_at).toLocaleDateString('en-US', {
                                   day: 'numeric',
                                   month: 'short',
@@ -577,11 +577,11 @@ export function AdminExperiences() {
                             )}
                           </div>
 
-                          <p className="mt-2 text-sm font-medium tabular-nums text-slate-900">
+                          <p className="mt-2 text-sm font-medium tabular-nums text-ink-900">
                             {formatCurrency(total, 'ZMW')}
                           </p>
 
-                          <div className="mt-4 flex gap-2 border-t border-slate-100 pt-3">
+                          <div className="mt-4 flex gap-2 border-t border-ink-100 pt-3">
                             <Button
                               variant="outline"
                               size="sm"
@@ -615,7 +615,7 @@ export function AdminExperiences() {
                                   remove(experience.id);
                                 }
                               }}
-                              className="text-xs text-red-600 hover:bg-red-50"
+                              className="text-xs text-danger-600 hover:bg-danger-50"
                               aria-label="Delete"
                             >
                               <Trash2 className="size-3.5" />

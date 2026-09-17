@@ -111,7 +111,7 @@ export function Login() {
           className="absolute inset-0 w-full h-full object-cover"
         />
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-900/70 via-orange-700/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-900/70 via-brand-700/50 to-transparent" />
 
         {/* Overlay text */}
         <div className="relative z-10 flex flex-col justify-end p-12 text-white">
@@ -121,7 +121,7 @@ export function Login() {
             transition={{ delay: 0.3, duration: 0.7 }}
           >
             <div className="flex items-center gap-3 mb-6">
-              <Gift className="w-8 h-8 text-orange-300" />
+              <Gift className="w-8 h-8 text-brand-300" />
               <span className="text-3xl font-bold tracking-tight">KithLy</span>
             </div>
             <h2 className="text-4xl font-bold leading-tight mb-4">
@@ -137,7 +137,7 @@ export function Login() {
 
       {/* ── Right panel: form ── */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 bg-[#FAFAFA]">
-        <div className="w-full max-w-md bg-white/70 backdrop-blur-md border border-slate-200/60 p-8 sm:p-10 rounded-3xl shadow-sm">
+        <div className="w-full max-w-md bg-white/70 backdrop-blur-md border border-ink-200/60 p-8 sm:p-10 rounded-3xl shadow-sm">
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-8">
             <h1 className="text-4xl font-bold kl-gradient-brand bg-clip-text text-transparent mb-1">
@@ -150,10 +150,10 @@ export function Login() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-3xl font-light tracking-tight text-slate-900 mb-1">
+            <h2 className="text-3xl font-light tracking-tight text-ink-900 mb-1">
               {showForgotPassword ? 'Reset password' : 'Welcome back'}
             </h2>
-            <p className="text-slate-500 mb-8 text-sm">
+            <p className="text-ink-500 mb-8 text-sm">
               {showForgotPassword
                 ? "Enter your email and we'll send a reset link."
                 : 'Sign in to your KithLy account.'}
@@ -162,14 +162,14 @@ export function Login() {
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Error banner */}
               {errorMsg && (
-                <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+                <div className="bg-danger-50 border border-danger-200 text-danger-700 rounded-xl px-4 py-3 text-sm">
                   {errorMsg}
                 </div>
               )}
 
               {/* Email */}
               <div>
-                <Label htmlFor="email" className="text-sm font-medium text-slate-700">
+                <Label htmlFor="email" className="text-sm font-medium text-ink-700">
                   Email address
                 </Label>
                 <Input
@@ -177,7 +177,7 @@ export function Login() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="mt-1.5 rounded-xl h-12 border-slate-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                  className="mt-1.5 rounded-xl h-12 border-ink-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                   placeholder="you@example.com"
                   required
                 />
@@ -187,7 +187,7 @@ export function Login() {
                 <>
                   {/* Password */}
                   <div>
-                    <Label htmlFor="password" className="text-sm font-medium text-slate-700">
+                    <Label htmlFor="password" className="text-sm font-medium text-ink-700">
                       Password
                     </Label>
                     <div className="relative mt-1.5">
@@ -198,14 +198,14 @@ export function Login() {
                         onChange={(e) =>
                           setFormData({ ...formData, password: e.target.value })
                         }
-                        className="rounded-xl h-12 pr-12 border-slate-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                        className="rounded-xl h-12 pr-12 border-ink-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200"
                         placeholder="Enter your password"
                         required
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 hover:text-ink-700 transition-colors"
                       >
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
@@ -239,7 +239,7 @@ export function Login() {
                     type="button"
                     onClick={() => { setShowForgotPassword(false); setErrorMsg(''); }}
                     variant="outline"
-                    className="w-full h-12 text-base rounded-xl border-slate-200 hover:bg-slate-50 transition-all duration-200"
+                    className="w-full h-12 text-base rounded-xl border-ink-200 hover:bg-ink-50 transition-all duration-200"
                   >
                     Back to Login
                   </Button>
@@ -266,7 +266,7 @@ export function Login() {
 
               {/* Sign up link */}
               {!showForgotPassword && (
-                <p className="text-center text-sm text-slate-500">
+                <p className="text-center text-sm text-ink-500">
                   Don&apos;t have an account?{' '}
                   <Link
                     to="/signup"

@@ -12,7 +12,7 @@ export function PrintableReceipt() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
-        <Loader2 className="h-8 w-8 animate-spin text-slate-800" />
+        <Loader2 className="h-8 w-8 animate-spin text-ink-800" />
       </div>
     );
   }
@@ -20,7 +20,7 @@ export function PrintableReceipt() {
   if (!transaction) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white space-y-4">
-        <p className="text-sm font-mono text-slate-500">Transaction details not found.</p>
+        <p className="text-sm font-mono text-ink-500">Transaction details not found.</p>
         <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
           Go Back
         </Button>
@@ -32,7 +32,7 @@ export function PrintableReceipt() {
   const firstShopName = transaction.shop_orders?.[0]?.shop?.name || 'KithLy Vendor Partner';
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-mono p-4 sm:p-8 flex flex-col items-center select-none print:bg-white print:p-0">
+    <div className="min-h-screen bg-ink-50 text-ink-900 font-mono p-4 sm:p-8 flex flex-col items-center select-none print:bg-white print:p-0">
       {/* Dynamic Print CSS Overrides */}
       <style dangerouslySetInnerHTML={{__html: `
         @media print {
@@ -63,7 +63,7 @@ export function PrintableReceipt() {
         <Button
           variant="ghost"
           size="sm"
-          className="rounded-xl flex items-center gap-1.5 text-slate-600 hover:text-slate-900"
+          className="rounded-xl flex items-center gap-1.5 text-ink-600 hover:text-ink-900"
           onClick={() => navigate(-1)}
         >
           <ArrowLeft className="h-4 w-4" />
@@ -72,7 +72,7 @@ export function PrintableReceipt() {
         <Button
           variant="outline"
           size="sm"
-          className="rounded-xl bg-slate-900 text-white hover:bg-slate-800 hover:text-white flex items-center gap-1.5 border-slate-900 shadow-sm"
+          className="rounded-xl bg-ink-900 text-white hover:bg-ink-800 hover:text-white flex items-center gap-1.5 border-ink-900 shadow-sm"
           onClick={() => window.print()}
         >
           <Printer className="h-4 w-4" />
@@ -81,40 +81,40 @@ export function PrintableReceipt() {
       </div>
 
       {/* Till Receipt Layout - Max width matching physical receipt rolls */}
-      <div className="print-section w-full max-w-md p-8 border border-slate-200 rounded-sm bg-white shadow-sm flex flex-col items-center print:border-none print:shadow-none print:block">
+      <div className="print-section w-full max-w-md p-8 border border-ink-200 rounded-sm bg-white shadow-sm flex flex-col items-center print:border-none print:shadow-none print:block">
         
         {/* Header */}
-        <div className="text-center w-full space-y-1.5 mb-6 border-b border-dashed border-gray-300 pb-6">
+        <div className="text-center w-full space-y-1.5 mb-6 border-b border-dashed border-ink-300 pb-6">
           <h1 className="text-xl font-bold tracking-[0.25em] uppercase">*** KITHLY ***</h1>
-          <p className="text-xs uppercase tracking-wide font-semibold text-slate-700">{firstShopName}</p>
-          <p className="text-[10px] text-slate-500 font-mono">TX ID: {transaction.transaction_id.toUpperCase()}</p>
+          <p className="text-xs uppercase tracking-wide font-semibold text-ink-700">{firstShopName}</p>
+          <p className="text-[10px] text-ink-500 font-mono">TX ID: {transaction.transaction_id.toUpperCase()}</p>
         </div>
 
         {/* Metadata Details */}
-        <div className="w-full text-xs space-y-2 border-b border-dashed border-gray-300 pb-4 mb-4">
+        <div className="w-full text-xs space-y-2 border-b border-dashed border-ink-300 pb-4 mb-4">
           <div className="flex justify-between">
-            <span className="text-slate-500">DATE:</span>
+            <span className="text-ink-500">DATE:</span>
             <span>{new Date(transaction.created_at).toLocaleString()}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-slate-500">BUYER:</span>
+            <span className="text-ink-500">BUYER:</span>
             <span className="font-semibold">{transaction.buyer?.name?.toUpperCase() || 'GENERIC CUSTOMER'}</span>
           </div>
           {transaction.gateway_tx_ref && (
             <div className="flex justify-between">
-              <span className="text-slate-500">GATEWAY REF:</span>
+              <span className="text-ink-500">GATEWAY REF:</span>
               <span className="font-mono text-[10px]">{transaction.gateway_tx_ref}</span>
             </div>
           )}
           <div className="flex justify-between">
-            <span className="text-slate-500">PAYMENT STATUS:</span>
-            <span className="font-semibold text-emerald-600">{transaction.status}</span>
+            <span className="text-ink-500">PAYMENT STATUS:</span>
+            <span className="font-semibold text-ok-600">{transaction.status}</span>
           </div>
         </div>
 
         {/* Line Items */}
         <div className="w-full text-xs mb-6 space-y-3">
-          <div className="flex justify-between font-bold border-b border-dashed border-gray-300 pb-2">
+          <div className="flex justify-between font-bold border-b border-dashed border-ink-300 pb-2">
             <span>ITEM NAME</span>
             <span>QTY</span>
             <span>PRICE</span>
@@ -122,17 +122,17 @@ export function PrintableReceipt() {
 
           {transaction.shop_orders?.map((order: any) => (
             <div key={order.shop_order_id} className="space-y-1.5 pt-1">
-              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex justify-between">
+              <div className="text-[10px] font-bold text-ink-400 uppercase tracking-wider flex justify-between">
                 <span>[DEALER: {order.shop?.name || 'PARTNER SHOP'}]</span>
                 <span>CODE: {order.claim_code}</span>
               </div>
               {order.order_items?.map((orderItem: any) => (
                 <div key={orderItem.order_item_id} className="flex justify-between items-center w-full py-0.5">
-                  <span className="truncate max-w-[220px] font-semibold text-slate-800">
+                  <span className="truncate max-w-[220px] font-semibold text-ink-800">
                     {orderItem.items?.name || 'KithLy Gift Item'}
                   </span>
-                  <span className="flex-1 border-b border-dotted border-slate-300 mx-2 mt-2" />
-                  <span className="shrink-0 text-slate-500 mr-4 font-mono text-[11px]">x1</span>
+                  <span className="flex-1 border-b border-dotted border-ink-300 mx-2 mt-2" />
+                  <span className="shrink-0 text-ink-500 mr-4 font-mono text-[11px]">x1</span>
                   <span className="shrink-0 font-bold font-mono">
                     {formatCurrency(orderItem.allocated_price, 'ZMW')}
                   </span>
@@ -142,7 +142,7 @@ export function PrintableReceipt() {
                   reconciliation document, and the collection time is the fact it
                   is most often produced to establish. */}
               {order.fulfilled_at && (
-                <div className="text-[10px] text-slate-400 font-mono pt-0.5">
+                <div className="text-[10px] text-ink-400 font-mono pt-0.5">
                   COLLECTED: {new Date(order.fulfilled_at).toLocaleString()}
                 </div>
               )}
@@ -151,20 +151,20 @@ export function PrintableReceipt() {
         </div>
 
         {/* Total Price Section */}
-        <div className="w-full text-xs space-y-2 border-t border-dashed border-gray-300 pt-4">
+        <div className="w-full text-xs space-y-2 border-t border-dashed border-ink-300 pt-4">
           <div className="flex justify-between text-sm font-bold tracking-wide">
             <span>TOTAL AMOUNT PAID:</span>
-            <span className="text-slate-900 font-mono text-sm">
+            <span className="text-ink-900 font-mono text-sm">
               {formatCurrency(transaction.total_amount, 'ZMW')}
             </span>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="text-center w-full space-y-1.5 mt-8 border-t border-dashed border-gray-300 pt-6">
-          <p className="text-[10px] text-slate-500 uppercase tracking-widest">*** THANK YOU FOR GIFTING ***</p>
-          <p className="text-[9px] text-slate-400">Escrow guaranteed. Retail network verified.</p>
-          <p className="text-[9px] font-bold text-slate-500 mt-2">*** KEEP THIS RECEIPT FOR YOUR RECORDS ***</p>
+        <div className="text-center w-full space-y-1.5 mt-8 border-t border-dashed border-ink-300 pt-6">
+          <p className="text-[10px] text-ink-500 uppercase tracking-widest">*** THANK YOU FOR GIFTING ***</p>
+          <p className="text-[9px] text-ink-400">Escrow guaranteed. Retail network verified.</p>
+          <p className="text-[9px] font-bold text-ink-500 mt-2">*** KEEP THIS RECEIPT FOR YOUR RECORDS ***</p>
         </div>
 
       </div>

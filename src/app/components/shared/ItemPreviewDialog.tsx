@@ -66,7 +66,7 @@ export function ItemPreviewDialog({
 
         <DialogBody className="space-y-4">
         {!isAvailable && (
-          <p className="flex items-start gap-1.5 rounded-md bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+          <p className="flex items-start gap-1.5 rounded-md bg-warn-50 px-3 py-2 text-xs font-medium text-warn-800">
             <EyeOff className="mt-0.5 size-3.5 shrink-0" strokeWidth={2} />
             <span>
               This item is switched off, so buyers will not see it at all — not even greyed
@@ -112,7 +112,7 @@ export function ItemPreviewDialog({
                     className="flex items-baseline justify-between gap-4 text-xs"
                   >
                     <span className="text-muted-foreground">{tier.min_quantity} or more</span>
-                    <span className={inert ? 'text-amber-700' : 'font-medium'}>
+                    <span className={inert ? 'text-warn-700' : 'font-medium'}>
                       {formatCurrency(tier.unit_price_zmw, 'ZMW')} each
                       {inert && ' — will not apply'}
                     </span>

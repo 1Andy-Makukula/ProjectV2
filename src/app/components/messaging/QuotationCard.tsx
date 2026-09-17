@@ -36,11 +36,11 @@ interface QuotationCardProps {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  pending: 'bg-amber-50 text-amber-700 border-amber-200',
-  accepted: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  declined: 'bg-slate-100 text-slate-600 border-slate-200',
-  withdrawn: 'bg-slate-100 text-slate-600 border-slate-200',
-  expired: 'bg-slate-100 text-slate-500 border-slate-200',
+  pending: 'bg-warn-50 text-warn-700 border-warn-200',
+  accepted: 'bg-ok-50 text-ok-700 border-ok-200',
+  declined: 'bg-ink-100 text-ink-600 border-ink-200',
+  withdrawn: 'bg-ink-100 text-ink-600 border-ink-200',
+  expired: 'bg-ink-100 text-ink-500 border-ink-200',
 };
 
 export function QuotationCard({
@@ -123,12 +123,12 @@ export function QuotationCard({
   };
 
   return (
-    <div className="w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div className="w-full max-w-md overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/70 px-4 py-3">
+      <div className="flex items-center justify-between border-b border-ink-100 bg-ink-50/70 px-4 py-3">
         <div className="flex items-center gap-2">
           <FileText className="h-4 w-4 text-primary" strokeWidth={1.75} />
-          <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
+          <span className="text-[11px] font-bold uppercase tracking-widest text-ink-500">
             Quotation
           </span>
         </div>
@@ -142,18 +142,18 @@ export function QuotationCard({
       </div>
 
       {/* Lines */}
-      <div className="divide-y divide-slate-50">
+      <div className="divide-y divide-ink-50">
         {lines.map((line) => (
           <div key={line.id} className="flex items-start justify-between gap-4 px-4 py-2.5">
             <div className="min-w-0">
-              <p className="text-sm text-slate-800">{line.description}</p>
+              <p className="text-sm text-ink-800">{line.description}</p>
               {line.quantity > 1 && (
-                <p className="mt-0.5 text-[11px] text-slate-400">
+                <p className="mt-0.5 text-[11px] text-ink-400">
                   {line.quantity} × {formatCurrency(line.unit_price_zmw, 'ZMW')}
                 </p>
               )}
             </div>
-            <p className="shrink-0 text-sm font-medium tabular-nums text-slate-900">
+            <p className="shrink-0 text-sm font-medium tabular-nums text-ink-900">
               {formatCurrency(line.quantity * line.unit_price_zmw, 'ZMW')}
             </p>
           </div>
@@ -161,28 +161,28 @@ export function QuotationCard({
       </div>
 
       {/* Total */}
-      <div className="flex items-center justify-between border-t border-slate-100 px-4 py-3">
-        <span className="text-sm font-semibold text-slate-900">Total</span>
-        <span className="text-lg font-light tracking-tight text-slate-900 tabular-nums">
+      <div className="flex items-center justify-between border-t border-ink-100 px-4 py-3">
+        <span className="text-sm font-semibold text-ink-900">Total</span>
+        <span className="text-lg font-light tracking-tight text-ink-900 tabular-nums">
           {formatCurrency(quotation.total_amount, 'ZMW')}
         </span>
       </div>
 
       {/* Terms */}
       {(quotation.notes || quotation.target_execution_date || quotation.valid_until) && (
-        <div className="space-y-1.5 border-t border-slate-100 bg-slate-50/50 px-4 py-3">
+        <div className="space-y-1.5 border-t border-ink-100 bg-ink-50/50 px-4 py-3">
           {quotation.notes && (
-            <p className="text-xs leading-relaxed text-slate-600">{quotation.notes}</p>
+            <p className="text-xs leading-relaxed text-ink-600">{quotation.notes}</p>
           )}
           {quotation.target_execution_date && (
-            <p className="flex items-center gap-1.5 text-xs text-slate-500">
-              <CalendarClock className="h-3.5 w-3.5 shrink-0 text-slate-400" strokeWidth={1.75} />
+            <p className="flex items-center gap-1.5 text-xs text-ink-500">
+              <CalendarClock className="h-3.5 w-3.5 shrink-0 text-ink-400" strokeWidth={1.75} />
               Scheduled for {absoluteTime(quotation.target_execution_date)}
             </p>
           )}
           {quotation.valid_until && (
-            <p className="flex items-center gap-1.5 text-xs text-slate-500">
-              <Clock className="h-3.5 w-3.5 shrink-0 text-slate-400" strokeWidth={1.75} />
+            <p className="flex items-center gap-1.5 text-xs text-ink-500">
+              <Clock className="h-3.5 w-3.5 shrink-0 text-ink-400" strokeWidth={1.75} />
               {isExpired ? 'Expired' : 'Valid until'} {absoluteTime(quotation.valid_until)}
             </p>
           )}
@@ -191,7 +191,7 @@ export function QuotationCard({
 
       {/* Actions */}
       {isPending && !isExpired && (
-        <div className="border-t border-slate-100 px-4 py-3">
+        <div className="border-t border-ink-100 px-4 py-3">
           {isBuyer ? (
             <>
               <div className="flex gap-2">
@@ -209,8 +209,8 @@ export function QuotationCard({
                   Decline
                 </Button>
               </div>
-              <p className="mt-2.5 flex items-center gap-1.5 text-[11px] text-slate-400">
-                <Shield className="h-3 w-3 shrink-0 text-orange-500" strokeWidth={2} />
+              <p className="mt-2.5 flex items-center gap-1.5 text-[11px] text-ink-400">
+                <Shield className="h-3 w-3 shrink-0 text-brand-500" strokeWidth={2} />
                 Held in escrow until the work is confirmed done.
               </p>
             </>
@@ -229,8 +229,8 @@ export function QuotationCard({
       )}
 
       {quotation.status === 'declined' && quotation.decline_reason && (
-        <div className="border-t border-slate-100 px-4 py-3">
-          <p className="text-xs text-slate-500">Reason: {quotation.decline_reason}</p>
+        <div className="border-t border-ink-100 px-4 py-3">
+          <p className="text-xs text-ink-500">Reason: {quotation.decline_reason}</p>
         </div>
       )}
     </div>

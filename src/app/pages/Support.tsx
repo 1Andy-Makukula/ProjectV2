@@ -53,7 +53,7 @@ export function Support() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-ink-50">
       <div className="container mx-auto px-4 md:px-6 py-8 max-w-5xl">
         <div className="text-center mb-12">
           <div className="w-16 h-16 mx-auto mb-4 rounded-2xl kl-gradient-brand-br flex items-center justify-center">
@@ -82,7 +82,7 @@ export function Support() {
                 >
                   <button
                     onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                    className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
+                    className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-ink-50 transition-colors"
                   >
                     <span className="font-light text-black">{faq.q}</span>
                     <motion.div

@@ -68,18 +68,18 @@ function SecuringEscrowView() {
         {/* Animated lock rings */}
         <div className="relative flex items-center justify-center" aria-hidden>
           <motion.span
-            className="absolute h-28 w-28 rounded-full border border-orange-100"
+            className="absolute h-28 w-28 rounded-full border border-brand-100"
             animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.1, 0.4] }}
             transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
           />
           <motion.span
-            className="absolute h-20 w-20 rounded-full border border-orange-200"
+            className="absolute h-20 w-20 rounded-full border border-brand-200"
             animate={{ scale: [1, 1.1, 1], opacity: [0.6, 0.2, 0.6] }}
             transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
           />
           {/* Core shield */}
           <motion.div
-            className="flex h-12 w-12 items-center justify-center rounded-full kl-gradient-brand-br shadow-lg shadow-orange-200"
+            className="flex h-12 w-12 items-center justify-center rounded-full kl-gradient-brand-br shadow-lg shadow-brand-200"
             animate={{ scale: [1, 0.95, 1] }}
             transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.15 }}
           >
@@ -90,7 +90,7 @@ function SecuringEscrowView() {
         {/* Copy */}
         <div className="flex flex-col items-center gap-3">
           <motion.h1
-            className="text-xl font-semibold tracking-tight text-slate-900"
+            className="text-xl font-semibold tracking-tight text-ink-900"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
@@ -98,7 +98,7 @@ function SecuringEscrowView() {
             Global Compliance Check Active
           </motion.h1>
           <motion.p
-            className="max-w-xs text-sm leading-relaxed text-slate-500"
+            className="max-w-xs text-sm leading-relaxed text-ink-500"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.35 }}
@@ -113,7 +113,7 @@ function SecuringEscrowView() {
           {[0, 1, 2].map((i) => (
             <motion.span
               key={i}
-              className="h-2 w-2 rounded-full bg-orange-300"
+              className="h-2 w-2 rounded-full bg-brand-300"
               animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
               transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
             />
@@ -125,11 +125,11 @@ function SecuringEscrowView() {
       <div className="absolute bottom-8 flex items-center gap-1.5">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.25"
           strokeLinecap="round" strokeLinejoin="round"
-          className="h-3.5 w-3.5 text-slate-300" aria-hidden>
+          className="h-3.5 w-3.5 text-ink-300" aria-hidden>
           <rect x="3" y="7" width="10" height="8" rx="1.5" />
           <path d="M5 7V5a3 3 0 0 1 6 0v2" />
         </svg>
-        <span className="text-xs text-slate-400">Escrow-protected transaction</span>
+        <span className="text-xs text-ink-400">Escrow-protected transaction</span>
       </div>
     </motion.div>
   );
@@ -155,29 +155,29 @@ const CartLineItem = memo(function CartLineItem({
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 8, transition: { duration: 0.2 } }}
-      className="flex items-center gap-3 sm:gap-4 py-4 border-b border-slate-100 last:border-0"
+      className="flex items-center gap-3 sm:gap-4 py-4 border-b border-ink-100 last:border-0"
     >
       {/* Thumbnail */}
-      <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0">
+      <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-xl overflow-hidden bg-ink-100 flex-shrink-0">
         {(product.image_url || product.images?.[0]) ? (
           <img src={product.image_url || product.images![0]} alt={product.name || product.title} className="h-full w-full object-cover" />
         ) : (
           <div className="h-full w-full flex items-center justify-center">
-            <ShoppingBag className="h-6 w-6 text-slate-300" />
+            <ShoppingBag className="h-6 w-6 text-ink-300" />
           </div>
         )}
       </div>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-slate-900 truncate">{product.name || product.title}</p>
+        <p className="font-medium text-ink-900 truncate">{product.name || product.title}</p>
         {(product.shop?.business_name || product.shop?.name) && (
-          <p className="text-xs text-slate-500 mt-0.5">{product.shop.business_name || product.shop.name}</p>
+          <p className="text-xs text-ink-500 mt-0.5">{product.shop.business_name || product.shop.name}</p>
         )}
         <p className="text-sm font-semibold text-primary mt-1">
           {formatCurrency(product.price_zmw * quantity, 'ZMW')}
           {quantity > 1 && (
-            <span className="ml-1 text-xs font-normal text-slate-500">
+            <span className="ml-1 text-xs font-normal text-ink-500">
               × {quantity}
             </span>
           )}
@@ -187,7 +187,7 @@ const CartLineItem = memo(function CartLineItem({
       {/* Remove */}
       <button
         onClick={handleRemove}
-        className="p-2 text-slate-300 hover:text-red-400 transition-colors rounded-lg hover:bg-red-50"
+        className="p-2 text-ink-300 hover:text-danger-400 transition-colors rounded-lg hover:bg-danger-50"
         aria-label={`Remove ${product.name || product.title} from cart`}
       >
         <Trash2 className="h-4 w-4" />
@@ -314,7 +314,7 @@ export function Checkout() {
   // ---------- SECURING / CART / ERROR screens -----------------------------
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-ink-50">
       <AnimatePresence mode="wait">
         {/* ---- Compliance/securing transitional screen ---- */}
         {stage === 'SECURING' && <SecuringEscrowView key="securing" />}
@@ -334,27 +334,27 @@ export function Checkout() {
                   <div className="w-10 h-10 rounded-xl kl-gradient-brand-br flex items-center justify-center shadow-md">
                     <Gift className="w-6 h-6 text-white" strokeWidth={1.5} />
                   </div>
-                  <span className="text-3xl font-light tracking-tight text-slate-800">
+                  <span className="text-3xl font-light tracking-tight text-ink-800">
                     KithLy Checkout
                   </span>
                 </div>
               </div>
 
               {/* Sticky header */}
-              <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-slate-100 rounded-t-2xl">
+              <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-ink-100 rounded-t-2xl">
                 <div className="flex items-center gap-3 px-4 sm:px-5 py-4">
                   <button
                     onClick={() => navigate(-1)}
-                    className="p-1.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                    className="p-1.5 rounded-lg text-ink-500 hover:text-ink-700 hover:bg-ink-100 transition-colors"
                     aria-label="Go back"
                   >
                     <ArrowLeft className="h-5 w-5" />
                   </button>
-                  <h1 className="text-lg font-semibold tracking-tight text-slate-900">
+                  <h1 className="text-lg font-semibold tracking-tight text-ink-900">
                     Your Cart
                   </h1>
                 {items.length > 0 && (
-                  <span className="ml-auto text-xs text-slate-500">
+                  <span className="ml-auto text-xs text-ink-500">
                     {items.length} {items.length === 1 ? 'item' : 'items'}
                   </span>
                 )}
@@ -367,7 +367,7 @@ export function Checkout() {
                 <motion.div
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"
+                  className="rounded-xl border border-danger-100 bg-danger-50 px-4 py-3 text-sm text-danger-700"
                 >
                   {errorMsg}
                 </motion.div>
@@ -380,12 +380,12 @@ export function Checkout() {
                   animate={{ opacity: 1, y: 0 }}
                   className="flex flex-col items-center gap-4 py-20 text-center"
                 >
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-slate-100">
-                    <ShoppingBag className="h-9 w-9 text-slate-300" />
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-ink-100">
+                    <ShoppingBag className="h-9 w-9 text-ink-300" />
                   </div>
                   <div>
-                    <p className="font-semibold text-slate-700">Your cart is empty</p>
-                    <p className="text-sm text-slate-500 mt-1">
+                    <p className="font-semibold text-ink-700">Your cart is empty</p>
+                    <p className="text-sm text-ink-500 mt-1">
                       Add gifts to your cart from the shop catalogue.
                     </p>
                   </div>
@@ -402,7 +402,7 @@ export function Checkout() {
               {/* Line items */}
               {items.length > 0 && (
                 <>
-                  <div className="rounded-2xl bg-white border border-slate-100 px-4 sm:px-5 divide-y divide-slate-50">
+                  <div className="rounded-2xl bg-white border border-ink-100 px-4 sm:px-5 divide-y divide-ink-50">
                     <AnimatePresence>
                       {items.map(({ product, quantity }) => (
                         <CartLineItem
@@ -416,11 +416,11 @@ export function Checkout() {
                   </div>
 
                   {/* Recipient Details */}
-                  <div className="rounded-2xl bg-white border border-slate-100 px-5 py-5 space-y-4">
-                    <h3 className="font-semibold text-slate-900">Recipient Details</h3>
+                  <div className="rounded-2xl bg-white border border-ink-100 px-5 py-5 space-y-4">
+                    <h3 className="font-semibold text-ink-900">Recipient Details</h3>
                     <div className="space-y-3">
                       <div>
-                        <Label htmlFor="recipientName" className="text-xs text-slate-500 mb-1.5 block">Recipient Name</Label>
+                        <Label htmlFor="recipientName" className="text-xs text-ink-500 mb-1.5 block">Recipient Name</Label>
                         <Input
                           id="recipientName"
                           placeholder="e.g. Jane Doe"
@@ -430,7 +430,7 @@ export function Checkout() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="recipientPhone" className="text-xs text-slate-500 mb-1.5 block">Recipient Phone (for gift delivery)</Label>
+                        <Label htmlFor="recipientPhone" className="text-xs text-ink-500 mb-1.5 block">Recipient Phone (for gift delivery)</Label>
                         <PhoneInput
                           id="recipientPhone"
                           placeholder="e.g. 97 123 4567"
@@ -439,7 +439,7 @@ export function Checkout() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="message" className="text-xs text-slate-500 mb-1.5 block">Gift Message (Optional)</Label>
+                        <Label htmlFor="message" className="text-xs text-ink-500 mb-1.5 block">Gift Message (Optional)</Label>
                         <Textarea
                           id="message"
                           placeholder="Write a nice message..."
@@ -453,60 +453,60 @@ export function Checkout() {
                   </div>
 
                   {/* Billing Details */}
-                  <div className="rounded-2xl bg-white border border-slate-100 px-5 py-5 space-y-4">
-                    <h3 className="font-semibold text-slate-900">Billing Details</h3>
+                  <div className="rounded-2xl bg-white border border-ink-100 px-5 py-5 space-y-4">
+                    <h3 className="font-semibold text-ink-900">Billing Details</h3>
                     <div>
-                      <Label htmlFor="senderPhone" className="text-xs text-slate-500 mb-1.5 block">Your Phone (for payment)</Label>
+                      <Label htmlFor="senderPhone" className="text-xs text-ink-500 mb-1.5 block">Your Phone (for payment)</Label>
                       <PhoneInput
                         id="senderPhone"
                         placeholder="e.g. 97 123 4567"
                         value={senderPhone}
                         onChange={(val) => setSenderPhone(val)}
                       />
-                      <p className="text-[10px] text-slate-400 mt-1.5 leading-relaxed">
+                      <p className="text-[10px] text-ink-400 mt-1.5 leading-relaxed">
                         Flutterwave will trigger MTN/Airtel mobile money billing prompts on this line.
                       </p>
                     </div>
                   </div>
 
                   {/* Order total */}
-                  <div className="rounded-2xl bg-white border border-slate-100 px-5 py-5 flex flex-col gap-2 shadow-sm">
+                  <div className="rounded-2xl bg-white border border-ink-100 px-5 py-5 flex flex-col gap-2 shadow-sm">
                     {walletBalance > 0 && (
-                      <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 mb-1">
+                      <div className="flex items-center justify-between rounded-xl border border-ink-100 bg-ink-50 px-3 py-2.5 mb-1">
                         <div className="flex flex-col">
-                          <span className="text-xs font-semibold text-slate-800">Apply KithLy Credits</span>
-                          <span className="text-[10px] text-slate-400">Available: {formatCurrency(walletBalance, 'ZMW')}</span>
+                          <span className="text-xs font-semibold text-ink-800">Apply KithLy Credits</span>
+                          <span className="text-[10px] text-ink-400">Available: {formatCurrency(walletBalance, 'ZMW')}</span>
                         </div>
                         <Switch checked={applyCredits} onCheckedChange={setApplyCredits} />
                       </div>
                     )}
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-slate-500 font-medium">Subtotal</span>
-                      <span className="font-semibold text-slate-800">
+                      <span className="text-ink-500 font-medium">Subtotal</span>
+                      <span className="font-semibold text-ink-800">
                         {formatCurrency(totalAmount, 'ZMW')}
                       </span>
                     </div>
                     {serviceFee > 0 && (
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-slate-500 font-medium">
+                        <span className="text-ink-500 font-medium">
                           Service fee
-                          <span className="ml-1 text-xs font-normal text-slate-400">
+                          <span className="ml-1 text-xs font-normal text-ink-400">
                             ({feePercentFor(CHECKOUT_ORIGIN, rates)}%)
                           </span>
                         </span>
-                        <span className="font-semibold text-slate-800">
+                        <span className="font-semibold text-ink-800">
                           {formatCurrency(serviceFee, 'ZMW')}
                         </span>
                       </div>
                     )}
                     {applyCredits && creditsToApply > 0 && (
-                      <div className="flex items-center justify-between text-sm text-orange-600 font-medium">
+                      <div className="flex items-center justify-between text-sm text-brand-600 font-medium">
                         <span>Credits applied</span>
                         <span>-{formatCurrency(creditsToApply, 'ZMW')}</span>
                       </div>
                     )}
-                    <div className="flex items-center justify-between text-sm pt-2.5 border-t border-slate-100 mt-1">
-                      <span className="text-slate-900 font-bold">Total payable</span>
+                    <div className="flex items-center justify-between text-sm pt-2.5 border-t border-ink-100 mt-1">
+                      <span className="text-ink-900 font-bold">Total payable</span>
                       <span className="text-lg font-bold kl-gradient-brand-text">
                         {formatCurrency(finalPayable, 'ZMW')}
                       </span>
@@ -514,9 +514,9 @@ export function Checkout() {
                   </div>
 
                   {/* Escrow notice */}
-                  <div className="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3">
-                    <Shield className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" strokeWidth={1.5} />
-                    <p className="text-xs leading-relaxed text-blue-700">
+                  <div className="flex items-start gap-3 rounded-xl border border-info-100 bg-info-50 px-4 py-3">
+                    <Shield className="h-4 w-4 text-info-500 mt-0.5 flex-shrink-0" strokeWidth={1.5} />
+                    <p className="text-xs leading-relaxed text-info-700">
                       Your payment is held in secure escrow. Funds are only
                       released to the merchant after your recipient collects
                       their gift.
@@ -530,7 +530,7 @@ export function Checkout() {
                     <Button
                       id="checkout-pay-button"
                       onClick={handlePay}
-                      className="w-full h-14 text-base font-semibold rounded-2xl kl-gradient-brand hover:from-[#ea6c0a] hover:to-[#f58220] text-white shadow-lg shadow-orange-200 border-0"
+                      className="w-full h-14 text-base font-semibold rounded-2xl kl-gradient-brand hover:from-[#ea6c0a] hover:to-[#f58220] text-white shadow-lg shadow-brand-200 border-0"
                     >
                       {finalPayable === 0 ? 'Pay with Credits' : `Pay ${formatCurrency(finalPayable, 'ZMW')}`}
                     </Button>

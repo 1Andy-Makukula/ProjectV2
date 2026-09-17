@@ -46,7 +46,7 @@ const panel = {
 
 function ModeToggle({ mode, onChange }: { mode: InputMode; onChange: (m: InputMode) => void }) {
   return (
-    <div className="flex w-full items-center rounded-xl border border-slate-100 bg-white/60 backdrop-blur-md p-1 gap-1 mb-6">
+    <div className="flex w-full items-center rounded-xl border border-ink-100 bg-white/60 backdrop-blur-md p-1 gap-1 mb-6">
       {(['qr', 'manual'] as InputMode[]).map((m) => {
         const active = mode === m;
         return (
@@ -57,7 +57,7 @@ function ModeToggle({ mode, onChange }: { mode: InputMode; onChange: (m: InputMo
               'flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 min-h-[48px] text-sm font-medium transition-all',
               active
                 ? 'kl-gradient-brand text-white shadow-sm'
-                : 'text-slate-500 hover:text-slate-700',
+                : 'text-ink-500 hover:text-ink-700',
             )}
           >
             {m === 'qr' ? <QrCode className="h-4 w-4" strokeWidth={1.5} /> : <Keyboard className="h-4 w-4" strokeWidth={1.5} />}
@@ -83,12 +83,12 @@ function QRScanView({ onDetected }: { onDetected: (code: string) => void }) {
 
   if (camDenied) {
     return (
-      <div className="flex w-full flex-col items-center gap-4 rounded-2xl border border-orange-100 bg-orange-50/60 backdrop-blur-xl p-8 text-center mb-6">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-orange-100">
-          <CameraOff className="h-6 w-6 text-orange-500" strokeWidth={1.5} />
+      <div className="flex w-full flex-col items-center gap-4 rounded-2xl border border-brand-100 bg-brand-50/60 backdrop-blur-xl p-8 text-center mb-6">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-100">
+          <CameraOff className="h-6 w-6 text-brand-500" strokeWidth={1.5} />
         </div>
-        <p className="text-sm font-medium text-slate-700">Camera access denied</p>
-        <p className="text-xs text-slate-500 leading-relaxed max-w-[220px]">
+        <p className="text-sm font-medium text-ink-700">Camera access denied</p>
+        <p className="text-xs text-ink-500 leading-relaxed max-w-[220px]">
           Allow camera access in your browser settings, or switch to Manual Entry below.
         </p>
       </div>
@@ -96,14 +96,14 @@ function QRScanView({ onDetected }: { onDetected: (code: string) => void }) {
   }
 
   return (
-    <div className="w-full max-w-sm mx-auto overflow-hidden rounded-2xl border border-orange-200 shadow-lg shadow-orange-100/60 mb-6">
+    <div className="w-full max-w-sm mx-auto overflow-hidden rounded-2xl border border-brand-200 shadow-lg shadow-brand-100/60 mb-6">
       <div className="flex items-center gap-2 kl-gradient-brand px-4 py-2">
         <Camera className="h-3.5 w-3.5 text-white" strokeWidth={1.5} />
         <span className="text-[11px] font-semibold uppercase tracking-widest text-white">Camera Active</span>
         <span className="ml-auto flex h-2 w-2 rounded-full bg-white animate-pulse" />
       </div>
 
-      <div className="relative bg-slate-900 w-full max-w-sm mx-auto aspect-square">
+      <div className="relative bg-ink-900 w-full max-w-sm mx-auto aspect-square">
         <Scanner
           onScan={(results) => {
             const raw = results?.[0]?.rawValue;
@@ -124,12 +124,12 @@ function QRScanView({ onDetected }: { onDetected: (code: string) => void }) {
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="relative h-44 w-44">
             {[['top-0 left-0', 'border-t border-l'], ['top-0 right-0', 'border-t border-r'], ['bottom-0 left-0', 'border-b border-l'], ['bottom-0 right-0', 'border-b border-r']].map(([pos, border]) => (
-              <span key={pos} className={cn('absolute h-8 w-8 rounded-sm border-orange-400', pos, border)} />
+              <span key={pos} className={cn('absolute h-8 w-8 rounded-sm border-brand-400', pos, border)} />
             ))}
           </div>
         </div>
       </div>
-      <p className="bg-slate-900 py-2 text-center text-[11px] text-slate-400">
+      <p className="bg-ink-900 py-2 text-center text-[11px] text-ink-400">
         Point camera at the QR code on the customer's screen
       </p>
     </div>
@@ -167,18 +167,18 @@ export function MerchantFulfill() {
   // ---- render --------------------------------------------------------
 
   return (
-    <div className="h-[calc(100vh-theme(spacing.16))] w-full overflow-y-auto bg-gradient-to-br from-orange-50/60 via-white to-blue-50/40">
+    <div className="h-[calc(100vh-theme(spacing.16))] w-full overflow-y-auto bg-gradient-to-br from-brand-50/60 via-white to-info-50/40">
       {/* Header */}
       <div className="sticky top-0 z-10 border-b border-white/20 bg-white/60 backdrop-blur-md">
         <div className="mx-auto flex max-w-xl items-center gap-3 px-5 py-4">
           <button
             onClick={() => navigate('/merchant')}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            className="p-1.5 rounded-lg text-ink-400 hover:text-ink-700 hover:bg-ink-100 transition-colors"
             aria-label="Back to merchant dashboard"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-base font-semibold tracking-tight text-slate-900">
+          <h1 className="text-base font-semibold tracking-tight text-ink-900">
             Handover Terminal
           </h1>
           <span className="ml-auto kl-gradient-brand-text text-xs font-semibold uppercase tracking-widest text-transparent">
@@ -196,8 +196,8 @@ export function MerchantFulfill() {
               className="flex flex-col items-center gap-6"
             >
               <div className="flex w-full flex-col gap-1.5 text-center mb-2">
-                <h2 className="text-2xl font-semibold text-slate-900">Verify gift code</h2>
-                <p className="text-sm text-slate-500">
+                <h2 className="text-2xl font-semibold text-ink-900">Verify gift code</h2>
+                <p className="text-sm text-ink-500">
                   {inputMode === 'qr'
                     ? 'Point the camera at the customer\'s QR code to auto-verify.'
                     : 'Enter the 8-character code from the customer\'s WhatsApp message.'}
@@ -229,18 +229,18 @@ export function MerchantFulfill() {
                         {[4,5,6,7].map(i => <InputOTPSlot key={i} index={i} className="h-14 w-11 text-lg font-mono uppercase bg-white/80" />)}
                       </InputOTPGroup>
                     </InputOTP>
-                    <p className="text-xs text-slate-400">Auto-submits when all 8 characters are entered.</p>
+                    <p className="text-xs text-ink-400">Auto-submits when all 8 characters are entered.</p>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              <div className="w-full rounded-xl border border-orange-100 bg-orange-50/60 backdrop-blur-xl p-4 flex gap-3 items-start">
+              <div className="w-full rounded-xl border border-brand-100 bg-brand-50/60 backdrop-blur-xl p-4 flex gap-3 items-start">
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.25"
-                  className="mt-0.5 h-4 w-4 shrink-0 text-orange-400" aria-hidden>
+                  className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" aria-hidden>
                   <path d="M10 2L3 5v5c0 4.4 3 8.5 7 9.5C14 18.5 17 14.4 17 10V5L10 2z" />
                 </svg>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  This terminal displays <span className="font-medium text-slate-700">item information only</span>.
+                <p className="text-xs text-ink-500 leading-relaxed">
+                  This terminal displays <span className="font-medium text-ink-700">item information only</span>.
                   No pricing or account data is shown. Fulfillment is governed by the KithLy Merchant Agreement.
                 </p>
               </div>
@@ -250,20 +250,20 @@ export function MerchantFulfill() {
           {/* ---- LOADING ---- */}
           {stage === 'LOADING' && (
             <motion.div key="loading" variants={panel} initial="hidden" animate="visible" exit="exit"
-              className="flex flex-col items-center gap-8 rounded-2xl bg-white p-12 shadow-sm border border-slate-100"
+              className="flex flex-col items-center gap-8 rounded-2xl bg-white p-12 shadow-sm border border-ink-100"
             >
               <div className="relative flex h-20 w-20 items-center justify-center" aria-hidden>
-                <motion.span className="absolute h-20 w-20 rounded-full border border-slate-200"
+                <motion.span className="absolute h-20 w-20 rounded-full border border-ink-200"
                   animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.1, 0.5] }}
                   transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }} />
-                <motion.span className="absolute h-12 w-12 rounded-full border border-slate-300"
+                <motion.span className="absolute h-12 w-12 rounded-full border border-ink-300"
                   animate={{ scale: [1, 1.1, 1], opacity: [0.7, 0.2, 0.7] }}
                   transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut', delay: 0.2 }} />
-                <span className="h-5 w-5 rounded-full bg-slate-800" />
+                <span className="h-5 w-5 rounded-full bg-ink-800" />
               </div>
               <div className="flex flex-col items-center gap-1 text-center">
-                <p className="text-lg font-medium text-slate-900">Fetching order…</p>
-                <p className="text-sm text-slate-500">Checking the secure ledger.</p>
+                <p className="text-lg font-medium text-ink-900">Fetching order…</p>
+                <p className="text-sm text-ink-500">Checking the secure ledger.</p>
               </div>
             </motion.div>
           )}
@@ -274,36 +274,36 @@ export function MerchantFulfill() {
               className="flex flex-col gap-5"
             >
               {/* Order header */}
-              <div className="rounded-2xl bg-white border border-slate-100 shadow-sm px-5 py-4 flex items-center justify-between">
+              <div className="rounded-2xl bg-white border border-ink-100 shadow-sm px-5 py-4 flex items-center justify-between">
                 <div className="min-w-0">
-                  <p className="text-xs font-medium uppercase tracking-widest text-slate-400 mb-0.5">
+                  <p className="text-xs font-medium uppercase tracking-widest text-ink-400 mb-0.5">
                     {shopOrder.recipient_name ? 'Hand over to' : 'Claim Code'}
                   </p>
                   {shopOrder.recipient_name ? (
                     <>
-                      <p className="text-lg font-semibold text-slate-900 truncate">
+                      <p className="text-lg font-semibold text-ink-900 truncate">
                         {shopOrder.recipient_name}
                       </p>
-                      <p className="font-mono text-xs text-slate-400 mt-0.5">{shopOrder.claim_code}</p>
+                      <p className="font-mono text-xs text-ink-400 mt-0.5">{shopOrder.claim_code}</p>
                     </>
                   ) : (
-                    <p className="font-mono text-lg font-semibold text-slate-900">{shopOrder.claim_code}</p>
+                    <p className="font-mono text-lg font-semibold text-ink-900">{shopOrder.claim_code}</p>
                   )}
                 </div>
-                <span className="rounded-full bg-emerald-50 border border-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 flex-shrink-0">
+                <span className="rounded-full bg-ok-50 border border-ok-100 px-3 py-1 text-xs font-semibold text-ok-700 flex-shrink-0">
                   {items.length} item{items.length !== 1 ? 's' : ''}
                 </span>
               </div>
 
               {/* Checklist */}
-              <div className="rounded-2xl bg-white border border-slate-100 shadow-sm overflow-hidden">
-                <div className="px-5 py-3 border-b border-slate-50">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">
+              <div className="rounded-2xl bg-white border border-ink-100 shadow-sm overflow-hidden">
+                <div className="px-5 py-3 border-b border-ink-50">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-ink-400">
                     Handover Checklist
                   </p>
                 </div>
 
-                <div className="divide-y divide-slate-50">
+                <div className="divide-y divide-ink-50">
                   {items.map((item: OrderItem, idx: number) => {
                     const isChecked = checked[item.order_item_id] ?? true;
                     return (
@@ -315,17 +315,17 @@ export function MerchantFulfill() {
                         htmlFor={`item-${item.order_item_id}`}
                         className={cn(
                           'flex items-center gap-4 px-5 py-4 cursor-pointer transition-colors select-none',
-                          isChecked ? 'bg-white hover:bg-slate-50' : 'bg-red-50/60 hover:bg-red-50',
+                          isChecked ? 'bg-white hover:bg-ink-50' : 'bg-danger-50/60 hover:bg-danger-50',
                         )}
                       >
                         {/* Thumbnail */}
-                        <div className="h-12 w-12 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0">
+                        <div className="h-12 w-12 rounded-xl overflow-hidden bg-ink-100 flex-shrink-0">
                           {item.item_image_url ? (
                             <img src={item.item_image_url} alt={item.item_name}
                               className="h-full w-full object-cover" />
                           ) : (
                             <div className="h-full w-full flex items-center justify-center">
-                              <Package className="h-5 w-5 text-slate-300" />
+                              <Package className="h-5 w-5 text-ink-300" />
                             </div>
                           )}
                         </div>
@@ -334,7 +334,7 @@ export function MerchantFulfill() {
                         <div className="flex-1 min-w-0">
                           <p className={cn(
                             'font-medium truncate transition-colors',
-                            isChecked ? 'text-slate-900' : 'text-slate-400 line-through',
+                            isChecked ? 'text-ink-900' : 'text-ink-400 line-through',
                           )}>
                             {item.item_name}
                           </p>
@@ -343,7 +343,7 @@ export function MerchantFulfill() {
                           {item.selected_options && item.selected_options.length > 0 && (
                             <p className={cn(
                               'text-xs mt-0.5 truncate',
-                              isChecked ? 'text-slate-500' : 'text-slate-400',
+                              isChecked ? 'text-ink-500' : 'text-ink-400',
                             )}>
                               {item.selected_options
                                 .map(o => [o.group, o.value].filter(Boolean).join(': '))
@@ -352,7 +352,7 @@ export function MerchantFulfill() {
                             </p>
                           )}
                           {!isChecked && (
-                            <p className="text-xs text-red-500 mt-0.5 font-medium">Marked as missing</p>
+                            <p className="text-xs text-danger-500 mt-0.5 font-medium">Marked as missing</p>
                           )}
                         </div>
 
@@ -364,8 +364,8 @@ export function MerchantFulfill() {
                             setChecked((prev: Record<string, boolean>) => ({ ...prev, [item.order_item_id]: !!v }))
                           }
                           className={cn(
-                            'h-5 w-5 rounded-md border-slate-300 flex-shrink-0',
-                            isChecked && 'data-[state=checked]:bg-slate-900 data-[state=checked]:border-slate-900',
+                            'h-5 w-5 rounded-md border-ink-300 flex-shrink-0',
+                            isChecked && 'data-[state=checked]:bg-ink-900 data-[state=checked]:border-ink-900',
                           )}
                           aria-label={`Mark ${item.item_name} as present`}
                         />
@@ -380,32 +380,32 @@ export function MerchantFulfill() {
                 className={cn(
                   'rounded-2xl border px-5 py-4 flex items-center justify-between transition-colors',
                   uncheckedIds.length > 0
-                    ? 'border-amber-200 bg-amber-50'
-                    : 'border-slate-100 bg-white',
+                    ? 'border-warn-200 bg-warn-50'
+                    : 'border-ink-100 bg-white',
                 )}
                 layout
               >
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-widest text-slate-400 mb-0.5">
+                  <p className="text-xs font-medium uppercase tracking-widest text-ink-400 mb-0.5">
                     Total Value to Payout
                   </p>
                   <motion.p
                     key={payoutTotal}
                     initial={{ scale: 0.95, opacity: 0.7 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="text-2xl font-bold text-slate-900"
+                    className="text-2xl font-bold text-ink-900"
                   >
                     {fmt(payoutTotal)}
                   </motion.p>
                   {uncheckedIds.length > 0 && (
-                    <p className="text-xs text-amber-600 mt-1">
+                    <p className="text-xs text-warn-600 mt-1">
                       {uncheckedIds.length} item{uncheckedIds.length !== 1 ? 's' : ''} marked missing — payout adjusted.
                     </p>
                   )}
                 </div>
                 <PackageCheck className={cn(
                   'h-8 w-8 flex-shrink-0',
-                  uncheckedIds.length > 0 ? 'text-amber-400' : 'text-slate-300',
+                  uncheckedIds.length > 0 ? 'text-warn-400' : 'text-ink-300',
                 )} strokeWidth={1.5} />
               </motion.div>
 
@@ -420,7 +420,7 @@ export function MerchantFulfill() {
               </Button>
 
               <button onClick={handleReset}
-                className="w-full text-center text-sm text-slate-400 hover:text-slate-600 transition-colors py-1">
+                className="w-full text-center text-sm text-ink-400 hover:text-ink-600 transition-colors py-1">
                 Cancel &amp; scan a different code
               </button>
             </motion.div>
@@ -429,20 +429,20 @@ export function MerchantFulfill() {
           {/* ---- SUBMITTING ---- */}
           {stage === 'SUBMITTING' && (
             <motion.div key="submitting" variants={panel} initial="hidden" animate="visible" exit="exit"
-              className="flex flex-col items-center gap-8 rounded-2xl bg-white p-12 shadow-sm border border-slate-100"
+              className="flex flex-col items-center gap-8 rounded-2xl bg-white p-12 shadow-sm border border-ink-100"
             >
               <div className="relative flex h-20 w-20 items-center justify-center" aria-hidden>
-                <motion.span className="absolute h-20 w-20 rounded-full border border-orange-200"
+                <motion.span className="absolute h-20 w-20 rounded-full border border-brand-200"
                   animate={{ scale: [1, 1.18, 1], opacity: [0.4, 0.1, 0.4] }}
                   transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }} />
-                <motion.span className="absolute h-12 w-12 rounded-full border border-orange-300"
+                <motion.span className="absolute h-12 w-12 rounded-full border border-brand-300"
                   animate={{ scale: [1, 1.1, 1], opacity: [0.6, 0.2, 0.6] }}
                   transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut', delay: 0.25 }} />
-                <ShieldCheck className="h-7 w-7 text-slate-700" strokeWidth={1.5} />
+                <ShieldCheck className="h-7 w-7 text-ink-700" strokeWidth={1.5} />
               </div>
               <div className="flex flex-col items-center gap-1 text-center">
-                <p className="text-lg font-medium text-slate-900">Recording handover…</p>
-                <p className="text-sm text-slate-500">Writing to the secure escrow ledger.</p>
+                <p className="text-lg font-medium text-ink-900">Recording handover…</p>
+                <p className="text-sm text-ink-500">Writing to the secure escrow ledger.</p>
               </div>
             </motion.div>
           )}
@@ -450,17 +450,17 @@ export function MerchantFulfill() {
           {/* ---- SUCCESS ---- */}
           {stage === 'SUCCESS' && (
             <motion.div key="success" variants={panel} initial="hidden" animate="visible" exit="exit"
-              className="flex flex-col items-center gap-8 rounded-2xl bg-white p-10 shadow-sm border border-slate-100 text-center"
+              className="flex flex-col items-center gap-8 rounded-2xl bg-white p-10 shadow-sm border border-ink-100 text-center"
             >
               <motion.div
-                className="flex h-20 w-20 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm"
+                className="flex h-20 w-20 items-center justify-center rounded-full border border-ink-200 bg-white shadow-sm"
                 initial={{ scale: 0.7, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
                 aria-hidden
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
-                  strokeLinecap="round" strokeLinejoin="round" className="h-9 w-9 text-slate-900">
+                  strokeLinecap="round" strokeLinejoin="round" className="h-9 w-9 text-ink-900">
                   <motion.path d="M4.5 12.75l6 6 9-13.5"
                     initial={{ pathLength: 0 }}
                     animate={{ pathLength: 1 }}
@@ -469,20 +469,20 @@ export function MerchantFulfill() {
               </motion.div>
 
               <div className="flex flex-col gap-2">
-                <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Handover Confirmed</h2>
-                <p className="text-sm text-slate-500 max-w-xs">
+                <h2 className="text-2xl font-semibold tracking-tight text-ink-900">Handover Confirmed</h2>
+                <p className="text-sm text-ink-500 max-w-xs">
                   The escrow ledger has been updated. Funds will be included in the next settlement batch.
                 </p>
               </div>
 
-              <div className="w-full rounded-xl border border-slate-100 bg-slate-50 px-5 py-3 flex justify-between">
-                <span className="text-xs text-slate-400">Items handed over</span>
-                <span className="text-sm font-semibold text-slate-800">{checkedIds.length}</span>
+              <div className="w-full rounded-xl border border-ink-100 bg-ink-50 px-5 py-3 flex justify-between">
+                <span className="text-xs text-ink-400">Items handed over</span>
+                <span className="text-sm font-semibold text-ink-800">{checkedIds.length}</span>
               </div>
 
               <Button
                 onClick={handleReset}
-                className="w-full h-12 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium"
+                className="w-full h-12 rounded-xl bg-ink-900 hover:bg-ink-800 text-white font-medium"
               >
                 Verify next code
               </Button>
@@ -492,38 +492,38 @@ export function MerchantFulfill() {
           {/* ---- REJECTED ---- */}
           {stage === 'REJECTED' && (
             <motion.div key="rejected" variants={panel} initial="hidden" animate="visible" exit="exit"
-              className="flex flex-col items-center gap-8 rounded-2xl bg-white p-10 shadow-sm border border-slate-100 text-center"
+              className="flex flex-col items-center gap-8 rounded-2xl bg-white p-10 shadow-sm border border-ink-100 text-center"
             >
               <motion.div
-                className="flex h-20 w-20 items-center justify-center rounded-full border border-slate-200 bg-white"
+                className="flex h-20 w-20 items-center justify-center rounded-full border border-ink-200 bg-white"
                 initial={{ scale: 0.7, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
                 aria-hidden
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"
-                  strokeLinecap="round" strokeLinejoin="round" className="h-9 w-9 text-slate-400">
+                  strokeLinecap="round" strokeLinejoin="round" className="h-9 w-9 text-ink-400">
                   <path d="M18 6L6 18M6 6l12 12" />
                 </svg>
               </motion.div>
 
               <div className="flex flex-col gap-2">
-                <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Do Not Redeem</h2>
-                <p className="text-sm text-slate-500 max-w-xs">This code was rejected by the secure ledger.</p>
+                <h2 className="text-2xl font-semibold tracking-tight text-ink-900">Do Not Redeem</h2>
+                <p className="text-sm text-ink-500 max-w-xs">This code was rejected by the secure ledger.</p>
               </div>
 
-              <div className="w-full rounded-xl border border-slate-100 bg-slate-50 p-4 text-left">
-                <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-2">Reason</p>
-                <p className="text-sm text-slate-600 leading-relaxed">{rejectReason}</p>
+              <div className="w-full rounded-xl border border-ink-100 bg-ink-50 p-4 text-left">
+                <p className="text-xs font-semibold uppercase tracking-widest text-ink-400 mb-2">Reason</p>
+                <p className="text-sm text-ink-600 leading-relaxed">{rejectReason}</p>
               </div>
 
               <div className="flex w-full flex-col gap-3">
                 <Button onClick={handleReset}
-                  className="w-full h-12 min-h-[48px] rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-medium">
+                  className="w-full h-12 min-h-[48px] rounded-xl bg-ink-900 hover:bg-ink-800 text-white font-medium">
                   Try another code
                 </Button>
                 <Button variant="ghost"
-                  className="w-full text-sm text-slate-400 hover:text-slate-600"
+                  className="w-full text-sm text-ink-400 hover:text-ink-600"
                   onClick={() => window.open('mailto:merchants@kithly.com', '_blank')}>
                   Contact merchant support
                 </Button>

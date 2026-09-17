@@ -48,7 +48,7 @@ export function AdminDashboard() {
   };
 
   const getStatusColor = (status: string) =>
-    STATUS_COLORS[status] ?? 'bg-gray-100 text-gray-800 border-gray-200';
+    STATUS_COLORS[status] ?? 'bg-ink-100 text-ink-800 border-ink-200';
 
   const getStatusLabel = (status: string) =>
     STATUS_LABELS[status] ?? status.split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
@@ -122,7 +122,7 @@ export function AdminDashboard() {
         {stats.pendingShops > 0 && (
           <button
             onClick={() => navigate('/admin/shops')}
-            className="mb-8 flex w-full items-center gap-3 rounded-2xl border border-orange-200/80 bg-orange-50 px-5 py-4 text-left transition-colors hover:bg-orange-100/70"
+            className="mb-8 flex w-full items-center gap-3 rounded-2xl border border-brand-200/80 bg-brand-50 px-5 py-4 text-left transition-colors hover:bg-brand-100/70"
           >
             <Store className="size-5 shrink-0 text-primary" strokeWidth={1.75} />
             <p className="flex-1 text-sm leading-relaxed text-orange-850">
@@ -290,11 +290,11 @@ export function AdminDashboard() {
                   {recentOrders.map((order: RecentOrder) => (
                     <div
                       key={order.id}
-                      className="p-4 border border-slate-100 bg-white rounded-2xl shadow-sm cursor-pointer hover:bg-orange-50/50"
+                      className="p-4 border border-ink-100 bg-white rounded-2xl shadow-sm cursor-pointer hover:bg-brand-50/50"
                       onClick={() => navigate(`/admin/orders/${order.id}`)}
                     >
                       <div className="flex justify-between items-start mb-2">
-                        <span className="font-mono text-xs font-semibold text-slate-500">
+                        <span className="font-mono text-xs font-semibold text-ink-500">
                           Code: {order.code}
                         </span>
                         <Badge className={`font-light ${getStatusColor(order.status)}`}>
@@ -303,30 +303,30 @@ export function AdminDashboard() {
                       </div>
 
                       <div className="space-y-1 my-3">
-                        <p className="text-sm font-medium text-slate-900 truncate">
+                        <p className="text-sm font-medium text-ink-900 truncate">
                           {order.item_name}
                         </p>
-                        <p className="text-xs text-slate-500 truncate">
+                        <p className="text-xs text-ink-500 truncate">
                           Shop: {order.shop_name}
                         </p>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-y-1.5 text-xs text-slate-600 border-t pt-3">
+                      <div className="grid grid-cols-2 gap-y-1.5 text-xs text-ink-600 border-t pt-3">
                         <div>
-                          <span className="text-slate-400">Sender: </span>
-                          <span className="font-medium text-slate-800">{order.sender_name}</span>
+                          <span className="text-ink-400">Sender: </span>
+                          <span className="font-medium text-ink-800">{order.sender_name}</span>
                         </div>
                         <div>
-                          <span className="text-slate-400">Recipient: </span>
-                          <span className="font-medium text-slate-800">{order.recipient_name}</span>
+                          <span className="text-ink-400">Recipient: </span>
+                          <span className="font-medium text-ink-800">{order.recipient_name}</span>
                         </div>
                         <div>
-                          <span className="text-slate-400">Amount: </span>
-                          <span className="font-semibold text-slate-950">{formatCurrency(order.amount)}</span>
+                          <span className="text-ink-400">Amount: </span>
+                          <span className="font-semibold text-ink-950">{formatCurrency(order.amount)}</span>
                         </div>
                         <div>
-                          <span className="text-slate-400">Date: </span>
-                          <span className="text-slate-800">{formatDate(order.created_at)}</span>
+                          <span className="text-ink-400">Date: </span>
+                          <span className="text-ink-800">{formatDate(order.created_at)}</span>
                         </div>
                       </div>
                     </div>
@@ -348,7 +348,7 @@ function QuickLink({ title, description, onClick }: any) {
       onClick={onClick}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:border-primary hover:bg-orange-50 transition-all text-left"
+      className="flex items-center justify-between p-4 rounded-lg border border-ink-200 hover:border-primary hover:bg-brand-50 transition-all text-left"
     >
       <div>
         <h4 className="font-medium text-sm mb-1">{title}</h4>

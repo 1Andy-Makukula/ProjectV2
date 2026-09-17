@@ -35,8 +35,8 @@ function DeadlineNote({ experience }: { experience: Experience }) {
     <div
       className={`mt-4 flex items-start gap-2 rounded-xl border px-3 py-2.5 ${
         lapsed
-          ? 'border-slate-200 bg-slate-50 text-slate-500'
-          : 'border-amber-200 bg-amber-50 text-amber-800'
+          ? 'border-ink-200 bg-ink-50 text-ink-500'
+          : 'border-warn-200 bg-warn-50 text-warn-800'
       }`}
     >
       <CalendarClock className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={2} />
@@ -74,7 +74,7 @@ export function ExperienceDetail() {
     return (
       <div className="flex min-h-screen items-center justify-center px-6">
         <div className="max-w-md text-center">
-          <Sparkles className="mx-auto mb-4 h-10 w-10 text-slate-300" strokeWidth={1} />
+          <Sparkles className="mx-auto mb-4 h-10 w-10 text-ink-300" strokeWidth={1} />
           <h2 className="mb-2 text-2xl font-medium">Experience not found</h2>
           <p className="mb-6 text-muted-foreground">
             This experience is no longer available, or the link has expired.
@@ -122,7 +122,7 @@ export function ExperienceDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-ink-50">
       <div className="sticky top-0 z-10 border-b bg-white">
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-4 md:px-6">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
@@ -140,7 +140,7 @@ export function ExperienceDetail() {
           className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8"
         >
           {/* Hero */}
-          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-slate-100 bg-white">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-ink-100 bg-white">
             {experience.image_url ? (
               <img
                 src={experience.image_url}
@@ -162,40 +162,40 @@ export function ExperienceDetail() {
 
           {/* Summary */}
           <div className="flex flex-col">
-            <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+            <h2 className="text-2xl font-semibold tracking-tight text-ink-900">
               {experience.name}
             </h2>
             {experience.tagline && (
-              <p className="mt-1 text-sm text-slate-500">{experience.tagline}</p>
+              <p className="mt-1 text-sm text-ink-500">{experience.tagline}</p>
             )}
             {experience.description && (
-              <p className="mt-3 text-sm leading-relaxed text-slate-500">
+              <p className="mt-3 text-sm leading-relaxed text-ink-500">
                 {experience.description}
               </p>
             )}
 
             <div className="mt-5 flex items-baseline gap-2">
-              <span className="text-3xl font-light tracking-tight text-slate-900">
+              <span className="text-3xl font-light tracking-tight text-ink-900">
                 {formatCurrency(total, 'ZMW')}
               </span>
-              <span className="text-xs text-slate-400">for everything below</span>
+              <span className="text-xs text-ink-400">for everything below</span>
             </div>
 
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-ink-500">
               <span className="flex items-center gap-1.5">
-                <Store className="h-3.5 w-3.5 shrink-0 text-slate-400" strokeWidth={2} />
+                <Store className="h-3.5 w-3.5 shrink-0 text-ink-400" strokeWidth={2} />
                 {shops.length} {shops.length === 1 ? 'shop' : 'shops'}
               </span>
               <span className="flex items-center gap-1.5">
-                <Ticket className="h-3.5 w-3.5 shrink-0 text-slate-400" strokeWidth={2} />
+                <Ticket className="h-3.5 w-3.5 shrink-0 text-ink-400" strokeWidth={2} />
                 {shops.length} {shops.length === 1 ? 'claim code' : 'separate claim codes'}
               </span>
             </div>
 
             <DeadlineNote experience={experience} />
 
-            <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
-              <Shield className="h-3.5 w-3.5 shrink-0 text-orange-500" strokeWidth={2} />
+            <div className="mt-4 flex items-center gap-2 text-xs text-ink-500">
+              <Shield className="h-3.5 w-3.5 shrink-0 text-brand-500" strokeWidth={2} />
               Every part held in escrow until it is collected.
             </div>
 
@@ -208,7 +208,7 @@ export function ExperienceDetail() {
                     : 'Currently unavailable'}
               </Button>
               {available && shops.length > 1 && (
-                <p className="mt-2.5 text-xs font-light leading-relaxed text-slate-500">
+                <p className="mt-2.5 text-xs font-light leading-relaxed text-ink-500">
                   Your recipient gets one claim code per shop, so they can collect each part
                   whenever suits them.
                 </p>
@@ -219,27 +219,27 @@ export function ExperienceDetail() {
 
         {/* Contents, grouped the way they will be collected */}
         <div className="mt-8 space-y-4">
-          <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+          <h3 className="text-[11px] font-bold uppercase tracking-widest text-ink-400">
             What is included
           </h3>
 
           {groups.map(({ shop, lines }) => (
             <div
               key={shop.id}
-              className="overflow-hidden rounded-2xl border border-slate-100 bg-white"
+              className="overflow-hidden rounded-2xl border border-ink-100 bg-white"
             >
               <button
                 onClick={() => navigate(`/shop/${shop.id}`)}
-                className="flex w-full items-center gap-2 border-b border-slate-50 bg-slate-50/60 px-4 py-2.5 text-left transition-colors hover:bg-slate-100/60"
+                className="flex w-full items-center gap-2 border-b border-ink-50 bg-ink-50/60 px-4 py-2.5 text-left transition-colors hover:bg-ink-100/60"
               >
-                <Store className="h-3.5 w-3.5 shrink-0 text-slate-400" strokeWidth={2} />
-                <span className="text-xs font-semibold text-slate-700">{shop.name}</span>
+                <Store className="h-3.5 w-3.5 shrink-0 text-ink-400" strokeWidth={2} />
+                <span className="text-xs font-semibold text-ink-700">{shop.name}</span>
               </button>
 
-              <div className="divide-y divide-slate-50">
+              <div className="divide-y divide-ink-50">
                 {lines.map((line) => (
                   <div key={line.id} className="flex items-start gap-3 px-4 py-3">
-                    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-slate-50">
+                    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-ink-50">
                       {line.item?.image_url ? (
                         <img
                           src={line.item.image_url}
@@ -248,31 +248,31 @@ export function ExperienceDetail() {
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center">
-                          <Package className="h-4 w-4 text-slate-300" strokeWidth={1.5} />
+                          <Package className="h-4 w-4 text-ink-300" strokeWidth={1.5} />
                         </div>
                       )}
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-slate-900">
+                      <p className="text-sm font-medium text-ink-900">
                         {line.item?.name ?? 'Item'}
                         {line.quantity > 1 && (
-                          <span className="ml-1.5 text-xs font-normal text-slate-400">
+                          <span className="ml-1.5 text-xs font-normal text-ink-400">
                             × {line.quantity}
                           </span>
                         )}
                       </p>
                       {line.note && (
-                        <p className="mt-0.5 text-xs text-slate-400">{line.note}</p>
+                        <p className="mt-0.5 text-xs text-ink-400">{line.note}</p>
                       )}
                       {line.item?.is_available === false && (
-                        <p className="mt-0.5 text-xs font-medium text-amber-600">
+                        <p className="mt-0.5 text-xs font-medium text-warn-600">
                           Currently out of stock
                         </p>
                       )}
                     </div>
 
-                    <p className="shrink-0 text-sm tabular-nums text-slate-600">
+                    <p className="shrink-0 text-sm tabular-nums text-ink-600">
                       {formatCurrency((line.item?.price_zmw ?? 0) * line.quantity, 'ZMW')}
                     </p>
                   </div>

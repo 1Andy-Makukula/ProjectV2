@@ -72,7 +72,7 @@ export function AddToListDialog({ open, onOpenChange, target }: AddToListDialogP
           <p className="py-6 text-center text-sm text-muted-foreground">Loading your lists…</p>
         ) : owned.length === 0 ? (
           <div className="py-4 text-center">
-            <ListChecks className="mx-auto mb-2 size-8 text-slate-300" strokeWidth={1} />
+            <ListChecks className="mx-auto mb-2 size-8 text-ink-300" strokeWidth={1} />
             <p className="text-sm text-muted-foreground">
               You have no lists yet — name one and this goes straight onto it.
             </p>

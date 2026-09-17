@@ -153,7 +153,7 @@ export function Header({
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="flex md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="flex md:hidden p-2 hover:bg-ink-100 rounded-lg transition-colors"
               aria-label="Open menu"
             >
               <Menu className="w-5 h-5" strokeWidth={1.5} />
@@ -316,7 +316,7 @@ export function Header({
           </SheetHeader>
 
           {/* Profile Section */}
-          <div className="p-5 border-b border-slate-100" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1.25rem)' }}>
+          <div className="p-5 border-b border-ink-100" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1.25rem)' }}>
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full kl-gradient-brand-br flex items-center justify-center shrink-0">
@@ -325,10 +325,10 @@ export function Header({
                   </span>
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-slate-900 truncate">
+                  <p className="text-sm font-semibold text-ink-900 truncate">
                     {user?.user_metadata?.full_name || profile?.name || 'User'}
                   </p>
-                  <p className="text-xs text-slate-400 truncate">{user?.email}</p>
+                  <p className="text-xs text-ink-400 truncate">{user?.email}</p>
                 </div>
               </div>
             ) : (
@@ -344,9 +344,9 @@ export function Header({
 
             {/* Wallet Balance */}
             {isAuthenticated && balance !== null && (
-              <div className="mt-3 flex items-center bg-slate-50 px-3 py-2 rounded-xl">
-                <span className="text-[10px] text-slate-400 mr-1.5 uppercase font-semibold">Credits</span>
-                <span className="font-semibold text-sm text-slate-900">{formatCurrency(balance, 'ZMW')}</span>
+              <div className="mt-3 flex items-center bg-ink-50 px-3 py-2 rounded-xl">
+                <span className="text-[10px] text-ink-400 mr-1.5 uppercase font-semibold">Credits</span>
+                <span className="font-semibold text-sm text-ink-900">{formatCurrency(balance, 'ZMW')}</span>
               </div>
             )}
           </div>
@@ -375,13 +375,13 @@ export function Header({
 
           {/* Footer Actions */}
           {isAuthenticated && (
-            <div className="p-4 border-t border-slate-100" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)' }}>
+            <div className="p-4 border-t border-ink-100" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)' }}>
               <button
                 onClick={() => {
                   setIsMobileMenuOpen(false);
                   signOut();
                 }}
-                className="flex items-center gap-3 w-full px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                className="flex items-center gap-3 w-full px-3 py-2.5 text-sm text-danger-600 hover:bg-danger-50 rounded-xl transition-colors"
               >
                 <LogOut className="w-4 h-4" strokeWidth={1.5} />
                 Sign Out
@@ -462,8 +462,8 @@ function MobileNavLink({
       onClick={onClick}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
         isActive
-          ? 'bg-orange-50 text-orange-700'
-          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+          ? 'bg-brand-50 text-brand-700'
+          : 'text-ink-600 hover:bg-ink-50 hover:text-ink-900'
       }`}
     >
       <Icon className="w-4 h-4 shrink-0" strokeWidth={1.5} />

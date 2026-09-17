@@ -59,7 +59,7 @@ export function MerchantCollections() {
   const [editing, setEditing] = useState<string | null>(null);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-ink-50">
       <header className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-6 py-4">
           <Button variant="ghost" size="icon" onClick={() => navigate('/merchant')}>

@@ -143,7 +143,7 @@ export function GiftPage() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#FAFAFA]">
-        <Package className="h-8 w-8 animate-pulse text-slate-300" strokeWidth={1} />
+        <Package className="h-8 w-8 animate-pulse text-ink-300" strokeWidth={1} />
       </div>
     );
   }
@@ -177,7 +177,7 @@ export function GiftPage() {
   }, [] as Array<{ name: string; image_url: string | null; quantity: number }>);
 
   return (
-    <div className="flex min-h-screen items-start justify-center bg-[#FAFAFA] text-slate-900 font-sans selection:bg-orange-100">
+    <div className="flex min-h-screen items-start justify-center bg-[#FAFAFA] text-ink-900 font-sans selection:bg-brand-100">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -187,18 +187,18 @@ export function GiftPage() {
         
         {/* The Greeting */}
         <div className="text-center mt-4">
-          <h1 className="text-3xl sm:text-4xl font-light tracking-tight text-slate-900 leading-tight">
-            <span className="font-semibold">{shopOrder.recipient_name}</span>, you have a gift from <span className="font-medium text-slate-700">{senderName}</span>!
+          <h1 className="text-3xl sm:text-4xl font-light tracking-tight text-ink-900 leading-tight">
+            <span className="font-semibold">{shopOrder.recipient_name}</span>, you have a gift from <span className="font-medium text-ink-700">{senderName}</span>!
           </h1>
         </div>
 
         {/* The Digital Card (Message) */}
         {shopOrder.message && (
-          <Card className="overflow-hidden border-slate-200/60 bg-white/50 backdrop-blur-sm shadow-sm rounded-3xl relative">
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-orange-200 via-orange-300 to-orange-200 opacity-70" />
+          <Card className="overflow-hidden border-ink-200/60 bg-white/50 backdrop-blur-sm shadow-sm rounded-3xl relative">
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-brand-200 via-brand-300 to-brand-200 opacity-70" />
             <CardContent className="p-8 sm:p-10 flex flex-col items-center">
-              <GiftIcon className="h-6 w-6 text-orange-300/80 mb-6" strokeWidth={1.5} />
-              <p className="text-center text-lg sm:text-xl italic text-slate-700 font-serif leading-relaxed">
+              <GiftIcon className="h-6 w-6 text-brand-300/80 mb-6" strokeWidth={1.5} />
+              <p className="text-center text-lg sm:text-xl italic text-ink-700 font-serif leading-relaxed">
                 &ldquo;{shopOrder.message}&rdquo;
               </p>
             </CardContent>
@@ -207,11 +207,11 @@ export function GiftPage() {
 
         {/* The Action Center (QR Code) */}
         <div className="flex flex-col items-center mt-2">
-          <p className="text-sm font-medium text-slate-500 mb-8 text-center px-4 leading-relaxed">
+          <p className="text-sm font-medium text-ink-500 mb-8 text-center px-4 leading-relaxed">
             {shopOrder.claim_status === 'FULFILLED' || shopOrder.claim_status === 'PARTIAL_FULFILLMENT' ? (
-              <span>Verified at <strong className="text-slate-900 font-semibold">{shopName}</strong></span>
+              <span>Verified at <strong className="text-ink-900 font-semibold">{shopName}</strong></span>
             ) : (
-              <span>Show this code to the cashier at <strong className="text-slate-900 font-semibold">{shopName}</strong></span>
+              <span>Show this code to the cashier at <strong className="text-ink-900 font-semibold">{shopName}</strong></span>
             )}
           </p>
 
@@ -219,22 +219,22 @@ export function GiftPage() {
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="p-8 rounded-[2rem] shadow-lg border border-emerald-100 bg-emerald-50/60 backdrop-blur-md flex flex-col items-center justify-center text-center max-w-sm mb-6"
+              className="p-8 rounded-[2rem] shadow-lg border border-ok-100 bg-ok-50/60 backdrop-blur-md flex flex-col items-center justify-center text-center max-w-sm mb-6"
             >
-              <div className="h-16 w-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4 shadow-inner">
-                <Check className="h-8 w-8 text-emerald-600 animate-bounce" strokeWidth={2.5} />
+              <div className="h-16 w-16 bg-ok-100 rounded-full flex items-center justify-center mb-4 shadow-inner">
+                <Check className="h-8 w-8 text-ok-600 animate-bounce" strokeWidth={2.5} />
               </div>
-              <h3 className="text-xl font-bold text-emerald-950">
+              <h3 className="text-xl font-bold text-ok-950">
                 {shopOrder.claim_status === 'FULFILLED' ? 'Gift Claimed!' : 'Partially Claimed!'}
               </h3>
-              <p className="text-xs text-emerald-700 mt-2 leading-relaxed max-w-[240px]">
+              <p className="text-xs text-ok-700 mt-2 leading-relaxed max-w-[240px]">
                 {shopOrder.claim_status === 'FULFILLED' 
                   ? 'All items in this bundle have been verified and successfully handed over.' 
                   : 'Items have been successfully claimed. Some bundle items are still pending.'}
               </p>
             </motion.div>
           ) : (
-            <Card className="p-6 rounded-[2rem] shadow-sm border-slate-200/80 bg-white mb-6">
+            <Card className="p-6 rounded-[2rem] shadow-sm border-ink-200/80 bg-white mb-6">
               <QRCodeDisplay value={shopOrder.claim_code} size={220} />
             </Card>
           )}
@@ -245,8 +245,8 @@ export function GiftPage() {
             return (
               <div className={`mb-8 flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold ring-1 transition-all ${
                 remaining.isUrgent 
-                  ? 'text-red-600 bg-red-50 ring-red-100 animate-pulse' 
-                  : 'text-slate-600 bg-slate-50 ring-slate-200'
+                  ? 'text-danger-600 bg-danger-50 ring-danger-100 animate-pulse' 
+                  : 'text-ink-600 bg-ink-50 ring-ink-200'
               }`}>
                 <span>⏳</span>
                 <span>Please claim this gift: {remaining.text}</span>
@@ -255,46 +255,46 @@ export function GiftPage() {
           })()}
 
           <div className="flex flex-col items-center gap-2">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Master Code</p>
-            <p className="font-mono text-xl sm:text-2xl font-semibold tracking-[0.25em] text-slate-800">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-400">Master Code</p>
+            <p className="font-mono text-xl sm:text-2xl font-semibold tracking-[0.25em] text-ink-800">
               {shopOrder.claim_code}
             </p>
           </div>
         </div>
 
-        <Separator className="my-2 bg-slate-200/60" />
+        <Separator className="my-2 bg-ink-200/60" />
 
         {/* The Item Checklist */}
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2 px-2">
-            <Sparkles className="h-4 w-4 text-orange-400" strokeWidth={1.5} />
-            <h2 className="text-sm font-medium tracking-wide text-slate-800">
+            <Sparkles className="h-4 w-4 text-brand-400" strokeWidth={1.5} />
+            <h2 className="text-sm font-medium tracking-wide text-ink-800">
               What's inside your bundle
             </h2>
           </div>
 
-          <Card className="overflow-hidden rounded-3xl shadow-sm border-slate-200/60 bg-white">
-            <div className="divide-y divide-slate-100">
+          <Card className="overflow-hidden rounded-3xl shadow-sm border-ink-200/60 bg-white">
+            <div className="divide-y divide-ink-100">
               {groupedItems.map((item, idx) => (
                 <div key={idx} className="flex items-center gap-4 p-4 sm:p-5">
                   {item.image_url ? (
                     <img
                       src={item.image_url}
                       alt={item.name}
-                      className="h-14 w-14 rounded-2xl object-cover border border-slate-100 shadow-sm shrink-0"
+                      className="h-14 w-14 rounded-2xl object-cover border border-ink-100 shadow-sm shrink-0"
                     />
                   ) : (
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 border border-slate-100 shrink-0">
-                      <Package className="h-5 w-5 text-slate-300" strokeWidth={1.5} />
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-ink-50 border border-ink-100 shrink-0">
+                      <Package className="h-5 w-5 text-ink-300" strokeWidth={1.5} />
                     </div>
                   )}
                   <div className="flex-1 min-w-0 pr-4">
-                    <p className="text-base font-medium text-slate-800 truncate">
+                    <p className="text-base font-medium text-ink-800 truncate">
                       {item.name}
                     </p>
                   </div>
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-50 border border-slate-100">
-                    <span className="text-xs font-semibold text-slate-600">x{item.quantity}</span>
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink-50 border border-ink-100">
+                    <span className="text-xs font-semibold text-ink-600">x{item.quantity}</span>
                   </div>
                 </div>
               ))}
@@ -312,7 +312,7 @@ export function GiftPage() {
               <ReportGiftIssue claimCode={claimCode} />
             </div>
           )}
-          <p className="text-[11px] font-medium tracking-widest text-slate-400 uppercase">
+          <p className="text-[11px] font-medium tracking-widest text-ink-400 uppercase">
             Powered by KithLy
           </p>
         </div>

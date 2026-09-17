@@ -65,7 +65,7 @@ export function AdminOrderDetail() {
   if (!order) return null;
 
   const giftUrl = getGiftPageUrl(order.claim_code || '');
-  const statusColor = STATUS_COLORS[order.derived_status] ?? 'bg-gray-100 text-gray-800 border-gray-200';
+  const statusColor = STATUS_COLORS[order.derived_status] ?? 'bg-ink-100 text-ink-800 border-ink-200';
   const statusLabel = STATUS_LABELS[order.derived_status] ?? order.derived_status;
 
   return (
@@ -178,7 +178,7 @@ export function AdminOrderDetail() {
                         type="text"
                         value={giftUrl}
                         readOnly
-                        className="flex-1 px-3 py-2 text-sm border rounded-md bg-gray-50"
+                        className="flex-1 px-3 py-2 text-sm border rounded-md bg-ink-50"
                       />
                       <Button variant="outline" onClick={copyGiftLink}>
                         <Copy className="w-4 h-4" />
@@ -214,7 +214,7 @@ export function AdminOrderDetail() {
                 <CardContent>
                   <div className="flex gap-4">
                     {order.item_image_url && (
-                      <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                      <div className="w-24 h-24 rounded-lg overflow-hidden bg-ink-100 flex-shrink-0">
                         <img
                           src={order.item_image_url}
                           alt={order.item_name}

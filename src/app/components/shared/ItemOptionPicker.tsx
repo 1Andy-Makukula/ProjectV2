@@ -60,21 +60,21 @@ export function ItemOptionPicker({
   };
 
   return (
-    <div className="mt-5 space-y-4 border-t border-slate-100 pt-5">
+    <div className="mt-5 space-y-4 border-t border-ink-100 pt-5">
       {ordered.map((group) => {
         const chosen = selection[group.id];
 
         return (
           <div key={group.id} className="space-y-2">
             <div className="flex items-center gap-2">
-              <Label className="text-sm font-medium text-slate-900">{group.label}</Label>
+              <Label className="text-sm font-medium text-ink-900">{group.label}</Label>
               {group.is_required && (
                 <Badge variant="secondary" className="text-[10px]">
                   Required
                 </Badge>
               )}
               {group.kind === 'choice' && group.allow_multiple && (
-                <span className="text-[11px] font-light text-slate-400">Choose any</span>
+                <span className="text-[11px] font-light text-ink-400">Choose any</span>
               )}
             </div>
 
@@ -97,13 +97,13 @@ export function ItemOptionPicker({
                                     disabled:opacity-50
                                     ${
                                       isChosen
-                                        ? 'border-slate-900 bg-slate-900 text-white'
-                                        : 'border-slate-200 text-slate-700 hover:border-slate-400'
+                                        ? 'border-ink-900 bg-ink-900 text-white'
+                                        : 'border-ink-200 text-ink-700 hover:border-ink-400'
                                     }`}
                       >
                         {option.label}
                         {option.price_delta_zmw > 0 && (
-                          <span className={isChosen ? 'ml-1.5 text-white/70' : 'ml-1.5 text-slate-400'}>
+                          <span className={isChosen ? 'ml-1.5 text-white/70' : 'ml-1.5 text-ink-400'}>
                             +{formatCurrency(option.price_delta_zmw, 'ZMW')}
                           </span>
                         )}
@@ -113,7 +113,7 @@ export function ItemOptionPicker({
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1 rounded-xl border border-slate-200 p-1">
+                <div className="flex items-center gap-1 rounded-xl border border-ink-200 p-1">
                   <button
                     type="button"
                     disabled={disabled}
@@ -121,7 +121,7 @@ export function ItemOptionPicker({
                     onClick={() =>
                       setQuantity(group, (typeof chosen === 'number' ? chosen : 0) - 1)
                     }
-                    className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50"
+                    className="rounded-lg p-1.5 text-ink-500 transition-colors hover:bg-ink-100 disabled:opacity-50"
                   >
                     <Minus className="size-3.5" strokeWidth={2.5} />
                   </button>
@@ -135,14 +135,14 @@ export function ItemOptionPicker({
                     onClick={() =>
                       setQuantity(group, (typeof chosen === 'number' ? chosen : 0) + 1)
                     }
-                    className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 disabled:opacity-50"
+                    className="rounded-lg p-1.5 text-ink-500 transition-colors hover:bg-ink-100 disabled:opacity-50"
                   >
                     <Plus className="size-3.5" strokeWidth={2.5} />
                   </button>
                 </div>
 
                 {group.unit_price_delta_zmw > 0 && (
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-ink-500">
                     {formatCurrency(group.unit_price_delta_zmw, 'ZMW')} each
                   </span>
                 )}

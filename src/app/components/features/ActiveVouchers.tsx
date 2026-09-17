@@ -37,29 +37,29 @@ export function ActiveVouchers({ activeVouchers }: { activeVouchers: any[] }) {
             <div className="h-1.5 kl-gradient-brand" />
             <div className="p-6 flex flex-col items-center gap-5">
               <div className="text-center">
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-0.5">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-ink-400 mb-0.5">
                   From {sender}
                 </p>
-                <h4 className="font-bold text-slate-900 text-base">
+                <h4 className="font-bold text-ink-900 text-base">
                   {firstItem?.name || 'Gift Bundle'}
                 </h4>
-                <p className="text-xs text-slate-500 mt-0.5">@ {shop}</p>
+                <p className="text-xs text-ink-500 mt-0.5">@ {shop}</p>
               </div>
               {/* Large QR */}
-              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 shadow-inner">
+              <div className="p-4 bg-ink-50 rounded-2xl border border-ink-100 shadow-inner">
                 <QRCodeDisplay value={order.claim_code} size={160} />
               </div>
               {/* Claim code */}
               <div className="flex flex-col items-center gap-1">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-400">
                   Claim Code
                 </p>
-                <p className="font-mono text-xl font-bold tracking-[0.25em] text-slate-800 select-all">
+                <p className="font-mono text-xl font-bold tracking-[0.25em] text-ink-800 select-all">
                   {order.claim_code}
                 </p>
               </div>
               {order.message && (
-                <p className="text-xs italic text-slate-500 text-center max-w-[200px] leading-relaxed">
+                <p className="text-xs italic text-ink-500 text-center max-w-[200px] leading-relaxed">
                   "{order.message}"
                 </p>
               )}

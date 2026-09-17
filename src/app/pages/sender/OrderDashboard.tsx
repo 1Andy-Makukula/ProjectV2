@@ -74,33 +74,33 @@ const STATUS_CONFIG: Record<
 > = {
   pending_payment: {
     label: 'Pending',
-    dot: 'bg-amber-400',
-    pill: 'bg-amber-50 text-amber-700 ring-amber-200',
+    dot: 'bg-warn-400',
+    pill: 'bg-warn-50 text-warn-700 ring-warn-200',
   },
   paid: {
     label: 'Paid',
-    dot: 'bg-blue-400',
-    pill: 'bg-blue-50 text-blue-700 ring-blue-200',
+    dot: 'bg-info-400',
+    pill: 'bg-info-50 text-info-700 ring-info-200',
   },
   fulfilled: {
     label: 'Fulfilled',
-    dot: 'bg-green-400',
-    pill: 'bg-green-50 text-green-700 ring-green-200',
+    dot: 'bg-ok-400',
+    pill: 'bg-ok-50 text-ok-700 ring-ok-200',
   },
   completed: {
     label: 'Completed',
-    dot: 'bg-green-400',
-    pill: 'bg-green-50 text-green-700 ring-green-200',
+    dot: 'bg-ok-400',
+    pill: 'bg-ok-50 text-ok-700 ring-ok-200',
   },
   expired: {
     label: 'Expired',
-    dot: 'bg-gray-400',
-    pill: 'bg-gray-50 text-gray-500 ring-gray-200',
+    dot: 'bg-ink-400',
+    pill: 'bg-ink-50 text-ink-500 ring-ink-200',
   },
   cancelled: {
     label: 'Cancelled',
-    dot: 'bg-red-400',
-    pill: 'bg-red-50 text-red-700 ring-red-200',
+    dot: 'bg-danger-400',
+    pill: 'bg-danger-50 text-danger-700 ring-danger-200',
   },
 };
 
@@ -119,8 +119,8 @@ const deriveDisplayStatus = deriveStatus;
 const getStatus = (raw: DisplayStatus) =>
   STATUS_CONFIG[raw] ?? {
     label: raw,
-    dot: 'bg-gray-400',
-    pill: 'bg-gray-50 text-gray-500 ring-gray-200',
+    dot: 'bg-ink-400',
+    pill: 'bg-ink-50 text-ink-500 ring-ink-200',
   };
 
 function formatDate(iso: string): string {
@@ -163,13 +163,13 @@ function StatCard({
   accent: string;
 }) {
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-slate-200/60 bg-white/70 backdrop-blur-md px-5 py-4 shadow-sm">
+    <div className="flex items-center gap-4 rounded-2xl border border-ink-200/60 bg-white/70 backdrop-blur-md px-5 py-4 shadow-sm">
       <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${accent}`}>
         <Icon className="h-5 w-5" />
       </div>
       <div>
-        <p className="text-xs font-medium text-slate-500">{label}</p>
-        <p className="text-lg font-semibold text-slate-900 tracking-tight">{value}</p>
+        <p className="text-xs font-medium text-ink-500">{label}</p>
+        <p className="text-lg font-semibold text-ink-900 tracking-tight">{value}</p>
       </div>
     </div>
   );
@@ -354,7 +354,7 @@ export function OrderDashboard() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
-      <div className="sticky top-0 z-10 border-b border-slate-200/60 bg-white/50 backdrop-blur-md">
+      <div className="sticky top-0 z-10 border-b border-ink-200/60 bg-white/50 backdrop-blur-md">
         <div className="mx-auto max-w-6xl px-6 py-4">
           <div className="flex items-center gap-3">
             <Button
@@ -362,15 +362,15 @@ export function OrderDashboard() {
               variant="ghost"
               size="icon"
               onClick={() => navigate('/dashboard')}
-              className="shrink-0 hover:bg-slate-100 active:scale-95 transition-all duration-200 rounded-lg"
+              className="shrink-0 hover:bg-ink-100 active:scale-95 transition-all duration-200 rounded-lg"
             >
-              <ArrowLeft className="h-5 w-5 text-slate-700" />
+              <ArrowLeft className="h-5 w-5 text-ink-700" />
             </Button>
             <div>
               <h1 className="kl-gradient-brand bg-clip-text text-xl font-bold text-transparent tracking-tight">
                 Order History
               </h1>
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-xs text-ink-500 font-medium">
                 {loading
                   ? 'Loading...'
                   : `${orders.length} order${orders.length !== 1 ? 's' : ''} found`}
@@ -392,31 +392,31 @@ export function OrderDashboard() {
             icon={TrendingUp}
             label="Total Spent"
             value={loading ? '—' : formatCurrency(totalSpend, 'ZMW')}
-            accent="bg-orange-100 text-orange-600"
+            accent="bg-brand-100 text-brand-600"
           />
           <StatCard
             icon={CheckCircle2}
             label="Completed"
             value={loading ? '—' : completedCount}
-            accent="bg-green-100 text-green-600"
+            accent="bg-ok-100 text-ok-600"
           />
           <StatCard
             icon={Clock}
             label="In Progress"
             value={loading ? '—' : pendingCount}
-            accent="bg-amber-100 text-amber-600"
+            accent="bg-warn-100 text-warn-600"
           />
         </div>
 
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="rounded-xl border border-danger-200 bg-danger-50 px-4 py-3 text-sm text-danger-700">
             Failed to load orders: {error}
           </div>
         )}
 
-        <div className="overflow-hidden rounded-3xl border border-slate-200/60 bg-white/70 backdrop-blur-md shadow-sm">
-          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-            <h2 className="text-sm font-semibold text-slate-700">All Orders</h2>
+        <div className="overflow-hidden rounded-3xl border border-ink-200/60 bg-white/70 backdrop-blur-md shadow-sm">
+          <div className="flex items-center justify-between border-b border-ink-100 px-6 py-4">
+            <h2 className="text-sm font-semibold text-ink-700">All Orders</h2>
             {!loading && orders.length > 0 && (
               <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
                 {orders.length}
@@ -432,10 +432,10 @@ export function OrderDashboard() {
                 exit={{ opacity: 0 }}
                 className="flex flex-col items-center justify-center px-6 py-20 text-center"
               >
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50">
                   <Package className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="mb-1 text-base font-semibold text-gray-900">No orders yet</h3>
+                <h3 className="mb-1 text-base font-semibold text-ink-900">No orders yet</h3>
                 <p className="mb-6 max-w-xs text-sm text-muted-foreground">
                   You haven&apos;t sent any gifts yet. Browse our shops and send your first gift!
                 </p>
@@ -454,7 +454,7 @@ export function OrderDashboard() {
           {(loading || orders.length > 0) && (
             <Table>
               <TableHeader>
-                <TableRow className="bg-gray-50/60 hover:bg-gray-50/60">
+                <TableRow className="bg-ink-50/60 hover:bg-ink-50/60">
                   <TableHead className="w-[260px] pl-6">Product</TableHead>
                   <TableHead>For</TableHead>
                   <TableHead>Shop</TableHead>
@@ -480,7 +480,7 @@ export function OrderDashboard() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.04 }}
                         onClick={() => navigate(`/orders/${order.transaction_id}`)}
-                        className="group cursor-pointer border-b border-slate-100 transition-colors hover:bg-slate-50/50"
+                        className="group cursor-pointer border-b border-ink-100 transition-colors hover:bg-ink-50/50"
                       >
                         <TableCell className="pl-6 py-3">
                           <div className="flex items-center gap-3">
@@ -489,7 +489,7 @@ export function OrderDashboard() {
                                 {order.items.slice(0, 3).map((item, idx) => (
                                   <div
                                     key={idx}
-                                    className="inline-block h-10 w-10 rounded-md ring-2 ring-white overflow-hidden bg-gray-100 shrink-0"
+                                    className="inline-block h-10 w-10 rounded-md ring-2 ring-white overflow-hidden bg-ink-100 shrink-0"
                                   >
                                     {item?.image_url ? (
                                       <img
@@ -499,19 +499,19 @@ export function OrderDashboard() {
                                       />
                                     ) : (
                                       <div className="flex h-full w-full items-center justify-center">
-                                        <Package className="h-5 w-5 text-gray-400" />
+                                        <Package className="h-5 w-5 text-ink-400" />
                                       </div>
                                     )}
                                   </div>
                                 ))}
                                 {order.items.length > 3 && (
-                                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-slate-200 text-[10px] font-bold text-slate-600 ring-2 ring-white shrink-0">
+                                  <div className="flex h-10 w-10 items-center justify-center rounded-md bg-ink-200 text-[10px] font-bold text-ink-600 ring-2 ring-white shrink-0">
                                     +{order.items.length - 3}
                                   </div>
                                 )}
                               </div>
                             ) : (
-                              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-gray-100">
+                              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-ink-100">
                                 {order?.item_image_url ? (
                                   <img
                                     src={order.item_image_url}
@@ -520,27 +520,27 @@ export function OrderDashboard() {
                                   />
                                 ) : (
                                   <div className="flex h-full w-full items-center justify-center">
-                                    <Package className="h-5 w-5 text-gray-400" />
+                                    <Package className="h-5 w-5 text-ink-400" />
                                   </div>
                                 )}
                               </div>
                             )}
                             <div className="min-w-0">
-                              <p className="truncate text-sm font-medium text-slate-900">
+                              <p className="truncate text-sm font-medium text-ink-900">
                                 {order?.item_name ?? 'Product unavailable'}
                               </p>
-                              <p className="font-mono text-xs text-slate-500">
+                              <p className="font-mono text-xs text-ink-500">
                                 #{order?.claim_code ?? '—'}
                               </p>
                             </div>
                           </div>
                         </TableCell>
 
-                        <TableCell className="text-sm text-slate-700 font-medium">
+                        <TableCell className="text-sm text-ink-700 font-medium">
                           {order.recipient_name || '—'}
                         </TableCell>
 
-                        <TableCell className="text-sm text-slate-600">
+                        <TableCell className="text-sm text-ink-600">
                           {order.shop_name ?? '—'}
                         </TableCell>
 
@@ -572,7 +572,7 @@ export function OrderDashboard() {
                               {resumingPayment === order.transaction_id ? 'Loading...' : 'Complete Payment'}
                             </Button>
                           ) : (
-                            <ArrowRight className="h-4 w-4 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+                            <ArrowRight className="h-4 w-4 text-ink-300 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
                           )}
                         </TableCell>
                       </motion.tr>

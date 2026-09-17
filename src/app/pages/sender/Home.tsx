@@ -31,12 +31,12 @@ const SLIDE_DURATION_MS = 5000;
 // ---------------------------------------------------------------------------
 
 function HeroSkeleton() {
-  return <div className="relative w-full h-72 sm:h-96 bg-gray-200 animate-pulse" />;
+  return <div className="relative w-full h-72 sm:h-96 bg-ink-200 animate-pulse" />;
 }
 
 function ShopTileSkeleton() {
   return (
-    <div className="w-full bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col aspect-[4/3] md:aspect-video">
+    <div className="w-full bg-white rounded-2xl border border-ink-100 overflow-hidden shadow-sm flex flex-col aspect-[4/3] md:aspect-video">
       <Skeleton className="w-full h-[70%] shrink-0" />
       <div className="h-[30%] p-4 flex flex-col justify-center gap-2">
         <Skeleton className="h-5 w-1/2 rounded" />
@@ -79,7 +79,7 @@ function PromoBanner({ data }: { data: typeof KITHLY_PROMOS[0] }) {
         <Shield className="w-6 h-6 text-white" strokeWidth={2} />
       </div>
       <h3 className="text-xl md:text-2xl font-bold mb-2 tracking-tight">{data.title}</h3>
-      <p className="text-sm md:text-base text-orange-50 max-w-lg font-medium leading-relaxed">
+      <p className="text-sm md:text-base text-brand-50 max-w-lg font-medium leading-relaxed">
         {data.subtitle}
       </p>
     </motion.div>
@@ -131,13 +131,13 @@ export function Home() {
   const activeBanner = banners[currentSlide] ?? null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-ink-50">
 
       {/* ── Header ──────────────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-ink-100">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-brand-500 to-danger-500 bg-clip-text text-transparent">
               KithLy
             </h1>
             <span className="text-sm text-muted-foreground">
@@ -145,9 +145,9 @@ export function Home() {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => { setIsNotificationsOpen(true); }} className="relative p-2 text-gray-500 hover:text-gray-700 transition-colors">
+            <button onClick={() => { setIsNotificationsOpen(true); }} className="relative p-2 text-ink-500 hover:text-ink-700 transition-colors">
               <Bell className="w-6 h-6" />
-              <span className="absolute top-0 right-0 h-2.5 w-2.5 rounded-full bg-gradient-to-tr from-orange-500 to-red-500 animate-pulse border border-white" />
+              <span className="absolute top-0 right-0 h-2.5 w-2.5 rounded-full bg-gradient-to-tr from-brand-500 to-danger-500 animate-pulse border border-white" />
             </button>
             <Button
               variant="ghost"
@@ -278,8 +278,8 @@ export function Home() {
       {/* ── Shop Discovery Section ── */}
       <div className="w-full max-w-[1400px] mx-auto px-6 py-8">
         <div ref={shopsSectionRef} className="mb-8 scroll-mt-20">
-          <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 mb-2">Popular Shops</h2>
-          <p className="text-gray-500">
+          <h2 className="text-3xl font-extrabold tracking-tight text-ink-900 mb-2">Popular Shops</h2>
+          <p className="text-ink-500">
             Choose from our curated local shops and send memorable experiences
           </p>
         </div>
@@ -318,10 +318,10 @@ export function Home() {
                   whileHover={{ scale: 1.02 }}
                   transition={{ duration: 0.25, ease: "easeInOut" }}
                   onClick={() => navigate(`/shop/${shop.id}`)}
-                  className="w-full min-h-[400px] md:h-[450px] bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm flex flex-col cursor-pointer relative"
+                  className="w-full min-h-[400px] md:h-[450px] bg-white rounded-2xl border border-ink-100 overflow-hidden shadow-sm flex flex-col cursor-pointer relative"
                 >
                   {/* Upper Section (75% height) */}
-                  <div className="w-full h-[75%] bg-gray-50 overflow-hidden relative shrink-0">
+                  <div className="w-full h-[75%] bg-ink-50 overflow-hidden relative shrink-0">
                     {shop.image_url ? (
                       <img
                         src={shop.image_url}
@@ -329,7 +329,7 @@ export function Home() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-orange-500 to-red-500 opacity-90 flex items-center justify-center">
+                      <div className="w-full h-full bg-gradient-to-br from-brand-500 to-danger-500 opacity-90 flex items-center justify-center">
                         <Store className="w-12 h-12 text-white/80" />
                       </div>
                     )}
@@ -340,12 +340,12 @@ export function Home() {
                   </div>
 
                   {/* Lower Section (25% height) */}
-                  <div className="w-full h-[25%] px-5 flex flex-col justify-center bg-white border-t border-gray-50 min-w-0">
-                    <h3 className="text-base md:text-xl font-extrabold text-gray-900 tracking-tight truncate">
+                  <div className="w-full h-[25%] px-5 flex flex-col justify-center bg-white border-t border-ink-50 min-w-0">
+                    <h3 className="text-base md:text-xl font-extrabold text-ink-900 tracking-tight truncate">
                       {shop.name}
                     </h3>
                     {shop.location && (
-                      <p className="text-xs md:text-sm text-gray-500 truncate mt-0.5">
+                      <p className="text-xs md:text-sm text-ink-500 truncate mt-0.5">
                         {shop.location}
                       </p>
                     )}
@@ -353,7 +353,7 @@ export function Home() {
                 </motion.div>
 
                 {(index + 1) % 6 === 0 && (
-                  <div className="col-span-2 lg:col-span-3 w-full min-h-[160px] md:h-[220px] my-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 text-white p-8 flex flex-col justify-center items-center text-center shadow-md overflow-hidden">
+                  <div className="col-span-2 lg:col-span-3 w-full min-h-[160px] md:h-[220px] my-6 rounded-2xl bg-gradient-to-r from-brand-500 to-danger-600 text-white p-8 flex flex-col justify-center items-center text-center shadow-md overflow-hidden">
                     <PromoBanner data={KITHLY_PROMOS[Math.floor(index / 6) % KITHLY_PROMOS.length]} />
                   </div>
                 )}
@@ -365,15 +365,15 @@ export function Home() {
 
       {/* ── Escrow Trust Banner ─────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-6 pb-16">
-        <div className="bg-gradient-to-r from-orange-500 to-red-600 rounded-2xl shadow-2xl p-10 my-12 flex flex-col md:flex-row items-center justify-center gap-8">
+        <div className="bg-gradient-to-r from-brand-500 to-danger-600 rounded-2xl shadow-2xl p-10 my-12 flex flex-col md:flex-row items-center justify-center gap-8">
           <div className="flex-shrink-0 bg-white/10 p-5 rounded-full backdrop-blur-sm border border-white/20 shadow-inner">
-            <Shield className="w-16 h-16 text-yellow-300 fill-yellow-300" />
+            <Shield className="w-16 h-16 text-warn-300 fill-warn-300" />
           </div>
           <div className="text-center md:text-left max-w-3xl">
             <h2 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight">
               100% Escrow Protected
             </h2>
-            <p className="text-orange-50 text-lg md:text-xl leading-relaxed font-medium">
+            <p className="text-brand-50 text-lg md:text-xl leading-relaxed font-medium">
               Every Kwacha is safely locked in the KithLy vault until the gift is physically collected at the shop. Zero risk. Full transparency.
             </p>
           </div>
@@ -382,20 +382,20 @@ export function Home() {
 
       {isNotificationsOpen && (
         <div className="fixed inset-y-0 right-0 z-50 w-80 bg-white shadow-2xl border-l flex flex-col transform transition-transform duration-300">
-          <div className="flex items-center justify-between p-4 border-b bg-gray-50">
-            <h3 className="font-semibold text-gray-800">Notifications</h3>
-            <button onClick={() => setIsNotificationsOpen(false)}><X className="w-5 h-5 text-gray-500" /></button>
+          <div className="flex items-center justify-between p-4 border-b bg-ink-50">
+            <h3 className="font-semibold text-ink-800">Notifications</h3>
+            <button onClick={() => setIsNotificationsOpen(false)}><X className="w-5 h-5 text-ink-500" /></button>
           </div>
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {notifications.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center mt-10">No recent activity.</p>
+              <p className="text-sm text-ink-500 text-center mt-10">No recent activity.</p>
             ) : (
               notifications.map(notif => (
-                <div key={notif.id} className="p-3 bg-green-50 border border-green-100 rounded-lg">
-                  <p className="text-sm text-green-800">
+                <div key={notif.id} className="p-3 bg-ok-50 border border-ok-100 rounded-lg">
+                  <p className="text-sm text-ok-800">
                     <strong>{notif.recipient_name}</strong> collected <strong>{notif.item?.name}</strong> from <strong>{notif.shop?.name}</strong>.
                   </p>
-                  <p className="text-xs text-green-600 mt-1 mt-1">
+                  <p className="text-xs text-ok-600 mt-1 mt-1">
                     {formatDate(notif.fulfilled_at)}
                   </p>
                 </div>

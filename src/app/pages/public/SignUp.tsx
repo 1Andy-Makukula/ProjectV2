@@ -121,7 +121,7 @@ export function SignUp() {
           className="absolute inset-0 w-full h-full object-cover"
         />
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-900/70 via-orange-700/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-900/70 via-brand-700/50 to-transparent" />
 
         {/* Overlay branding */}
         <div className="relative z-10 flex flex-col justify-end p-12 text-white">
@@ -131,7 +131,7 @@ export function SignUp() {
             transition={{ delay: 0.3, duration: 0.7 }}
           >
             <div className="flex items-center gap-3 mb-6">
-              <Gift className="w-8 h-8 text-orange-300" />
+              <Gift className="w-8 h-8 text-brand-300" />
               <span className="text-3xl font-bold tracking-tight">KithLy</span>
             </div>
             <h2 className="text-4xl font-bold leading-tight mb-4">
@@ -182,22 +182,22 @@ export function SignUp() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-3xl font-bold text-gray-900 mb-1">Create your account</h2>
-            <p className="text-gray-500 mb-8 text-sm">
+            <h2 className="text-3xl font-bold text-ink-900 mb-1">Create your account</h2>
+            <p className="text-ink-500 mb-8 text-sm">
               Free forever. No credit card needed.
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Error banner */}
               {errorMsg && (
-                <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
+                <div className="bg-danger-50 border border-danger-200 text-danger-700 rounded-xl px-4 py-3 text-sm">
                   {errorMsg}
                 </div>
               )}
 
               {/* Full Name */}
               <div>
-                <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="name" className="text-sm font-medium text-ink-700">
                   Full Name
                 </Label>
                 <Input
@@ -213,7 +213,7 @@ export function SignUp() {
 
               {/* Email */}
               <div>
-                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="email" className="text-sm font-medium text-ink-700">
                   Email address
                 </Label>
                 <Input
@@ -229,7 +229,7 @@ export function SignUp() {
 
               {/* Phone */}
               <div>
-                <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="phone" className="text-sm font-medium text-ink-700">
                   Phone Number
                 </Label>
                 <div className="mt-1">
@@ -243,7 +243,7 @@ export function SignUp() {
 
               {/* Location/City */}
               <div>
-                <Label htmlFor="location" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="location" className="text-sm font-medium text-ink-700">
                   Location / City
                 </Label>
                 <Input
@@ -259,7 +259,7 @@ export function SignUp() {
 
               {/* Password */}
               <div>
-                <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="password" className="text-sm font-medium text-ink-700">
                   Password
                 </Label>
                 <div className="relative mt-1">
@@ -275,7 +275,7 @@ export function SignUp() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 hover:text-ink-700 transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -284,7 +284,7 @@ export function SignUp() {
 
               {/* Confirm Password */}
               <div>
-                <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="confirmPassword" className="text-sm font-medium text-ink-700">
                   Confirm Password
                 </Label>
                 <div className="relative mt-1">
@@ -302,7 +302,7 @@ export function SignUp() {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400 hover:text-ink-700 transition-colors"
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="w-5 h-5" />
@@ -333,7 +333,7 @@ export function SignUp() {
               </Button>
 
               {/* Login link */}
-              <p className="text-center text-sm text-gray-500 pt-1">
+              <p className="text-center text-sm text-ink-500 pt-1">
                 Already have an account?{' '}
                 <Link
                   to="/login"

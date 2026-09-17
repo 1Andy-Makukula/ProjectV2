@@ -20,7 +20,7 @@ export function EmptyState({ icon: Icon, title, description, action }: EmptyStat
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col items-center justify-center py-16 px-4"
     >
-      <div className="w-20 h-20 mb-6 rounded-2xl bg-gray-100 flex items-center justify-center">
+      <div className="w-20 h-20 mb-6 rounded-2xl bg-ink-100 flex items-center justify-center">
         <Icon className="w-10 h-10 text-muted-foreground" strokeWidth={1.5} />
       </div>
       <h3 className="text-xl font-light text-black mb-2">{title}</h3>

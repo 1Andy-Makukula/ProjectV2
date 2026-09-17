@@ -35,7 +35,7 @@ import { ClaimHistory } from '../../components/features/ClaimHistory';
 
 function MetricCardSkeleton() {
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-3">
+    <div className="rounded-2xl border border-ink-100 bg-white p-6 shadow-sm space-y-3">
       <div className="flex items-center gap-4">
         <Skeleton className="h-12 w-12 rounded-full shrink-0" />
         <Skeleton className="h-4 w-32" />
@@ -64,7 +64,7 @@ function MetricCard({
   subLabel,
 }: MetricCardProps) {
   return (
-    <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+    <Card className="rounded-2xl border border-ink-100 shadow-sm hover:shadow-md transition-shadow">
       <CardHeader className="flex flex-row items-center gap-4 pb-2 space-y-0">
         <div
           className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${iconBg}`}
@@ -76,7 +76,7 @@ function MetricCard({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <p className="text-3xl font-bold text-gray-900 tracking-tight">
+        <p className="text-3xl font-bold text-ink-900 tracking-tight">
           {value}
         </p>
         {subLabel && (
@@ -106,33 +106,33 @@ const STATUS_CONFIG: Record<
 > = {
   pending_payment: {
     label: 'Pending',
-    dot: 'bg-amber-400',
-    pill: 'bg-amber-50 text-amber-700 ring-amber-200',
+    dot: 'bg-warn-400',
+    pill: 'bg-warn-50 text-warn-700 ring-warn-200',
   },
   paid: {
     label: 'Paid',
-    dot: 'bg-blue-400',
-    pill: 'bg-blue-50 text-blue-700 ring-blue-200',
+    dot: 'bg-info-400',
+    pill: 'bg-info-50 text-info-700 ring-info-200',
   },
   fulfilled: {
     label: 'Fulfilled',
-    dot: 'bg-green-400',
-    pill: 'bg-green-50 text-green-700 ring-green-200',
+    dot: 'bg-ok-400',
+    pill: 'bg-ok-50 text-ok-700 ring-ok-200',
   },
   completed: {
     label: 'Completed',
-    dot: 'bg-green-400',
-    pill: 'bg-green-50 text-green-700 ring-green-200',
+    dot: 'bg-ok-400',
+    pill: 'bg-ok-50 text-ok-700 ring-ok-200',
   },
   expired: {
     label: 'Expired',
-    dot: 'bg-gray-400',
-    pill: 'bg-gray-50 text-gray-500 ring-gray-200',
+    dot: 'bg-ink-400',
+    pill: 'bg-ink-50 text-ink-500 ring-ink-200',
   },
   cancelled: {
     label: 'Cancelled',
-    dot: 'bg-red-400',
-    pill: 'bg-red-50 text-red-700 ring-red-200',
+    dot: 'bg-danger-400',
+    pill: 'bg-danger-50 text-danger-700 ring-danger-200',
   },
 };
 
@@ -205,22 +205,22 @@ export function CustomerDashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-ink-50">
 
       {/* A failed load is not an empty history. Without this the page shows
           "0 gifts delivered" against someone's own record of sending them. */}
       {error && (
-        <div className="bg-amber-50 border-b border-amber-200">
+        <div className="bg-warn-50 border-b border-warn-200">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" strokeWidth={1.5} />
+            <AlertCircle className="h-5 w-5 text-warn-600 shrink-0 mt-0.5" strokeWidth={1.5} />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-amber-900">Some of this page did not load</p>
-              <p className="text-sm text-amber-800">{error}</p>
+              <p className="text-sm font-medium text-warn-900">Some of this page did not load</p>
+              <p className="text-sm text-warn-800">{error}</p>
             </div>
             <Button
               size="sm"
               variant="outline"
-              className="shrink-0 border-amber-300 bg-white"
+              className="shrink-0 border-warn-300 bg-white"
               onClick={() => window.location.reload()}
             >
               Retry
@@ -259,17 +259,17 @@ export function CustomerDashboard() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg shadow-sm flex items-center justify-between"
+              className="bg-ok-50 border-l-4 border-ok-500 p-4 rounded-r-lg shadow-sm flex items-center justify-between"
             >
               <div className="flex items-center gap-3">
-                <Bell className="h-5 w-5 text-green-600" />
-                <p className="text-sm font-medium text-green-800">
+                <Bell className="h-5 w-5 text-ok-600" />
+                <p className="text-sm font-medium text-ok-800">
                   {latestNotification.message}
                 </p>
               </div>
               <button 
                 onClick={() => setLatestNotification(null)}
-                className="text-green-600 hover:bg-green-100 p-1 rounded-full transition-colors"
+                className="text-ok-600 hover:bg-ok-100 p-1 rounded-full transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -288,7 +288,7 @@ export function CustomerDashboard() {
               Your Giving
             </span>
           </div>
-          <h2 className="text-2xl font-semibold text-gray-900">
+          <h2 className="text-2xl font-semibold text-ink-900">
             Your Giving at a Glance
           </h2>
           <p className="mt-1 text-muted-foreground text-sm">
@@ -313,8 +313,8 @@ export function CustomerDashboard() {
               >
                 <MetricCard
                   icon={TrendingUp}
-                  iconBg="bg-orange-100"
-                  iconColor="text-orange-600"
+                  iconBg="bg-brand-100"
+                  iconColor="text-brand-600"
                   label="Total Generosity"
                   value={formatCurrency(totalGenerosity, 'ZMW')}
                   subLabel="Cumulative value of gifts sent"
@@ -343,8 +343,8 @@ export function CustomerDashboard() {
               >
                 <MetricCard
                   icon={Store}
-                  iconBg="bg-amber-100"
-                  iconColor="text-amber-600"
+                  iconBg="bg-warn-100"
+                  iconColor="text-warn-600"
                   label="Local Shops Supported"
                   value={shopsSupported}
                   subLabel="Unique merchants benefited"
@@ -355,7 +355,7 @@ export function CustomerDashboard() {
         </div>
 
         {/* ── Top-level P2P panel toggle ── */}
-        <div className="flex w-full items-center gap-1 rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur-md p-1 shadow-sm mb-2">
+        <div className="flex w-full items-center gap-1 rounded-2xl border border-ink-200/80 bg-white/70 backdrop-blur-md p-1 shadow-sm mb-2">
           {([['sending', Send, 'Sending Details'], ['receiving', Inbox, 'Receiving Details'], ['preparing', PiggyBank, 'Budgets & Watches']] as const).map(([panel, Icon, label]) => (
             <button
               key={panel}
@@ -364,7 +364,7 @@ export function CustomerDashboard() {
               className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 min-h-[44px] ${
                 activePanel === panel
                   ? 'kl-gradient-brand text-white shadow-sm'
-                  : 'text-slate-500 hover:text-slate-800'
+                  : 'text-ink-500 hover:text-ink-800'
               }`}
             >
               <Icon className="h-4 w-4 shrink-0" />
@@ -396,7 +396,7 @@ export function CustomerDashboard() {
             {loadingOrders ? (
               <div className="space-y-4">
                 {[1, 2].map((i) => (
-                  <div key={i} className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
+                  <div key={i} className="rounded-2xl border border-ink-100 bg-white p-6 shadow-sm space-y-4">
                     <div className="flex items-center justify-between">
                       <Skeleton className="h-4 w-1/4" />
                       <Skeleton className="h-6 w-20 rounded-full" />
@@ -428,8 +428,8 @@ export function CustomerDashboard() {
                   const isPendingPayment = displayStatus === 'pending_payment';
                   const statusCfg = STATUS_CONFIG[displayStatus] ?? {
                     label: displayStatus,
-                    dot: 'bg-gray-400',
-                    pill: 'bg-gray-50 text-gray-500 ring-gray-200',
+                    dot: 'bg-ink-400',
+                    pill: 'bg-ink-50 text-ink-500 ring-ink-200',
                   };
 
                   return (
@@ -438,9 +438,9 @@ export function CustomerDashboard() {
                       initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: idx * 0.05 }}
-                      className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-300"
+                      className="group rounded-2xl border border-ink-100 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-300"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-50 pb-4 mb-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-ink-50 pb-4 mb-4">
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span>Order #{order.transaction_id.slice(0, 8)}</span>
                           <span>•</span>
@@ -457,7 +457,7 @@ export function CustomerDashboard() {
                               const remaining = calculateTimeRemaining(order.created_at);
                               return (
                                 <div className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${
-                                  remaining.isUrgent ? 'text-red-600 bg-red-50 ring-1 ring-red-100 animate-pulse' : 'text-slate-500 bg-slate-50 ring-1 ring-slate-100'
+                                  remaining.isUrgent ? 'text-danger-600 bg-danger-50 ring-1 ring-danger-100 animate-pulse' : 'text-ink-500 bg-ink-50 ring-1 ring-ink-100'
                                 }`}>
                                   <Clock className="h-3 w-3" />
                                   <span>{remaining.text}</span>
@@ -485,7 +485,7 @@ export function CustomerDashboard() {
                                       transform: `translate(${offsetLeft}px, ${offsetTop}px)`,
                                       zIndex: 10 - idx,
                                     }}
-                                    className="absolute inset-y-0 left-0 h-13 w-13 overflow-hidden rounded-xl bg-slate-100 border border-white shadow-sm flex items-center justify-center transition-transform group-hover:scale-102"
+                                    className="absolute inset-y-0 left-0 h-13 w-13 overflow-hidden rounded-xl bg-ink-100 border border-white shadow-sm flex items-center justify-center transition-transform group-hover:scale-102"
                                   >
                                     <img
                                       src={imgUrl}
@@ -493,7 +493,7 @@ export function CustomerDashboard() {
                                       className="h-full w-full object-cover"
                                     />
                                     {isLast && hasMore && (
-                                      <div className="absolute inset-0 bg-slate-900/60 flex items-center justify-center">
+                                      <div className="absolute inset-0 bg-ink-900/60 flex items-center justify-center">
                                         <span className="text-white text-[10px] font-semibold">+{order.item_images.length - 3}</span>
                                       </div>
                                     )}
@@ -501,7 +501,7 @@ export function CustomerDashboard() {
                                 );
                               })
                             ) : order.item_image_url ? (
-                              <div className="h-16 w-16 overflow-hidden rounded-xl bg-slate-100 border border-gray-100 flex items-center justify-center">
+                              <div className="h-16 w-16 overflow-hidden rounded-xl bg-ink-100 border border-ink-100 flex items-center justify-center">
                                 <img
                                   src={order.item_image_url}
                                   alt={order.item_name || 'Gift'}
@@ -509,31 +509,31 @@ export function CustomerDashboard() {
                                 />
                               </div>
                             ) : (
-                              <div className="h-16 w-16 rounded-xl bg-slate-100 border border-gray-100 flex items-center justify-center">
-                                <Gift className="h-6 w-6 text-slate-300" />
+                              <div className="h-16 w-16 rounded-xl bg-ink-100 border border-ink-100 flex items-center justify-center">
+                                <Gift className="h-6 w-6 text-ink-300" />
                               </div>
                             )}
                           </div>
                           <div className="space-y-1">
-                            <h4 className="text-sm font-semibold text-gray-900 leading-snug">
+                            <h4 className="text-sm font-semibold text-ink-900 leading-snug">
                               {order.item_name || 'KithLy Gift Bundle'}
                             </h4>
                             <p className="text-xs text-muted-foreground">
-                              Recipient: <span className="font-medium text-gray-700">{order.recipient_name || 'Gift Recipient'}</span>
+                              Recipient: <span className="font-medium text-ink-700">{order.recipient_name || 'Gift Recipient'}</span>
                             </p>
                             {order.shop_name && (
                               <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                <Store className="h-3 w-3 text-slate-400" />
+                                <Store className="h-3 w-3 text-ink-400" />
                                 <span>{order.shop_name}</span>
                               </p>
                             )}
                           </div>
                         </div>
 
-                        <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-4 border-t md:border-t-0 pt-4 md:pt-0 border-gray-50">
+                        <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-4 border-t md:border-t-0 pt-4 md:pt-0 border-ink-50">
                           <div className="text-left md:text-right">
                             <p className="text-xs text-muted-foreground">Total Price</p>
-                            <p className="text-base font-bold text-gray-900">
+                            <p className="text-base font-bold text-ink-900">
                               {formatCurrency(order.total_amount, 'ZMW')}
                             </p>
                           </div>
@@ -553,7 +553,7 @@ export function CustomerDashboard() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => navigate(`/receipt/${order.transaction_id}`)}
-                                className="text-xs font-semibold rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all flex items-center gap-1"
+                                className="text-xs font-semibold rounded-xl text-ink-500 hover:text-ink-900 hover:bg-ink-50 transition-all flex items-center gap-1"
                               >
                                 <Receipt className="h-3.5 w-3.5" />
                                 <span>View Receipt</span>
@@ -585,8 +585,8 @@ export function CustomerDashboard() {
                       </div>
 
                       {isPendingPayment && (
-                        <div className="mt-4 flex items-center gap-2 rounded-xl bg-amber-50/50 border border-amber-100/50 px-4 py-3 text-amber-800 text-xs">
-                          <AlertCircle className="h-4 w-4 text-amber-600 shrink-0" />
+                        <div className="mt-4 flex items-center gap-2 rounded-xl bg-warn-50/50 border border-warn-100/50 px-4 py-3 text-warn-800 text-xs">
+                          <AlertCircle className="h-4 w-4 text-warn-600 shrink-0" />
                           <div className="flex-1">
                             <span className="font-semibold">Payment Incomplete:</span> We haven't received confirmation for this order yet. You can complete the checkout now.
                           </div>
@@ -613,7 +613,7 @@ export function CustomerDashboard() {
             ) : loadingFloating ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[1, 2].map((i) => (
-                  <div key={i} className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm space-y-4">
+                  <div key={i} className="rounded-2xl border border-ink-100 bg-white p-6 shadow-sm space-y-4">
                     <div className="flex items-center gap-4">
                       <Skeleton className="h-16 w-16 rounded-xl shrink-0" />
                       <div className="space-y-2 flex-1">
@@ -639,10 +639,10 @@ export function CustomerDashboard() {
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: idx * 0.05 }}
-                    className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+                    className="group rounded-2xl border border-ink-100 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-slate-100">
+                      <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-ink-100">
                         {item.items?.image_url ? (
                           <img
                             src={item.items.image_url}
@@ -651,16 +651,16 @@ export function CustomerDashboard() {
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center">
-                            <Gift className="h-6 w-6 text-slate-300" />
+                            <Gift className="h-6 w-6 text-ink-300" />
                           </div>
                         )}
                       </div>
                       <div className="space-y-1.5 flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 truncate leading-snug">
+                        <h3 className="font-semibold text-ink-900 truncate leading-snug">
                           {item.items?.name || 'Unspecified Gift'}
                         </h3>
                         <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                          <div className="inline-flex items-center gap-1.5 rounded-full bg-orange-50 px-2.5 py-0.5 text-xs font-semibold text-orange-600 ring-1 ring-orange-100">
+                          <div className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-600 ring-1 ring-brand-100">
                             <Lock className="h-3.5 w-3.5" />
                             <span>Locked Value: {formatCurrency(item.allocated_price, 'ZMW')}</span>
                           </div>
@@ -669,7 +669,7 @@ export function CustomerDashboard() {
                             const remaining = calculateTimeRemaining(item.created_at);
                             return (
                               <div className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full ${
-                                remaining.isUrgent ? 'text-red-600 bg-red-50 ring-1 ring-red-100 animate-pulse' : 'text-slate-500 bg-slate-50 ring-1 ring-slate-100'
+                                remaining.isUrgent ? 'text-danger-600 bg-danger-50 ring-1 ring-danger-100 animate-pulse' : 'text-ink-500 bg-ink-50 ring-1 ring-ink-100'
                               }`}>
                                 <Clock className="h-3 w-3" />
                                 <span>{remaining.text}</span>
@@ -687,7 +687,7 @@ export function CustomerDashboard() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="w-full text-xs font-medium rounded-xl hover:bg-slate-50"
+                        className="w-full text-xs font-medium rounded-xl hover:bg-ink-50"
                         onClick={() => {
                           setSelectedClaimCode(item.child_claim_code);
                           setIsModalOpen(true);
@@ -699,7 +699,7 @@ export function CustomerDashboard() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="w-full text-xs font-medium text-slate-400 hover:text-slate-600 rounded-xl"
+                        className="w-full text-xs font-medium text-ink-400 hover:text-ink-600 rounded-xl"
                         disabled={convertingItemId !== null}
                         onClick={() => handleConvert(item)}
                       >
@@ -730,7 +730,7 @@ export function CustomerDashboard() {
             ) : loadingReceived ? (
               <div className="space-y-8">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm space-y-4">
+                  <div key={i} className="rounded-3xl border border-ink-100 bg-white p-6 shadow-sm space-y-4">
                     <Skeleton className="h-5 w-32" />
                     <Skeleton className="h-40 w-full rounded-2xl" />
                     <Skeleton className="h-10 w-full rounded-xl" />
@@ -759,7 +759,7 @@ export function CustomerDashboard() {
                   <section>
                     <div className="flex items-center gap-2 mb-4">
                       <QrCode className="h-4 w-4 text-primary" />
-                      <h3 className="text-sm font-semibold uppercase tracking-widest text-slate-700">Active Vouchers</h3>
+                      <h3 className="text-sm font-semibold uppercase tracking-widest text-ink-700">Active Vouchers</h3>
                       {activeVouchers.length > 0 && (
                         <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
                           {activeVouchers.length}
@@ -777,8 +777,8 @@ export function CustomerDashboard() {
                   {/* Claim History */}
                   <section>
                     <div className="flex items-center gap-2 mb-4">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                      <h3 className="text-sm font-semibold uppercase tracking-widest text-slate-400">Claim History</h3>
+                      <CheckCircle2 className="h-4 w-4 text-ok-500" />
+                      <h3 className="text-sm font-semibold uppercase tracking-widest text-ink-400">Claim History</h3>
                     </div>
 
                     <ClaimHistory claimHistory={claimHistory} />
@@ -806,19 +806,19 @@ export function CustomerDashboard() {
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogContent className="sm:max-w-md text-center p-8 rounded-3xl">
             <DialogHeader className="space-y-3 flex flex-col items-center">
-              <DialogTitle className="text-xl font-bold text-gray-900 tracking-tight">
+              <DialogTitle className="text-xl font-bold text-ink-900 tracking-tight">
                 Redemption QR Code
               </DialogTitle>
-              <DialogDescription className="text-sm text-slate-500 max-w-xs leading-relaxed">
+              <DialogDescription className="text-sm text-ink-500 max-w-xs leading-relaxed">
                 Show this code to the cashier to claim your item.
               </DialogDescription>
             </DialogHeader>
 
-            <div className="my-6 flex flex-col items-center justify-center p-6 bg-slate-50 rounded-2xl border border-slate-100">
+            <div className="my-6 flex flex-col items-center justify-center p-6 bg-ink-50 rounded-2xl border border-ink-100">
               {selectedClaimCode && (
                 <>
                   <QRCodeDisplay value={selectedClaimCode} size={180} />
-                  <p className="mt-4 font-mono text-lg font-bold tracking-[0.25em] text-slate-900 select-all selection:bg-orange-100">
+                  <p className="mt-4 font-mono text-lg font-bold tracking-[0.25em] text-ink-900 select-all selection:bg-brand-100">
                     {selectedClaimCode}
                   </p>
                 </>

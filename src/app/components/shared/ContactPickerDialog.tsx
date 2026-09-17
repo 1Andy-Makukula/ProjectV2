@@ -82,7 +82,7 @@ export function ContactPickerDialog({ open, onOpenChange, onPick }: ContactPicke
             <p className="py-6 text-center text-sm text-muted-foreground">Loading…</p>
           ) : savedShown.length === 0 && suggestedShown.length === 0 ? (
             <div className="py-8 text-center">
-              <Users className="mx-auto mb-2 size-8 text-slate-300" strokeWidth={1} />
+              <Users className="mx-auto mb-2 size-8 text-ink-300" strokeWidth={1} />
               <p className="text-sm text-muted-foreground">
                 {needle
                   ? 'Nobody matches that.'

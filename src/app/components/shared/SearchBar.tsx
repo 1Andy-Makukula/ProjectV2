@@ -27,13 +27,13 @@ export function SearchBar() {
   return (
     <div ref={wrapperRef} className="relative w-full max-w-md z-50">
       {/* The Input Field */}
-      <div className="relative flex items-center w-full h-10 rounded-full focus-within:shadow-lg bg-gray-100/80 backdrop-blur-md overflow-hidden transition-all">
-        <div className="grid place-items-center h-full w-12 text-gray-400">
+      <div className="relative flex items-center w-full h-10 rounded-full focus-within:shadow-lg bg-ink-100/80 backdrop-blur-md overflow-hidden transition-all">
+        <div className="grid place-items-center h-full w-12 text-ink-400">
           {isSearching ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
         </div>
 
         <input
-          className="peer h-full w-full outline-none text-sm text-gray-700 bg-transparent pr-2"
+          className="peer h-full w-full outline-none text-sm text-ink-700 bg-transparent pr-2"
           type="text"
           id="search"
           placeholder="Search KithLy..."
@@ -47,7 +47,7 @@ export function SearchBar() {
         {query && (
           <button 
             onClick={() => setQuery('')}
-            className="grid place-items-center h-full w-12 text-gray-400 hover:text-gray-600"
+            className="grid place-items-center h-full w-12 text-ink-400 hover:text-ink-600"
           >
             <X className="w-4 h-4" />
           </button>
@@ -56,9 +56,9 @@ export function SearchBar() {
 
       {/* The Dropdown Results Panel */}
       {isFocused && query.trim().length > 0 && (
-        <div className="absolute top-12 left-0 w-full bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-100 overflow-hidden max-h-96 overflow-y-auto">
+        <div className="absolute top-12 left-0 w-full bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-ink-100 overflow-hidden max-h-96 overflow-y-auto">
           {results.length === 0 && !isSearching ? (
-            <div className="p-4 text-center text-gray-500 text-sm">
+            <div className="p-4 text-center text-ink-500 text-sm">
               No results found for "{query}"
             </div>
           ) : (
@@ -71,9 +71,9 @@ export function SearchBar() {
                     setIsFocused(false);
                     setQuery('');
                   }}
-                  className="flex items-center gap-4 p-3 hover:bg-orange-50 cursor-pointer transition-colors border-b border-gray-50 last:border-0"
+                  className="flex items-center gap-4 p-3 hover:bg-brand-50 cursor-pointer transition-colors border-b border-ink-50 last:border-0"
                 >
-                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-ink-100 flex-shrink-0">
                     <ImageWithFallback
                       src={item.image_url || ''} 
                       alt={item.name || item.title || ''} 
@@ -81,12 +81,12 @@ export function SearchBar() {
                     />
                   </div>
                   <div className="flex flex-col flex-1">
-                    <span className="text-sm font-semibold text-gray-900 line-clamp-1">
+                    <span className="text-sm font-semibold text-ink-900 line-clamp-1">
                       {item.name || item.title || ''}
                     </span>
-                    <span className="text-xs text-gray-500">@ {item.shopName}</span>
+                    <span className="text-xs text-ink-500">@ {item.shopName}</span>
                   </div>
-                  <span className="text-sm font-semibold text-orange-600 shrink-0">
+                  <span className="text-sm font-semibold text-brand-600 shrink-0">
                     {formatCurrency(item.price_zmw)}
                   </span>
                 </li>

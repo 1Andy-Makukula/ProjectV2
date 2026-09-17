@@ -136,11 +136,11 @@ const STATUS_CONFIG: Record<
   DisplayStatus,
   { label: string; icon: typeof Clock; color: string; bg: string; border: string; dot: string }
 > = {
-  pending_payment: { label: 'Payment Pending', icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200', dot: 'bg-amber-400' },
-  paid:            { label: 'Payment Confirmed', icon: CheckCircle2, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200', dot: 'bg-blue-400' },
-  fulfilled:       { label: 'Gift Collected', icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200', dot: 'bg-green-400' },
-  cancelled:       { label: 'Cancelled', icon: AlertCircle, color: 'text-red-500', bg: 'bg-red-50', border: 'border-red-200', dot: 'bg-red-400' },
-  expired:         { label: 'Expired', icon: AlertCircle, color: 'text-slate-500', bg: 'bg-slate-50', border: 'border-slate-200', dot: 'bg-slate-400' },
+  pending_payment: { label: 'Payment Pending', icon: Clock, color: 'text-warn-600', bg: 'bg-warn-50', border: 'border-warn-200', dot: 'bg-warn-400' },
+  paid:            { label: 'Payment Confirmed', icon: CheckCircle2, color: 'text-info-600', bg: 'bg-info-50', border: 'border-info-200', dot: 'bg-info-400' },
+  fulfilled:       { label: 'Gift Collected', icon: CheckCircle2, color: 'text-ok-600', bg: 'bg-ok-50', border: 'border-ok-200', dot: 'bg-ok-400' },
+  cancelled:       { label: 'Cancelled', icon: AlertCircle, color: 'text-danger-500', bg: 'bg-danger-50', border: 'border-danger-200', dot: 'bg-danger-400' },
+  expired:         { label: 'Expired', icon: AlertCircle, color: 'text-ink-500', bg: 'bg-ink-50', border: 'border-ink-200', dot: 'bg-ink-400' },
 };
 
 function InfoRow({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
@@ -151,7 +151,7 @@ function InfoRow({ icon: Icon, label, value }: { icon: React.ElementType; label:
       </div>
       <div>
         <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="text-sm font-medium text-gray-900">{value}</p>
+        <p className="text-sm font-medium text-ink-900">{value}</p>
       </div>
     </div>
   );
@@ -159,7 +159,7 @@ function InfoRow({ icon: Icon, label, value }: { icon: React.ElementType; label:
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-ink-100 bg-white p-5 shadow-sm">
       <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
         {title}
       </h3>
@@ -223,12 +223,12 @@ function EscrowRelease({
   return (
     <Section title="Escrow Release">
       {isDisputed ? (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+        <div className="rounded-xl border border-warn-200 bg-warn-50 p-4">
           <div className="flex items-start gap-3">
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-warn-600" />
             <div>
-              <p className="text-sm font-medium text-amber-900">Under review</p>
-              <p className="mt-1 text-xs leading-relaxed text-amber-700">
+              <p className="text-sm font-medium text-warn-900">Under review</p>
+              <p className="mt-1 text-xs leading-relaxed text-warn-700">
                 You reported a problem on{' '}
                 {new Date(shopOrder.disputed_at!).toLocaleString()}. Payment to the
                 shop is on hold until our team resolves it.
@@ -238,10 +238,10 @@ function EscrowRelease({
         </div>
       ) : (
         <>
-          <div className="flex items-center justify-between gap-4 rounded-xl border border-gray-100 bg-gray-50/60 p-4">
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-ink-100 bg-ink-50/60 p-4">
             <div>
               <p className="text-xs text-muted-foreground">Funds release to the shop in</p>
-              <p className="mt-0.5 font-mono text-sm font-semibold tabular-nums text-gray-900">
+              <p className="mt-0.5 font-mono text-sm font-semibold tabular-nums text-ink-900">
                 {countdown}
               </p>
             </div>
@@ -497,7 +497,7 @@ export function OrderDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-ink-50">
         <div className="sticky top-0 z-10 border-b bg-white/80 backdrop-blur-sm">
           <div className="mx-auto max-w-2xl px-6 py-4">
             <Skeleton className="h-7 w-32" />
@@ -520,7 +520,7 @@ export function OrderDetail() {
   const StatusIcon = statusCfg.icon;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-ink-50">
       {/* Header */}
       <div className="sticky top-0 z-10 border-b bg-white/90 backdrop-blur-sm">
         <div className="mx-auto max-w-2xl px-6 py-4 flex items-center gap-3">
@@ -532,7 +532,7 @@ export function OrderDetail() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-base font-semibold text-gray-900">Order Detail</h1>
+            <h1 className="text-base font-semibold text-ink-900">Order Detail</h1>
             <p className="font-mono text-xs text-muted-foreground">
               #{firstShopOrder?.claim_code ?? transaction.transaction_id.slice(0, 8)}
             </p>
@@ -551,12 +551,12 @@ export function OrderDetail() {
           <div>
             <p className={`text-sm font-semibold ${statusCfg.color}`}>{statusCfg.label}</p>
             {displayStatus === 'pending_payment' && (
-              <p className="text-xs text-amber-600/80">
+              <p className="text-xs text-warn-600/80">
                 Complete your payment to secure this gift in escrow.
               </p>
             )}
             {displayStatus === 'paid' && (
-              <p className="text-xs text-blue-600/80">
+              <p className="text-xs text-info-600/80">
                 Your gift is secured. Recipient can collect using the claim code.
               </p>
             )}
@@ -566,7 +566,7 @@ export function OrderDetail() {
               size="sm"
               onClick={handleResumePayment}
               disabled={resumingPayment}
-              className="ml-auto bg-amber-500 hover:bg-amber-600 text-white shadow-md"
+              className="ml-auto bg-warn-500 hover:bg-warn-600 text-white shadow-md"
             >
               {resumingPayment ? (
                 <><Loader2 className="h-3 w-3 animate-spin mr-1" /> Loading...</>
@@ -585,51 +585,51 @@ export function OrderDetail() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.06 }}
-              className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-md hover:shadow-lg transition-all duration-350"
+              className="overflow-hidden rounded-3xl border border-ink-100 bg-white shadow-md hover:shadow-lg transition-all duration-350"
             >
               {/* Product list in a scrollable container */}
-              <div className="flex flex-col divide-y divide-gray-100 max-h-[340px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200">
+              <div className="flex flex-col divide-y divide-ink-100 max-h-[340px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-ink-200">
                 {shopOrder?.order_items?.map((orderItem) => {
                   const { item, fulfillment_status } = orderItem;
                   return (
-                    <div key={item?.id} className="flex gap-4 p-5 hover:bg-slate-50/30 transition-colors duration-200">
-                      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-gray-50 border border-gray-100/70 shadow-inner flex items-center justify-center">
+                    <div key={item?.id} className="flex gap-4 p-5 hover:bg-ink-50/30 transition-colors duration-200">
+                      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-ink-50 border border-ink-100/70 shadow-inner flex items-center justify-center">
                         {item?.image_url ? (
                           <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center">
-                            <Package className="h-8 w-8 text-gray-300" />
+                            <Package className="h-8 w-8 text-ink-300" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0 flex flex-col justify-between">
                         <div>
                           <div className="flex items-start justify-between gap-2">
-                            <p className="font-bold text-gray-900 text-sm truncate leading-snug">{item?.name}</p>
+                            <p className="font-bold text-ink-900 text-sm truncate leading-snug">{item?.name}</p>
                             
                             <span className={cn(
                               "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider border shadow-sm",
-                              fulfillment_status === 'COLLECTED' ? 'bg-green-50 text-green-700 border-green-200' :
-                              fulfillment_status === 'MISSING' ? 'bg-red-50 text-red-700 border-red-200' :
-                              fulfillment_status === 'FLOATING' ? 'bg-orange-50 text-orange-700 border-orange-200' :
-                              fulfillment_status === 'CONVERTED' ? 'bg-slate-50 text-slate-700 border-slate-200' :
-                              fulfillment_status === 'EXPIRED' ? 'bg-gray-50 text-gray-500 border-gray-200' :
-                              'bg-amber-50 text-amber-700 border-amber-200'
+                              fulfillment_status === 'COLLECTED' ? 'bg-ok-50 text-ok-700 border-ok-200' :
+                              fulfillment_status === 'MISSING' ? 'bg-danger-50 text-danger-700 border-danger-200' :
+                              fulfillment_status === 'FLOATING' ? 'bg-brand-50 text-brand-700 border-brand-200' :
+                              fulfillment_status === 'CONVERTED' ? 'bg-ink-50 text-ink-700 border-ink-200' :
+                              fulfillment_status === 'EXPIRED' ? 'bg-ink-50 text-ink-500 border-ink-200' :
+                              'bg-warn-50 text-warn-700 border-warn-200'
                             )}>
                               <span className={cn("h-1 w-1 rounded-full",
-                                fulfillment_status === 'COLLECTED' ? 'bg-green-500' :
-                                fulfillment_status === 'MISSING' ? 'bg-red-500' :
-                                fulfillment_status === 'FLOATING' ? 'bg-orange-500' :
-                                fulfillment_status === 'CONVERTED' ? 'bg-slate-500' :
-                                fulfillment_status === 'EXPIRED' ? 'bg-gray-400' :
-                                'bg-amber-500'
+                                fulfillment_status === 'COLLECTED' ? 'bg-ok-500' :
+                                fulfillment_status === 'MISSING' ? 'bg-danger-500' :
+                                fulfillment_status === 'FLOATING' ? 'bg-brand-500' :
+                                fulfillment_status === 'CONVERTED' ? 'bg-ink-500' :
+                                fulfillment_status === 'EXPIRED' ? 'bg-ink-400' :
+                                'bg-warn-500'
                               )} />
                               {ITEM_STATUS_LABELS[fulfillment_status] ?? fulfillment_status}
                             </span>
                           </div>
                           
                           {item?.description && (
-                            <p className="mt-1 text-xs text-slate-500 line-clamp-2 leading-relaxed">{item.description}</p>
+                            <p className="mt-1 text-xs text-ink-500 line-clamp-2 leading-relaxed">{item.description}</p>
                           )}
                         </div>
                         
@@ -644,7 +644,7 @@ export function OrderDetail() {
                               return (
                                 <div className={cn(
                                   "inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border shadow-sm",
-                                  remaining.isUrgent ? 'text-red-600 bg-red-50 border-red-150 animate-pulse font-semibold' : 'text-slate-500 bg-slate-50 border-slate-100'
+                                  remaining.isUrgent ? 'text-danger-600 bg-danger-50 border-red-150 animate-pulse font-semibold' : 'text-ink-500 bg-ink-50 border-ink-100'
                                 )}>
                                   <Clock className="h-3.5 w-3.5" />
                                   <span>{remaining.text}</span>
@@ -660,12 +660,12 @@ export function OrderDetail() {
               </div>
 
               {/* Claim code - Styled like a premium coupon/ticket */}
-              <div className="border-t border-b border-dashed border-gray-200 bg-gradient-to-br from-orange-50/60 to-amber-50/30 px-6 py-5">
-                <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-orange-500">
+              <div className="border-t border-b border-dashed border-ink-200 bg-gradient-to-br from-brand-50/60 to-warn-50/30 px-6 py-5">
+                <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-brand-500">
                   Claim Code
                 </p>
                 <div className="flex items-center gap-3">
-                  <span className="flex-1 font-mono text-2xl font-black tracking-[0.25em] text-orange-600 select-all selection:bg-orange-100">
+                  <span className="flex-1 font-mono text-2xl font-black tracking-[0.25em] text-brand-600 select-all selection:bg-brand-100">
                     {shopOrder.claim_code}
                   </span>
                   <Button
@@ -673,7 +673,7 @@ export function OrderDetail() {
                     size="icon"
                     onClick={() => copyToClipboard(shopOrder.claim_code, 'Claim code')}
                     title="Copy claim code"
-                    className="h-9 w-9 rounded-xl hover:bg-orange-100/50 hover:text-orange-600 transition-colors"
+                    className="h-9 w-9 rounded-xl hover:bg-brand-100/50 hover:text-brand-600 transition-colors"
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
@@ -682,7 +682,7 @@ export function OrderDetail() {
                     size="icon"
                     onClick={() => window.open(giftUrl, '_blank')}
                     title="Open gift page"
-                    className="h-9 w-9 rounded-xl hover:bg-orange-100/50 hover:text-orange-600 transition-colors"
+                    className="h-9 w-9 rounded-xl hover:bg-brand-100/50 hover:text-brand-600 transition-colors"
                   >
                     <ExternalLink className="h-4 w-4" />
                   </Button>
@@ -690,7 +690,7 @@ export function OrderDetail() {
               </div>
 
               {/* Shop details */}
-              <div className="space-y-3.5 px-6 py-5 bg-slate-50/30">
+              <div className="space-y-3.5 px-6 py-5 bg-ink-50/30">
                 <InfoRow icon={MapPin} label="Shop" value={shopOrder.shop.name} />
                 {shopOrder.shop.location && (
                   <InfoRow icon={MapPin} label="Location" value={shopOrder.shop.location} />
@@ -730,7 +730,7 @@ export function OrderDetail() {
               <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/8 text-primary">
                 <MessageSquare className="h-4 w-4" />
               </div>
-              <p className="text-sm italic leading-relaxed text-gray-700">
+              <p className="text-sm italic leading-relaxed text-ink-700">
                 &quot;{firstShopOrder.message}&quot;
               </p>
             </div>
@@ -760,7 +760,7 @@ export function OrderDetail() {
             <Button
               variant="outline"
               size="sm"
-              className="w-full text-xs font-semibold rounded-xl hover:bg-slate-50 flex items-center justify-center gap-1.5 border border-primary/20 hover:border-primary/40 text-primary transition-all duration-200"
+              className="w-full text-xs font-semibold rounded-xl hover:bg-ink-50 flex items-center justify-center gap-1.5 border border-primary/20 hover:border-primary/40 text-primary transition-all duration-200"
               onClick={() => navigate(`/receipt/${transaction.transaction_id}`)}
             >
               <Receipt className="h-3.5 w-3.5" />

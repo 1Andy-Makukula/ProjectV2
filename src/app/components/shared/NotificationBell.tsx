@@ -34,22 +34,22 @@ interface NotificationBellProps {
 function iconFor(type: string) {
   switch (type) {
     case 'success':
-      return <CheckCircle2 className="h-4 w-4 text-emerald-500" strokeWidth={2} />;
+      return <CheckCircle2 className="h-4 w-4 text-ok-500" strokeWidth={2} />;
     case 'warning':
-      return <AlertTriangle className="h-4 w-4 text-amber-500" strokeWidth={2} />;
+      return <AlertTriangle className="h-4 w-4 text-warn-500" strokeWidth={2} />;
     case 'rejection':
-      return <XCircle className="h-4 w-4 text-red-500" strokeWidth={2} />;
+      return <XCircle className="h-4 w-4 text-danger-500" strokeWidth={2} />;
     case 'message':
-      return <MessageSquare className="h-4 w-4 text-blue-500" strokeWidth={2} />;
+      return <MessageSquare className="h-4 w-4 text-info-500" strokeWidth={2} />;
     case 'reminder':
-      return <Clock className="h-4 w-4 text-orange-500" strokeWidth={2} />;
+      return <Clock className="h-4 w-4 text-brand-500" strokeWidth={2} />;
     case 'occasion_reminder':
       return <CalendarHeart className="h-4 w-4 text-primary" strokeWidth={2} />;
     case 'announcement':
     case 'promo':
-      return <Megaphone className="h-4 w-4 text-purple-500" strokeWidth={2} />;
+      return <Megaphone className="h-4 w-4 text-info-500" strokeWidth={2} />;
     default:
-      return <Info className="h-4 w-4 text-slate-400" strokeWidth={2} />;
+      return <Info className="h-4 w-4 text-ink-400" strokeWidth={2} />;
   }
 }
 
@@ -77,7 +77,7 @@ export function NotificationBell({ tone = 'dark', className = '' }: Notification
   const triggerColour =
     tone === 'light'
       ? 'text-white/80 hover:text-white hover:bg-white/10'
-      : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100';
+      : 'text-ink-500 hover:text-ink-900 hover:bg-ink-100';
 
   return (
     <>
@@ -132,9 +132,9 @@ export function NotificationBell({ tone = 'dark', className = '' }: Notification
               className="fixed inset-y-0 right-0 z-50 flex w-full max-w-sm flex-col bg-white shadow-2xl"
             >
               {/* Header */}
-              <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+              <div className="flex items-center justify-between border-b border-ink-100 px-6 py-4">
                 <div className="flex items-center gap-2.5">
-                  <h2 className="text-lg font-semibold text-slate-900">Notifications</h2>
+                  <h2 className="text-lg font-semibold text-ink-900">Notifications</h2>
                   {unreadCount > 0 && (
                     <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-white">
                       {unreadCount}
@@ -145,7 +145,7 @@ export function NotificationBell({ tone = 'dark', className = '' }: Notification
                   {unreadCount > 0 && (
                     <button
                       onClick={markAllAsRead}
-                      className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                      className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-ink-500 transition-colors hover:bg-ink-100 hover:text-ink-700"
                     >
                       <CheckCheck className="h-3.5 w-3.5" />
                       All read
@@ -153,7 +153,7 @@ export function NotificationBell({ tone = 'dark', className = '' }: Notification
                   )}
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="rounded-full p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+                    className="rounded-full p-2 text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-600"
                     aria-label="Close notifications"
                   >
                     <X className="h-5 w-5" />
@@ -167,26 +167,26 @@ export function NotificationBell({ tone = 'dark', className = '' }: Notification
                   <div className="flex flex-col gap-3 p-4">
                     {[1, 2, 3].map((i) => (
                       <div key={i} className="flex animate-pulse gap-3">
-                        <div className="h-8 w-8 shrink-0 rounded-full bg-slate-100" />
+                        <div className="h-8 w-8 shrink-0 rounded-full bg-ink-100" />
                         <div className="flex-1 space-y-2">
-                          <div className="h-3 w-3/4 rounded bg-slate-100" />
-                          <div className="h-2.5 w-1/3 rounded bg-slate-100" />
+                          <div className="h-3 w-3/4 rounded bg-ink-100" />
+                          <div className="h-2.5 w-1/3 rounded bg-ink-100" />
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : notifications.length === 0 ? (
                   <div className="flex flex-col items-center justify-center p-12 text-center">
-                    <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 shadow-inner">
-                      <Bell className="h-6 w-6 text-slate-300" strokeWidth={1.5} />
+                    <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-ink-50 shadow-inner">
+                      <Bell className="h-6 w-6 text-ink-300" strokeWidth={1.5} />
                     </div>
-                    <p className="text-sm font-semibold text-slate-900">All caught up</p>
-                    <p className="mt-1 text-sm text-slate-400">
+                    <p className="text-sm font-semibold text-ink-900">All caught up</p>
+                    <p className="mt-1 text-sm text-ink-400">
                       Payments, collections and messages will appear here.
                     </p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-slate-100">
+                  <div className="divide-y divide-ink-100">
                     <AnimatePresence initial={false}>
                       {notifications.map((notification) => {
                         const route = routeFor(notification);
@@ -207,8 +207,8 @@ export function NotificationBell({ tone = 'dark', className = '' }: Notification
                             }}
                             className={`relative flex w-full gap-4 px-4 py-3.5 text-left transition-colors ${
                               !notification.is_read
-                                ? 'bg-orange-50/60 hover:bg-orange-50'
-                                : 'hover:bg-slate-50/80'
+                                ? 'bg-brand-50/60 hover:bg-brand-50'
+                                : 'hover:bg-ink-50/80'
                             } ${route ? 'cursor-pointer' : 'cursor-default'}`}
                           >
                             {!notification.is_read && (
@@ -221,19 +221,19 @@ export function NotificationBell({ tone = 'dark', className = '' }: Notification
                               <p
                                 className={`text-sm leading-snug ${
                                   !notification.is_read
-                                    ? 'font-medium text-slate-900'
-                                    : 'text-slate-700'
+                                    ? 'font-medium text-ink-900'
+                                    : 'text-ink-700'
                                 }`}
                               >
                                 {notification.message}
                               </p>
                               <div className="mt-1 flex items-center gap-1.5">
-                                <Clock className="h-3 w-3 shrink-0 text-slate-300" />
-                                <span className="text-xs font-medium tabular-nums text-slate-400">
+                                <Clock className="h-3 w-3 shrink-0 text-ink-300" />
+                                <span className="text-xs font-medium tabular-nums text-ink-400">
                                   {relativeTime(notification.created_at, now)}
                                 </span>
-                                <span className="text-slate-200">·</span>
-                                <span className="text-[11px] text-slate-300">
+                                <span className="text-ink-200">·</span>
+                                <span className="text-[11px] text-ink-300">
                                   {absoluteTime(notification.created_at)}
                                 </span>
                               </div>

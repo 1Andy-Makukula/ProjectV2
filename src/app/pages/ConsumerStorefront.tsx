@@ -71,7 +71,7 @@ const ROLE_MAP: Record<string, string> = {
 
 function ShopCardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+    <div className="overflow-hidden rounded-2xl border border-ink-200 bg-white">
       <Skeleton className="h-44 w-full" />
       <div className="space-y-2 p-4">
         <Skeleton className="h-4 w-2/3" />
@@ -218,7 +218,7 @@ export function ConsumerStorefront() {
           action={
             <button
               onClick={() => navigate(profile ? '/shops' : '/signup')}
-              className="flex items-center gap-1 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+              className="flex items-center gap-1 text-sm font-medium text-ink-500 transition-colors hover:text-ink-900"
             >
               View all <ArrowRight className="h-3.5 w-3.5" />
             </button>
@@ -291,7 +291,7 @@ export function ConsumerStorefront() {
             profile ? (
               <button
                 onClick={() => navigate('/lists/new')}
-                className="flex items-center gap-1 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+                className="flex items-center gap-1 text-sm font-medium text-ink-500 transition-colors hover:text-ink-900"
               >
                 Make a list <ArrowRight className="h-3.5 w-3.5" />
               </button>
@@ -301,7 +301,7 @@ export function ConsumerStorefront() {
         {dataLoading ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+              <div key={i} className="overflow-hidden rounded-2xl border border-ink-200 bg-white">
                 <Skeleton className="aspect-[4/3] w-full" />
                 <div className="space-y-2 p-4">
                   <Skeleton className="h-4 w-3/4" />
@@ -311,8 +311,8 @@ export function ConsumerStorefront() {
             ))}
           </div>
         ) : communityLists.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-200 py-16 text-center text-slate-400">
-            <ListChecks className="mx-auto mb-3 h-10 w-10 text-slate-300" strokeWidth={1} />
+          <div className="rounded-2xl border border-dashed border-ink-200 py-16 text-center text-ink-400">
+            <ListChecks className="mx-auto mb-3 h-10 w-10 text-ink-300" strokeWidth={1} />
             <p className="text-sm">No lists published yet — yours could be the first.</p>
           </div>
         ) : (
@@ -343,7 +343,7 @@ export function ConsumerStorefront() {
           {experiencesLoading ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                <div key={i} className="overflow-hidden rounded-2xl border border-ink-200 bg-white">
                   <Skeleton className="aspect-[4/3] w-full" />
                   <div className="space-y-2 p-4">
                     <Skeleton className="h-4 w-3/4" />
@@ -393,8 +393,8 @@ export function ConsumerStorefront() {
             ))}
           </div>
         ) : (data?.shops ?? []).length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-200 py-16 text-center text-slate-400">
-            <Store className="mx-auto mb-3 h-10 w-10 text-slate-300" strokeWidth={1} />
+          <div className="rounded-2xl border border-dashed border-ink-200 py-16 text-center text-ink-400">
+            <Store className="mx-auto mb-3 h-10 w-10 text-ink-300" strokeWidth={1} />
             <p className="text-sm">No shops available yet</p>
           </div>
         ) : (
@@ -441,7 +441,7 @@ export function ConsumerStorefront() {
             // Holding the header's place, and wearing its glass so the top of
             // the page looks the same whichever bar is up there.
             ? 'top-0 border-white/20 bg-white/60'
-            : 'top-14 border-slate-100 bg-white/90 md:top-16',
+            : 'top-14 border-ink-100 bg-white/90 md:top-16',
         )}
       >
         <div className="mx-auto max-w-7xl px-5 py-3 sm:px-8">
@@ -456,9 +456,9 @@ export function ConsumerStorefront() {
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       {definition.sections.includes('campaigns') ? (
         <section className="mx-auto w-full max-w-7xl px-4 pt-4 sm:px-8 sm:pt-6 xl:max-w-[100rem]">
-        <div className="kl-stage h-[300px] w-full bg-slate-900 sm:h-[380px]">
+        <div className="kl-stage h-[300px] w-full bg-ink-900 sm:h-[380px]">
           {dataLoading ? (
-            <div className="h-full w-full animate-pulse bg-slate-100" />
+            <div className="h-full w-full animate-pulse bg-ink-100" />
           ) : (
             <>
               <AnimatePresence mode="wait">
@@ -481,7 +481,7 @@ export function ConsumerStorefront() {
                       alt={activeCampaign.title}
                       className="kl-drift h-full w-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-br from-slate-900/70 via-slate-900/40 to-slate-900/70" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-ink-900/70 via-ink-900/40 to-ink-900/70" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -506,7 +506,7 @@ export function ConsumerStorefront() {
                   {!profile && (
                     <button
                       onClick={() => navigate('/signup')}
-                      className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-xl transition-colors hover:bg-slate-50"
+                      className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-ink-900 shadow-xl transition-colors hover:bg-ink-50"
                     >
                       Start gifting free
                       <ArrowRight className="h-4 w-4" />
@@ -574,14 +574,14 @@ export function ConsumerStorefront() {
       )}
 
       {/* ── Trust bar ─────────────────────────────────────────────────────── */}
-      <div className="border-b border-slate-100 bg-slate-50/70">
+      <div className="border-b border-ink-100 bg-ink-50/70">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-6 gap-y-1 px-5 py-2 sm:gap-x-10 sm:px-8 xl:max-w-[100rem]">
           {[
             { icon: Shield, label: '100% Escrow Protected' },
             { icon: Package, label: 'In-Store Collection' },
             { icon: Store, label: 'Verified Local Merchants' },
           ].map(({ icon: Icon, label }) => (
-            <div key={label} className="flex items-center gap-1.5 text-slate-500">
+            <div key={label} className="flex items-center gap-1.5 text-ink-500">
               <Icon className="h-3.5 w-3.5 shrink-0 text-mode-accent" strokeWidth={1.5} />
               <span className="text-[0.6875rem] font-medium">{label}</span>
             </div>
@@ -619,7 +619,7 @@ export function ConsumerStorefront() {
             </p>
             <button
               onClick={() => navigate('/signup')}
-              className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-sm font-bold text-slate-900 shadow-xl transition-colors hover:bg-slate-50"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-sm font-bold text-ink-900 shadow-xl transition-colors hover:bg-ink-50"
             >
               Create free account
               <ArrowRight className="h-4 w-4" />

@@ -8,7 +8,7 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-50 border-t border-border mt-auto">
+    <footer className="bg-ink-50 border-t border-border mt-auto">
       <div className="container mx-auto px-4 md:px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
@@ -23,13 +23,13 @@ export function Footer() {
               Zambia's trusted gift marketplace. Buy now, gift later.
             </p>
             <div className="flex gap-3">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="p-2 hover:bg-ink-200 rounded-full transition-colors">
                 <Facebook className="w-4 h-4" strokeWidth={1.5} />
               </a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="p-2 hover:bg-ink-200 rounded-full transition-colors">
                 <Instagram className="w-4 h-4" strokeWidth={1.5} />
               </a>
-              <a href="https://wa.me/260977000000" target="_blank" rel="noopener noreferrer" className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+              <a href="https://wa.me/260977000000" target="_blank" rel="noopener noreferrer" className="p-2 hover:bg-ink-200 rounded-full transition-colors">
                 <MessageCircle className="w-4 h-4" strokeWidth={1.5} />
               </a>
             </div>

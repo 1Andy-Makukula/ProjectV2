@@ -230,7 +230,7 @@ export function AdminShopForm() {
               <div className="space-y-2">
                 <Label htmlFor="image">Shop Logo (Avatar)</Label>
                 {imagePreview && (
-                  <div className="relative w-24 h-24 bg-gray-100 rounded-full overflow-hidden mb-2 border-2 border-white shadow-sm">
+                  <div className="relative w-24 h-24 bg-ink-100 rounded-full overflow-hidden mb-2 border-2 border-white shadow-sm">
                     <img
                       src={imagePreview}
                       alt="Logo Preview"
@@ -256,7 +256,7 @@ export function AdminShopForm() {
               <div className="space-y-2">
                 <Label htmlFor="cover_image">Shop Cover (Banner)</Label>
                 {coverImagePreview && (
-                  <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden mb-2">
+                  <div className="relative aspect-video bg-ink-100 rounded-lg overflow-hidden mb-2">
                     <img
                       src={coverImagePreview}
                       alt="Cover Preview"

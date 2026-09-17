@@ -122,7 +122,7 @@ export function SendFlow() {
   const grossPayable = item.price_zmw + serviceFee;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-ink-50">
       <AnimatePresence mode="wait">
         {stage === 'SECURING' && <SecuringEscrowView key="securing" />}
 
@@ -156,7 +156,7 @@ export function SendFlow() {
                 <motion.div
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700"
+                  className="rounded-xl border border-danger-100 bg-danger-50 px-4 py-3 text-sm text-danger-700"
                 >
                   {errorMsg}
                 </motion.div>
@@ -167,7 +167,7 @@ export function SendFlow() {
                 <CardContent className="p-4">
                   <div className="flex gap-4">
                     {/* Item Image */}
-                    <div className="w-24 h-24 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+                    <div className="w-24 h-24 rounded-xl overflow-hidden bg-ink-100 flex-shrink-0">
                       {item.image_url ? (
                         <img
                           src={item.image_url}
@@ -176,7 +176,7 @@ export function SendFlow() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Store className="w-8 h-8 text-gray-400" />
+                          <Store className="w-8 h-8 text-ink-400" />
                         </div>
                       )}
                     </div>
@@ -218,7 +218,7 @@ export function SendFlow() {
                       htmlFor="recipientName"
                       className="block text-sm font-medium mb-2"
                     >
-                      Recipient Name <span className="text-red-500">*</span>
+                      Recipient Name <span className="text-danger-500">*</span>
                     </label>
                     <Input
                       id="recipientName"
@@ -231,7 +231,7 @@ export function SendFlow() {
                       aria-invalid={!!errors.recipientName}
                     />
                     {errors.recipientName && (
-                      <p className="text-sm text-red-500 mt-1">
+                      <p className="text-sm text-danger-500 mt-1">
                         {errors.recipientName}
                       </p>
                     )}
@@ -243,7 +243,7 @@ export function SendFlow() {
                       htmlFor="recipientPhone"
                       className="block text-sm font-medium mb-2"
                     >
-                      Recipient Phone <span className="text-red-500">*</span>
+                      Recipient Phone <span className="text-danger-500">*</span>
                     </label>
                     <PhoneInput
                       id="recipientPhone"
@@ -252,11 +252,11 @@ export function SendFlow() {
                       aria-invalid={!!errors.recipientPhone}
                     />
                     {errors.recipientPhone && (
-                      <p className="text-sm text-red-500 mt-1">
+                      <p className="text-sm text-danger-500 mt-1">
                         {errors.recipientPhone}
                       </p>
                     )}
-                    <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                    <p className="text-xs text-ink-500 mt-1.5 leading-relaxed">
                       Recipient's phone number to deliver the claim code once payment succeeds.
                     </p>
                   </div>
@@ -268,7 +268,7 @@ export function SendFlow() {
                         htmlFor="targetExecutionDate"
                         className="block text-sm font-medium mb-2"
                       >
-                        Preferred Date &amp; Time <span className="text-red-500">*</span>
+                        Preferred Date &amp; Time <span className="text-danger-500">*</span>
                       </label>
                       <Input
                         id="targetExecutionDate"
@@ -279,11 +279,11 @@ export function SendFlow() {
                         aria-invalid={!!errors.targetExecutionDate}
                       />
                       {errors.targetExecutionDate && (
-                        <p className="text-sm text-red-500 mt-1">
+                        <p className="text-sm text-danger-500 mt-1">
                           {errors.targetExecutionDate}
                         </p>
                       )}
-                      <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                      <p className="text-xs text-ink-500 mt-1.5 leading-relaxed">
                         {item.lead_time_days
                           ? `This shop needs at least ${item.lead_time_days} day${item.lead_time_days === 1 ? '' : 's'} notice. The shop may follow up to confirm details.`
                           : 'The shop may follow up to confirm details.'}
@@ -315,7 +315,7 @@ export function SendFlow() {
                     />
                     <div className="flex justify-between items-center mt-1">
                       {errors.message ? (
-                        <p className="text-sm text-red-500">{errors.message}</p>
+                        <p className="text-sm text-danger-500">{errors.message}</p>
                       ) : (
                         <p className="text-sm text-muted-foreground">
                           Make it special with a heartfelt message
@@ -323,7 +323,7 @@ export function SendFlow() {
                       )}
                       <p
                         className={`text-sm ${messageCharsRemaining < 20
-                          ? 'text-orange-500'
+                          ? 'text-brand-500'
                           : 'text-muted-foreground'
                           }`}
                       >
@@ -333,14 +333,14 @@ export function SendFlow() {
                   </div>
 
                   {/* Billing Details Divider & Field */}
-                  <div className="border-t border-slate-100 my-4 pt-4">
-                    <h3 className="font-semibold text-slate-900 text-sm mb-3">Billing Details</h3>
+                  <div className="border-t border-ink-100 my-4 pt-4">
+                    <h3 className="font-semibold text-ink-900 text-sm mb-3">Billing Details</h3>
                     <div>
                       <label
                         htmlFor="senderPhone"
                         className="block text-sm font-medium mb-2"
                       >
-                        Your Phone (for payment) <span className="text-red-500">*</span>
+                        Your Phone (for payment) <span className="text-danger-500">*</span>
                       </label>
                       <PhoneInput
                         id="senderPhone"
@@ -349,11 +349,11 @@ export function SendFlow() {
                         aria-invalid={!!errors.senderPhone}
                       />
                       {errors.senderPhone && (
-                        <p className="text-sm text-red-500 mt-1">
+                        <p className="text-sm text-danger-500 mt-1">
                           {errors.senderPhone}
                         </p>
                       )}
-                      <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                      <p className="text-xs text-ink-500 mt-1.5 leading-relaxed">
                         Flutterwave will trigger a USSD/Mobile Money payment prompt on this phone.
                       </p>
                     </div>
@@ -362,28 +362,28 @@ export function SendFlow() {
               </Card>
 
               {/* Order total */}
-              <div className="rounded-2xl bg-white border border-slate-100 px-5 py-5 flex flex-col gap-2 shadow-sm">
+              <div className="rounded-2xl bg-white border border-ink-100 px-5 py-5 flex flex-col gap-2 shadow-sm">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-500 font-medium">Item price</span>
-                  <span className="font-semibold text-slate-800">
+                  <span className="text-ink-500 font-medium">Item price</span>
+                  <span className="font-semibold text-ink-800">
                     {formatCurrency(item.price_zmw)}
                   </span>
                 </div>
                 {serviceFee > 0 && (
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-500 font-medium">
+                    <span className="text-ink-500 font-medium">
                       Service fee
-                      <span className="ml-1 text-xs font-normal text-slate-400">
+                      <span className="ml-1 text-xs font-normal text-ink-400">
                         ({feePercentFor(CHECKOUT_ORIGIN, rates)}%)
                       </span>
                     </span>
-                    <span className="font-semibold text-slate-800">
+                    <span className="font-semibold text-ink-800">
                       {formatCurrency(serviceFee)}
                     </span>
                   </div>
                 )}
-                <div className="flex items-center justify-between text-sm pt-2.5 border-t border-slate-100 mt-1">
-                  <span className="text-slate-900 font-bold">Total payable</span>
+                <div className="flex items-center justify-between text-sm pt-2.5 border-t border-ink-100 mt-1">
+                  <span className="text-ink-900 font-bold">Total payable</span>
                   <span className="text-lg font-bold kl-gradient-brand-text">
                     {formatCurrency(grossPayable)}
                   </span>
@@ -396,7 +396,7 @@ export function SendFlow() {
               >
                 <Button
                   onClick={handlePay}
-                  className="w-full h-14 text-base font-semibold rounded-2xl kl-gradient-brand hover:from-[#ea6c0a] hover:to-[#f58220] text-white shadow-lg shadow-orange-200 border-0"
+                  className="w-full h-14 text-base font-semibold rounded-2xl kl-gradient-brand hover:from-[#ea6c0a] hover:to-[#f58220] text-white shadow-lg shadow-brand-200 border-0"
                 >
                   Pay {formatCurrency(grossPayable)}
                 </Button>
@@ -434,18 +434,18 @@ function SecuringEscrowView() {
         {/* Animated lock rings */}
         <div className="relative flex items-center justify-center" aria-hidden>
           <motion.span
-            className="absolute h-28 w-28 rounded-full border border-orange-100"
+            className="absolute h-28 w-28 rounded-full border border-brand-100"
             animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.1, 0.4] }}
             transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
           />
           <motion.span
-            className="absolute h-20 w-20 rounded-full border border-orange-200"
+            className="absolute h-20 w-20 rounded-full border border-brand-200"
             animate={{ scale: [1, 1.1, 1], opacity: [0.6, 0.2, 0.6] }}
             transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
           />
           {/* Core shield */}
           <motion.div
-            className="flex h-12 w-12 items-center justify-center rounded-full kl-gradient-brand-br shadow-lg shadow-orange-200"
+            className="flex h-12 w-12 items-center justify-center rounded-full kl-gradient-brand-br shadow-lg shadow-brand-200"
             animate={{ scale: [1, 0.95, 1] }}
             transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.15 }}
           >
@@ -456,7 +456,7 @@ function SecuringEscrowView() {
         {/* Copy */}
         <div className="flex flex-col items-center gap-3">
           <motion.h1
-            className="text-xl font-semibold tracking-tight text-slate-900"
+            className="text-xl font-semibold tracking-tight text-ink-900"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
@@ -464,7 +464,7 @@ function SecuringEscrowView() {
             Global Compliance Check Active
           </motion.h1>
           <motion.p
-            className="max-w-xs text-sm leading-relaxed text-slate-500"
+            className="max-w-xs text-sm leading-relaxed text-ink-500"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.35 }}
@@ -479,7 +479,7 @@ function SecuringEscrowView() {
           {[0, 1, 2].map((i) => (
             <motion.span
               key={i}
-              className="h-2 w-2 rounded-full bg-orange-300"
+              className="h-2 w-2 rounded-full bg-brand-300"
               animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.2, 0.8] }}
               transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
             />
@@ -491,11 +491,11 @@ function SecuringEscrowView() {
       <div className="absolute bottom-8 flex items-center gap-1.5">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.25"
           strokeLinecap="round" strokeLinejoin="round"
-          className="h-3.5 w-3.5 text-slate-300" aria-hidden>
+          className="h-3.5 w-3.5 text-ink-300" aria-hidden>
           <rect x="3" y="7" width="10" height="8" rx="1.5" />
           <path d="M5 7V5a3 3 0 0 1 6 0v2" />
         </svg>
-        <span className="text-xs text-slate-400">Escrow-protected transaction</span>
+        <span className="text-xs text-ink-400">Escrow-protected transaction</span>
       </div>
     </motion.div>
   );

@@ -149,14 +149,14 @@ export function HandshakeTerminal({
             {isVerifying ? 'Verifying...' : 'Verify Code'}
           </motion.button>
 
-          <div className="rounded-2xl border border-orange-200 bg-orange-50 p-4">
+          <div className="rounded-2xl border border-brand-200 bg-brand-50 p-4">
             <p className="mb-3 text-sm font-medium uppercase tracking-[0.18em] text-primary">
               Item to Hand Over
             </p>
 
             {verifiedItem ? (
               <div className="space-y-4">
-                <div className="overflow-hidden rounded-2xl border border-orange-100 bg-white">
+                <div className="overflow-hidden rounded-2xl border border-brand-100 bg-white">
                   {verifiedItem.imageUrl ? (
                     <img
                       src={verifiedItem.imageUrl}
@@ -164,9 +164,9 @@ export function HandshakeTerminal({
                       className="aspect-square w-full object-cover"
                     />
                   ) : (
-                    <div className="flex aspect-square w-full items-center justify-center bg-gray-50">
+                    <div className="flex aspect-square w-full items-center justify-center bg-ink-50">
                       <div className="text-center text-muted-foreground">
-                        <Package className="mx-auto h-10 w-10 text-gray-400" />
+                        <Package className="mx-auto h-10 w-10 text-ink-400" />
                         <p className="mt-3 text-sm">No product image available</p>
                       </div>
                     </div>
@@ -183,7 +183,7 @@ export function HandshakeTerminal({
                 </div>
               </div>
             ) : (
-              <div className="rounded-xl border border-dashed border-orange-200 bg-white/80 px-4 py-8 text-center text-sm text-muted-foreground">
+              <div className="rounded-xl border border-dashed border-brand-200 bg-white/80 px-4 py-8 text-center text-sm text-muted-foreground">
                 Validate a gift code to load the product image here before redemption.
               </div>
             )}
@@ -194,7 +194,7 @@ export function HandshakeTerminal({
             whileTap={verifiedItem ? { scale: 0.98 } : undefined}
             onClick={handleRedeem}
             disabled={!verifiedItem || !onRedeem || isVerifying || isRedeeming}
-            className="w-full rounded-full border border-border bg-white py-3 font-light text-black transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-full border border-border bg-white py-3 font-light text-black transition-colors hover:bg-ink-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isRedeeming ? 'Redeeming...' : 'Redeem Gift'}
           </motion.button>
@@ -205,14 +205,14 @@ export function HandshakeTerminal({
               animate={{ opacity: 1, y: 0 }}
               className={`flex items-center justify-center gap-2 rounded-lg p-3 ${
                 verificationStatus === 'success'
-                  ? 'bg-green-50 text-green-700'
-                  : 'bg-red-50 text-red-700'
+                  ? 'bg-ok-50 text-ok-700'
+                  : 'bg-danger-50 text-danger-700'
               }`}
             >
               {verificationStatus === 'success' ? (
                 <>
                   {isRedeeming ? (
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-green-700 border-t-transparent" />
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-ok-700 border-t-transparent" />
                   ) : (
                     <Check className="h-5 w-5" strokeWidth={1.5} />
                   )}
@@ -230,7 +230,7 @@ export function HandshakeTerminal({
           )}
 
           <div className="border-t border-border pt-4">
-            <button className="flex w-full items-center justify-center gap-2 rounded-full border border-border py-3 font-light transition-colors hover:bg-gray-50">
+            <button className="flex w-full items-center justify-center gap-2 rounded-full border border-border py-3 font-light transition-colors hover:bg-ink-50">
               <QrCode className="h-5 w-5" strokeWidth={1.5} />
               Scan QR Code Instead
             </button>
@@ -247,7 +247,7 @@ export function HandshakeTerminal({
             </div>
           </div>
 
-          <div className="rounded-[1rem] bg-gray-50 p-6 text-center">
+          <div className="rounded-[1rem] bg-ink-50 p-6 text-center">
             <p className="mb-3 text-xs font-light text-muted-foreground">
               Or enter manually
             </p>
@@ -256,7 +256,7 @@ export function HandshakeTerminal({
             </div>
           </div>
 
-          <button className="w-full rounded-full border border-border py-3 font-light transition-colors hover:bg-gray-50">
+          <button className="w-full rounded-full border border-border py-3 font-light transition-colors hover:bg-ink-50">
             Merchant won&apos;t accept my code?
           </button>
         </div>

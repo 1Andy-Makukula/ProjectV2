@@ -76,7 +76,7 @@ export function FloatingHomeButton() {
       onClick={() => navigate('/')}
       className={`fixed bottom-6 right-6 z-50 rounded-full p-4 shadow-lg transition-all duration-700 ease-in-out cursor-pointer ${
         isVisible
-          ? 'bg-gradient-to-br from-orange-500/60 to-red-600/60 backdrop-blur-md opacity-100 scale-100 pointer-events-auto border border-white/20 text-white active:scale-95'
+          ? 'bg-gradient-to-br from-brand-500/60 to-danger-600/60 backdrop-blur-md opacity-100 scale-100 pointer-events-auto border border-white/20 text-white active:scale-95'
           : 'opacity-0 scale-95 pointer-events-none'
       }`}
       aria-label="Navigate to home page"

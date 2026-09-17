@@ -34,7 +34,7 @@ interface ItemFeedProps {
 
 function CardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+    <div className="overflow-hidden rounded-2xl border border-ink-200 bg-white">
       <Skeleton className="aspect-square w-full" />
       <div className="space-y-2 p-4">
         <Skeleton className="h-4 w-3/4" />
@@ -117,14 +117,14 @@ function ItemRow({
           </button>
         </div>
       ) : outOfStock ? (
-        <span className="shrink-0 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-400">
+        <span className="shrink-0 rounded-xl border border-ink-200 px-3 py-2 text-xs font-semibold text-ink-400">
           Sold out
         </span>
       ) : conversationFirst ? (
         <button
           onClick={onGift}
-          className="shrink-0 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700
-                     transition-all duration-200 hover:border-slate-900 hover:bg-slate-900 hover:text-white active:scale-[0.98]"
+          className="shrink-0 rounded-xl border border-ink-200 px-3 py-2 text-xs font-semibold text-ink-700
+                     transition-all duration-200 hover:border-ink-900 hover:bg-ink-900 hover:text-white active:scale-[0.98]"
         >
           View
         </button>
@@ -146,15 +146,15 @@ function ItemRow({
   const price = (
     <div className="flex items-baseline gap-2">
       {priceLabel.prefix && (
-        <span className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+        <span className="text-[11px] font-medium uppercase tracking-wide text-ink-400">
           {priceLabel.prefix}
         </span>
       )}
-      <span className="text-sm font-semibold tabular-nums text-slate-900">
+      <span className="text-sm font-semibold tabular-nums text-ink-900">
         {formatCurrency(item.price_zmw, 'ZMW')}
       </span>
       {discount !== null && item.original_price_zmw != null && (
-        <span className="text-[11px] text-slate-400 line-through">
+        <span className="text-[11px] text-ink-400 line-through">
           {formatCurrency(item.original_price_zmw, 'ZMW')}
         </span>
       )}
@@ -162,13 +162,13 @@ function ItemRow({
   );
 
   const shopLine = !hideShopName && item.shop?.name && (
-    <p className="truncate text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+    <p className="truncate text-[10px] font-semibold uppercase tracking-widest text-ink-400">
       {item.shop.name}
     </p>
   );
 
   const soldOutLine = outOfStock && (
-    <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+    <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-ink-500">
       {OUT_OF_STOCK_REASON}
     </p>
   );
@@ -176,20 +176,20 @@ function ItemRow({
   if (variant === 'card') {
     return (
       <div
-        className={`flex gap-3 border-b border-slate-100 py-3 last:border-0 ${
+        className={`flex gap-3 border-b border-ink-100 py-3 last:border-0 ${
           outOfStock ? 'opacity-55' : ''
         }`}
       >
         <button
           onClick={onGift}
-          className="size-24 shrink-0 overflow-hidden rounded-xl bg-slate-50"
+          className="size-24 shrink-0 overflow-hidden rounded-xl bg-ink-50"
           aria-label={item.name}
         >
           {item.image_url ? (
             <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
-              <Package className="h-6 w-6 text-slate-300" strokeWidth={1.5} />
+              <Package className="h-6 w-6 text-ink-300" strokeWidth={1.5} />
             </div>
           )}
         </button>
@@ -197,9 +197,9 @@ function ItemRow({
         <div className="flex min-w-0 flex-1 flex-col">
           <button onClick={onGift} className="min-w-0 text-left">
             {shopLine}
-            <p className="truncate text-sm font-medium text-slate-900">{item.name}</p>
+            <p className="truncate text-sm font-medium text-ink-900">{item.name}</p>
             {item.description && (
-              <p className="mt-0.5 line-clamp-2 text-[11px] font-light leading-snug text-slate-500">
+              <p className="mt-0.5 line-clamp-2 text-[11px] font-light leading-snug text-ink-500">
                 {item.description}
               </p>
             )}
@@ -217,20 +217,20 @@ function ItemRow({
 
   return (
     <div
-      className={`flex break-inside-avoid items-center gap-3 border-b border-slate-100 px-1 py-3
-                  transition-colors last:border-0 hover:bg-slate-50/70
+      className={`flex break-inside-avoid items-center gap-3 border-b border-ink-100 px-1 py-3
+                  transition-colors last:border-0 hover:bg-ink-50/70
                   ${outOfStock ? 'opacity-55' : ''}`}
     >
       <button
         onClick={onGift}
-        className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-slate-50"
+        className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-ink-50"
         aria-label={item.name}
       >
         {item.image_url ? (
           <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
-            <Package className="h-5 w-5 text-slate-300" strokeWidth={1.5} />
+            <Package className="h-5 w-5 text-ink-300" strokeWidth={1.5} />
           </div>
         )}
       </button>
@@ -238,7 +238,7 @@ function ItemRow({
       <button onClick={onGift} className="flex min-w-0 flex-1 items-end gap-2 text-left">
         <span className="min-w-0 flex-1">
           {shopLine}
-          <p className="truncate text-sm font-medium text-slate-900">{item.name}</p>
+          <p className="truncate text-sm font-medium text-ink-900">{item.name}</p>
           <div className="mt-0.5">{price}</div>
           {soldOutLine}
         </span>
@@ -270,9 +270,9 @@ export function ItemFeed({
   if (loading) {
     const count = layout === 'editorial' ? 4 : rowLayout ? 6 : 8;
     return rowLayout ? (
-      <div className="rounded-2xl border border-slate-100 bg-white px-4">
+      <div className="rounded-2xl border border-ink-100 bg-white px-4">
         {Array.from({ length: count }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 border-b border-slate-100 py-3 last:border-0">
+          <div key={i} className="flex items-center gap-3 border-b border-ink-100 py-3 last:border-0">
             <Skeleton className="h-14 w-14 shrink-0 rounded-xl" />
             <div className="flex-1 space-y-2">
               <Skeleton className="h-3 w-1/3" />
@@ -299,8 +299,8 @@ export function ItemFeed({
 
   if (items.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-200 py-16 text-center text-slate-400">
-        <Package className="mx-auto mb-3 h-10 w-10 text-slate-300" strokeWidth={1} />
+      <div className="rounded-2xl border border-dashed border-ink-200 py-16 text-center text-ink-400">
+        <Package className="mx-auto mb-3 h-10 w-10 text-ink-300" strokeWidth={1} />
         <p className="text-sm">Nothing here yet — try another section.</p>
       </div>
     );
@@ -349,27 +349,27 @@ export function ItemFeed({
     return (
       <div className="space-y-5">
         {Array.from(byShop.entries()).map(([shopId, group]) => (
-          <section key={shopId} className="overflow-hidden rounded-2xl border border-slate-100 bg-white">
+          <section key={shopId} className="overflow-hidden rounded-2xl border border-ink-100 bg-white">
             {/* Who is offering, with their mark. A price list on a shop wall is
                 read under the sign above it — without one, every group here
                 looked like the same anonymous business. */}
-            <header className="flex items-center gap-3 border-b border-slate-100 px-4 py-3">
-              <div className="size-9 shrink-0 overflow-hidden rounded-[var(--radius-md)] bg-slate-50">
+            <header className="flex items-center gap-3 border-b border-ink-100 px-4 py-3">
+              <div className="size-9 shrink-0 overflow-hidden rounded-[var(--radius-md)] bg-ink-50">
                 {group.logo ? (
                   <img src={group.logo} alt="" className="h-full w-full object-cover" />
                 ) : (
                   <div className="grid h-full w-full place-items-center">
-                    <Store className="size-4 text-slate-300" strokeWidth={1.5} />
+                    <Store className="size-4 text-ink-300" strokeWidth={1.5} />
                   </div>
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="truncate text-sm font-semibold text-slate-900">{group.name}</h3>
+                <h3 className="truncate text-sm font-semibold text-ink-900">{group.name}</h3>
                 {group.location && (
-                  <p className="truncate text-[11px] font-light text-slate-400">{group.location}</p>
+                  <p className="truncate text-[11px] font-light text-ink-400">{group.location}</p>
                 )}
               </div>
-              <span className="shrink-0 text-[11px] text-slate-400">
+              <span className="shrink-0 text-[11px] text-ink-400">
                 {group.items.length} service{group.items.length === 1 ? '' : 's'}
               </span>
             </header>
@@ -446,7 +446,7 @@ export function SectionHeading({
         <h2 className="kl-display text-[1.75rem] font-semibold text-foreground sm:text-[2.125rem]">
           {title}
         </h2>
-        {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
+        {subtitle && <p className="mt-1 text-sm text-ink-500">{subtitle}</p>}
       </div>
       {action}
     </div>

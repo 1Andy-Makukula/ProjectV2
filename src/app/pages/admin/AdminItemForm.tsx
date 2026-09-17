@@ -216,9 +216,9 @@ export function AdminItemForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 via-white to-brand-50">
       {/* Header */}
-      <div className="kl-gradient-brand text-white">
+      <div className="kl-wash-ember text-white">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-4">
             <Button

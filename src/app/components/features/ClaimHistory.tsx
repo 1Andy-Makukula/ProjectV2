@@ -6,7 +6,7 @@ export function ClaimHistory({ claimHistory }: { claimHistory: any[] }) {
 
   if (claimHistory.length === 0) {
     return (
-      <p className="text-sm text-slate-400 text-center py-6">
+      <p className="text-sm text-ink-400 text-center py-6">
         No completed claims yet.
       </p>
     );
@@ -23,10 +23,10 @@ export function ClaimHistory({ claimHistory }: { claimHistory: any[] }) {
         return (
           <div
             key={order.shop_order_id}
-            className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50/60 px-5 py-4 opacity-70 hover:opacity-90 transition-opacity cursor-pointer"
+            className="flex items-center gap-4 rounded-2xl border border-ink-100 bg-ink-50/60 px-5 py-4 opacity-70 hover:opacity-90 transition-opacity cursor-pointer"
             onClick={() => navigate(`/gift/${order.claim_code}`)}
           >
-            <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center">
+            <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-ink-100 border border-ink-200 flex items-center justify-center">
               {firstItem?.image_url ? (
                 <img
                   src={firstItem.image_url}
@@ -34,22 +34,22 @@ export function ClaimHistory({ claimHistory }: { claimHistory: any[] }) {
                   className="h-full w-full object-cover grayscale"
                 />
               ) : (
-                <Gift className="h-5 w-5 text-slate-300" />
+                <Gift className="h-5 w-5 text-ink-300" />
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-slate-600 truncate">
+              <p className="text-sm font-medium text-ink-600 truncate">
                 {firstItem?.name || 'Gift Bundle'}
               </p>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-ink-400 mt-0.5">
                 From {sender} · {shop}
               </p>
             </div>
             <span
               className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ring-1 ring-inset ${
                 isPartial
-                  ? 'bg-amber-50 text-amber-600 ring-amber-200'
-                  : 'bg-emerald-50 text-emerald-600 ring-emerald-200'
+                  ? 'bg-warn-50 text-warn-600 ring-warn-200'
+                  : 'bg-ok-50 text-ok-600 ring-ok-200'
               }`}
             >
               {isPartial ? 'Partial' : 'Claimed'}

@@ -37,7 +37,7 @@ export function AdminPageHeader({
   return (
     <div
       className={cn(
-        'kl-gradient-brand text-primary-foreground',
+        'kl-wash-ember text-primary-foreground',
         className,
       )}
     >

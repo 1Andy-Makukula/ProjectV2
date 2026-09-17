@@ -15,7 +15,7 @@ function Section({ icon: Icon, title, children }: SectionProps) {
   return (
     <section className="space-y-3">
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+        <div className="w-9 h-9 rounded-xl bg-brand-50 flex items-center justify-center shrink-0">
           <Icon className="w-5 h-5 text-primary" strokeWidth={1.5} />
         </div>
         <h2 className="text-xl font-semibold text-black">{title}</h2>
@@ -29,7 +29,7 @@ function Section({ icon: Icon, title, children }: SectionProps) {
 
 export function Privacy() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-ink-50">
       <div className="container mx-auto px-4 md:px-6 py-16 max-w-4xl">
 
         {/* Hero */}
@@ -52,19 +52,19 @@ export function Privacy() {
           <Section icon={Database} title="1. Data We Collect">
             <p>We collect only what is necessary to provide and secure our service:</p>
             <div className="space-y-3">
-              <div className="rounded-xl border border-gray-100 p-4 space-y-1">
+              <div className="rounded-xl border border-ink-100 p-4 space-y-1">
                 <p className="font-semibold text-black text-sm">Account Data</p>
                 <p className="text-sm">Full name, email address, phone number, and hashed password (via Supabase Auth).</p>
               </div>
-              <div className="rounded-xl border border-gray-100 p-4 space-y-1">
+              <div className="rounded-xl border border-ink-100 p-4 space-y-1">
                 <p className="font-semibold text-black text-sm">Transaction Data</p>
                 <p className="text-sm">Gift orders, item selections, amounts (in ZMW/Ngwee), claim codes, fulfillment timestamps, and Flutterwave transaction references.</p>
               </div>
-              <div className="rounded-xl border border-gray-100 p-4 space-y-1">
+              <div className="rounded-xl border border-ink-100 p-4 space-y-1">
                 <p className="font-semibold text-black text-sm">Recipient Data</p>
                 <p className="text-sm">Recipient name and phone number — provided by the sender at the time of purchase for notification delivery.</p>
               </div>
-              <div className="rounded-xl border border-gray-100 p-4 space-y-1">
+              <div className="rounded-xl border border-ink-100 p-4 space-y-1">
                 <p className="font-semibold text-black text-sm">Merchant Data</p>
                 <p className="text-sm">Shop name, physical location, business hours, payout account details (mobile money number or bank account), and inventory listings.</p>
               </div>
@@ -93,7 +93,7 @@ export function Privacy() {
                 verification only.
               </li>
             </ul>
-            <p className="text-sm bg-orange-50 border border-orange-100 rounded-xl p-3">
+            <p className="text-sm bg-brand-50 border border-brand-100 rounded-xl p-3">
               📵 We do <strong>not</strong> use phone numbers for marketing SMS, cold calls, or resale.
               You will only receive transactional messages directly related to your KithLy activity.
             </p>
@@ -135,7 +135,7 @@ export function Privacy() {
                 { name: 'Twilio', role: 'WhatsApp recipient notifications', link: 'https://www.twilio.com/en-us/legal/privacy' },
                 { name: 'Supabase', role: 'Database, authentication, edge computing', link: 'https://supabase.com/privacy' },
               ].map(p => (
-                <div key={p.name} className="flex items-start justify-between gap-4 rounded-xl border border-gray-100 p-4">
+                <div key={p.name} className="flex items-start justify-between gap-4 rounded-xl border border-ink-100 p-4">
                   <div>
                     <p className="font-semibold text-black text-sm">{p.name}</p>
                     <p className="text-sm">{p.role}</p>
@@ -165,7 +165,7 @@ export function Privacy() {
           </Section>
 
           {/* Footer CTA */}
-          <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="pt-6 border-t border-ink-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm font-light text-muted-foreground">
               Also see our{' '}
               <Link to="/terms" className="text-primary hover:underline">Terms of Service</Link>{' '}

@@ -53,7 +53,7 @@ export function Welcome() {
   return (
     <div className="min-h-screen bg-background">
       {/* The wash. A touch of home before a single word of product. */}
-      <section className="kl-gradient-brand-br relative overflow-hidden px-6 py-16 text-white md:py-24">
+      <section className="kl-wash-ember relative overflow-hidden px-6 py-16 text-white md:py-24">
         <div className="container mx-auto max-w-3xl">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
@@ -87,7 +87,7 @@ export function Welcome() {
         {/* Who is behind this. The point is a face, not a production. */}
         <div className="kl-stage mb-4 bg-black">
           {videoFailed ? (
-            <div className="flex aspect-video w-full items-center justify-center bg-slate-900 px-6 text-center">
+            <div className="flex aspect-video w-full items-center justify-center bg-ink-900 px-6 text-center">
               <p className="text-sm font-light text-white/70">
                 The welcome film could not load. Everything below still applies.
               </p>
@@ -112,7 +112,7 @@ export function Welcome() {
         </p>
 
         {/* What we are promising, in the order people worry about it. */}
-        <h2 className="mb-6 text-xl font-semibold tracking-tight text-slate-900">
+        <h2 className="mb-6 text-xl font-semibold tracking-tight text-ink-900">
           We are new, and we would rather say so
         </h2>
         <p className="mb-8 max-w-xl text-sm font-light leading-relaxed text-muted-foreground">
@@ -134,7 +134,7 @@ export function Welcome() {
                 <promise.icon className="h-4.5 w-4.5 text-white" strokeWidth={1.5} />
               </div>
               <div className="min-w-0">
-                <h3 className="mb-1 text-sm font-semibold text-slate-900">{promise.title}</h3>
+                <h3 className="mb-1 text-sm font-semibold text-ink-900">{promise.title}</h3>
                 <p className="text-sm font-light leading-relaxed text-muted-foreground">
                   {promise.body}
                 </p>
@@ -144,7 +144,7 @@ export function Welcome() {
         </div>
 
         {/* The two doors. This is the whole two-market question, asked once. */}
-        <h2 className="mb-6 text-xl font-semibold tracking-tight text-slate-900">
+        <h2 className="mb-6 text-xl font-semibold tracking-tight text-ink-900">
           Which brings you here?
         </h2>
 
@@ -153,7 +153,7 @@ export function Welcome() {
             onClick={() => enter('gifting')}
             className="kl-tile kl-rim kl-lift group p-6 text-left"
           >
-            <span className="mb-1.5 block text-base font-semibold text-slate-900">
+            <span className="mb-1.5 block text-base font-semibold text-ink-900">
               Send home
             </span>
             <span className="mb-4 block text-sm font-light leading-relaxed text-muted-foreground">
@@ -173,7 +173,7 @@ export function Welcome() {
             onClick={() => enter('shopping')}
             className="kl-tile kl-rim kl-lift group p-6 text-left"
           >
-            <span className="mb-1.5 block text-base font-semibold text-slate-900">
+            <span className="mb-1.5 block text-base font-semibold text-ink-900">
               I am Zambian
             </span>
             <span className="mb-4 block text-sm font-light leading-relaxed text-muted-foreground">

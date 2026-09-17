@@ -52,18 +52,18 @@ export function Messages() {
   return (
     <div className="flex min-h-screen flex-col bg-white">
       {/* Page header */}
-      <div className="border-b border-slate-100 bg-white">
+      <div className="border-b border-ink-100 bg-white">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-4 md:px-6">
           <button
             onClick={() => navigate(homeFor)}
-            className="rounded-full p-1.5 text-slate-500 transition-colors hover:bg-slate-100"
+            className="rounded-full p-1.5 text-ink-500 transition-colors hover:bg-ink-100"
             aria-label="Back"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div className="flex flex-1 items-center gap-2">
             <MessageSquare className="h-5 w-5 text-primary" strokeWidth={1.75} />
-            <h1 className="text-xl font-semibold tracking-tight text-slate-900">Messages</h1>
+            <h1 className="text-xl font-semibold tracking-tight text-ink-900">Messages</h1>
           </div>
           <NotificationBell />
         </div>
@@ -71,10 +71,10 @@ export function Messages() {
 
       {/* Panes */}
       <div className="mx-auto flex w-full max-w-6xl flex-1 overflow-hidden md:px-6 md:py-6">
-        <div className="flex w-full overflow-hidden rounded-none border-slate-200 md:rounded-2xl md:border">
+        <div className="flex w-full overflow-hidden rounded-none border-ink-200 md:rounded-2xl md:border">
           {/* Thread list */}
           <aside
-            className={`w-full overflow-y-auto border-slate-100 md:w-80 md:shrink-0 md:border-r ${
+            className={`w-full overflow-y-auto border-ink-100 md:w-80 md:shrink-0 md:border-r ${
               showThreadOnMobile ? 'hidden md:block' : 'block'
             }`}
           >

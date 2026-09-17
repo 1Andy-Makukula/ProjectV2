@@ -150,9 +150,9 @@ export function PhoneInput({
         <SelectTrigger
           id={`${inputId}-country`}
           className={cn(
-            'w-[120px] shrink-0 h-10 rounded-xl border-slate-200',
+            'w-[120px] shrink-0 h-10 rounded-xl border-ink-200',
             'focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200',
-            ariaInvalid && 'border-red-300 focus:border-red-400 focus:ring-red-100',
+            ariaInvalid && 'border-danger-300 focus:border-danger-400 focus:ring-danger-100',
           )}
           aria-label="Country code"
         >
@@ -182,9 +182,9 @@ export function PhoneInput({
         disabled={disabled}
         aria-invalid={ariaInvalid}
         className={cn(
-          'flex-1 h-10 rounded-xl border-slate-200',
+          'flex-1 h-10 rounded-xl border-ink-200',
           'focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all duration-200',
-          ariaInvalid && 'border-red-300 focus:border-red-400 focus:ring-red-100',
+          ariaInvalid && 'border-danger-300 focus:border-danger-400 focus:ring-danger-100',
         )}
       />
     </div>

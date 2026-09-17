@@ -31,13 +31,13 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div className="flex min-h-[400px] w-full flex-col items-center justify-center p-6 text-center">
-          <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-50">
-            <ShieldAlert className="h-8 w-8 text-red-500" strokeWidth={1.5} />
+          <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-danger-50">
+            <ShieldAlert className="h-8 w-8 text-danger-500" strokeWidth={1.5} />
           </div>
-          <h2 className="mb-2 text-xl font-semibold text-slate-900">
+          <h2 className="mb-2 text-xl font-semibold text-ink-900">
             Oops, something went wrong with the terminal.
           </h2>
-          <p className="mb-6 max-w-sm text-sm text-slate-500">
+          <p className="mb-6 max-w-sm text-sm text-ink-500">
             A critical error occurred while rendering this component. Please reset the terminal to continue.
           </p>
           <Button 

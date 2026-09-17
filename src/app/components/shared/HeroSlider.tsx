@@ -33,7 +33,7 @@ export function HeroSlider({ slides, autoPlayInterval = 5000 }: HeroSliderProps)
   const currentSlide = slides[currentIndex];
 
   return (
-    <div className="relative w-full h-[400px] md:h-[500px] overflow-hidden rounded-[1rem] bg-gray-100">
+    <div className="relative w-full h-[400px] md:h-[500px] overflow-hidden rounded-[1rem] bg-ink-100">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentIndex}

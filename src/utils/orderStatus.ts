@@ -55,11 +55,11 @@ export function deriveStatus(txStatus: string, claimStatus: string | null): Excl
 }
 
 export const STATUS_COLORS: Record<string, string> = {
-  fulfilled:       'bg-green-100 text-green-800 border-green-200',
-  paid:            'bg-blue-100 text-blue-800 border-blue-200',
-  pending_payment: 'bg-orange-100 text-orange-800 border-orange-200',
-  expired:         'bg-red-100 text-red-800 border-red-200',
-  cancelled:       'bg-red-100 text-red-800 border-red-200',
+  fulfilled:       'bg-ok-100 text-ok-800 border-ok-200',
+  paid:            'bg-info-100 text-info-800 border-info-200',
+  pending_payment: 'bg-brand-100 text-brand-800 border-brand-200',
+  expired:         'bg-danger-100 text-danger-800 border-danger-200',
+  cancelled:       'bg-danger-100 text-danger-800 border-danger-200',
 };
 
 export const STATUS_LABELS: Record<string, string> = {
