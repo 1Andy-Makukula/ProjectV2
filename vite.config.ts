@@ -53,11 +53,14 @@ export default defineConfig({
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router'],
           'vendor-ui': ['lucide-react', 'motion/react', 'sonner'],
+          // Every entry here is a build *entry module*: naming a package that is
+          // not installed fails the build outright rather than being ignored.
+          // Keep this list in step with the Radix packages in package.json --
+          // react-accordion and react-dropdown-menu were dropped on 2026-09-17
+          // along with the primitives that were their only consumers.
           'vendor-radix': [
-            '@radix-ui/react-accordion',
             '@radix-ui/react-alert-dialog',
             '@radix-ui/react-dialog',
-            '@radix-ui/react-dropdown-menu',
             '@radix-ui/react-tabs',
             '@radix-ui/react-scroll-area',
           ],
