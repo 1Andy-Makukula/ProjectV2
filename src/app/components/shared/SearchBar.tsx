@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Search, Loader2, X } from 'lucide-react';
 import { useSearch } from '../../hooks/useSearch';
 import { useNavigate } from 'react-router';
-import { formatZMW } from '../../utils/formatters';
+import { formatCurrency } from '../../../utils/currency';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 export function SearchBar() {
@@ -87,7 +87,7 @@ export function SearchBar() {
                     <span className="text-xs text-gray-500">@ {item.shopName}</span>
                   </div>
                   <span className="text-sm font-semibold text-orange-600 shrink-0">
-                    {formatZMW(item.price_zmw)}
+                    {formatCurrency(item.price_zmw)}
                   </span>
                 </li>
               ))}

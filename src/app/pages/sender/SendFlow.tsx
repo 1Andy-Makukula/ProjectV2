@@ -9,7 +9,7 @@ import { ContactPickerDialog } from '../../components/shared/ContactPickerDialog
 import { ArrowLeft, Store, Shield, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PaymentProcessingScreen } from '../../components/checkout/PaymentProcessingScreen';
-import { formatZMW } from '../../utils/formatters';
+import { formatCurrency } from '../../../utils/currency';
 import { useSendFlow, minSchedulableDateTime } from '../../hooks/useSendFlow';
 import { PageLoader } from '../../components/shared/PageLoader';
 import { usePlatformPricing } from '../../hooks/usePlatformPricing';
@@ -188,7 +188,7 @@ export function SendFlow() {
                         from {shop.name}
                       </p>
                       <p className="text-lg font-bold text-primary">
-                        {formatZMW(item.price_zmw)}
+                        {formatCurrency(item.price_zmw)}
                       </p>
                     </div>
                   </div>
@@ -366,7 +366,7 @@ export function SendFlow() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-500 font-medium">Item price</span>
                   <span className="font-semibold text-slate-800">
-                    {formatZMW(item.price_zmw)}
+                    {formatCurrency(item.price_zmw)}
                   </span>
                 </div>
                 {serviceFee > 0 && (
@@ -378,14 +378,14 @@ export function SendFlow() {
                       </span>
                     </span>
                     <span className="font-semibold text-slate-800">
-                      {formatZMW(serviceFee)}
+                      {formatCurrency(serviceFee)}
                     </span>
                   </div>
                 )}
                 <div className="flex items-center justify-between text-sm pt-2.5 border-t border-slate-100 mt-1">
                   <span className="text-slate-900 font-bold">Total payable</span>
                   <span className="text-lg font-bold kl-gradient-brand-text">
-                    {formatZMW(grossPayable)}
+                    {formatCurrency(grossPayable)}
                   </span>
                 </div>
               </div>
@@ -398,7 +398,7 @@ export function SendFlow() {
                   onClick={handlePay}
                   className="w-full h-14 text-base font-semibold rounded-2xl kl-gradient-brand hover:from-[#ea6c0a] hover:to-[#f58220] text-white shadow-lg shadow-orange-200 border-0"
                 >
-                  Pay {formatZMW(grossPayable)}
+                  Pay {formatCurrency(grossPayable)}
                 </Button>
               </motion.div>
             </div>
