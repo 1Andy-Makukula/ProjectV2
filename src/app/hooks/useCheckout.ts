@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../utils/auth/AuthContext';
 import { validateAndFormatPhone } from '../../utils/phone';
+import { isUuid } from '../../lib/money/validation';
 import { parseAuthError } from '../../utils/errorParser';
 import { toast } from 'sonner';
 import { getFlatCartPayload, useSendFlowStore } from '../../utils/sendFlowStore';
@@ -76,6 +77,24 @@ export function useCheckout() {
 
     if (items.length === 0) {
       toast.error('Your cart is empty.');
+      return null;
+    }
+
+    // The cart is persisted to localStorage (useCart uses zustand's `persist`),
+    // which makes it the only place in the money path where an id is not
+    // server-derived. checkout-init checks these are non-empty strings but not
+    // that they are ids, so a stale or hand-edited entry currently travels all
+    // the way to the database and comes back as an opaque failure. Catching the
+    // shape here turns that into a message the buyer can act on. The server
+    // still reprices and re-authorises everything -- this is diagnostics, not a
+    // security boundary.
+    const malformedLine = items.find(
+      (line) => !isUuid(String(line?.product?.id ?? '')) || !isUuid(String(line?.product?.shop_id ?? '')),
+    );
+    if (malformedLine) {
+      toast.error('Something in your cart is no longer valid.', {
+        description: 'Please empty your cart and add your items again.',
+      });
       return null;
     }
 

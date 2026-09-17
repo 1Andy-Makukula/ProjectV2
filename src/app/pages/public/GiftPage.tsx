@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { supabase } from '../../../lib/supabaseClient';
+import { normalizeClaimCode } from '../../../lib/money/validation';
 import { motion } from 'motion/react';
 import { Gift as GiftIcon, Package, SearchX, Sparkles, Check } from 'lucide-react';
 
@@ -43,7 +44,14 @@ interface ShopOrder {
 }
 
 export function GiftPage() {
-  const { claimCode } = useParams<{ claimCode: string }>();
+  const { claimCode: rawClaimCode } = useParams<{ claimCode: string }>();
+
+  // This route is public and unauthenticated, so the parameter is whatever a
+  // browser put in the address bar. Normalising it here means a malformed code
+  // never reaches the RPC, and the page settles on its own not-found state
+  // instead of a failed round trip.
+  const claimCode = rawClaimCode ? normalizeClaimCode(rawClaimCode) : null;
+
   const [shopOrder, setShopOrder] = useState<ShopOrder | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -56,7 +64,7 @@ export function GiftPage() {
     const fetchShopOrder = async () => {
       try {
         const { data, error } = await supabase
-          .rpc('get_shop_order_by_claim_code', { code: claimCode.toUpperCase() });
+          .rpc('get_shop_order_by_claim_code', { code: claimCode });
 
         if (error) throw error;
         setShopOrder(data as unknown as ShopOrder);
@@ -87,7 +95,7 @@ export function GiftPage() {
     };
 
     // 1. Real-time Subscription to `transaction_events`
-    const channel = supabase.channel(`gift-order-${claimCode.toUpperCase()}`)
+    const channel = supabase.channel(`gift-order-${claimCode}`)
       .on(
         'postgres_changes',
         {
@@ -112,7 +120,7 @@ export function GiftPage() {
     const pollInterval = setInterval(async () => {
       try {
         const { data, error } = await supabase
-          .rpc('get_shop_order_by_claim_code', { code: claimCode.toUpperCase() });
+          .rpc('get_shop_order_by_claim_code', { code: claimCode });
         
         if (!error && data) {
           const updated = data as any;

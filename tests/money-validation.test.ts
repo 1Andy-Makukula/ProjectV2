@@ -17,6 +17,21 @@ describe('money validation', () => {
     expect(normalizeClaimCode('short')).toBeNull();
   });
 
+  // The transaction public code is a second redeemable shape. It is not
+  // hypothetical: fulfill-voucher accepts it, so a normaliser that rejected it
+  // would turn a valid code into "invalid" before the server ever saw it.
+  it('accepts the transaction public code shape', () => {
+    expect(normalizeClaimCode(' 1234-567890 ')).toBe('1234-567890');
+    expect(normalizeClaimCode('abcd-ef1234')).toBe('ABCD-EF1234');
+  });
+
+  it('still rejects codes of the wrong shape', () => {
+    expect(normalizeClaimCode('AB12CD3')).toBeNull();     // 7 chars
+    expect(normalizeClaimCode('AB12CD345')).toBeNull();   // 9 chars
+    expect(normalizeClaimCode('123-4567890')).toBeNull(); // dash misplaced
+    expect(normalizeClaimCode('AB12CD3!')).toBeNull();    // non-alphanumeric
+  });
+
   it('rejects duplicate item ids across present/missing', () => {
     const result = partitionItemIds(['a'], ['a']);
     expect(result.ok).toBe(false);

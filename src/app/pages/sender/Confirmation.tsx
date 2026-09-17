@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../../../lib/supabaseClient';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { formatCurrency } from '../../../utils/currency';
+import { resolveTransactionLookupKey } from '../../../lib/money/validation';
 import { getGiftPageUrl } from '../../../utils/whatsapp';
 import { Button } from '../../components/ui/button';
 import { toast } from 'sonner';
@@ -531,11 +532,13 @@ export function Confirmation() {
     }
 
     const resolveTransaction = async () => {
+      // Flutterwave appends a retry suffix to the reference it echoes back.
       const cleanTxRef = txRef.split('_')[0];
-      const isUuid =
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(cleanTxRef);
 
-      if (isUuid) {
+      // Which column this reference belongs to is decided by its shape, and the
+      // rule now lives in one place -- this used to be a second verbatim copy of
+      // the UUID pattern in src/lib/money/validation.ts.
+      if (resolveTransactionLookupKey(cleanTxRef) === 'transaction_id') {
         setTransactionId(cleanTxRef);
         setResolving(false);
         return;
