@@ -43,8 +43,67 @@
   --primary: #E8460A;
   --primary-light: #F26334;
   --primary-foreground: #ffffff;
-  --primary-tint: #FEF3EE;        /* page background tints, badge backgrounds */
-  --primary-tint-mid: #FCE4D8;    /* stronger tint */
+
+  /* -- The heat ramp -------------------------------------------------------
+     Chroma is a function of area, and that is a rule rather than a taste.
+
+     The same orange that looks like money on a 40px seal looks like a taxi
+     app stretched across a hero, and no amount of typography rescues it. So
+     the brand is not one colour -- it is five intensities, and the thing that
+     picks which one you use is how much of the screen it covers, NOT how
+     important the element is. An important button is still small.
+
+       --heat-5  a seal, a dot, a hairline edge     (<= 40px)
+       --heat-4  a button, a badge, an icon chip    (<= a card)
+       --heat-3  a strip, a small band              (<= a third of the fold)
+       --heat-2  a panel behind dark text
+       --heat-1  a full-screen wash
+
+     Large surfaces carrying *light* content do not appear on this ramp: they
+     go down in value instead of up in tint -- see --wash-ember below.
+
+     --primary-tint / --primary-tint-mid are kept as aliases with exactly the
+     values they always had. 36 places consume them and none of them need to
+     know the ramp exists. */
+  --heat-5: #E8460A;
+  --heat-4: #ED6A38;
+  --heat-3: #F5A883;
+  --heat-2: #FCE4D8;
+  --heat-1: #FEF3EE;
+
+  --primary-tint: var(--heat-1);      /* page background tints, badge backgrounds */
+  --primary-tint-mid: var(--heat-2);  /* stronger tint */
+
+  /* -- The large-area wash -------------------------------------------------
+     Every big orange surface in this app carries white text -- the hero, the
+     admin bands, the shop banner. The chroma rule says dilute them; diluting
+     upward into a pastel would satisfy the rule and make all of them
+     unreadable at the same time.
+
+     So they travel the other way. Down in value, warm the whole distance,
+     losing chroma as they darken: a room with a fire in it rather than a
+     sheet of orange. Contrast against white goes UP, and by more than the
+     chroma argument alone would have bought: 5.2:1 at the lightest stop and
+     climbing the whole way down, where the --primary/--primary-light
+     gradient these replaced ran 3.95:1 to 3.18:1. Every one of these
+     surfaces carries white text, so all seven were failing WCAG AA (4.5:1)
+     the entire time -- the dilution fixes an accessibility defect as a side
+     effect of fixing a taste one. The light also still has a direction:
+     135deg, the same top-left source as --rim.
+
+     The lightest stop in each theme is the one that has to clear 4.5:1.
+     Both do. Re-check it before changing either.
+
+     Two tokens rather than one because this gradient travels far enough in
+     both hue and value that sRGB interpolation greys out through the middle,
+     and oklab holds the warmth. .kl-wash-ember picks between them behind an
+     @supports test -- NOT by declaring both, which does not work through a
+     var(): see the comment there. Anything that does not understand
+     `in oklab` keeps the sRGB token and sees a slightly muddier midpoint,
+     never a missing background -- which matters on the older Android builds
+     this has to survive. */
+  --wash-ember: linear-gradient(135deg, #C2410C 0%, #7C2D12 46%, #3B1A0F 100%);
+  --wash-ember-oklab: linear-gradient(135deg in oklab, #C2410C 0%, #7C2D12 46%, #3B1A0F 100%);
 
   /* ── Storefront modes ─────────────────────────────────────────────────────
      The storefront wears a different face depending on what the shopper came
@@ -72,6 +131,172 @@
   --success: #1A7F4B;
   --success-foreground: #ffffff;
 
+  /* ══ The ramps ═══════════════════════════════════════════════════════════
+     Six families, and between them they are every colour the product draws.
+
+     WHY THESE EXIST
+     ---------------
+     Until 2026-09-17 about 2,000 colour decisions were spelled out as raw
+     Tailwind palette classes in components -- `text-slate-400`, `bg-orange-50`,
+     `border-red-200` -- against roughly 1,100 that went through this file. Two
+     thirds of the product's colour therefore could not be reached from here at
+     all, and a token edit changed a third of the UI. That is the single fact
+     that decided how much any design change could do, so it is the thing being
+     fixed: every one of those classes now resolves to a ramp defined below.
+
+     THE TWO KNOBS
+     -------------
+     Each family exposes `--<family>-hue-shift` (degrees, added) and
+     `--<family>-sat` (multiplier). Every stop is written as Tailwind's own
+     oklch triple with those two applied, so at the defaults -- shift 0, sat 1
+     -- each ramp is byte-for-byte the palette it replaced. That is deliberate:
+     it makes the migration provably neutral, and separates "the colour moved"
+     from "the refactor broke something".
+
+     To restyle the product, change the numbers here. Two lines retint every
+     neutral in the app -- this pair takes slate's blue-grey to a warm, calmer
+     grey, everywhere at once:
+
+         --ink-hue-shift: -205;      (257 -> ~52, a warm grey)
+         --ink-sat: 0.55;            (and calmer with it)
+
+     WHY THE STOPS ARE NOT FLATTENED TO ONE HUE
+     ------------------------------------------
+     Tailwind's ramps curve: orange-50 sits at hue 73.7 and orange-900 at 38.2,
+     because a tint and a shade of "the same" colour need different hues to read
+     as the same colour. Collapsing that to a single hue is what makes a
+     hand-rolled palette look muddy at the ends. So each stop keeps its own
+     hue and the knob is a *shift* across all of them, which moves the ramp
+     while preserving its shape.
+
+     WHY oklch
+     ---------
+     Lightness is perceptual and near-independent of hue, so turning the hue
+     knob barely moves contrast. Measured on white, shifting ink by the full
+     -205 degrees above changes every ratio by less than 0.15:
+
+         ink-400   2.63:1 -> 2.66:1        ink-700  10.34:1 -> 10.49:1
+         ink-500   4.77:1 -> 4.84:1        ink-900  17.84:1 -> 17.91:1
+         ink-600   7.56:1 -> 7.68:1
+
+     Not zero, but small enough that a retint cannot quietly push passing text
+     under a threshold. In sRGB hex the same move would not be safe -- that is
+     what broke the full-chroma headers documented against the heat ramp above.
+     Tailwind v4 already emits its whole palette as oklch and 91 such values
+     ship in the current CSS bundle, so this adds no browser requirement that
+     is not already met.
+
+     ONE THING THE MEASUREMENT EXPOSED
+     ---------------------------------
+     `ink-400` is 2.63:1 on white, which is below the 4.5:1 WCAG AA floor for
+     normal text -- and it is the single most-used colour in the product, with
+     around 240 call sites inherited from `text-slate-400`. `ink-500` passes,
+     but only just, at 4.77:1. This is pre-existing and was not introduced by
+     the migration; it is simply visible now that the value has one home.
+     Raising ink-400's lightness is a one-line fix here, but it is a visible
+     change to 240 places and wants to be somebody's decision, not a side
+     effect of this comment.
+
+     DARK MODE
+     ---------
+     These stops are deliberately NOT redefined under `.dark`. The raw palette
+     classes they replace never responded to the dark theme either, so holding
+     them fixed keeps this migration neutral in both themes. Inverting the ink
+     ramp for dark mode is a real improvement and a real change, and it wants
+     to be its own commit -- it is ten lines, below, once someone decides. */
+
+  /* -- ink: every neutral. Was slate (1,226 uses) and gray (199). ---------- */
+  --ink-hue-shift: 0;
+  --ink-sat: 1;
+  --ink-50:  oklch(98.4% calc(0.003 * var(--ink-sat)) calc(247.858 + var(--ink-hue-shift)));
+  --ink-100: oklch(96.8% calc(0.007 * var(--ink-sat)) calc(247.896 + var(--ink-hue-shift)));
+  --ink-200: oklch(92.9% calc(0.013 * var(--ink-sat)) calc(255.508 + var(--ink-hue-shift)));
+  --ink-300: oklch(86.9% calc(0.022 * var(--ink-sat)) calc(252.894 + var(--ink-hue-shift)));
+  --ink-400: oklch(70.4% calc(0.040 * var(--ink-sat)) calc(256.788 + var(--ink-hue-shift)));
+  --ink-500: oklch(55.4% calc(0.046 * var(--ink-sat)) calc(257.417 + var(--ink-hue-shift)));
+  --ink-600: oklch(44.6% calc(0.043 * var(--ink-sat)) calc(257.281 + var(--ink-hue-shift)));
+  --ink-700: oklch(37.2% calc(0.044 * var(--ink-sat)) calc(257.287 + var(--ink-hue-shift)));
+  --ink-800: oklch(27.9% calc(0.041 * var(--ink-sat)) calc(260.031 + var(--ink-hue-shift)));
+  --ink-900: oklch(20.8% calc(0.042 * var(--ink-sat)) calc(265.755 + var(--ink-hue-shift)));
+  --ink-950: oklch(12.9% calc(0.042 * var(--ink-sat)) calc(264.695 + var(--ink-hue-shift)));
+
+  /* -- brand: the orange as a full ramp. Was orange (214 uses). -----------
+     Distinct from --heat-1..5 above and not a replacement for it. The heat
+     ramp answers "how much area does this cover"; this answers "give me the
+     brand at tint 50". Components reached for `bg-orange-50` constantly and
+     had nothing here to reach for instead. */
+  --brand-hue-shift: 0;
+  --brand-sat: 1;
+  --brand-50:  oklch(98.0% calc(0.016 * var(--brand-sat)) calc(73.684 + var(--brand-hue-shift)));
+  --brand-100: oklch(95.4% calc(0.038 * var(--brand-sat)) calc(75.164 + var(--brand-hue-shift)));
+  --brand-200: oklch(90.1% calc(0.076 * var(--brand-sat)) calc(70.697 + var(--brand-hue-shift)));
+  --brand-300: oklch(83.7% calc(0.128 * var(--brand-sat)) calc(66.290 + var(--brand-hue-shift)));
+  --brand-400: oklch(75.0% calc(0.183 * var(--brand-sat)) calc(55.934 + var(--brand-hue-shift)));
+  --brand-500: oklch(70.5% calc(0.213 * var(--brand-sat)) calc(47.604 + var(--brand-hue-shift)));
+  --brand-600: oklch(64.6% calc(0.222 * var(--brand-sat)) calc(41.116 + var(--brand-hue-shift)));
+  --brand-700: oklch(55.3% calc(0.195 * var(--brand-sat)) calc(38.402 + var(--brand-hue-shift)));
+  --brand-800: oklch(47.0% calc(0.157 * var(--brand-sat)) calc(37.304 + var(--brand-hue-shift)));
+  --brand-900: oklch(40.8% calc(0.123 * var(--brand-sat)) calc(38.172 + var(--brand-hue-shift)));
+
+  /* -- danger: errors, refunds, debits. Was red (133) and rose (17). ------ */
+  --danger-hue-shift: 0;
+  --danger-sat: 1;
+  --danger-50:  oklch(97.1% calc(0.013 * var(--danger-sat)) calc(17.380 + var(--danger-hue-shift)));
+  --danger-100: oklch(93.6% calc(0.032 * var(--danger-sat)) calc(17.717 + var(--danger-hue-shift)));
+  --danger-200: oklch(88.5% calc(0.062 * var(--danger-sat)) calc(18.334 + var(--danger-hue-shift)));
+  --danger-300: oklch(80.8% calc(0.114 * var(--danger-sat)) calc(19.571 + var(--danger-hue-shift)));
+  --danger-400: oklch(70.4% calc(0.191 * var(--danger-sat)) calc(22.216 + var(--danger-hue-shift)));
+  --danger-500: oklch(63.7% calc(0.237 * var(--danger-sat)) calc(25.331 + var(--danger-hue-shift)));
+  --danger-600: oklch(57.7% calc(0.245 * var(--danger-sat)) calc(27.325 + var(--danger-hue-shift)));
+  --danger-700: oklch(50.5% calc(0.213 * var(--danger-sat)) calc(27.518 + var(--danger-hue-shift)));
+  --danger-800: oklch(44.4% calc(0.177 * var(--danger-sat)) calc(26.899 + var(--danger-hue-shift)));
+  --danger-900: oklch(39.6% calc(0.141 * var(--danger-sat)) calc(25.723 + var(--danger-hue-shift)));
+
+  /* -- warn: expiry, pending, holds, rating stars. Was amber (113), yellow (5). */
+  --warn-hue-shift: 0;
+  --warn-sat: 1;
+  --warn-50:  oklch(98.7% calc(0.022 * var(--warn-sat)) calc(95.277 + var(--warn-hue-shift)));
+  --warn-100: oklch(96.2% calc(0.059 * var(--warn-sat)) calc(95.617 + var(--warn-hue-shift)));
+  --warn-200: oklch(92.4% calc(0.120 * var(--warn-sat)) calc(95.746 + var(--warn-hue-shift)));
+  --warn-300: oklch(87.9% calc(0.169 * var(--warn-sat)) calc(91.605 + var(--warn-hue-shift)));
+  --warn-400: oklch(82.8% calc(0.189 * var(--warn-sat)) calc(84.429 + var(--warn-hue-shift)));
+  --warn-500: oklch(76.9% calc(0.188 * var(--warn-sat)) calc(70.080 + var(--warn-hue-shift)));
+  --warn-600: oklch(66.6% calc(0.179 * var(--warn-sat)) calc(58.318 + var(--warn-hue-shift)));
+  --warn-700: oklch(55.5% calc(0.163 * var(--warn-sat)) calc(48.998 + var(--warn-hue-shift)));
+  --warn-800: oklch(47.3% calc(0.137 * var(--warn-sat)) calc(46.201 + var(--warn-hue-shift)));
+  --warn-900: oklch(41.4% calc(0.112 * var(--warn-sat)) calc(45.904 + var(--warn-hue-shift)));
+
+  /* -- ok: settled, fulfilled, credits. Was green (65) and emerald (45).
+     One ramp rather than two. The product used green and emerald for the same
+     idea in different files, which is how "settled" ended up two colours. */
+  --ok-hue-shift: 0;
+  --ok-sat: 1;
+  --ok-50:  oklch(98.2% calc(0.018 * var(--ok-sat)) calc(155.826 + var(--ok-hue-shift)));
+  --ok-100: oklch(96.2% calc(0.044 * var(--ok-sat)) calc(156.743 + var(--ok-hue-shift)));
+  --ok-200: oklch(92.5% calc(0.084 * var(--ok-sat)) calc(155.995 + var(--ok-hue-shift)));
+  --ok-300: oklch(87.1% calc(0.150 * var(--ok-sat)) calc(154.449 + var(--ok-hue-shift)));
+  --ok-400: oklch(79.2% calc(0.209 * var(--ok-sat)) calc(151.711 + var(--ok-hue-shift)));
+  --ok-500: oklch(72.3% calc(0.219 * var(--ok-sat)) calc(149.579 + var(--ok-hue-shift)));
+  --ok-600: oklch(62.7% calc(0.194 * var(--ok-sat)) calc(149.214 + var(--ok-hue-shift)));
+  --ok-700: oklch(52.7% calc(0.154 * var(--ok-sat)) calc(150.069 + var(--ok-hue-shift)));
+  --ok-800: oklch(44.8% calc(0.119 * var(--ok-sat)) calc(151.328 + var(--ok-hue-shift)));
+  --ok-900: oklch(39.3% calc(0.095 * var(--ok-sat)) calc(152.535 + var(--ok-hue-shift)));
+  --ok-950: oklch(26.6% calc(0.065 * var(--ok-sat)) calc(152.934 + var(--ok-hue-shift)));
+
+  /* -- info: neutral notices, links, informational chips. Was blue (35). -- */
+  --info-hue-shift: 0;
+  --info-sat: 1;
+  --info-50:  oklch(97.0% calc(0.014 * var(--info-sat)) calc(254.604 + var(--info-hue-shift)));
+  --info-100: oklch(93.2% calc(0.032 * var(--info-sat)) calc(255.585 + var(--info-hue-shift)));
+  --info-200: oklch(88.2% calc(0.059 * var(--info-sat)) calc(254.128 + var(--info-hue-shift)));
+  --info-300: oklch(80.9% calc(0.105 * var(--info-sat)) calc(251.813 + var(--info-hue-shift)));
+  --info-400: oklch(70.7% calc(0.165 * var(--info-sat)) calc(254.624 + var(--info-hue-shift)));
+  --info-500: oklch(62.3% calc(0.214 * var(--info-sat)) calc(259.815 + var(--info-hue-shift)));
+  --info-600: oklch(54.6% calc(0.245 * var(--info-sat)) calc(262.881 + var(--info-hue-shift)));
+  --info-700: oklch(48.8% calc(0.243 * var(--info-sat)) calc(264.376 + var(--info-hue-shift)));
+  --info-800: oklch(42.4% calc(0.199 * var(--info-sat)) calc(265.638 + var(--info-hue-shift)));
+  --info-900: oklch(37.9% calc(0.146 * var(--info-sat)) calc(265.522 + var(--info-hue-shift)));
+
   /* Borders — hair-thin, Apple style */
   --border: rgba(0, 0, 0, 0.07);
   --border-dark: rgba(0, 0, 0, 0.12);
@@ -82,10 +307,27 @@
   --switch-background: #CBCED4;
   --ring: rgba(232, 70, 10, 0.35);
 
+  /* -- Shadow ink ----------------------------------------------------------
+     One light source, and it has a colour.
+
+     Every shadow below derives from this one triple, so there is exactly one
+     place in the project that decides what colour the light is. It used to be
+     rgba(16,16,20,...) -- a cool near-black, the shadow you get under a grey
+     sky. On a warm ground (--background is #EAE8E3) lit by a brand this
+     orange, a cool shadow reads like a photograph with the wrong white
+     balance: nothing you can name, but every surface looks pasted on instead
+     of resting there.
+
+     Dark and low-chroma rather than brown. At these alphas it resolves to a
+     warm grey, not dirt. The alphas are each a point or two higher than the
+     cool values they replace, because a warm ink of equal alpha reads lighter
+     than a neutral one -- the correction is optical, not arithmetic. */
+  --shadow-ink: 74 32 16;
+
   /* Shadows */
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-panel: 0 8px 30px rgba(0,0,0,0.12);
-  --shadow-dropdown: 0 4px 20px rgba(0,0,0,0.10);
+  --shadow-card: 0 1px 3px rgb(var(--shadow-ink) / 0.07), 0 1px 2px rgb(var(--shadow-ink) / 0.05);
+  --shadow-panel: 0 8px 30px rgb(var(--shadow-ink) / 0.14);
+  --shadow-dropdown: 0 4px 20px rgb(var(--shadow-ink) / 0.12);
 
   /* Floating shell — the rim, lift and halo that make a surface read as
      present rather than printed on. One definition each, so a tile, a modal
@@ -95,8 +337,8 @@
      at 4% and -14px) reads as a glow under a flat shape; the tight 1-3px
      contact shadow is what the eye uses to decide something is physically
      resting on the page rather than printed onto it. */
-  --shadow-float: 0 1px 3px rgba(16,16,20,0.10), 0 10px 24px -10px rgba(16,16,20,0.30);
-  --shadow-lift:  0 3px 8px rgba(16,16,20,0.12), 0 24px 48px -16px rgba(16,16,20,0.38);
+  --shadow-float: 0 1px 3px rgb(var(--shadow-ink) / 0.11), 0 10px 24px -10px rgb(var(--shadow-ink) / 0.32);
+  --shadow-lift:  0 3px 8px rgb(var(--shadow-ink) / 0.13), 0 24px 48px -16px rgb(var(--shadow-ink) / 0.40);
   --shadow-glow:  0 4px 14px -4px rgba(232,70,10,0.40);
   --shadow-glow-strong: 0 8px 24px -6px rgba(232,70,10,0.55);
 
@@ -215,8 +457,26 @@
   --primary: #F26334;
   --primary-light: #F97316;
   --primary-foreground: #ffffff;
-  --primary-tint: rgba(242, 99, 52, 0.08);
-  --primary-tint-mid: rgba(242, 99, 52, 0.15);
+  /* The ramp, re-grounded. On a near-black page the low end cannot be a tint
+     of white, so 1 and 2 become washes of the brand over the ground. 3-5 stay
+     emissive: on a dark surface a small bright mark is the only thing that
+     can read as lit. */
+  --heat-5: #F26334;
+  --heat-4: #E8541F;
+  --heat-3: #B8431A;
+  --heat-2: rgba(242, 99, 52, 0.15);
+  --heat-1: rgba(242, 99, 52, 0.08);
+
+  --primary-tint: var(--heat-1);
+  --primary-tint-mid: var(--heat-2);
+
+  /* Lifted off the page: the DARK end of the ember has to stay clear of
+     #0D0D0D or the panel stops being a panel. The light end is held down
+     instead -- #D14A10 measured 4.47:1 against white, fractionally under AA
+     for normal text, and every surface wearing this has white text on it.
+     #C4440E is 5.0:1 and still unmistakably lit against a near-black page. */
+  --wash-ember: linear-gradient(135deg, #C4440E 0%, #8A3415 48%, #4A2113 100%);
+  --wash-ember-oklab: linear-gradient(135deg in oklab, #C4440E 0%, #8A3415 48%, #4A2113 100%);
   --secondary: #1E1E1E;
   --secondary-foreground: #F5F5F5;
   --muted: #1E1E1E;
@@ -231,14 +491,19 @@
   --input-background: #1E1E1E;
   --switch-background: #3A3A3A;
   --ring: rgba(242, 99, 52, 0.4);
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.3);
-  --shadow-panel: 0 8px 30px rgba(0,0,0,0.5);
-  --shadow-dropdown: 0 4px 20px rgba(0,0,0,0.4);
+  /* Barely warm. A shadow in a dark room has little light to take a colour
+     from, and pushing it further just silts up the blacks -- but the ink stays
+     a token so the two themes are tuned from the same place. */
+  --shadow-ink: 12 5 2;
+
+  --shadow-card: 0 1px 3px rgb(var(--shadow-ink) / 0.32);
+  --shadow-panel: 0 8px 30px rgb(var(--shadow-ink) / 0.52);
+  --shadow-dropdown: 0 4px 20px rgb(var(--shadow-ink) / 0.42);
 
   /* On a dark ground the lift comes from the rim, not from a shadow nobody
      can see, so the rim brightens and the shadows deepen. */
-  --shadow-float: 0 1px 2px rgba(0,0,0,0.4), 0 12px 28px -14px rgba(0,0,0,0.7);
-  --shadow-lift:  0 2px 4px rgba(0,0,0,0.45), 0 22px 44px -18px rgba(0,0,0,0.8);
+  --shadow-float: 0 1px 2px rgb(var(--shadow-ink) / 0.42), 0 12px 28px -14px rgb(var(--shadow-ink) / 0.72);
+  --shadow-lift:  0 2px 4px rgb(var(--shadow-ink) / 0.47), 0 22px 44px -18px rgb(var(--shadow-ink) / 0.82);
   --shadow-glow:  0 4px 16px -4px rgba(232,70,10,0.5);
   --shadow-glow-strong: 0 8px 28px -6px rgba(232,70,10,0.7);
 
@@ -297,6 +562,79 @@
   --color-input-background: var(--input-background);
   --color-switch-background: var(--switch-background);
   --color-ring: var(--ring);
+  /* The ramps, as utilities: text-ink-400, bg-brand-50, border-danger-200.
+     Declared here rather than left as bare custom properties because that is
+     what lets a component say `text-ink-400` instead of
+     `text-[var(--ink-400)]` -- and a class the linter can check is worth more
+     than one it cannot. See the ramp definitions in :root for the two knobs. */
+  --color-ink-50: var(--ink-50);
+  --color-ink-100: var(--ink-100);
+  --color-ink-200: var(--ink-200);
+  --color-ink-300: var(--ink-300);
+  --color-ink-400: var(--ink-400);
+  --color-ink-500: var(--ink-500);
+  --color-ink-600: var(--ink-600);
+  --color-ink-700: var(--ink-700);
+  --color-ink-800: var(--ink-800);
+  --color-ink-900: var(--ink-900);
+  --color-ink-950: var(--ink-950);
+
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+
+  --color-danger-50: var(--danger-50);
+  --color-danger-100: var(--danger-100);
+  --color-danger-200: var(--danger-200);
+  --color-danger-300: var(--danger-300);
+  --color-danger-400: var(--danger-400);
+  --color-danger-500: var(--danger-500);
+  --color-danger-600: var(--danger-600);
+  --color-danger-700: var(--danger-700);
+  --color-danger-800: var(--danger-800);
+  --color-danger-900: var(--danger-900);
+
+  --color-warn-50: var(--warn-50);
+  --color-warn-100: var(--warn-100);
+  --color-warn-200: var(--warn-200);
+  --color-warn-300: var(--warn-300);
+  --color-warn-400: var(--warn-400);
+  --color-warn-500: var(--warn-500);
+  --color-warn-600: var(--warn-600);
+  --color-warn-700: var(--warn-700);
+  --color-warn-800: var(--warn-800);
+  --color-warn-900: var(--warn-900);
+
+  --color-ok-50: var(--ok-50);
+  --color-ok-100: var(--ok-100);
+  --color-ok-200: var(--ok-200);
+  --color-ok-300: var(--ok-300);
+  --color-ok-400: var(--ok-400);
+  --color-ok-500: var(--ok-500);
+  --color-ok-600: var(--ok-600);
+  --color-ok-700: var(--ok-700);
+  --color-ok-800: var(--ok-800);
+  --color-ok-900: var(--ok-900);
+  --color-ok-950: var(--ok-950);
+
+  --color-info-50: var(--info-50);
+  --color-info-100: var(--info-100);
+  --color-info-200: var(--info-200);
+  --color-info-300: var(--info-300);
+  --color-info-400: var(--info-400);
+  --color-info-500: var(--info-500);
+  --color-info-600: var(--info-600);
+  --color-info-700: var(--info-700);
+  --color-info-800: var(--info-800);
+  --color-info-900: var(--info-900);
+
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -486,6 +824,37 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+
+  /* -- The large-area wash ------------------------------------------------
+     The counterpart to .kl-gradient-brand, and the dividing line between them
+     is area, not importance.
+
+     .kl-gradient-brand is the brand undiluted and belongs on anything small
+     enough to be looked at rather than looked across: buttons, badges, icon
+     chips, the 1.5px edge on a voucher, gradient-clipped text. Roughly sixty
+     places, all correct, none of them changed.
+
+     .kl-wash-ember is for the seven surfaces big enough that full chroma
+     turned them into signage -- the Welcome hero, the About panel, the shop
+     banner, the admin and onboarding header bands. Same light, same family,
+     a fraction of the volume.
+
+     If you are reaching for this on something the size of a button, the
+     answer is .kl-gradient-brand. If you are reaching for .kl-gradient-brand
+     on something the size of a hero, the answer is this. */
+  .kl-wash-ember {
+    background-image: var(--wash-ember);
+  }
+
+  /* Tested as a literal declaration, not through the token. See the note on
+     --wash-ember-oklab: a var() substitution that fails resolves to unset,
+     so the usual two-declaration fallback would have left these seven
+     surfaces with no background at all on anything older than Chrome 111. */
+  @supports (background-image: linear-gradient(in oklab, red, blue)) {
+    .kl-wash-ember {
+      background-image: var(--wash-ember-oklab);
+    }
   }
 
   /* Mode-aware equivalents: same shapes, retinted by the active storefront mode. */
