@@ -138,6 +138,14 @@ export function PrintableReceipt() {
                   </span>
                 </div>
               ))}
+              {/* When the handover happened. A receipt for a collected gift is a
+                  reconciliation document, and the collection time is the fact it
+                  is most often produced to establish. */}
+              {order.fulfilled_at && (
+                <div className="text-[10px] text-slate-400 font-mono pt-0.5">
+                  COLLECTED: {new Date(order.fulfilled_at).toLocaleString()}
+                </div>
+              )}
             </div>
           ))}
         </div>

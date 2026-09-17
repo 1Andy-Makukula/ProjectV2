@@ -31,6 +31,7 @@ export function usePrintableReceipt(transactionId: string | undefined) {
               subtotal,
               recipient_name,
               recipient_phone,
+              fulfilled_at,
               shop:shop_id (name, location),
               order_items (
                 order_item_id,
