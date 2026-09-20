@@ -1,7 +1,8 @@
 # Two rails and the request engine
 
-> **Status: plan. Written 19 September 2026.** Stage 0 is built and sits on
-> `feat/occasion-intent-layer`; everything from Stage 1 down is not started.
+> **Status: plan. Written 19 September, updated 20 September 2026.** Stage 0 is
+> built and committed on `feat/occasion-intent-layer`, the schema is fully
+> applied, and everything from Stage 1 down is not started.
 >
 > This supersedes nothing. It is the first written form of the occasion-led
 > pivot of 16 September and the concierge thinking of 19 September, put in one
@@ -24,35 +25,55 @@ That is the whole architecture. Two doors, one building.
 
 ---
 
-## 1a. Before anything: the migration backlog
+## 1a. The migration backlog — CLEARED
 
-**This is the real blocker, and it sits in front of every stage below.**
+**Resolved 20 September 2026.** This section described the blocker in front of
+every stage below. It is no longer one, and is kept because the shape of the
+problem is worth remembering.
 
-`src/types/database.types.ts` is stale relative to migrations that are already
-committed. Verified absent from the generated types, while their migration files
-exist on disk:
+All ten pending migrations were applied to the linked project with
+`supabase db push --include-all`, and `src/types/database.types.ts` was
+regenerated (3,698 → 5,086 lines). What had been missing from the generated
+types — `occasion_lead_times`, `gift_issue_reports`, `experiences.occasion_kind`,
+`start_kithly_conversation`, `refund_charge_instruction` — is all present now.
+Typecheck, 239 tests and the production build pass against it.
 
-| Object | Migration | In types? |
-| --- | --- | --- |
-| `occasion_lead_times` table | `20260913020000_occasion_lead_times.sql` | **missing** |
-| slate weights / kappa | `20260914070000_slate_weights_and_kappa.sql` | **missing** |
-| `start_kithly_conversation(p_subject)` RPC | `20260916000000_buyer_concierge_conversation.sql` | **missing** |
-| `experiences.occasion_kind` | `20260916010000_experience_occasion_kind.sql` | **missing** |
+`--include-all` was required because `20260914096000_gift_issue_reports` sat
+**behind** the remote head; an ordinary `db push` refuses and applies nothing
+rather than silently inserting out of order.
 
-Plus four migrations that are not even committed yet — the three from 17 Sep and
-`20260919000000_category_tile_art.sql` from today.
+Three of the ten touched the money path. The one worth knowing about:
 
-What can be verified from the repository is that **the types were never
-regenerated**. Whether the migrations are applied in the database cannot be
-checked from here. Do that first, then regenerate types, before starting Stage 1.
-Per CLAUDE.md, `database.types.ts` is canonical and schema changes generate types
-first — right now that contract is broken and every stage below inherits it.
+> **`20260917020000_ngwee_unit_correction`** — the escrow ledger had been
+> recording every amount **one hundred times too large**. `20260915000000`
+> assumed the schema stored whole kwacha; it stores minor units everywhere, so
+> `zmw_to_ngwee` was applied to figures that were already ngwee. Merchants
+> would have been queued payouts of 100× what they were owed and
+> `payout-dispatcher` would have instructed Airtel to send it.
+>
+> **Why the ledger invariant did not catch it:** every account was inflated by
+> the same factor, so debits still equalled credits and drift stayed at zero.
+> A uniform error preserves internal consistency. The daily bank comparison in
+> `20260915060000` is the control that would have caught it — the bank would
+> have held one hundredth of what the ledger claimed — and it had simply not
+> run yet.
+>
+> No data rewrite was needed. It replaces eight function bodies, and
+> `escrow_mode` has never left `dual_write`, so no real payout, refund or sweep
+> was ever computed from the inflated numbers. **Caught before cutover.**
 
-**One live hazard to know about.** `EXPERIENCE_SELECT` in `useExperiences.ts` does
-**not** currently request `occasion_kind`, so nothing breaks today. The moment the
-occasion work restores that column to the select, the migration must already be
-applied or **every experience silently disappears from the storefront** — an empty
-list, not an error. Order matters: migration first, select second.
+**The standing rule this leaves behind.** CLAUDE.md makes
+`database.types.ts` canonical and requires types to be generated before
+frontend work. That contract had been broken for a week, silently, because
+nothing fails when the types are merely *behind* the database — code just
+cannot see the new columns. Regenerate after every push, and treat a stale
+types file as a blocker rather than a chore.
+
+**The hazard that is now inert.** `EXPERIENCE_SELECT` in `useExperiences.ts`
+does not request `occasion_kind`. Before today, restoring that column to the
+select without applying the migration would have made **every experience
+silently disappear** from the storefront — an empty list, not an error. The
+column now exists, so the trap is gone; the ordering lesson is not.
 
 ---
 
@@ -158,11 +179,13 @@ Everything is a tile, including the header. Intent asked once, in words. Nine
 category tiles with real art, ordered and pictured from the database. Trust copy
 and a human phone number placed above the fold rather than in a footer.
 
-- `src/app/pages/public/Welcome.tsx`, `src/app/components/shared/CategoryTiles.tsx`,
-  `src/app/hooks/useCategories.ts`,
-  `supabase/migrations/20260919000000_category_tile_art.sql`
-- **Done when:** the migration is applied and `/welcome` shows photographs.
-  *(Written, not yet applied.)*
+- `src/app/pages/public/Welcome.tsx`, `src/app/components/shared/TileMosaic.tsx`,
+  `src/app/hooks/useCategories.ts`, `src/app/types/occasions.ts`,
+  `src/app/types/categoryArt.ts`, and two migrations (category tile art, Home
+  affinity) — **both applied**.
+- Extended 20 Sep: all thirteen occasions as tiles, `rent` reframed as Home,
+  and the tiles breathe on the Conductor's clock at a 30s dwell.
+- **Done.** Committed as `3939d83`.
 
 ### Stage 1 — The rail toggle
 

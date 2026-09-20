@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -66,6 +71,97 @@ export type Database = {
           {
             foreignKeyName: "admin_action_log_actor_id_fkey"
             columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      budget_goals: {
+        Row: {
+          created_at: string
+          due_on: string | null
+          id: string
+          item_id: string | null
+          name: string
+          occasion_id: string | null
+          reserved_zmw: number
+          shop_id: string | null
+          status: string
+          target_zmw: number
+          updated_at: string
+          user_id: string
+          visibility: string
+        }
+        Insert: {
+          created_at?: string
+          due_on?: string | null
+          id?: string
+          item_id?: string | null
+          name: string
+          occasion_id?: string | null
+          reserved_zmw?: number
+          shop_id?: string | null
+          status?: string
+          target_zmw: number
+          updated_at?: string
+          user_id: string
+          visibility?: string
+        }
+        Update: {
+          created_at?: string
+          due_on?: string | null
+          id?: string
+          item_id?: string | null
+          name?: string
+          occasion_id?: string | null
+          reserved_zmw?: number
+          shop_id?: string | null
+          status?: string
+          target_zmw?: number
+          updated_at?: string
+          user_id?: string
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budget_goals_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_goals_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "unevidenced_discounts"
+            referencedColumns: ["item_id"]
+          },
+          {
+            foreignKeyName: "budget_goals_occasion_id_fkey"
+            columns: ["occasion_id"]
+            isOneToOne: false
+            referencedRelation: "contact_occasions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_goals_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
+          {
+            foreignKeyName: "budget_goals_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "budget_goals_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -247,15 +343,91 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_group_members: {
+        Row: {
+          added_at: string
+          contact_id: string
+          group_id: string
+          owner_user_id: string
+        }
+        Insert: {
+          added_at?: string
+          contact_id: string
+          group_id: string
+          owner_user_id: string
+        }
+        Update: {
+          added_at?: string
+          contact_id?: string
+          group_id?: string
+          owner_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_group_members_contact_fkey"
+            columns: ["contact_id", "owner_user_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id", "owner_user_id"]
+          },
+          {
+            foreignKeyName: "contact_group_members_group_fkey"
+            columns: ["group_id", "owner_user_id"]
+            isOneToOne: false
+            referencedRelation: "contact_groups"
+            referencedColumns: ["id", "owner_user_id"]
+          },
+        ]
+      }
+      contact_groups: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string | null
+          name: string
+          notes: string | null
+          owner_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string | null
+          name: string
+          notes?: string | null
+          owner_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string | null
+          name?: string
+          notes?: string | null
+          owner_user_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_groups_owner_user_id_fkey"
+            columns: ["owner_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_occasions: {
         Row: {
-          contact_id: string
+          contact_id: string | null
           created_at: string
           day: number | null
+          group_id: string | null
           id: string
           kind: string
           label: string | null
           last_reminded_on: string | null
+          lead_days: number[] | null
           month: number | null
           notes: string | null
           recurrence: string
@@ -263,13 +435,15 @@ export type Database = {
           year: number | null
         }
         Insert: {
-          contact_id: string
+          contact_id?: string | null
           created_at?: string
           day?: number | null
+          group_id?: string | null
           id?: string
           kind: string
           label?: string | null
           last_reminded_on?: string | null
+          lead_days?: number[] | null
           month?: number | null
           notes?: string | null
           recurrence?: string
@@ -277,13 +451,15 @@ export type Database = {
           year?: number | null
         }
         Update: {
-          contact_id?: string
+          contact_id?: string | null
           created_at?: string
           day?: number | null
+          group_id?: string | null
           id?: string
           kind?: string
           label?: string | null
           last_reminded_on?: string | null
+          lead_days?: number[] | null
           month?: number | null
           notes?: string | null
           recurrence?: string
@@ -298,6 +474,74 @@ export type Database = {
             referencedRelation: "contacts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "contact_occasions_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "contact_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_preferences: {
+        Row: {
+          contact_id: string
+          created_at: string
+          evidence_count: number
+          id: string
+          kind: string
+          owner_user_id: string
+          shop_id: string | null
+          source: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          evidence_count?: number
+          id?: string
+          kind: string
+          owner_user_id: string
+          shop_id?: string | null
+          source?: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          evidence_count?: number
+          id?: string
+          kind?: string
+          owner_user_id?: string
+          shop_id?: string | null
+          source?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_preferences_contact_fkey"
+            columns: ["contact_id", "owner_user_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id", "owner_user_id"]
+          },
+          {
+            foreignKeyName: "contact_preferences_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
+          {
+            foreignKeyName: "contact_preferences_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
         ]
       }
       contacts: {
@@ -309,6 +553,7 @@ export type Database = {
           owner_user_id: string
           phone: string
           relationship: string | null
+          relationship_tier: string | null
           source: string
           updated_at: string
         }
@@ -320,6 +565,7 @@ export type Database = {
           owner_user_id: string
           phone: string
           relationship?: string | null
+          relationship_tier?: string | null
           source?: string
           updated_at?: string
         }
@@ -331,6 +577,7 @@ export type Database = {
           owner_user_id?: string
           phone?: string
           relationship?: string | null
+          relationship_tier?: string | null
           source?: string
           updated_at?: string
         }
@@ -430,6 +677,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "conversations_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "unevidenced_discounts"
+            referencedColumns: ["item_id"]
+          },
+          {
+            foreignKeyName: "conversations_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
+          {
             foreignKeyName: "conversations_shop_id_fkey"
             columns: ["shop_id"]
             isOneToOne: false
@@ -444,6 +705,33 @@ export type Database = {
             referencedColumns: ["shop_order_id"]
           },
         ]
+      }
+      countries: {
+        Row: {
+          code: string
+          created_at: string
+          currency: string | null
+          is_active: boolean
+          name: string
+          timezone: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          currency?: string | null
+          is_active?: boolean
+          name: string
+          timezone?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          currency?: string | null
+          is_active?: boolean
+          name?: string
+          timezone?: string | null
+        }
+        Relationships: []
       }
       experience_items: {
         Row: {
@@ -485,6 +773,13 @@ export type Database = {
             referencedRelation: "items"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "experience_items_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "unevidenced_discounts"
+            referencedColumns: ["item_id"]
+          },
         ]
       }
       experiences: {
@@ -498,6 +793,7 @@ export type Database = {
           is_active: boolean
           is_featured: boolean
           name: string
+          occasion_kind: string | null
           slug: string
           sort_order: number
           tagline: string | null
@@ -513,6 +809,7 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           name: string
+          occasion_kind?: string | null
           slug: string
           sort_order?: number
           tagline?: string | null
@@ -528,6 +825,7 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           name?: string
+          occasion_kind?: string | null
           slug?: string
           sort_order?: number
           tagline?: string | null
@@ -540,6 +838,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "experiences_occasion_kind_fkey"
+            columns: ["occasion_kind"]
+            isOneToOne: false
+            referencedRelation: "occasion_lead_times"
+            referencedColumns: ["kind"]
           },
         ]
       }
@@ -690,6 +995,130 @@ export type Database = {
         }
         Relationships: []
       }
+      gift_issue_reports: {
+        Row: {
+          contact_phone: string | null
+          created_at: string
+          description: string | null
+          issue_type: string
+          report_id: string
+          resolution_note: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          shop_id: string | null
+          shop_order_id: string
+          status: string
+          transaction_id: string | null
+        }
+        Insert: {
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          issue_type: string
+          report_id?: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          shop_id?: string | null
+          shop_order_id: string
+          status?: string
+          transaction_id?: string | null
+        }
+        Update: {
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          issue_type?: string
+          report_id?: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          shop_id?: string | null
+          shop_order_id?: string
+          status?: string
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gift_issue_reports_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gift_issue_reports_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
+          {
+            foreignKeyName: "gift_issue_reports_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gift_issue_reports_shop_order_id_fkey"
+            columns: ["shop_order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["shop_order_id"]
+          },
+        ]
+      }
+      holidays: {
+        Row: {
+          country_code: string
+          created_at: string
+          day: number | null
+          id: string
+          is_active: boolean
+          kind: string
+          month: number | null
+          name: string
+          notes: string | null
+          recurrence: string
+          year: number | null
+        }
+        Insert: {
+          country_code: string
+          created_at?: string
+          day?: number | null
+          id?: string
+          is_active?: boolean
+          kind?: string
+          month?: number | null
+          name: string
+          notes?: string | null
+          recurrence?: string
+          year?: number | null
+        }
+        Update: {
+          country_code?: string
+          created_at?: string
+          day?: number | null
+          id?: string
+          is_active?: boolean
+          kind?: string
+          month?: number | null
+          name?: string
+          notes?: string | null
+          recurrence?: string
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "holidays_country_code_fkey"
+            columns: ["country_code"]
+            isOneToOne: false
+            referencedRelation: "countries"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       item_images: {
         Row: {
           created_at: string
@@ -719,6 +1148,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "items"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "item_images_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "unevidenced_discounts"
+            referencedColumns: ["item_id"]
           },
         ]
       }
@@ -770,6 +1206,13 @@ export type Database = {
             referencedRelation: "items"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "item_option_groups_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "unevidenced_discounts"
+            referencedColumns: ["item_id"]
+          },
         ]
       }
       item_options: {
@@ -810,6 +1253,71 @@ export type Database = {
           },
         ]
       }
+      item_price_events: {
+        Row: {
+          created_at: string
+          id: number
+          is_drop: boolean
+          item_id: string
+          new_discounted: boolean
+          new_price_zmw: number
+          old_discounted: boolean
+          old_price_zmw: number | null
+          shop_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          is_drop: boolean
+          item_id: string
+          new_discounted: boolean
+          new_price_zmw: number
+          old_discounted: boolean
+          old_price_zmw?: number | null
+          shop_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          is_drop?: boolean
+          item_id?: string
+          new_discounted?: boolean
+          new_price_zmw?: number
+          old_discounted?: boolean
+          old_price_zmw?: number | null
+          shop_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_price_events_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "item_price_events_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "unevidenced_discounts"
+            referencedColumns: ["item_id"]
+          },
+          {
+            foreignKeyName: "item_price_events_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
+          {
+            foreignKeyName: "item_price_events_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       item_price_tiers: {
         Row: {
           created_at: string
@@ -840,6 +1348,13 @@ export type Database = {
             referencedRelation: "items"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "item_price_tiers_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "unevidenced_discounts"
+            referencedColumns: ["item_id"]
+          },
         ]
       }
       items: {
@@ -852,6 +1367,7 @@ export type Database = {
           created_at: string | null
           currency: string | null
           description: string | null
+          display_expires_at: string | null
           fulfillment_location: string | null
           has_expiry: boolean
           id: string
@@ -875,6 +1391,7 @@ export type Database = {
           stock_baseline: number | null
           stock_quantity: number | null
           valid_for_days: number | null
+          validity_days: number | null
           wholesale_price_zmw: number | null
         }
         Insert: {
@@ -886,6 +1403,7 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          display_expires_at?: string | null
           fulfillment_location?: string | null
           has_expiry?: boolean
           id?: string
@@ -909,6 +1427,7 @@ export type Database = {
           stock_baseline?: number | null
           stock_quantity?: number | null
           valid_for_days?: number | null
+          validity_days?: number | null
           wholesale_price_zmw?: number | null
         }
         Update: {
@@ -920,6 +1439,7 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          display_expires_at?: string | null
           fulfillment_location?: string | null
           has_expiry?: boolean
           id?: string
@@ -943,6 +1463,7 @@ export type Database = {
           stock_baseline?: number | null
           stock_quantity?: number | null
           valid_for_days?: number | null
+          validity_days?: number | null
           wholesale_price_zmw?: number | null
         }
         Relationships: [
@@ -952,6 +1473,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "categories"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "items_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
           },
           {
             foreignKeyName: "items_shop_id_fkey"
@@ -968,6 +1496,7 @@ export type Database = {
           created_at: string | null
           currency: string
           id: string
+          reserved_zmw: number
           updated_at: string | null
           user_id: string
         }
@@ -976,6 +1505,7 @@ export type Database = {
           created_at?: string | null
           currency?: string
           id?: string
+          reserved_zmw?: number
           updated_at?: string | null
           user_id: string
         }
@@ -984,6 +1514,7 @@ export type Database = {
           created_at?: string | null
           currency?: string
           id?: string
+          reserved_zmw?: number
           updated_at?: string | null
           user_id?: string
         }
@@ -1046,15 +1577,7 @@ export type Database = {
           shop_order_id?: string | null
           transaction_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "ledger_entries_shop_order_id_fkey"
-            columns: ["shop_order_id"]
-            isOneToOne: false
-            referencedRelation: "shop_orders"
-            referencedColumns: ["shop_order_id"]
-          },
-        ]
+        Relationships: []
       }
       list_items: {
         Row: {
@@ -1102,11 +1625,25 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "list_items_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "unevidenced_discounts"
+            referencedColumns: ["item_id"]
+          },
+          {
             foreignKeyName: "list_items_list_id_fkey"
             columns: ["list_id"]
             isOneToOne: false
             referencedRelation: "lists"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "list_items_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
           },
           {
             foreignKeyName: "list_items_shop_id_fkey"
@@ -1246,6 +1783,13 @@ export type Database = {
             foreignKeyName: "lists_owner_shop_id_fkey"
             columns: ["owner_shop_id"]
             isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
+          {
+            foreignKeyName: "lists_owner_shop_id_fkey"
+            columns: ["owner_shop_id"]
+            isOneToOne: false
             referencedRelation: "shops"
             referencedColumns: ["id"]
           },
@@ -1317,6 +1861,13 @@ export type Database = {
           shop_order_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "merchant_float_ledger_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
           {
             foreignKeyName: "merchant_float_ledger_shop_id_fkey"
             columns: ["shop_id"]
@@ -1405,6 +1956,20 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "merchant_payout_destinations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "merchant_payout_destinations_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
+          {
             foreignKeyName: "merchant_payout_destinations_shop_id_fkey"
             columns: ["shop_id"]
             isOneToOne: false
@@ -1430,6 +1995,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "merchant_shops_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
           {
             foreignKeyName: "merchant_shops_shop_id_fkey"
             columns: ["shop_id"]
@@ -1511,6 +2083,13 @@ export type Database = {
             foreignKeyName: "merchant_withdrawals_shop_id_fkey"
             columns: ["shop_id"]
             isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
+          {
+            foreignKeyName: "merchant_withdrawals_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
             referencedRelation: "shops"
             referencedColumns: ["id"]
           },
@@ -1576,6 +2155,7 @@ export type Database = {
       }
       notifications: {
         Row: {
+          actions: Json | null
           created_at: string
           id: string
           is_read: boolean
@@ -1585,6 +2165,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          actions?: Json | null
           created_at?: string
           id?: string
           is_read?: boolean
@@ -1594,6 +2175,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          actions?: Json | null
           created_at?: string
           id?: string
           is_read?: boolean
@@ -1611,6 +2193,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      occasion_lead_times: {
+        Row: {
+          kind: string
+          lead_days: number[]
+          rationale: string | null
+          updated_at: string
+        }
+        Insert: {
+          kind: string
+          lead_days: number[]
+          rationale?: string | null
+          updated_at?: string
+        }
+        Update: {
+          kind?: string
+          lead_days?: number[]
+          rationale?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       order_items: {
         Row: {
@@ -1656,6 +2259,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "items"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "unevidenced_discounts"
+            referencedColumns: ["item_id"]
           },
           {
             foreignKeyName: "order_items_shop_order_id_fkey"
@@ -1847,6 +2457,13 @@ export type Database = {
             foreignKeyName: "payout_instructions_shop_id_fkey"
             columns: ["shop_id"]
             isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
+          {
+            foreignKeyName: "payout_instructions_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
             referencedRelation: "shops"
             referencedColumns: ["id"]
           },
@@ -1901,6 +2518,13 @@ export type Database = {
             foreignKeyName: "payout_ledger_shop_id_fkey"
             columns: ["shop_id"]
             isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
+          {
+            foreignKeyName: "payout_ledger_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
             referencedRelation: "shops"
             referencedColumns: ["id"]
           },
@@ -1951,6 +2575,10 @@ export type Database = {
           merchant_fee_percent: number
           payout_max_attempts: number
           reconciliation_tolerance_ngwee: number
+          redemption_actor_window_minutes: number
+          redemption_code_window_minutes: number
+          redemption_max_failures_per_actor: number
+          redemption_max_failures_per_code: number
           settlement_flag_failure_threshold: number
           voucher_grace_days: number
         }
@@ -1974,6 +2602,10 @@ export type Database = {
           merchant_fee_percent?: number
           payout_max_attempts?: number
           reconciliation_tolerance_ngwee?: number
+          redemption_actor_window_minutes?: number
+          redemption_code_window_minutes?: number
+          redemption_max_failures_per_actor?: number
+          redemption_max_failures_per_code?: number
           settlement_flag_failure_threshold?: number
           voucher_grace_days?: number
         }
@@ -1997,6 +2629,10 @@ export type Database = {
           merchant_fee_percent?: number
           payout_max_attempts?: number
           reconciliation_tolerance_ngwee?: number
+          redemption_actor_window_minutes?: number
+          redemption_code_window_minutes?: number
+          redemption_max_failures_per_actor?: number
+          redemption_max_failures_per_code?: number
           settlement_flag_failure_threshold?: number
           voucher_grace_days?: number
         }
@@ -2081,6 +2717,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "items"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_items_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "unevidenced_discounts"
+            referencedColumns: ["item_id"]
           },
           {
             foreignKeyName: "post_items_post_id_fkey"
@@ -2270,7 +2913,80 @@ export type Database = {
             foreignKeyName: "posts_shop_id_fkey"
             columns: ["shop_id"]
             isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
+          {
+            foreignKeyName: "posts_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
             referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_watches: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string | null
+          last_alerted_on: string | null
+          shop_id: string | null
+          target_zmw: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id?: string | null
+          last_alerted_on?: string | null
+          shop_id?: string | null
+          target_zmw?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string | null
+          last_alerted_on?: string | null
+          shop_id?: string | null
+          target_zmw?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_watches_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_watches_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "unevidenced_discounts"
+            referencedColumns: ["item_id"]
+          },
+          {
+            foreignKeyName: "price_watches_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
+          {
+            foreignKeyName: "price_watches_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "price_watches_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -2407,6 +3123,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "quotations_fulfillment_item_id_fkey"
+            columns: ["fulfillment_item_id"]
+            isOneToOne: false
+            referencedRelation: "unevidenced_discounts"
+            referencedColumns: ["item_id"]
+          },
+          {
+            foreignKeyName: "quotations_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
+          {
             foreignKeyName: "quotations_shop_id_fkey"
             columns: ["shop_id"]
             isOneToOne: false
@@ -2471,6 +3201,58 @@ export type Database = {
           tolerance_ngwee?: number
         }
         Relationships: []
+      }
+      redemption_attempts: {
+        Row: {
+          actor_user_id: string | null
+          attempt_id: number
+          attempted_code: string
+          channel: string
+          created_at: string
+          failure_reason: string
+          shop_id: string | null
+        }
+        Insert: {
+          actor_user_id?: string | null
+          attempt_id?: number
+          attempted_code: string
+          channel: string
+          created_at?: string
+          failure_reason: string
+          shop_id?: string | null
+        }
+        Update: {
+          actor_user_id?: string | null
+          attempt_id?: number
+          attempted_code?: string
+          channel?: string
+          created_at?: string
+          failure_reason?: string
+          shop_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "redemption_attempts_actor_user_id_fkey"
+            columns: ["actor_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "redemption_attempts_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
+          {
+            foreignKeyName: "redemption_attempts_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       refund_requests: {
         Row: {
@@ -2593,6 +3375,100 @@ export type Database = {
         }
         Relationships: []
       }
+      shop_collection_items: {
+        Row: {
+          added_at: string
+          collection_id: string
+          item_id: string
+          shop_id: string
+          sort_order: number
+        }
+        Insert: {
+          added_at?: string
+          collection_id: string
+          item_id: string
+          shop_id: string
+          sort_order?: number
+        }
+        Update: {
+          added_at?: string
+          collection_id?: string
+          item_id?: string
+          shop_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_collection_items_collection_fkey"
+            columns: ["collection_id", "shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_collections"
+            referencedColumns: ["id", "shop_id"]
+          },
+          {
+            foreignKeyName: "shop_collection_items_item_fkey"
+            columns: ["item_id", "shop_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id", "shop_id"]
+          },
+          {
+            foreignKeyName: "shop_collection_items_item_fkey"
+            columns: ["item_id", "shop_id"]
+            isOneToOne: false
+            referencedRelation: "unevidenced_discounts"
+            referencedColumns: ["item_id", "shop_id"]
+          },
+        ]
+      }
+      shop_collections: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          shop_id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          shop_id: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          shop_id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shop_collections_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
+          {
+            foreignKeyName: "shop_collections_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shop_documents: {
         Row: {
           archived_at: string | null
@@ -2626,6 +3502,13 @@ export type Database = {
             foreignKeyName: "shop_documents_shop_id_fkey"
             columns: ["shop_id"]
             isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
+          {
+            foreignKeyName: "shop_documents_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
             referencedRelation: "shops"
             referencedColumns: ["id"]
           },
@@ -2646,8 +3529,8 @@ export type Database = {
           is_anonymous: boolean
           message: string | null
           payout_status: string
-          recipient_name: string | null
-          recipient_phone: string | null
+          recipient_name: string
+          recipient_phone: string
           settled: boolean | null
           settlement_target_time: string | null
           shop_id: string
@@ -2671,8 +3554,8 @@ export type Database = {
           is_anonymous?: boolean
           message?: string | null
           payout_status?: string
-          recipient_name?: string | null
-          recipient_phone?: string | null
+          recipient_name: string
+          recipient_phone: string
           settled?: boolean | null
           settlement_target_time?: string | null
           shop_id: string
@@ -2696,8 +3579,8 @@ export type Database = {
           is_anonymous?: boolean
           message?: string | null
           payout_status?: string
-          recipient_name?: string | null
-          recipient_phone?: string | null
+          recipient_name?: string
+          recipient_phone?: string
           settled?: boolean | null
           settlement_target_time?: string | null
           shop_id?: string
@@ -2721,6 +3604,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "post_wishes"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shop_orders_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
           },
           {
             foreignKeyName: "shop_orders_shop_id_fkey"
@@ -2764,6 +3654,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "shop_ratings_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
           {
             foreignKeyName: "shop_ratings_shop_id_fkey"
             columns: ["shop_id"]
@@ -2938,6 +3835,13 @@ export type Database = {
             referencedColumns: ["tier"]
           },
           {
+            foreignKeyName: "shops_settlement_tier_fkey"
+            columns: ["settlement_tier"]
+            isOneToOne: false
+            referencedRelation: "settlement_tiers"
+            referencedColumns: ["tier"]
+          },
+          {
             foreignKeyName: "shops_verification_reviewed_by_fkey"
             columns: ["verification_reviewed_by"]
             isOneToOne: false
@@ -2983,7 +3887,7 @@ export type Database = {
       }
       transactions: {
         Row: {
-          buyer_id: string | null
+          buyer_id: string
           charge_amount_minor: number | null
           charge_currency: string | null
           created_at: string | null
@@ -3003,7 +3907,7 @@ export type Database = {
           transaction_id: string
         }
         Insert: {
-          buyer_id?: string | null
+          buyer_id: string
           charge_amount_minor?: number | null
           charge_currency?: string | null
           created_at?: string | null
@@ -3023,7 +3927,7 @@ export type Database = {
           transaction_id?: string
         }
         Update: {
-          buyer_id?: string | null
+          buyer_id?: string
           charge_amount_minor?: number | null
           charge_currency?: string | null
           created_at?: string | null
@@ -3044,18 +3948,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "transactions_buyer_id_fkey"
-            columns: ["buyer_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "transactions_fx_quote_id_fkey"
             columns: ["fx_quote_id"]
             isOneToOne: false
             referencedRelation: "fx_quotes"
             referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "transactions_sender_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -3092,27 +3996,30 @@ export type Database = {
       wallet_ledger: {
         Row: {
           amount: number
-          created_at: string
+          created_at: string | null
           description: string | null
           id: string
+          kind: string | null
           reversal_of: string | null
           transaction_id: string | null
           wallet_id: string
         }
         Insert: {
           amount: number
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           id?: string
+          kind?: string | null
           reversal_of?: string | null
           transaction_id?: string | null
           wallet_id: string
         }
         Update: {
           amount?: number
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           id?: string
+          kind?: string | null
           reversal_of?: string | null
           transaction_id?: string | null
           wallet_id?: string
@@ -3123,6 +4030,13 @@ export type Database = {
             columns: ["reversal_of"]
             isOneToOne: false
             referencedRelation: "wallet_ledger"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_ledger_reversal_of_fkey"
+            columns: ["reversal_of"]
+            isOneToOne: false
+            referencedRelation: "wallet_ledger_classified"
             referencedColumns: ["id"]
           },
           {
@@ -3143,7 +4057,146 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      ledger_balances: {
+        Row: {
+          account_ref: string | null
+          account_type: string | null
+          balance_ngwee: number | null
+          credits_ngwee: number | null
+          debits_ngwee: number | null
+          entry_count: number | null
+          last_entry_at: string | null
+        }
+        Relationships: []
+      }
+      shop_vitality: {
+        Row: {
+          avg_images_per_item: number | null
+          catalogue_size: number | null
+          collection_count: number | null
+          cover_coverage: number | null
+          fulfilment: number | null
+          gallery_depth: number | null
+          has_opening_hours: boolean | null
+          hours_set: number | null
+          item_count: number | null
+          name: string | null
+          organisation: number | null
+          rating: number | null
+          rating_count: number | null
+          score: number | null
+          shop_id: string | null
+          total_orders: number | null
+        }
+        Relationships: []
+      }
+      unevidenced_discounts: {
+        Row: {
+          claimed_was_zmw: number | null
+          highest_price_ever_recorded: number | null
+          item_id: string | null
+          item_name: string | null
+          price_zmw: number | null
+          shop_id: string | null
+        }
+        Insert: {
+          claimed_was_zmw?: number | null
+          highest_price_ever_recorded?: never
+          item_id?: string | null
+          item_name?: string | null
+          price_zmw?: number | null
+          shop_id?: string | null
+        }
+        Update: {
+          claimed_was_zmw?: number | null
+          highest_price_ever_recorded?: never
+          item_id?: string | null
+          item_name?: string | null
+          price_zmw?: number | null
+          shop_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "items_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shop_vitality"
+            referencedColumns: ["shop_id"]
+          },
+          {
+            foreignKeyName: "items_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallet_ledger_classified: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          kind: string | null
+          resolved_kind: string | null
+          reversal_of: string | null
+          transaction_id: string | null
+          wallet_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          kind?: string | null
+          resolved_kind?: never
+          reversal_of?: string | null
+          transaction_id?: string | null
+          wallet_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          kind?: string | null
+          resolved_kind?: never
+          reversal_of?: string | null
+          transaction_id?: string | null
+          wallet_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_ledger_reversal_of_fkey"
+            columns: ["reversal_of"]
+            isOneToOne: false
+            referencedRelation: "wallet_ledger"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_ledger_reversal_of_fkey"
+            columns: ["reversal_of"]
+            isOneToOne: false
+            referencedRelation: "wallet_ledger_classified"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_ledger_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["transaction_id"]
+          },
+          {
+            foreignKeyName: "wallet_ledger_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "kithly_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       accept_quotation: { Args: { p_quotation_id: string }; Returns: Json }
@@ -3167,16 +4220,30 @@ export type Database = {
         Args: { p_buyer_id?: string; p_shop_id?: string; p_subject?: string }
         Returns: string
       }
+      answer_proposal: {
+        Args: { p_accepted: boolean; p_proposal_id: string }
+        Returns: undefined
+      }
       apply_merchant_settlement: {
         Args: { p_shop_order_id: string }
         Returns: Json
       }
+      assert_ledger_balanced: { Args: never; Returns: undefined }
       atomic_fulfill_voucher: {
         Args: { p_claim_code: string; p_shop_id: string }
         Returns: {
           item_name: string
           recipient_name: string
           voucher_id: string
+        }[]
+      }
+      bundle_lanes: {
+        Args: { p_anchor?: string; p_budgets?: number[]; p_shop_id: string }
+        Returns: {
+          budget_zmw: number
+          items: Json
+          lane: number
+          total_zmw: number
         }[]
       }
       buyer_fee_percent_for: {
@@ -3202,6 +4269,14 @@ export type Database = {
       can_view_list: { Args: { p_list_id: string }; Returns: boolean }
       can_view_post: { Args: { p_post_id: string }; Returns: boolean }
       can_view_wish: { Args: { p_wish_id: string }; Returns: boolean }
+      cancel_fee_sweep: {
+        Args: { p_admin_id: string; p_reason: string; p_sweep_id: string }
+        Returns: Json
+      }
+      check_redemption_rate_limit: {
+        Args: { p_actor_user_id?: string; p_code: string; p_shop_id?: string }
+        Returns: Json
+      }
       checkout_init_atomic: {
         Args: {
           p_buyer_id: string
@@ -3211,6 +4286,32 @@ export type Database = {
           p_vendors: Json
         }
         Returns: Json
+      }
+      claim_due_payouts: {
+        Args: { p_limit?: number }
+        Returns: {
+          account_identifier: string
+          account_name: string
+          amount_ngwee: number
+          attempt_count: number
+          id: string
+          idempotency_key: string
+          rail: string
+          shop_id: string
+          shop_order_id: string
+        }[]
+      }
+      claim_due_refunds: {
+        Args: { p_limit?: number }
+        Returns: {
+          amount_ngwee: number
+          attempt_count: number
+          buyer_id: string
+          id: string
+          idempotency_key: string
+          original_ref: string
+          transaction_id: string
+        }[]
       }
       claim_withdrawal_batch: {
         Args: { p_limit?: number }
@@ -3227,12 +4328,28 @@ export type Database = {
           withdrawal_id: string
         }[]
       }
+      complete_payout: {
+        Args: { p_external_ref: string; p_instruction_id: string }
+        Returns: Json
+      }
       complete_redemption: { Args: { p_shop_order_id: string }; Returns: Json }
+      complete_refund: {
+        Args: { p_external_ref: string; p_refund_id: string }
+        Returns: Json
+      }
       complete_withdrawal: {
         Args: {
           p_reference?: string
           p_transfer_id?: string
           p_withdrawal_id: string
+        }
+        Returns: Json
+      }
+      confirm_fee_sweep: {
+        Args: {
+          p_admin_id: string
+          p_bank_reference: string
+          p_sweep_id: string
         }
         Returns: Json
       }
@@ -3297,15 +4414,73 @@ export type Database = {
         Args: { p_today?: string }
         Returns: number
       }
+      dispatch_price_alerts: { Args: { p_today?: string }; Returns: number }
+      enqueue_payout: {
+        Args: {
+          p_amount_ngwee: number
+          p_idempotency_key: string
+          p_order_item_id?: string
+          p_release_at?: string
+          p_shop_id: string
+          p_shop_order_id?: string
+        }
+        Returns: string
+      }
       ensure_transaction_code: {
         Args: { p_transaction_id: string }
         Returns: string
+      }
+      escrow_fee_ngwee: { Args: { p_gross_ngwee: number }; Returns: number }
+      escrow_open_balances: { Args: { p_dry_run?: boolean }; Returns: Json }
+      escrow_position: { Args: never; Returns: Json }
+      escrow_process_expiries: { Args: { p_limit?: number }; Returns: Json }
+      escrow_reconcile: {
+        Args: { p_as_of?: string; p_bank_balance_ngwee?: number }
+        Returns: Json
+      }
+      escrow_record_funding: {
+        Args: { p_external_ref?: string; p_transaction_id: string }
+        Returns: Json
+      }
+      escrow_redeem_items: {
+        Args: {
+          p_claim_code: string
+          p_merchant_user_id: string
+          p_missing_item_ids: string[]
+          p_present_item_ids: string[]
+        }
+        Returns: Json
+      }
+      escrow_shadow_redemption: {
+        Args: {
+          p_claim_code: string
+          p_missing_total: number
+          p_present_total: number
+          p_shop_order_id: string
+        }
+        Returns: undefined
       }
       experience_is_available: {
         Args: { p_experience_id: string }
         Returns: boolean
       }
       experience_total: { Args: { p_experience_id: string }; Returns: number }
+      extend_voucher_window: {
+        Args: { p_actor_user_id: string; p_shop_order_id: string }
+        Returns: Json
+      }
+      fail_payout: {
+        Args: {
+          p_error: string
+          p_instruction_id: string
+          p_retryable?: boolean
+        }
+        Returns: Json
+      }
+      fail_refund: {
+        Args: { p_error: string; p_refund_id: string; p_retryable?: boolean }
+        Returns: Json
+      }
       fail_withdrawal: {
         Args: { p_reason: string; p_withdrawal_id: string }
         Returns: Json
@@ -3381,6 +4556,17 @@ export type Database = {
         Args: { p_buyer_id: string; p_target_currency: string; p_vendors: Json }
         Returns: Json
       }
+      item_highest_recorded_price: {
+        Args: { p_item_id: string }
+        Returns: number
+      }
+      lead_days_valid: { Args: { p_days: number[] }; Returns: boolean }
+      ledger_account_balance: {
+        Args: { p_account_ref?: string; p_account_type: string }
+        Returns: number
+      }
+      ledger_is_balanced: { Args: never; Returns: boolean }
+      ledger_master_invariant: { Args: never; Returns: Json }
       log_admin_action: {
         Args: {
           p_action: string
@@ -3396,11 +4582,63 @@ export type Database = {
         Args: { p_conversation_id: string }
         Returns: undefined
       }
+      mark_destination_failed: {
+        Args: { p_destination_id: string; p_error: string }
+        Returns: undefined
+      }
+      mark_destination_verified: {
+        Args: {
+          p_destination_id: string
+          p_method: string
+          p_reference?: string
+          p_verified_name?: string
+        }
+        Returns: Json
+      }
+      mark_destination_verifying: {
+        Args: { p_destination_id: string }
+        Returns: undefined
+      }
+      mark_payout_sent: {
+        Args: { p_external_ref?: string; p_instruction_id: string }
+        Returns: undefined
+      }
       mark_withdrawal_unverified: {
         Args: { p_reason: string; p_withdrawal_id: string }
         Returns: Json
       }
+      merchant_payout_summary: { Args: { p_shop_id: string }; Returns: Json }
+      merchant_settlement_status: { Args: { p_shop_id: string }; Returns: Json }
       merchant_share_for: { Args: { p_gross: number }; Returns: number }
+      most_bought_items: {
+        Args: { p_days?: number; p_limit?: number; p_min?: number }
+        Returns: {
+          bought_count: number
+          image_url: string
+          item_id: string
+          name: string
+          shop_id: string
+          shop_name: string
+        }[]
+      }
+      my_proposals: {
+        Args: { p_surface?: string }
+        Returns: {
+          created_at: string
+          id: string
+          item_ids: string[]
+          items: Json
+          kind: string
+          reason_code: string
+          reason_text: string
+          surface: string
+          total_zmw: number
+        }[]
+      }
+      notification_actions_valid: {
+        Args: { p_actions: Json }
+        Returns: boolean
+      }
       notify_conversation_counterparties: {
         Args: {
           p_conversation_id: string
@@ -3426,9 +4664,47 @@ export type Database = {
         }
         Returns: string
       }
+      order_item_fee_share_ngwee: {
+        Args: { p_order_item_id: string }
+        Returns: number
+      }
+      order_remaining_value_ngwee: {
+        Args: { p_shop_order_id: string }
+        Returns: number
+      }
+      post_ledger_pair: {
+        Args: {
+          p_amount_ngwee: number
+          p_credit_account: string
+          p_credit_ref: string
+          p_debit_account: string
+          p_debit_ref: string
+          p_external_ref?: string
+          p_idempotency_key?: string
+          p_order_item_id?: string
+          p_reason: string
+          p_reverses_pair?: string
+          p_shop_order_id?: string
+          p_transaction_id?: string
+        }
+        Returns: string
+      }
       price_basket_zmw: { Args: { p_vendors: Json }; Returns: number }
       process_due_redemptions: { Args: never; Returns: number }
       process_expired_vouchers: { Args: never; Returns: number }
+      propose_fee_sweep: { Args: { p_sweep_date?: string }; Returns: Json }
+      pulse_min_cohort: { Args: never; Returns: number }
+      pulse_statements: {
+        Args: { p_limit?: number }
+        Returns: {
+          kind: string
+          quantity: number
+          subject: string
+          weight: number
+          window_days: number
+        }[]
+      }
+      rail_is_available: { Args: { p_rail: string }; Returns: boolean }
       raise_order_dispute: {
         Args: { p_reason: string; p_shop_order_id: string }
         Returns: Json
@@ -3437,9 +4713,33 @@ export type Database = {
         Args: { p_older_than_minutes?: number }
         Returns: number
       }
+      record_rail_outcome: {
+        Args: { p_error?: string; p_rail: string; p_success: boolean }
+        Returns: undefined
+      }
+      record_redemption_failure: {
+        Args: {
+          p_actor_user_id?: string
+          p_channel?: string
+          p_code: string
+          p_reason?: string
+          p_shop_id?: string
+        }
+        Returns: undefined
+      }
+      record_signals: { Args: { p_signals: Json }; Returns: undefined }
+      refresh_observed_preferences: {
+        Args: { p_contact_id: string }
+        Returns: number
+      }
+      refresh_settlement_tier: { Args: { p_shop_id: string }; Returns: string }
       refresh_shop_trust_tier: {
         Args: { p_shop_id: string }
         Returns: undefined
+      }
+      refund_charge_instruction: {
+        Args: { p_refund_id: string }
+        Returns: Json
       }
       register_merchant_shop: {
         Args: {
@@ -3457,13 +4757,30 @@ export type Database = {
         Args: { p_reason?: string; p_transaction_id: string }
         Returns: Json
       }
+      release_from_goal: {
+        Args: { p_amount: number; p_goal_id: string }
+        Returns: number
+      }
       reopen_unverified_withdrawal: {
         Args: { p_withdrawal_id: string }
+        Returns: Json
+      }
+      report_gift_issue: {
+        Args: {
+          p_claim_code: string
+          p_contact_phone?: string
+          p_description?: string
+          p_issue_type: string
+        }
         Returns: Json
       }
       request_withdrawal_atomic: {
         Args: { target_shop_id: string; withdrawal_amount: number }
         Returns: string
+      }
+      reserve_to_goal: {
+        Args: { p_amount: number; p_goal_id: string }
+        Returns: number
       }
       resolve_claim_code_for_shop: {
         Args: { p_code: string; p_shop_id: string }
@@ -3485,6 +4802,10 @@ export type Database = {
         }
         Returns: Json
       }
+      reverse_ledger_pair: {
+        Args: { p_idempotency_key?: string; p_pair_id: string }
+        Returns: string
+      }
       review_merchant_verification: {
         Args: {
           p_decision: string
@@ -3492,6 +4813,15 @@ export type Database = {
           p_shop_id: string
         }
         Returns: Json
+      }
+      save_post_wish: {
+        Args: {
+          p_note: string
+          p_phones?: string[]
+          p_post_id: string
+          p_visibility: string
+        }
+        Returns: string
       }
       scheduler_prerequisites: { Args: never; Returns: Json }
       send_message: {
@@ -3503,16 +4833,72 @@ export type Database = {
         }
         Returns: string
       }
+      sender_escrow_summary: { Args: { p_user_id: string }; Returns: Json }
       set_experience_items: {
         Args: { p_experience_id: string; p_items: Json }
         Returns: number
+      }
+      set_payout_destination: {
+        Args: {
+          p_account_identifier: string
+          p_account_name: string
+          p_actor_user_id: string
+          p_bank_branch?: string
+          p_bank_name?: string
+          p_rail: string
+          p_shop_id: string
+        }
+        Returns: Json
+      }
+      set_settlement_manual_flag: {
+        Args: {
+          p_admin_id: string
+          p_flagged: boolean
+          p_reason: string
+          p_shop_id: string
+        }
+        Returns: Json
       }
       settle_payout_atomic: {
         Args: { p_merchant_user_id: string; p_shop_order_id: string }
         Returns: Json
       }
+      shop_can_accept_redemptions: {
+        Args: { p_shop_id: string }
+        Returns: boolean
+      }
+      shop_item_groups: {
+        Args: { p_shop_id: string }
+        Returns: {
+          group_key: string
+          group_label: string
+          group_sort: number
+          group_source: string
+          item_id: string
+          item_sort: number
+        }[]
+      }
+      shop_payout_readiness: { Args: { p_shop_id: string }; Returns: Json }
+      shop_settlement_hold_seconds: {
+        Args: { p_shop_id: string }
+        Returns: number
+      }
+      shop_vitality_nudge: { Args: { p_shop_id: string }; Returns: string }
+      slate: {
+        Args: { p_limit?: number; p_surface?: string }
+        Returns: {
+          item_id: string
+          reason_code: string
+          reason_text: string
+          score: number
+        }[]
+      }
       start_conversation: {
         Args: { p_item_id?: string; p_shop_id: string; p_subject?: string }
+        Returns: string
+      }
+      start_kithly_conversation: {
+        Args: { p_subject?: string }
         Returns: string
       }
       trigger_daily_payout_sweeper: { Args: never; Returns: undefined }
@@ -3549,6 +4935,8 @@ export type Database = {
         }
         Returns: string
       }
+      wallet_available_zmw: { Args: { p_user_id: string }; Returns: number }
+      wallet_ledger_kind: { Args: { p_description: string }; Returns: string }
       wishes_from_my_contacts: {
         Args: { p_limit?: number }
         Returns: {
@@ -3560,6 +4948,7 @@ export type Database = {
           wisher_name: string
         }[]
       }
+      zmw_to_ngwee: { Args: { p_zmw: number }; Returns: number }
     }
     Enums: {
       [_ in never]: never
@@ -3578,12 +4967,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3607,11 +4996,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3632,11 +5021,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3657,11 +5046,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3674,11 +5063,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -3695,4 +5084,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-
