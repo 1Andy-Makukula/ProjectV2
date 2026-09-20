@@ -16,17 +16,32 @@
 // The merge rule lives in `categoryFrames` below: the database picks the
 // cover, this fills in behind it, and neither can silently replace the other.
 
-/** Slug → frames, cover first. Every file is <= 98KB per the charter. */
+/**
+ * Slug -> frames, cover first. Cropped at source to the slot's shape.
+ *
+ * The first nine are the mosaic's nine, in `ui_order_index` order, and their
+ * shapes match the spans that order draws: wide, narrow, narrow, wide, band,
+ * wide, narrow, narrow, wide. The rest are depth -- art in hand so that
+ * refeaturing a category never produces a black tile.
+ */
 export const CATEGORY_ART: Record<string, string[]> = {
-  groceries: ['/categories/groceries.jpg', '/categories/groceries-2.jpg'],
+  // the nine, in order
+  groceries: ['/categories/groceries.jpg', '/occasions/groceries-2.webp'],
   catering: ['/categories/catering.jpg'],
+  'bakery-cakes': ['/categories/bakery-cakes.webp'],
+  pharmacy: ['/categories/pharmacy.webp'],
+  'home-appliances': ['/categories/home-appliances.webp'],
+  furniture: ['/categories/furniture.webp'],
   womenswear: ['/categories/womenswear.jpg'],
-  furniture: ['/categories/furniture.jpg'],
-  pharmacy: ['/categories/pharmacy.jpg'],
-  'home-appliances': ['/categories/home-appliances.jpg'],
+  flowers: ['/categories/flowers.webp'],
+  'meat-poultry': ['/categories/meat-poultry.webp'],
+
+  // in reserve
   'tools-hardware': ['/categories/tools-hardware.jpg'],
   'laundry-dry-cleaning': ['/categories/laundry.jpg'],
-  'meat-poultry': ['/categories/meat-poultry.jpg'],
+  barbering: ['/categories/barbering.webp'],
+  'gift-hampers': ['/categories/gift-hampers.webp'],
+  'decor-styling': ['/categories/event-decor.webp'],
 };
 
 /**

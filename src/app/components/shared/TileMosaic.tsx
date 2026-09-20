@@ -89,8 +89,27 @@ const SPAN_CLASS: Record<number, string> = {
  * they share a height and only the 6 differs.
  */
 function heightClass(span: number): string {
-  return span === 6 ? 'h-44 md:h-52' : 'h-52 md:h-64';
+  return span === 6 ? 'h-52 md:h-80' : 'h-56 md:h-72';
 }
+
+/**
+ * The shape each slot actually is, at the max-w-6xl container.
+ *
+ * Worth writing down, because it is the number that decides whether a
+ * photograph survives. Column = (1152 - 40 padding - 5x16 gap) / 6 = 172px.
+ *
+ *   span 2   360 x 288  =  1.25   near square
+ *   span 4   736 x 288  =  2.56   wide
+ *   span 6  1112 x 320  =  3.48   a cinematic band
+ *
+ * EVERY SLOT IS LANDSCAPE, including the narrow one -- which is why a
+ * portrait photograph cannot be rescued here by making tiles taller. The
+ * band was 5.35 until 20 Sep and no photograph is that shape; a portrait in
+ * it kept 12% of its frame. Art is now cropped to these ratios AT SOURCE
+ * rather than by object-cover, so no bytes are spent on pixels that are
+ * thrown away and nothing is upscaled. See types/occasions.ts.
+ */
+export const SLOT_ASPECT: Record<number, number> = { 2: 1.25, 4: 2.56, 6: 3.48 };
 
 function titleClass(span: number): string {
   if (span === 6) return 'text-4xl md:text-6xl';

@@ -98,8 +98,21 @@ export function Welcome() {
   const { setMode } = useStorefrontMode();
   const [videoFailed, setVideoFailed] = useState(false);
   const { categories, loading: categoriesLoading } = useFeaturedCategories();
+  // Art first, THEN the admin's order.
+  //
+  // Belt and braces over ui_order_index, and it exists because relying on
+  // that column alone failed: it defaults to 0, not null, so the nine
+  // curated categories sorted behind the sixteen untouched ones and the
+  // whole mosaic rendered as black fallback blocks. Ordering by "has a
+  // picture" makes a black tile structurally impossible while there is any
+  // art at all -- whatever the indexes happen to say.
   const categoryMosaic = useMemo(
-    () => categories.slice(0, CATEGORY_TILES).map(
+    () => categories
+      .map((c) => ({ c, frames: categoryFrames(c.slug, c.image_url) }))
+      .sort((a, b) => Number(b.frames.length > 0) - Number(a.frames.length > 0))
+      .slice(0, CATEGORY_TILES)
+      .map(({ c }) => c)
+      .map(
       (c): MosaicTile => ({
         id: c.id,
         name: c.name,

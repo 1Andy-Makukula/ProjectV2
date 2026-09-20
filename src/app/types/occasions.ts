@@ -163,10 +163,21 @@ export const OCCASION_TILES: ReadonlyArray<OccasionTile> = [
 /**
  * Art, keyed by kind, cover first. **All thirteen are covered.**
  *
- * A kind with two or more frames breathes: the Conductor fades between them
- * on the shared page clock. A kind with one simply does not move, which is a
- * normal state and needs no apology -- four of them have a second frame and
- * the rest are waiting on art, not on code.
+ * EVERY FILE IS CROPPED AT SOURCE TO THE SHAPE OF THE SLOT IT LANDS IN.
+ * The groupings below are those three shapes, and they line up with the span
+ * this tile's index draws from the mosaic pattern -- see SLOT_ASPECT in
+ * TileMosaic. That is the whole fix for two problems at once:
+ *
+ *   Before, a roughly 3:2 photograph was dropped into a 5.35:1 band and
+ *   `object-cover` threw away 87% of it. The bytes were spent on pixels
+ *   nobody ever saw, and the strip that DID show had ~1200px of real data
+ *   stretched across 2224 -- so it was blurry and wasteful from one cause.
+ *   Cropping at source fixes both, and the band is now 3.48 rather than
+ *   5.35 because the tiles were made taller at the same time.
+ *
+ * A kind with two or more frames breathes; the Conductor fades between them
+ * on the shared page clock at a 30s dwell. One frame simply does not move,
+ * which is a normal state and needs no apology.
  *
  * Four reuse the category photographs, because the occasion and the shelf
  * genuinely share a subject: a Pharmacy Run and the pharmacy shelf are the
@@ -187,31 +198,22 @@ export const OCCASION_TILES: ReadonlyArray<OccasionTile> = [
  * School Prep, and West African ceremonial dress for a Zambian wedding.
  */
 export const OCCASION_ART: Partial<Record<OccasionKind, string[]>> = {
-  // Shared with the category mosaic -- same subject, same photograph.
-  groceries: ['/categories/groceries.jpg', '/categories/groceries-2.jpg'],
-  medical: ['/categories/pharmacy.jpg'],
-  rent: ['/categories/home-appliances.jpg'],
-  holiday: ['/categories/meat-poultry.jpg'],
+  // wide (2.56) -- span 4
+  groceries: ['/categories/groceries.jpg', '/occasions/groceries-2.webp'],
+  medical: ['/categories/pharmacy.webp'],
+  memorial: ['/occasions/funeral.webp', '/occasions/funeral-2.webp'],
+  holiday: ['/categories/meat-poultry.webp'],
+  graduation: ['/occasions/graduation.webp'],
 
-  // From the design scaffolding.
+  // near square (1.25) -- span 2
+  birthday: ['/occasions/birthday.webp'],
+  school_fees: ['/occasions/school-prep.webp', '/occasions/school-prep-2.webp'],
   upkeep: ['/occasions/upkeep.jpg'],
+  new_baby: ['/occasions/new-baby.webp', '/occasions/new-baby-2.webp'],
   anniversary: ['/occasions/anniversary.jpg'],
 
-  // Sourced 2026-09-20.
-  birthday: ['/occasions/birthday.jpg'],
-  school_fees: ['/occasions/school-prep.jpg', '/occasions/school-prep-2.jpg'],
-  new_baby: ['/occasions/new-baby.jpg', '/occasions/new-baby-2.jpg'],
-  wedding: ['/occasions/wedding.jpg'],
-  graduation: ['/occasions/graduation.jpg'],
-
-  // White lilies, then a white chrysanthemum. Was the catering photograph --
-  // a restaurant full of people eating is what the kappa says a funeral BUYS,
-  // and it is exactly the wrong thing to put under the word. The basket is
-  // food; the picture is not.
-  memorial: ['/occasions/funeral.jpg', '/occasions/funeral-2.jpg'],
-
-  // An open-air market stall. The tile says "we will go and find it", and this
-  // is where that happens -- deliberately not a headset or a call centre,
-  // which is the thing this product is promising people it is not.
-  other: ['/occasions/something-else.jpg'],
+  // cinematic band (3.48) -- span 6
+  rent: ['/categories/home-appliances.webp'],
+  wedding: ['/occasions/wedding.webp'],
+  other: ['/occasions/something-else.webp'],
 };

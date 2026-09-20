@@ -320,37 +320,58 @@ duty here — it is a trust control, not only a style.
 
 ---
 
-## 8. Image provenance
+## 8. Tile art
 
-Two sources, two different licence positions. This matters at launch.
+**Geometry first, because it decides everything else.** At the max-w-6xl
+container a column is 172px, so the slots are:
 
-**Scaffolding art — NOT cleared for production.** The nine category
-photographs and two of the occasion ones came from `scoffolding/`. Of the set
-supplied there, several were rejected outright: one carried a visible iStock
-watermark, and others were adverts for other companies (Indo Zambia Bank,
-Hungry Lion, Infinix, Kellogg's, Jam Solar). That tells you the whole set is
-scraped stock of unknown licence. Fine for development. **Replace before
-launch.**
+| span | size | aspect |
+| --- | --- | --- |
+| 2 | 360 x 288 | **1.25** near square |
+| 4 | 736 x 288 | **2.56** wide |
+| 6 | 1112 x 320 | **3.48** cinematic band |
 
-**Unsplash art — cleared.** Seven occasion photographs were sourced from
-Unsplash on 20 September 2026. The Unsplash Licence permits commercial use
-with no attribution and no share-alike. CC BY-SA images on Wikimedia Commons
-were considered and passed over — including a genuinely apt Zambian one,
-`ZCAS-U Graduation.jpg` — because share-alike is an obligation not worth
-taking on for page furniture.
+**Every slot is landscape, including the narrow one.** A portrait photograph
+cannot be rescued here by making tiles taller, and that is the one thing worth
+remembering. The band was 5.35 until 20 Sep; no photograph is that shape, and
+a portrait in it kept 12% of its frame.
 
-**The rule that governs all of it**, which cost four rejections in one
-afternoon: *never put a photograph under a name it does not show.* A wrong
-picture is worse than no picture, because an empty block is honest and a wrong
-one is a small lie about what we carry. Rejected on inspection: a "gift
-hamper" full of branded Canadian groceries, a tropical beach resort standing in
-for a wedding, two European children for School Prep, and West African
-ceremonial dress for a Zambian wedding.
+**Art is cropped to these ratios AT SOURCE, not by `object-cover`.** Before, a
+3:2 photograph went into the band and CSS discarded 87% of it -- so bytes were
+spent on pixels nobody saw, while the visible strip had 1200px of data
+stretched across 2224. Blurry and wasteful from one cause. Cropping at source
+fixes both, and Unsplash's `crop=entropy` finds the subject: the wedding photo
+went from an unusable sliver to the best tile on the page.
 
-**Every tile image is ≤ 98KB**, inside the charter's 100KB budget. There is no
-`sharp`, PIL or ImageMagick on this machine; resizing and re-encoding is done
-with .NET `System.Drawing` via PowerShell. Note that `/c/Windows/system32/convert`
-is the Windows disk-conversion tool, **not** ImageMagick — never call it.
+**Format.** WebP wherever the source can serve it. At the band's resolution a
+JPEG is 2-3x the bytes, which is why everything looked soft when the budget
+was spent on JPEG. 25 of 27 files are under the charter's 100KB; two busy
+market scenes plateau at ~121KB and are the documented exception, on the same
+footing as the vectors in `Vector.tsx`.
+
+**Licence, and this still matters at launch.**
+
+- **Unsplash (cleared).** Commercial use, no attribution, no share-alike. CC
+  BY-SA on Wikimedia was passed over to avoid share-alike on page furniture.
+- **Scaffolding (NOT cleared).** Five files remain: groceries, catering,
+  womenswear, laundry, tools-hardware, plus upkeep and anniversary. Scraped
+  stock of unknown licence -- that set had an iStock watermark in it. **Replace
+  before launch.** Four others (pharmacy, home-appliances, meat-poultry,
+  furniture) were already replaced, because they were 2.2x-3.3x short of the
+  pixels their slot needs and would have been visibly soft.
+
+**The rule that governs all of it**, which has now cost five rejections:
+*never put a photograph under a name it does not show.* An empty ink block is
+honest; a wrong picture is a small lie about what we carry. Rejected on
+inspection: a "gift hamper" of branded Canadian groceries, a beach resort as a
+wedding, two European children for School Prep, West African dress for a
+Zambian wedding, and an entropy crop of a braai that landed on a dark piece of
+grill hardware with no meat in frame.
+
+**Tooling.** No sharp, PIL or ImageMagick here. Local crops use .NET
+`System.Drawing` via PowerShell -- which cannot read or write WebP, so
+inspect those with the file reader instead of a contact sheet.
+`/c/Windows/system32/convert` is the Windows disk tool, **not** ImageMagick.
 
 ---
 
