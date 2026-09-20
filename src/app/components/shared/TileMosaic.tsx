@@ -133,7 +133,16 @@ function Tile({
         sources={tile.images}
         alt=""
         dwellMs={DWELL_MS}
-        className="absolute inset-0"
+        /* h-full w-full, NOT `absolute inset-0`.
+           BreathingImage renders its host as `relative ${className}`, and in
+           the built stylesheet `.relative` is emitted AFTER `.absolute` at
+           equal specificity -- so `relative` wins, `inset-0` does nothing on
+           it, and the host collapses to zero height because every frame
+           inside is absolute. The result is a tile with no picture at all.
+           This is the same cascade trap theme.css already records for
+           .kl-rim's position beating Tailwind's `fixed`. Size the host and
+           let it stay relative; the frames position against it. */
+        className="h-full w-full"
         /* Platform furniture, not a shop's own photograph: washed so the name
            on top of it survives and so a shelf never out-shouts the
            merchandise it is pointing at. */
