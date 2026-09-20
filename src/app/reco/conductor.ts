@@ -35,7 +35,15 @@
 //   * animate more than a few things at once, however many subscribe
 //   * run at all when nothing is subscribed
 
-/** How long one full cycle takes. Slow on purpose: this is ambience. */
+/**
+ * How long one full cycle takes, for a subscriber that does not ask for its
+ * own. Slow on purpose: this is ambience.
+ *
+ * A subscriber MAY pass its own. Nine seconds is right for a product tile in a
+ * dense grid, where the picture is merchandise and a shopper is scanning. It
+ * is far too quick for a big front-door tile that somebody is reading trust
+ * copy next to -- see the Welcome mosaic, which holds each picture 30s.
+ */
 const CYCLE_MS = 9000;
 
 /**
@@ -52,6 +60,8 @@ interface Subscriber {
   id: string;
   slots: number;
   offset: number;
+  /** This subscriber's own full-cycle length. */
+  cycleMs: number;
   listener: Listener;
   /** Set by the component when the tile is actually on screen. */
   visible: boolean;
@@ -93,9 +103,15 @@ function prefersReducedMotion(): boolean {
 // fake `matchMedia` to assert a scheduling rule is testing the fake.
 
 /** Which picture a subscriber should be showing at a given moment. */
-export function slotAt(now: number, offset: number, slots: number): number {
+export function slotAt(
+  now: number,
+  offset: number,
+  slots: number,
+  cycleMs: number = CYCLE_MS,
+): number {
   if (slots <= 1) return 0;
-  const phase = ((now / CYCLE_MS) + offset) % 1;
+  if (!(cycleMs > 0)) return 0;
+  const phase = ((now / cycleMs) + offset) % 1;
   return Math.floor(phase * slots) % slots;
 }
 
@@ -123,7 +139,7 @@ function tick() {
   for (const sub of subscribers.values()) {
     if (!allowed.has(sub.id)) continue;
 
-    const slot = slotAt(now, sub.offset, sub.slots);
+    const slot = slotAt(now, sub.offset, sub.slots, sub.cycleMs);
     if (slot !== sub.lastSlot) {
       sub.lastSlot = slot;
       sub.listener(slot);
@@ -188,8 +204,18 @@ export interface ConductorHandle {
  * `slots` is how many pictures this subscriber cycles through; one or fewer
  * means there is nothing to cycle and the subscription is a no-op, which is the
  * common case and should cost nothing.
+ *
+ * `cycleMs` lets a caller hold its pictures longer than the house default
+ * without giving itself a second clock -- the wave, the budget, the tab and
+ * reduced-motion rules all still apply, which is the whole point of there
+ * being one Conductor.
  */
-export function subscribe(id: string, slots: number, listener: Listener): ConductorHandle {
+export function subscribe(
+  id: string,
+  slots: number,
+  listener: Listener,
+  cycleMs: number = CYCLE_MS,
+): ConductorHandle {
   if (slots <= 1 || prefersReducedMotion()) {
     return { setVisible: () => {}, unsubscribe: () => {} };
   }
@@ -200,6 +226,7 @@ export function subscribe(id: string, slots: number, listener: Listener): Conduc
     id,
     slots,
     offset: phaseOffset(id),
+    cycleMs: cycleMs > 0 ? cycleMs : CYCLE_MS,
     listener,
     visible: false,
     lastSlot: 0,

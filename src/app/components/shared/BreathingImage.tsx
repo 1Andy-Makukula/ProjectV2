@@ -30,6 +30,12 @@ interface BreathingImageProps {
   /** Applied to each frame; this is where object-fit and sizing go. */
   imageClassName?: string;
   fallback?: React.ReactNode;
+  /**
+   * How long ONE picture is held, in ms. Omit for the Conductor's house
+   * cycle, which is right for a dense grid of product tiles and much too
+   * quick for a large tile somebody is reading beside.
+   */
+  dwellMs?: number;
 }
 
 export function BreathingImage({
@@ -39,6 +45,7 @@ export function BreathingImage({
   className = '',
   imageClassName = '',
   fallback,
+  dwellMs,
 }: BreathingImageProps) {
   const frames = sources.filter(Boolean);
   const [slot, setSlot] = useState(0);
@@ -47,7 +54,14 @@ export function BreathingImage({
   useEffect(() => {
     if (frames.length <= 1) return;
 
-    const handle = subscribe(id, frames.length, setSlot);
+    // The Conductor thinks in whole cycles; callers think in how long a
+    // picture stays up. One multiplication, in the one place that knows both.
+    const handle = subscribe(
+      id,
+      frames.length,
+      setSlot,
+      dwellMs ? dwellMs * frames.length : undefined,
+    );
 
     // Only tiles on screen are allowed to spend the motion budget, and the
     // Conductor cannot know what is visible -- so it is told.
@@ -69,7 +83,7 @@ export function BreathingImage({
       observer?.disconnect();
       handle.unsubscribe();
     };
-  }, [id, frames.length]);
+  }, [id, frames.length, dwellMs]);
 
   if (frames.length === 0) {
     return <div className={className}>{fallback}</div>;

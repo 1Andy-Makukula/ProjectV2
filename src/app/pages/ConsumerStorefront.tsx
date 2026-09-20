@@ -9,9 +9,9 @@
 // here as customers.
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, ChevronRight, Shield, Store, ArrowRight, Package, ListChecks } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Shield, Store, ArrowRight, Package, ListChecks, X } from 'lucide-react';
 
 import { useAuth } from '../../utils/auth/AuthContext';
 import { Skeleton } from '../components/ui/skeleton';
@@ -20,6 +20,7 @@ import { ShopCard } from '../components/shared/ShopCard';
 import { ExperienceCard } from '../components/shared/ExperienceCard';
 import { ListCard } from '../components/shared/ListCard';
 import { Header } from '../components/layout/Header';
+import { ModePerch } from '../components/storefront/ModePerch';
 import { ModeSwitcher } from '../components/storefront/ModeSwitcher';
 import {
   StorefrontRail,
@@ -41,6 +42,7 @@ import type { PostSummary } from '../types/posts';
 import { useCart, toProduct } from '../hooks/useCart';
 import { useExperiences } from '../hooks/useExperiences';
 import { useStorefrontData } from '../hooks/useStorefrontData';
+import { useCategoryBySlug } from '../hooks/useCategories';
 import { useStorefrontMode } from '../hooks/useStorefrontMode';
 import { useScrollDirection } from '../hooks/useScrollDirection';
 import { useScreenSwipe } from '../hooks/useScreenSwipe';
@@ -88,6 +90,21 @@ export function ConsumerStorefront() {
   const { data, loading: dataLoading } = useStorefrontData();
   const communityLists = data?.lists ?? [];
 
+  // ?category=<slug> — set by the Welcome mosaic's tiles, and by nothing else
+  // so far. A URL rather than a store because a category is a view of this
+  // page and should be linkable and back-buttonable; the mode, which is a
+  // statement about who you are, is the thing that persists.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categorySlug = searchParams.get('category');
+  const { category: activeCategory, loading: categoryLoading } =
+    useCategoryBySlug(categorySlug);
+
+  const clearCategory = useCallback(() => {
+    const next = new URLSearchParams(searchParams);
+    next.delete('category');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
+
   // Held in a hook of its own so a like or a save lands immediately rather than
   // waiting on the storefront's next fetch.
   const sourcePosts = useMemo(() => data?.posts ?? [], [data?.posts]);
@@ -106,7 +123,11 @@ export function ConsumerStorefront() {
 
   // One reading of the scroll, two bars: the header slides away and the mode
   // rail rises into the slot it left.
-  const headerCollapsed = useScrollDirection();
+  // One signal, two halves of the same movement: the page's chrome leaves
+  // and the mode it was showing arrives in the bar. Asymmetric by way of the
+  // hook — folding takes a deliberate scroll down, unfolding takes barely a
+  // nudge back up, because reaching for the chrome is an intent.
+  const chromeFolded = useScrollDirection();
 
   // The whole page answers a sideways swipe, not just the rail at the top of
   // it — by the time somebody is deep in the feed, that rail is long gone.
@@ -163,9 +184,17 @@ export function ConsumerStorefront() {
   // ── The mode's slice of the same data ────────────────────────────────────
   const visibleItems = useMemo(() => {
     const all = data?.items ?? [];
-    if (!definition.itemFilter) return all;
-    return all.filter((i) => (i.item_type ?? 'product') === definition.itemFilter);
-  }, [data?.items, definition.itemFilter]);
+    const byType = definition.itemFilter
+      ? all.filter((i) => (i.item_type ?? 'product') === definition.itemFilter)
+      : all;
+
+    // An unresolved slug narrows nothing. A category that has been unfeatured,
+    // renamed or removed leaves links in circulation, and the useful answer to
+    // one of those is the whole catalogue rather than an empty page blaming
+    // the person who followed it.
+    if (!activeCategory) return byType;
+    return byType.filter((i) => i.category_id === activeCategory.id);
+  }, [data?.items, definition.itemFilter, activeCategory]);
 
   // The Slate reorders what is already here and attaches the reason each thing
   // is where it is. Strictly additive: with the ranker off, absent or slow,
@@ -212,6 +241,27 @@ export function ConsumerStorefront() {
   const sections: Record<string, React.ReactNode> = {
     items: (
       <section key="items">
+        {/* Say what is being withheld, and offer the way out in the same
+            breath. A narrowed feed that does not admit it is narrowed reads
+            as a catalogue that has gone thin. Square block states the fact,
+            pill undoes it -- round presses, square informs. */}
+        {activeCategory && (
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <span className="rounded-[var(--radius-block)] bg-ink px-2.5 py-1 text-xs font-semibold text-on-ink">
+              {activeCategory.name}
+            </span>
+            <button
+              type="button"
+              onClick={clearCategory}
+              className="flex items-center gap-1 rounded-[var(--radius-pill)] px-2 py-1 text-xs
+                         font-medium text-ink-500 transition-colors hover:text-ink-900
+                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <X className="h-3 w-3" strokeWidth={2.75} />
+              Show everything
+            </button>
+          </div>
+        )}
         <SectionHeading
           kicker={definition.itemsKicker}
           title={definition.itemsHeading}
@@ -226,7 +276,10 @@ export function ConsumerStorefront() {
         />
         <ItemFeed
           items={rankedItems}
-          loading={dataLoading}
+          /* Also waits on the slug resolving, so a category link never shows
+             the whole catalogue for a frame before narrowing to one tile's
+             worth of it. */
+          loading={dataLoading || categoryLoading}
           layout={definition.layout}
           density={modeDensity(mode)}
           addLabel={modeLexicon(mode).add}
@@ -241,7 +294,7 @@ export function ConsumerStorefront() {
     posts:
       visiblePosts.length > 0 ? (
         <section key="posts">
-          <SectionHeading kicker="From the shops" title="Posted recently" />
+          <SectionHeading accent="coral" kicker="From the shops" title="Posted recently" />
           {modePostPresentation(mode) === 'card' ? (
             <div className="mx-auto grid max-w-2xl grid-cols-1 gap-5">
               {visiblePosts.map((post) => (
@@ -299,7 +352,7 @@ export function ConsumerStorefront() {
           }
         />
         {dataLoading ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+          <div className="kl-row">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="overflow-hidden rounded-2xl border border-ink-200 bg-white">
                 <Skeleton className="aspect-[4/3] w-full" />
@@ -316,7 +369,7 @@ export function ConsumerStorefront() {
             <p className="text-sm">No lists published yet — yours could be the first.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+          <div className="kl-row">
             {communityLists.map((list, i) => (
               <motion.div
                 key={list.id}
@@ -336,12 +389,13 @@ export function ConsumerStorefront() {
       experiencesLoading || experiences.length > 0 ? (
         <section key="experiences">
           <SectionHeading
+            accent="berry"
             kicker="Curated by KithLy"
             title="Experiences"
             subtitle="Several shops, one gift, one deadline."
           />
           {experiencesLoading ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+            <div className="kl-row">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div key={i} className="overflow-hidden rounded-2xl border border-ink-200 bg-white">
                   <Skeleton className="aspect-[4/3] w-full" />
@@ -356,9 +410,11 @@ export function ConsumerStorefront() {
             <div
               className={
                 // The experiences face gives them the room they deserve.
+                // The experiences face gives them the room they deserve:
+                // two up, wrapping, rather than a row you scroll past.
                 definition.value === 'experiences'
                   ? 'grid grid-cols-1 gap-6 sm:grid-cols-2'
-                  : 'grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3'
+                  : 'kl-row'
               }
             >
               {experiences.map((experience, i) => (
@@ -382,12 +438,13 @@ export function ConsumerStorefront() {
     shops: (
       <section key="shops">
         <SectionHeading
+          accent="leaf"
           kicker="Merchant Directory"
           title="Local Shops"
           subtitle="Verified merchants ready to fulfil your gifts in person."
         />
         {dataLoading ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="kl-row">
             {Array.from({ length: 6 }).map((_, i) => (
               <ShopCardSkeleton key={i} />
             ))}
@@ -398,7 +455,7 @@ export function ConsumerStorefront() {
             <p className="text-sm">No shops available yet</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="kl-row">
             {(data?.shops ?? []).map((shop, i) => (
               <motion.div
                 key={shop.id}
@@ -422,34 +479,48 @@ export function ConsumerStorefront() {
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans">
+    <div className="min-h-screen bg-background font-sans">
       <Header
-        collapsed={headerCollapsed}
+        condensed={chromeFolded}
+        foldedSlot={<ModePerch />}
         onProfileClick={() => navigate('/settings')}
         onLogoClick={() => navigate('/')}
       />
 
       {/* ── Mode switcher ─────────────────────────────────────────────────────
-          Above the banner rather than below it: it is how you choose what the
-          page is, so it should be the first thing under the header, and it
-          stays put while the hero scrolls away beneath it. */}
+          No second bar. The pills ARE the rail now — five floating objects on
+          the page rather than five chips inside a container, which is one less
+          rectangle between the shopper and the thing they came for, and it is
+          what lets them fold into the header as objects instead of as the
+          contents of a box that has to disappear separately.
+
+          Still sticky, and still sticky in BOTH states: a stuck element
+          overlays the content below it rather than reserving viewport space,
+          so nothing reflows when the pills leave. Collapsing this wrapper's
+          height instead would shorten the document on every change of
+          direction and shunt the whole page up and down with it.
+
+          Visibility rides the transition so the row leaves the tab order once
+          it is gone — React 18 has no `inert` prop to reach for. It waits out
+          the pills' own stagger before it flips, which is what the longer
+          duration here is for. */}
       <div
         className={cn(
-          'sticky z-40 border-b backdrop-blur-md',
-          'transition-[top,background-color,border-color] duration-300 ease-out',
-          headerCollapsed
-            // Holding the header's place, and wearing its glass so the top of
-            // the page looks the same whichever bar is up there.
-            ? 'top-0 border-white/20 bg-white/60'
-            : 'top-14 border-ink-100 bg-white/90 md:top-16',
+          // Inert gutter: only the pills are targets, so the empty space either
+          // side of them does not swallow clicks meant for the page beneath.
+          'pointer-events-none sticky top-[var(--kl-header-h)] z-40 px-4 pt-3 md:px-8',
+          'transition-[opacity,visibility] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]',
+          chromeFolded ? 'invisible opacity-0' : 'visible opacity-100',
         )}
       >
-        <div className="mx-auto max-w-7xl px-5 py-3 sm:px-8">
-          <ModeSwitcher />
-          {/* One true thing at a time, under the mode rail. Renders nothing at
-              all when nothing has happened, so a quiet week looks quiet rather
-              than padded. */}
-          <PulseStrip className="mt-2" />
+        <div className="pointer-events-auto mx-auto w-full max-w-7xl">
+          <ModeSwitcher folded={chromeFolded} />
+          {/* One true thing at a time, under the modes. Renders nothing at all
+              when nothing has happened, so a quiet week looks quiet rather
+              than padded. It gets a pill of its own because there is no longer
+              a bar behind it and it is small grey text — over a photograph
+              scrolling past, that is unreadable. */}
+          <PulseStrip className="kl-rim kl-frost mt-2 inline-flex rounded-[var(--radius-pill)] px-3.5 py-1.5" />
         </div>
       </div>
 
@@ -561,10 +632,13 @@ export function ConsumerStorefront() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
             >
-              <h1 className="text-3xl font-bold leading-tight text-white sm:text-4xl">
+              {/* Caprasimo for the mode title, and --mode-on-block rather
+                  than white for both: the tagline is body-scale text and
+                  white clears 4.5:1 on only two of the five mode blocks. */}
+              <h1 className="kl-display text-3xl leading-tight text-[var(--mode-on-block)] sm:text-4xl">
                 {definition.title}
               </h1>
-              <p className="mt-2 max-w-xl text-sm text-white/85 sm:text-base">
+              <p className="mt-2 max-w-xl text-sm text-[var(--mode-on-block)] opacity-90 sm:text-base">
                 {definition.tagline}
               </p>
             </motion.div>
@@ -590,7 +664,11 @@ export function ConsumerStorefront() {
       </div>
 
       {/* ── Sections, in this mode's order ────────────────────────────────── */}
-      <div className="mx-auto flex max-w-7xl gap-8 px-5 py-10 sm:px-8 xl:max-w-[100rem]">
+      {/* The cockpit: 264 / 1fr / 336 at a 1560px ceiling, gutter 20px. The
+          rails are asymmetric on purpose -- the right one is yours and
+          carries your bag and your status, so it is given more room than the
+          left, which is the platform talking. */}
+      <div className="mx-auto flex max-w-7xl gap-5 px-5 py-10 sm:px-8 xl:max-w-[97.5rem]">
         {/* The platform's side: what is popular, what is selling. */}
         <StorefrontRail
           side="left"
@@ -599,7 +677,7 @@ export function ConsumerStorefront() {
           lists={communityLists}
         />
 
-        <div className="min-w-0 flex-1 space-y-16">
+        <div className="min-w-0 flex-1 space-y-20">
           {/* What is waiting on you stays in the feed on a phone: it should
               never need a gesture to be discovered. The browse modules moved
               into the drawer. */}
@@ -608,12 +686,15 @@ export function ConsumerStorefront() {
           {definition.sections.map((key) => sections[key]).filter(Boolean)}
 
         {!profile && (
-          <section className="kl-gradient-mode rounded-3xl p-10 text-center sm:p-14">
-            <Shield className="mx-auto mb-5 h-10 w-10 text-white/70" strokeWidth={1.5} />
-            <h2 className="mb-3 text-2xl font-bold tracking-tight text-white sm:text-4xl">
+          /* Text in --mode-on-block rather than white. White cleared 4.5:1 on
+             only two of the five mode blocks, and the paragraph here is body
+             copy, not headline scale -- see the measured table in theme.css. */
+          <section className="kl-gradient-mode rounded-[var(--radius-modal)] p-10 text-center text-[var(--mode-on-block)] sm:p-14">
+            <Shield className="mx-auto mb-5 h-10 w-10 opacity-70" strokeWidth={1.5} />
+            <h2 className="kl-display mb-3 text-2xl tracking-tight sm:text-4xl">
               100% Escrow Protected
             </h2>
-            <p className="mx-auto mb-8 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg">
+            <p className="mx-auto mb-8 max-w-xl text-base leading-relaxed opacity-90 sm:text-lg">
               Every kwacha stays locked until your recipient collects their gift in person. Zero
               risk. Full transparency.
             </p>

@@ -200,6 +200,9 @@ export function useStorefrontData() {
               'id, name, description, price_zmw, image_url, item_type, requires_scheduling, ' +
                 'lead_time_days, allow_custom_quote, price_is_minimum, is_discounted, ' +
                 'original_price_zmw, is_weekly_pick, promo_badge_text, stock_quantity, ' +
+                // What the Welcome mosaic's tiles filter this feed by. A plain
+                // column on items, so it costs nothing beyond the bytes.
+                'category_id, ' +
                 // The gallery a tile breathes through. Capped at five by
                 // item_images' own constraint, so this cannot run away.
                 'item_images(image_url, sort_order), ' +
@@ -271,6 +274,8 @@ export function useStorefrontData() {
           is_discounted: i.is_discounted ?? false,
           // Left as null when untracked — see isOutOfStock.
           stock_quantity: i.stock_quantity ?? null,
+          // Null is normal: an item nobody has categorised yet.
+          category_id: i.category_id ?? null,
         })) as CatalogItem[];
 
         const lists: ListSummary[] = (listsRes.data ?? []).map(toSummary);

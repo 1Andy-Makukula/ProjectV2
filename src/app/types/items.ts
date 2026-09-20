@@ -66,6 +66,15 @@ export interface CatalogItem {
   promo_badge_text?: string | null;
   shop?: { id: string; name: string; location?: string | null; logo_url?: string | null } | null;
 
+  /**
+   * The admin-managed taxonomy row this item belongs to, or null.
+   *
+   * Presentation only: it is what the Welcome mosaic's tiles filter the feed
+   * by. Nothing in pricing, escrow or fulfilment reads it, and an uncategorised
+   * item is an ordinary item that simply appears under no tile.
+   */
+  category_id?: string | null;
+
   item_type?: ItemType | null;
   requires_scheduling?: boolean | null;
   lead_time_days?: number | null;
