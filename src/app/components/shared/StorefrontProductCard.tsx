@@ -74,14 +74,28 @@ export function StorefrontProductCard({
 
   return (
     <article
-      className={`kl-tile kl-lift group relative flex flex-col overflow-hidden
+      // The pulsing rim goes on the cards with a deal on them, not on every
+      // card. A light that moves means "look here"; twenty of them side by
+      // side means nothing, and the discount is the one thing on this page
+      // worth interrupting a scan for. Everything else keeps the static rim
+      // .kl-tile already draws.
+      // kl-rim--warm: the one place the orange lip survives. On everything
+      // else it came off — an orange outline around every tile and post in the
+      // app is the brand shouting from the furniture.
+      className={`kl-tile kl-lift kl-rim kl-rim--warm group relative flex flex-col overflow-hidden
+                  ${discount !== null ? 'kl-pulse-rim' : ''}
                   ${ornament === 'gift' ? 'kl-ornament-gift' : ''}`}
     >
       {/* ── Image block ─────────────────────────────────────────── */}
       {/* Sold out is greyed rather than hidden: the buyer can see the shop
           stocks it and come back. Hiding it is what is_available does. */}
+      {/* White, not grey, and padded. The picture used to fill a grey window
+          cut into the tile; now it sits on the tile's own surface with room
+          around it and throws a shadow of its own shape, so the product reads
+          as an object placed there rather than as a photograph mounted in a
+          frame. */}
       <div
-        className={`relative w-full aspect-square overflow-hidden bg-ink-50 shrink-0
+        className={`relative w-full aspect-square shrink-0 bg-card p-5
                     ${outOfStock ? 'opacity-45 grayscale' : ''}`}
       >
         {item.image_url ? (
@@ -93,13 +107,12 @@ export function StorefrontProductCard({
             sources={galleryUrls(item)}
             alt={item.name}
             className="w-full h-full"
-            imageClassName="w-full h-full object-cover
-                            transition-transform duration-500 group-hover:scale-[1.03]"
+            imageClassName="kl-cutout w-full h-full
+                            transition-transform duration-500 group-hover:scale-[1.05]"
           />
         ) : (
           /* Gradient placeholder — no image */
-          <div className="w-full h-full bg-gradient-to-br from-ink-100 via-ink-50 to-ink-100
-                          flex items-center justify-center">
+          <div className="w-full h-full flex items-center justify-center">
             {service ? (
               <ConciergeBell className="h-10 w-10 text-ink-200" strokeWidth={1} />
             ) : (
@@ -111,13 +124,15 @@ export function StorefrontProductCard({
         {/* Discount / merchandising badge — top-right corner */}
         {(discount !== null || badge) && (
           <div className="absolute top-2.5 right-2.5">
+            /* A BLOCK, not a pill. Round means tappable in this language
+               and this is a fact about the price, not a control. Brand,
+               because a discount is the card's "act now". */
             <span
-              className={`inline-block rounded-full px-2.5 py-0.5
-                          text-[10px] font-bold uppercase tracking-wider
-                          backdrop-blur-sm shadow-sm border
+              className={`inline-block rounded-[var(--radius-block)] px-2 py-0.5
+                          text-[10px] font-bold uppercase tracking-[0.06em]
                           ${discount !== null
-                            ? 'border-transparent bg-brand-600 text-white'
-                            : 'border-brand-200 bg-white/90 text-brand-600'}`}
+                            ? 'bg-primary text-white'
+                            : 'bg-ink text-on-ink'}`}
             >
               {discount !== null ? `${discount}% off` : badge}
             </span>
@@ -126,11 +141,10 @@ export function StorefrontProductCard({
 
         {/* Service marker — top-left, so it never collides with the badge */}
         {service && (
-          <div className="absolute top-2.5 left-2.5 flex items-center gap-1
-                          rounded-full bg-white/90 backdrop-blur-sm border border-ink-100
-                          px-2 py-0.5 shadow-sm">
-            <ConciergeBell className="h-2.5 w-2.5 text-ink-500 shrink-0" strokeWidth={2} />
-            <span className="text-[9px] font-bold uppercase tracking-wide text-ink-600">
+          <div className="absolute left-2.5 top-2.5 flex items-center gap-1
+                          rounded-[var(--radius-block)] bg-surface-paper px-2 py-0.5">
+            <ConciergeBell className="h-2.5 w-2.5 shrink-0 text-muted-foreground" strokeWidth={2.75} />
+            <span className="text-[9px] font-bold uppercase tracking-[0.06em] text-foreground">
               Service
             </span>
           </div>
@@ -147,11 +161,13 @@ export function StorefrontProductCard({
         </div>
 
         {/* Escrow shield — bottom-left */}
+        {/* Brass, because brass means held money and nothing else. This was
+            brand orange, which in this language means "act now" -- escrow is
+            a reassurance, not a call to action. */}
         <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1
-                        rounded-full bg-white/90 backdrop-blur-sm border border-ink-100
-                        px-2 py-0.5 shadow-sm">
-          <Shield className="h-2.5 w-2.5 text-brand-500 shrink-0" strokeWidth={2} />
-          <span className="text-[9px] font-bold uppercase tracking-wide text-brand-600">
+                        rounded-[var(--radius-block)] bg-brass px-2 py-0.5">
+          <Shield className="h-2.5 w-2.5 shrink-0 text-ink" strokeWidth={2.75} />
+          <span className="text-[9px] font-bold uppercase tracking-[0.06em] text-ink">
             Escrow
           </span>
         </div>
@@ -161,19 +177,19 @@ export function StorefrontProductCard({
       <div className="flex flex-col flex-1 gap-1 px-4 py-3">
         {/* Merchant */}
         {item.shop?.name && (
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-ink-400 truncate">
+          <p className="truncate text-[10px] font-bold uppercase tracking-[0.06em] text-muted-foreground">
             {item.shop.name}
           </p>
         )}
 
         {/* Name */}
-        <h3 className="text-sm font-semibold text-ink-900 truncate leading-snug">
+        <h3 className="truncate text-[0.8125rem] font-semibold leading-snug text-foreground">
           {item.name}
         </h3>
 
         {/* Description — only renders if present */}
         {item.description && (
-          <p className="mt-0.5 line-clamp-1 text-[11px] text-ink-400 leading-snug">
+          <p className="mt-0.5 line-clamp-1 text-[11px] leading-snug text-muted-foreground">
             {item.description}
           </p>
         )}
@@ -181,32 +197,34 @@ export function StorefrontProductCard({
         {/* Price */}
         <div className="mt-1 flex items-baseline gap-2">
           {priceLabel.prefix && (
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-ink-400">
+            <span className="text-[10px] font-bold uppercase tracking-[0.06em] text-muted-foreground">
               {priceLabel.prefix}
             </span>
           )}
-          <p className="text-sm font-semibold text-ink-900">
+          {/* Caprasimo, tabular, solid ink. A price is the loudest FACT on
+              the tile; it does not need a colour to be found. */}
+          <p className="kl-money text-[1.375rem] leading-none text-foreground">
             ZMW {formatZmw(item.price_zmw)}
           </p>
           {discount !== null && (
-            <p className="text-[11px] text-ink-400 line-through">
+            <p className="kl-money text-xs text-muted-foreground line-through">
               ZMW {formatZmw(item.original_price_zmw)}
             </p>
           )}
         </div>
         {priceLabel.prefix && (
-          <p className="text-[10px] font-medium text-ink-500">Minimum service fee</p>
+          <p className="text-[10px] font-medium text-muted-foreground">Minimum service fee</p>
         )}
 
         {outOfStock && (
-          <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide text-ink-500">
+          <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.06em] text-muted-foreground">
             {OUT_OF_STOCK_REASON}
           </p>
         )}
 
         {/* Scheduling note — sets the expectation before they tap through */}
         {item.requires_scheduling && (
-          <p className="mt-0.5 flex items-center gap-1 text-[10px] font-medium text-ink-500">
+          <p className="mt-0.5 flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
             <CalendarClock className="h-3 w-3 shrink-0" strokeWidth={2} />
             {item.lead_time_days
               ? `Book ${item.lead_time_days} day${item.lead_time_days === 1 ? '' : 's'} ahead`
@@ -217,12 +235,20 @@ export function StorefrontProductCard({
         {/* CTA Buttons */}
         <div className="mt-3 flex gap-2">
           {showAddToCart && onAddToCart && (
+            /* Ink at rest, brand on hover -- the charter's add-to-bag. Ink
+               because at rest this is furniture: twenty tiles each shouting
+               in orange is twenty things claiming to be the one action on
+               the screen. It becomes brand the moment you reach for it.
+
+               Still a PILL, because it is a press. The label is still the
+               mode's own word (addLabel) and the handler is untouched. */
             <button
               onClick={e => { e.stopPropagation(); onAddToCart(); }}
-              className="kl-rim flex-1 flex items-center justify-center gap-1 rounded-[var(--radius-pill)] py-2 text-xs font-semibold
-                         text-mode-accent tracking-wide
-                         hover:bg-mode-tint
-                         active:scale-[0.98] transition-all duration-200"
+              className="flex h-[38px] flex-1 items-center justify-center gap-1 rounded-[var(--radius-pill)]
+                         bg-ink text-xs font-semibold tracking-wide text-on-ink
+                         transition-colors duration-200 hover:bg-primary hover:text-white
+                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+                         active:scale-[0.98]"
             >
               <AddGlyph className="h-3.5 w-3.5" />
               {addLabel}
@@ -232,11 +258,15 @@ export function StorefrontProductCard({
             <button
               onClick={e => { e.stopPropagation(); handle(); }}
               disabled={outOfStock}
-              className={`flex-1 rounded-xl border border-ink-200 py-2 text-xs font-semibold
-                         text-ink-700 tracking-wide uppercase
-                         enabled:hover:border-ink-900 enabled:hover:bg-ink-900 enabled:hover:text-white
-                         enabled:active:scale-[0.98] transition-all duration-200
-                         disabled:cursor-not-allowed disabled:text-ink-400
+              /* The outlined sibling. A pill too -- both of these are
+                 presses, and the grammar does not bend for a secondary. */
+              className={`h-[38px] flex-1 rounded-[var(--radius-pill)] border border-border-dark text-xs font-semibold
+                         uppercase tracking-wide text-foreground
+                         transition-colors duration-200
+                         enabled:hover:border-ink enabled:hover:bg-ink enabled:hover:text-on-ink
+                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+                         enabled:active:scale-[0.98]
+                         disabled:cursor-not-allowed disabled:opacity-45
                          ${showAddToCart ? '' : 'w-full'}`}
             >
               {outOfStock ? 'Sold out' : primaryLabel}

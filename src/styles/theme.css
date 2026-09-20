@@ -7,11 +7,25 @@
 :root {
   /* Base */
   --font-size: 15px;
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  /* The paper skin's voices. Both fall back to something reasonable, because a
-     journey has to stay readable while a font is still arriving over a slow
-     connection -- or never arrives at all. */
-  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-family: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* The display voice. Caprasimo as of 2026-09-18 -- every heading, price,
+     counter and total in the product. One weight, because the face ships one
+     and needs no more: hierarchy here is size and colour, never weight.
+
+     IT IS A STATIC FACE. Fraunces' variation axes (opsz, SOFT, WONK) do not
+     exist on it, and `font-variation-settings` naming axes a font does not
+     have is not an error -- it is silently ignored, which is worse, because
+     the declaration stays in the file looking load-bearing. .kl-display had
+     exactly that pair and they were removed with this change.
+
+     --font-paper keeps Fraunces for the paper-skin journey pages, which are
+     the only surfaces that ever varied those axes and the reason the face is
+     still requested in index.html at all. Both fall back to something
+     reasonable: a journey has to stay readable while a font is still arriving
+     over a slow connection, or never arrives. */
+  --font-display: 'Caprasimo', Georgia, 'Times New Roman', serif;
+  --font-paper: 'Fraunces', Georgia, 'Times New Roman', serif;
   --font-hand: 'Caveat', 'Segoe Script', 'Bradley Hand', cursive;
 
   /* Surface
@@ -26,18 +40,124 @@
      card) — light mode simply never did, which is what marked it out as an
      oversight rather than a decision.
 
-     Warm rather than a cool grey, because the brand is orange and a blue-grey
-     ground fights it. A real grey rather than an off-white: at #F7F6F4 the
-     separation was technically present and perceptually absent, which is the
-     worst of both — the page still read as one plane and the change bought
-     nothing. This is far enough from #ffffff that a card is unmistakably an
-     object sitting on something. */
+     A real grey rather than an off-white: at #F7F6F4 the separation was
+     technically present and perceptually absent, which is the worst of both —
+     the page still read as one plane and the change bought nothing. This is
+     far enough from #ffffff that a card is unmistakably an object sitting on
+     something.
+
+     Warm again, as of 2026-09-18 — back to #EAE8E3, and this reverses the
+     neutral decision made the day before rather than drifting off it.
+
+     The history, because it has now gone round once: #EAE8E3 → #E3E0D9 →
+     #E9E9E9 (true neutral, 2026-09-17, on the finding that a warm ground
+     tints every white tile by comparison and reads as age) → #EAE8E3 again,
+     under the Chitenge Cockpit charter, which asks for a warm cream ground
+     because that is what lets ink chrome and brass read as a trading floor
+     instead of as a dashboard. Andy chose the charter's value on 2026-09-18
+     with the 09-17 finding in front of him.
+
+     The rule that survives every one of those moves: do NOT take this toward
+     a blue-grey. Warm or neutral are both live positions; cool is the one
+     that fights an orange brand, and that has been true the whole way. */
   --background: #EAE8E3;
-  --foreground: #0D0D0D;
+
+  /* #201E1D, not #0D0D0D: the warm text ramp's strong stop. Near-black with
+     the temperature of the ground rather than against it. */
+  --foreground: #201E1D;
   --card: #ffffff;
   --card-foreground: #0D0D0D;
   --popover: #ffffff;
   --popover-foreground: #0D0D0D;
+
+  /* ══ Chitenge Cockpit ════════════════════════════════════════════════════
+     Added 2026-09-18. The language in one line: a trading floor with an
+     escrow vault at the centre. Ink chrome holds the room; colour arrives in
+     flat saturated blocks with hard edges, never as a wash.
+
+     Each of these means exactly one thing, and the meanings are enforced --
+     a token used for the wrong idea is worse than a hard-coded hex, because
+     it looks deliberate.
+
+       --ink        all chrome, totals, rank blocks, add-to-bag at rest.
+                    NEVER body text (that is --text-strong) and never a card
+                    fill.
+       --ink-soft   the second bar of the chrome stack.
+       --brass      escrow and held money ONLY. Never a discount, a delivery,
+                    a rating or any decoration. It is the most expensive
+                    -looking colour in the system and it is rationed to the
+                    one thing no competitor does.
+       --sage       verified / collected / in stock. Means done or safe --
+                    never "new" and never "featured".
+
+     NAME COLLISION, DELIBERATELY AVOIDED
+     ------------------------------------
+     The charter calls its quiet warm surface `--paper`. That name was taken:
+     --paper (#FBF6EC) has belonged to the paper-skin journey pages since
+     August and is read by .kl-paper, .kl-paper-display, .kl-hand, .kl-seal,
+     .kl-tape and two components. Redefining it would have repainted the
+     journey pages as a side effect of a storefront theme.
+
+     So the cockpit surface is --surface-paper, and the two stay distinct on
+     purpose: the charter itself uses BOTH values, #F9F4ED for inner rows and
+     quiet surfaces and #FBF6EC for the warmer accent grounds (the newest
+     wish, the Secret Santa action, the escrow protocol block). Collapsing
+     them to one value would have flattened a distinction the design makes. */
+  --ink: #14110F;
+  --ink-soft: #1E1A17;
+  --brass: #D8A43C;
+  --sage: #728157;
+  --surface-paper: #F9F4ED;
+
+  /* The warm accent ground. Same value as the paper skin's --paper and NOT
+     an alias of it: they are two ideas that happen to agree today, and an
+     alias would silently couple a storefront colour to a journey-page one. */
+  --surface-warm: #FBF6EC;
+
+  /* -- Text, warm ------------------------------------------------------
+     #645C50 is the FLOOR for anything 12px or smaller. --text-faint only
+     clears 4.29:1 on white and 3.84:1 on --surface-paper, so it is legal at
+     14px and above and nowhere else. This is not a preference; it is the
+     4.5:1 line, and the charter calls it a non-negotiable. */
+  --text-strong: #201E1D;
+  --text-soft: #645C50;
+  --text-faint: #82796A;
+  --on-ink: #F9F4ED;
+  --on-ink-soft: #A19786;
+
+  /* Brand orange fails 4.5:1 on white as body copy (#E8460A is 3.95:1).
+     --accent-text is the same idea one stop darker and is what accent-
+     coloured TEXT must use on a light ground. Blocks and fills keep
+     --primary; only text steps down. */
+  --accent-text: #C93A08;
+
+  /* Brass has the same problem, worse: #D8A43C as text is 2.10:1 on
+     --surface-warm and 2.26:1 on white, which is not text at any size.
+     Brass is a GROUND colour -- ink on brass is 8.32:1 and that is how the
+     escrow chip, the escrow strip and the escrow badge are all built.
+
+     --brass-deep is the exception for the few places escrow has to be
+     WORDS on a light ground rather than a block: 4.69:1 on --surface-warm,
+     5.15:1 on white. It is the brass equivalent of --accent-text and it
+     obeys the same rule -- fills use --brass, text uses this. */
+  --brass-deep: #8A6A18;
+
+  /* And sage, for the same reason. --sage is a SIGNAL colour: a verified
+     mark, a live dot, an icon -- graphic elements, which WCAG holds to 3:1
+     and which it clears comfortably. But white on --sage is 4.21:1 and ink
+     on --sage is 4.47:1, so a sage BLOCK carrying an 11px label fails both
+     ways round. --sage-deep takes white at 5.83:1.
+
+     The rule across all three families is now the same: --primary/--brass/
+     --sage are the colours; --accent-text/--brass-deep/--sage-deep are what
+     you use when the colour has to be read rather than seen. */
+  --sage-deep: #5C6A45;
+
+  /* The third face of sage, for ink grounds. --sage on --ink is 4.47:1,
+     which misses the floor by a hair at the 21px the Market Pulse counters
+     are set in; this is 6.27:1 there. It is deliberately NOT for light
+     grounds, where it drops to 3.0:1. */
+  --sage-on-ink: #8B9B6C;
 
   /* Brand — deep orange-red */
   --primary: #E8460A;
@@ -45,26 +165,18 @@
   --primary-foreground: #ffffff;
 
   /* -- The heat ramp -------------------------------------------------------
-     Chroma is a function of area, and that is a rule rather than a taste.
+     The brand as five intensities, 5 strongest to 1 faintest.
 
-     The same orange that looks like money on a 40px seal looks like a taxi
-     app stretched across a hero, and no amount of typography rescues it. So
-     the brand is not one colour -- it is five intensities, and the thing that
-     picks which one you use is how much of the screen it covers, NOT how
-     important the element is. An important button is still small.
+     This used to carry a rule that chroma had to fall as area grew -- that a
+     full-strength orange belonged only on things smaller than a card, and
+     anything larger had to be diluted. That rule is gone as of 2026-09-17:
+     the direction now is loud colour on a neutral ground, and the dilution
+     was what made the app read as faded. Pick a stop because it is the
+     strength you want, not because of how much room it is filling.
 
-       --heat-5  a seal, a dot, a hairline edge     (<= 40px)
-       --heat-4  a button, a badge, an icon chip    (<= a card)
-       --heat-3  a strip, a small band              (<= a third of the fold)
-       --heat-2  a panel behind dark text
-       --heat-1  a full-screen wash
-
-     Large surfaces carrying *light* content do not appear on this ramp: they
-     go down in value instead of up in tint -- see --wash-ember below.
-
-     --primary-tint / --primary-tint-mid are kept as aliases with exactly the
-     values they always had. 36 places consume them and none of them need to
-     know the ramp exists. */
+     --primary-tint / --primary-tint-mid are aliases with exactly the values
+     they always had. 36 places consume them and none need to know this
+     exists. */
   --heat-5: #E8460A;
   --heat-4: #ED6A38;
   --heat-3: #F5A883;
@@ -75,24 +187,22 @@
   --primary-tint-mid: var(--heat-2);  /* stronger tint */
 
   /* -- The large-area wash -------------------------------------------------
-     Every big orange surface in this app carries white text -- the hero, the
-     admin bands, the shop banner. The chroma rule says dilute them; diluting
-     upward into a pastel would satisfy the rule and make all of them
-     unreadable at the same time.
+     The seven big brand surfaces: the hero, the admin bands, the shop banner.
 
-     So they travel the other way. Down in value, warm the whole distance,
-     losing chroma as they darken: a room with a fire in it rather than a
-     sheet of orange. Contrast against white goes UP, and by more than the
-     chroma argument alone would have bought: 5.2:1 at the lightest stop and
-     climbing the whole way down, where the --primary/--primary-light
-     gradient these replaced ran 3.95:1 to 3.18:1. Every one of these
-     surfaces carries white text, so all seven were failing WCAG AA (4.5:1)
-     the entire time -- the dilution fixes an accessibility defect as a side
-     effect of fixing a taste one. The light also still has a direction:
-     135deg, the same top-left source as --rim.
+     Loud again, and the reason it is not simply --primary is the only part of
+     the old rule worth keeping. Every one of these carries WHITE TEXT. Plain
+     #E8460A under white is 3.95:1 and #F26334 is 3.18:1, against a 4.5:1
+     floor -- which is what these surfaces were before, and they were failing
+     WCAG AA the entire time. This is a saturated orange-red whose LIGHTEST
+     stop still clears the floor, so it is as loud as it can legally be
+     rather than as quiet as a dilution rule wanted.
+
+     It used to run all the way down to #3B1A0F, a near-black ember. That was
+     the dilution doctrine, and it is what made these surfaces look burnt
+     rather than bright. The range is much tighter now and stays orange.
 
      The lightest stop in each theme is the one that has to clear 4.5:1.
-     Both do. Re-check it before changing either.
+     Re-check with a contrast calculator before changing either.
 
      Two tokens rather than one because this gradient travels far enough in
      both hue and value that sRGB interpolation greys out through the middle,
@@ -102,8 +212,8 @@
      `in oklab` keeps the sRGB token and sees a slightly muddier midpoint,
      never a missing background -- which matters on the older Android builds
      this has to survive. */
-  --wash-ember: linear-gradient(135deg, #C2410C 0%, #7C2D12 46%, #3B1A0F 100%);
-  --wash-ember-oklab: linear-gradient(135deg in oklab, #C2410C 0%, #7C2D12 46%, #3B1A0F 100%);
+  --wash-ember: linear-gradient(135deg, #CE4409 0%, #B8350B 52%, #9A2A0C 100%);
+  --wash-ember-oklab: linear-gradient(135deg in oklab, #CE4409 0%, #B8350B 52%, #9A2A0C 100%);
 
   /* ── Storefront modes ─────────────────────────────────────────────────────
      The storefront wears a different face depending on what the shopper came
@@ -117,19 +227,89 @@
   --mode-tint: var(--primary-tint);
   --mode-accent: var(--primary);
 
-  /* Neutrals */
-  --secondary: #F4F4F5;
-  --secondary-foreground: #0D0D0D;
-  --muted: #F4F4F5;
-  --muted-foreground: #6B6B6B;
-  --accent: #F4F4F5;
-  --accent-foreground: #0D0D0D;
+  /* -- What is legible ON the mode block ---------------------------------
+     The charter makes the active mode a FLAT BLOCK in its own colour, and
+     4.5:1 for text at or below 18px a non-negotiable. Those two rules
+     together do not permit one text colour for all five modes. Measured
+     against white and against --ink:
+
+         mode          block     on white   on ink
+         discover      #E8460A     3.95 x     4.76 v
+         gifting       #F2724B     2.88 x     6.52 v
+         experiences   #C82E2E     5.40 v     3.48 x
+         services      #C97A09     3.35 x     5.62 v
+         lists         #A6552F     5.30 v     3.55 x
+
+     So the three warm-bright modes take ink and the two deep ones take
+     paper, and every pairing clears the floor. White-on-block was what the
+     gradient chip did before and it was failing on three of the five faces.
+     Recompute this table before changing any mode colour. */
+  --mode-on-block: var(--ink);
+
+  /* Neutrals — warm, 2026-09-18.
+     These were #F4F4F5 and #6B6B6B, which are cool greys, and they were the
+     quiet half of the "generic" problem: --muted-foreground alone is read by
+     437 call sites, so every secondary line of text in the product was a
+     colder colour than the ground it sat on. Warming these four values is
+     most of substitution 1 of the charter, and it happens without a single
+     component being edited.
+
+     --muted-foreground is #645C50: the charter's secondary text, and the
+     FLOOR for anything 12px or smaller. */
+  --secondary: #F2EDE5;
+  --secondary-foreground: #201E1D;
+  --muted: #F2EDE5;
+  --muted-foreground: #645C50;
+  --accent: #F2EDE5;
+  --accent-foreground: #201E1D;
 
   /* State */
   --destructive: #CC1F1F;
   --destructive-foreground: #ffffff;
   --success: #1A7F4B;
   --success-foreground: #ffffff;
+
+  /* ══ Module accents ══════════════════════════════════════════════════════
+     The ounce of colour, and the only place in the app allowed to leave the
+     orange family.
+
+     Lifted from the SINTECH design, where every module names itself in its own
+     loud colour — Status Bar in ink, Trending in coral, the cart tab in green,
+     News in berry. That variety is doing real work: a column of eight white
+     cards whose headings are all the same colour reads as one undifferentiated
+     stack, and you navigate it by reading rather than by recognising. Give
+     each module a hue and you find "the green one" without reading anything.
+
+     Rules, because this is the exception and exceptions spread:
+       - These are for MODULE HEADINGS AND THEIR ICONS. Nothing else.
+       - The brand is still orange. Buttons, prices, CTAs, the pulse, every
+         active state — all unchanged, all --primary. A heading is a label,
+         not an action, which is why it can afford a colour of its own.
+       - --accent-brand leads and is the default. A module with nothing
+         special to say is an orange one.
+
+     Greens are the Figma's own (#41a514); the coral and berry are pulled
+     toward the warm end of theirs so the set still reads as one family with
+     the orange rather than as a paintbox. */
+  --accent-brand: #E8460A;
+  --accent-coral: #E0452E;
+  --accent-berry: #C42B6B;
+  --accent-leaf:  #3D8F17;
+  --accent-ink:   #141414;
+
+  /* The headings are set in these rather than in the flat colours above.
+     A heading filled with a gradient has a light source; a flat one is a
+     coloured label. Each runs light at the top-left to deep at the
+     bottom-right -- 135deg, the same direction as --rim, so the type is lit
+     from where everything else on the page is lit from.
+
+     The flat tokens stay because the module ICONS use them: a 19px glyph
+     filled with a gradient is a glyph that looks like it failed to load. */
+  --accent-grad-brand: linear-gradient(135deg, #F2712F 0%, #E8460A 48%, #B33207 100%);
+  --accent-grad-coral: linear-gradient(135deg, #F0705C 0%, #E0452E 48%, #AE2716 100%);
+  --accent-grad-berry: linear-gradient(135deg, #E24C8E 0%, #C42B6B 48%, #8E1A4B 100%);
+  --accent-grad-leaf:  linear-gradient(135deg, #5FBF2A 0%, #3D8F17 48%, #256410 100%);
+  --accent-grad-ink:   linear-gradient(135deg, #4A4A4A 0%, #1E1E1E 48%, #000000 100%);
 
   /* ══ The ramps ═══════════════════════════════════════════════════════════
      Six families, and between them they are every colour the product draws.
@@ -154,7 +334,7 @@
      from "the refactor broke something".
 
      To restyle the product, change the numbers here. Two lines retint every
-     neutral in the app -- this pair takes slate's blue-grey to a warm, calmer
+     neutral in the app -- this pair can take slate's blue-grey to a calmer
      grey, everywhere at once:
 
          --ink-hue-shift: -205;      (257 -> ~52, a warm grey)
@@ -205,9 +385,25 @@
      ramp for dark mode is a real improvement and a real change, and it wants
      to be its own commit -- it is ten lines, below, once someone decides. */
 
-  /* -- ink: every neutral. Was slate (1,226 uses) and gray (199). ---------- */
-  --ink-hue-shift: 0;
-  --ink-sat: 1;
+  /* -- ink: every neutral. Was slate (1,226 uses) and gray (199). ----------
+     RETINTED WARM, 2026-09-18. These are the two numbers this ramp was built
+     to make turnable, and the values are the ones the note above predicted:
+     hue 257 (slate's blue-grey) shifted to ~52, and the chroma pulled back so
+     the result is a warm grey rather than a tan.
+
+     This is substitution 1 of the charter's three, and it is the whole of it.
+     Because the 2026-09-17 migration had already moved 2,065 raw palette
+     classes onto this ramp, every `text-slate-*` / `bg-slate-*` / `border-
+     slate-*` in the product now resolves through here -- so the app's entire
+     neutral family turns warm from these two lines instead of from a
+     thousand-file find-and-replace. That was the point of the refactor and
+     this is it being collected.
+
+     Contrast is safe to within 0.15 across the ramp: oklch lightness is
+     near-independent of hue, which is measured in the note above and is the
+     reason these stops are written in oklch rather than hex. */
+  --ink-hue-shift: -205;
+  --ink-sat: 0.55;
   --ink-50:  oklch(98.4% calc(0.003 * var(--ink-sat)) calc(247.858 + var(--ink-hue-shift)));
   --ink-100: oklch(96.8% calc(0.007 * var(--ink-sat)) calc(247.896 + var(--ink-hue-shift)));
   --ink-200: oklch(92.9% calc(0.013 * var(--ink-sat)) calc(255.508 + var(--ink-hue-shift)));
@@ -297,37 +493,49 @@
   --info-800: oklch(42.4% calc(0.199 * var(--info-sat)) calc(265.638 + var(--info-hue-shift)));
   --info-900: oklch(37.9% calc(0.146 * var(--info-sat)) calc(265.522 + var(--info-hue-shift)));
 
-  /* Borders — hair-thin, Apple style */
-  --border: rgba(0, 0, 0, 0.07);
-  --border-dark: rgba(0, 0, 0, 0.12);
+  /* Borders — warm hairlines. rgba(20,17,15,…) rather than rgba(0,0,0,…):
+     a pure-black rule on a warm cream ground reads blue at low opacity,
+     which is the same cool-on-warm problem as the greys above, just at 7%. */
+  --border: rgba(20, 17, 15, 0.09);
+  --border-dark: rgba(20, 17, 15, 0.14);
 
   /* Form controls */
   --input: transparent;
-  --input-background: #F7F7F8;
-  --switch-background: #CBCED4;
-  --ring: rgba(232, 70, 10, 0.35);
+  --input-background: #F6F1E9;
+  --switch-background: #CFC7BA;
+
+  /* Focus is a 2px BRAND outline, not a browser default and not a hint.
+     This was rgba(232,70,10,0.35) -- the brand at just over a third, which on
+     a warm ground is a smudge rather than a ring. The charter makes a visible
+     focus ring a non-negotiable, so it is the brand at full strength; every
+     primitive that says `ring-ring` picks the change up without being edited,
+     and the handful using `ring-ring/50` still land at a legible 50%. */
+  --ring: #E8460A;
 
   /* -- Shadow ink ----------------------------------------------------------
-     One light source, and it has a colour.
-
      Every shadow below derives from this one triple, so there is exactly one
-     place in the project that decides what colour the light is. It used to be
-     rgba(16,16,20,...) -- a cool near-black, the shadow you get under a grey
-     sky. On a warm ground (--background is #EAE8E3) lit by a brand this
-     orange, a cool shadow reads like a photograph with the wrong white
-     balance: nothing you can name, but every surface looks pasted on instead
-     of resting there.
+     place that decides what colour the light is.
 
-     Dark and low-chroma rather than brown. At these alphas it resolves to a
-     warm grey, not dirt. The alphas are each a point or two higher than the
-     cool values they replace, because a warm ink of equal alpha reads lighter
-     than a neutral one -- the correction is optical, not arithmetic. */
-  --shadow-ink: 74 32 16;
+     Neutral. It was 74 32 16, a warm brown, on the argument that a warm
+     ground lit by an orange brand wants a warm shadow. The ground is a
+     neutral grey now and the shadow follows it: a brown shadow under a white
+     tile on #E9E9E9 reads as a stain rather than as shade. */
+  --shadow-ink: 23 23 23;
 
-  /* Shadows */
-  --shadow-card: 0 1px 3px rgb(var(--shadow-ink) / 0.07), 0 1px 2px rgb(var(--shadow-ink) / 0.05);
-  --shadow-panel: 0 8px 30px rgb(var(--shadow-ink) / 0.14);
-  --shadow-dropdown: 0 4px 20px rgb(var(--shadow-ink) / 0.12);
+  /* -- Shadows: none ------------------------------------------------------
+     Flat, as of 2026-09-17. Separation comes from the ground being a
+     different colour to the tile (#E9E9E9 against #ffffff), not from a cast
+     shadow under every object.
+
+     Kept as tokens set to `none` rather than deleted, because roughly sixty
+     places consume them and a deleted custom property resolves to nothing at
+     all -- `box-shadow: var(--shadow-card)` with no definition is invalid and
+     drops the whole declaration, which is a different and worse outcome than
+     an explicit `none`. Put a value back here and the whole app has depth
+     again; that is the point of them being tokens. */
+  --shadow-card: none;
+  --shadow-panel: none;
+  --shadow-dropdown: none;
 
   /* Floating shell — the rim, lift and halo that make a surface read as
      present rather than printed on. One definition each, so a tile, a modal
@@ -337,14 +545,32 @@
      at 4% and -14px) reads as a glow under a flat shape; the tight 1-3px
      contact shadow is what the eye uses to decide something is physically
      resting on the page rather than printed onto it. */
-  --shadow-float: 0 1px 3px rgb(var(--shadow-ink) / 0.11), 0 10px 24px -10px rgb(var(--shadow-ink) / 0.32);
-  --shadow-lift:  0 3px 8px rgb(var(--shadow-ink) / 0.13), 0 24px 48px -16px rgb(var(--shadow-ink) / 0.40);
-  --shadow-glow:  0 4px 14px -4px rgba(232,70,10,0.40);
-  --shadow-glow-strong: 0 8px 24px -6px rgba(232,70,10,0.55);
+  --shadow-float: none;
+  --shadow-lift: none;
+  --shadow-glow: none;
+  --shadow-glow-strong: none;
 
   /* The hairline rim. A gradient, so an edge catches light along its length
-     instead of sitting flat and grey. */
+     instead of sitting flat and grey.
+
+     It used to carry the brand through its middle — 28% orange at the 38%
+     stop. On one button that was a lit edge; on every tile, post and card in
+     the app at once it was an orange outline around everything, which is the
+     brand shouting from the furniture rather than from anything worth
+     looking at. This is the same edge as light instead of as colour: white
+     where it faces the source, the shadow ink where it turns away.
+
+     --rim-warm keeps the old behaviour for the few surfaces that still want
+     it, and --rim-strong is untouched because it is only ever on a primary
+     action, where the brand IS the point. */
   --rim: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.92) 0%,
+    rgb(var(--shadow-ink) / 0.09) 46%,
+    rgb(var(--shadow-ink) / 0.15) 100%
+  );
+
+  --rim-warm: linear-gradient(
     135deg,
     rgba(255,255,255,0.95) 0%,
     rgba(232,70,10,0.28) 38%,
@@ -358,6 +584,125 @@
     var(--primary-light) 66%,
     rgba(255,255,255,0.9) 100%
   );
+
+  /* ── Glass ───────────────────────────────────────────────────────────────
+     Two densities, and the difference between them is what makes a floating
+     bar read as two layers rather than one tinted rectangle.
+
+       --glass-bar    the raft itself: thin enough that the page moving
+                      underneath is legible through it, which is the whole
+                      point of floating it in the first place
+       --glass-group  a cluster of controls sitting ON the raft, denser, so
+                      the group is an object on the bar and not a hole in it
+
+     Both are deliberately under 60% alpha. Glass that you cannot see through
+     is just a panel with an expensive filter attached, and backdrop-filter is
+     expensive: it forces a backdrop root and repaints it on every scroll
+     frame. Two of these on screen is the budget -- see .kl-glass.
+
+     The blur is one token because the bar and the groups stacked on it must
+     agree. Two different blur radii in the same shell reads as a rendering
+     bug rather than as depth. */
+  --glass-bar: rgba(255, 255, 255, 0.30);
+  --glass-group: rgba(255, 255, 255, 0.46);
+  --glass-blur: 24px;
+
+  /* -- The specular edge --------------------------------------------------
+     What makes glass read as glass on a white page.
+
+     A pane on a white ground has nothing behind it to refract, so every cue
+     that it is a physical object has to come from its edges: a bright lip
+     along the top where light catches it, a fainter one underneath where the
+     light bounces back up off the page. Without these the bar is a rectangle
+     of slightly-grey white and no amount of blur rescues it -- blur needs a
+     backdrop, and white has no detail to blur.
+
+     This is the cheap half of the premium. The expensive half is the shadow,
+     and .kl-glass carries both together so the two can never be applied
+     separately and leave a pane half lit. */
+  --glass-specular: rgba(255, 255, 255, 0.95);
+  --glass-specular-under: rgba(255, 255, 255, 0.40);
+
+  /* ══ The pulse ══════════════════════════════════════════════════════════
+     One light, three surfaces, and it is the same light every time: deep
+     red-orange at the shoulders with a bright orange running through the
+     middle of it, travelling left across whatever it is applied to.
+
+     Three tokens rather than one because the three surfaces need different
+     things from it, not because they are different lights:
+
+       --pulse         over glass. Ends at transparent, so it crosses the pane
+                       and leaves rather than tinting the whole bar orange.
+       --pulse-solid   for a masked rim. Opaque the whole way: a border made
+                       of a gradient that fades out is a border with gaps.
+       --pulse-text    for gradient-clipped type. Opaque, and the dark stops
+                       are held dark enough to stay legible at 12px when the
+                       bright band is elsewhere.
+
+     Deliberately loud. The earlier version of this sat at 9-17% alpha and the
+     honest description of it was "a faint warm smudge" -- at that strength a
+     moving light is indistinguishable from a rendering artefact. The point of
+     a pulse is to be seen pulsing. */
+  --pulse: linear-gradient(
+    100deg,
+    transparent 0%,
+    transparent 24%,
+    rgba(178, 32, 12, 0.16) 36%,
+    rgba(232, 70, 10, 0.26) 45%,
+    rgba(251, 146, 60, 0.34) 50%,
+    rgba(232, 70, 10, 0.26) 55%,
+    rgba(178, 32, 12, 0.16) 64%,
+    transparent 76%,
+    transparent 100%
+  );
+
+  --pulse-solid: linear-gradient(
+    100deg,
+    #9A1C0B 0%,
+    #B9280D 22%,
+    #E8460A 40%,
+    #FDBA74 50%,
+    #E8460A 60%,
+    #B9280D 78%,
+    #9A1C0B 100%
+  );
+
+  --pulse-text: linear-gradient(
+    100deg,
+    #9A1C0B 0%,
+    #C22D0D 28%,
+    #E8460A 42%,
+    #FB923C 50%,
+    #E8460A 58%,
+    #C22D0D 72%,
+    #9A1C0B 100%
+  );
+  /* Saturation is what separates real glass from a white veil: the backdrop
+     loses contrast under a blur, and pushing chroma back up is what keeps the
+     colours behind it recognisable rather than milky. */
+  --glass-saturate: 1.7;
+
+  /* ── The floating bar's footprint ────────────────────────────────────────
+     Top of the viewport to the underside of the bar, safe area included.
+
+     Owned by Header.tsx and consumed by anything that sticks beneath it --
+     today that is the storefront's mode rail, which previously carried
+     `top-14 md:top-16` as a literal restatement of the old header's row
+     height. Two places holding the same number is how the rail ends up
+     overlapping the bar the next time the bar changes shape, so the number
+     lives here instead.
+
+       mobile  8 (wrapper) + 6 + 44 (row) + 6 + 40 (search) + 6 + 8  = 118px
+       md     12 (wrapper) + 6 + 48 (row)                  + 6 +  8  =  80px
+
+     The bottom gutter is 8px at both widths while the top one steps. That
+     asymmetry is now only worth the 4px it saves at md -- it was load-bearing
+     for a chain rig that hung the mode rail off the bar's edge, and that has
+     been removed. Fold it back into `md:pb-3` if you ever want the bar to sit
+     symmetrically in its gutter; just move this number with it.
+
+     If you change the bar's padding or row height, change these. */
+  --kl-header-h: calc(118px + env(safe-area-inset-top, 0px));
 
   /* ── Paper ──────────────────────────────────────────────────────────────
      The memory skin: a warm ground for journeys and unboxings, where the job
@@ -375,11 +720,24 @@
   --radius: 0.625rem;          /* 10px */
   --radius-sm: 0.375rem;       /* 6px  */
   --radius-md: 0.5rem;         /* 8px  */
-  --radius-lg: 0.75rem;        /* 12px */
-  --radius-xl: 1rem;           /* 16px */
-  --radius-tile: 1.25rem;      /* 20px — cards and tiles */
-  --radius-modal: 1.5rem;      /* 24px — dialogs and sheets */
+  /* Rounder than they were, across the board: lg 12->14, xl 16->20,
+     tile 20->28, modal 24->32. A tile at 20px still reads as a box with the
+     corners taken off; at 28 it reads as a rounded object, which is the
+     difference being asked for. Anything spelled `rounded-2xl` in a component
+     bypasses these — see the tiles in ConsumerStorefront's skeletons. */
+  --radius-lg: 0.875rem;       /* 14px — inner rows, cart lines */
+  --radius-xl: 1.25rem;        /* 20px — product tiles, post cards */
+  --radius-tile: 1.5rem;       /* 24px — cards and tiles, = the Figma's rounded-3xl */
+  --radius-modal: 1.75rem;     /* 28px — dialogs, sheets, the hero stage.
+                                  Was 32px; the charter's stage range is 24-28. */
   --radius-pill: 9999px;
+
+  /* Round presses, square informs. The two halves of the charter's grammar,
+     and the reason they are tokens is that the grammar only works if it is
+     never broken: a pill is a thing you can tap, a 5px block is a thing
+     telling you a fact, and nothing is allowed to be both. */
+  --radius-block: 5px;         /* a FACT — discount blocks, badges, tags */
+  --radius-panel: 1.375rem;    /* 22px — rail modules, bag, status */
 
   /* Font weights */
   --font-weight-light: 300;
@@ -393,15 +751,15 @@
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
 
-  /* Sidebar (unchanged) */
-  --sidebar: #F7F7F8;
-  --sidebar-foreground: #0D0D0D;
+  /* Sidebar — warmed with the rest of the neutrals, 2026-09-18. */
+  --sidebar: #F6F1E9;
+  --sidebar-foreground: #201E1D;
   --sidebar-primary: #E8460A;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #F0F0F0;
-  --sidebar-accent-foreground: #0D0D0D;
-  --sidebar-border: rgba(0,0,0,0.07);
-  --sidebar-ring: rgba(232,70,10,0.35);
+  --sidebar-accent: #F2EDE5;
+  --sidebar-accent-foreground: #201E1D;
+  --sidebar-border: rgba(20,17,15,0.09);
+  --sidebar-ring: #E8460A;
 }
 
 /* ── Mode palettes ───────────────────────────────────────────────────────────
@@ -409,11 +767,19 @@
    warmth rather than a different hue family, so the app still reads as one
    brand while the shopper can feel which section they are in. */
 
+/* The bar loses its second row at md, where the search moves inline. */
+@media (min-width: 768px) {
+  :root {
+    --kl-header-h: calc(80px + env(safe-area-inset-top, 0px));
+  }
+}
+
 :root[data-mode='gifting'] {
   --mode-from: #F2724B;   /* peach */
   --mode-to: #F9A487;
   --mode-tint: #FEF1EC;
   --mode-accent: #DC5326;
+  --mode-on-block: var(--ink);   /* 6.52:1 */
 }
 
 :root[data-mode='experiences'] {
@@ -421,6 +787,7 @@
   --mode-to: #E8563F;
   --mode-tint: #FDEDEC;
   --mode-accent: #B32424;
+  --mode-on-block: var(--on-ink);   /* 4.94:1 */
 }
 
 :root[data-mode='services'] {
@@ -428,6 +795,7 @@
   --mode-to: #E8A317;
   --mode-tint: #FDF5E7;
   --mode-accent: #A96605;
+  --mode-on-block: var(--ink);   /* 5.62:1 */
 }
 
 :root[data-mode='shopping'] {
@@ -435,6 +803,7 @@
   --mode-to: #FB7A3C;
   --mode-tint: #FEF3EE;
   --mode-accent: #C93A08;
+  --mode-on-block: var(--ink);   /* 4.76:1 */
 }
 
 :root[data-mode='lists'] {
@@ -444,6 +813,7 @@
   --mode-to: #C97F55;
   --mode-tint: #FAF1EB;
   --mode-accent: #8C4526;
+  --mode-on-block: var(--on-ink);   /* 4.84:1 */
 }
 
 /* Dark mode (kept minimal — same structure) */
@@ -470,13 +840,11 @@
   --primary-tint: var(--heat-1);
   --primary-tint-mid: var(--heat-2);
 
-  /* Lifted off the page: the DARK end of the ember has to stay clear of
-     #0D0D0D or the panel stops being a panel. The light end is held down
-     instead -- #D14A10 measured 4.47:1 against white, fractionally under AA
-     for normal text, and every surface wearing this has white text on it.
-     #C4440E is 5.0:1 and still unmistakably lit against a near-black page. */
-  --wash-ember: linear-gradient(135deg, #C4440E 0%, #8A3415 48%, #4A2113 100%);
-  --wash-ember-oklab: linear-gradient(135deg in oklab, #C4440E 0%, #8A3415 48%, #4A2113 100%);
+  /* Same constraint as light mode -- white text, 4.5:1 floor -- plus one
+     more: the dark end has to stay clear of #0D0D0D or the panel stops
+     reading as a panel against the page. #C4440E is 5.0:1. */
+  --wash-ember: linear-gradient(135deg, #C4440E 0%, #AE330D 52%, #90280C 100%);
+  --wash-ember-oklab: linear-gradient(135deg in oklab, #C4440E 0%, #AE330D 52%, #90280C 100%);
   --secondary: #1E1E1E;
   --secondary-foreground: #F5F5F5;
   --muted: #1E1E1E;
@@ -491,23 +859,28 @@
   --input-background: #1E1E1E;
   --switch-background: #3A3A3A;
   --ring: rgba(242, 99, 52, 0.4);
-  /* Barely warm. A shadow in a dark room has little light to take a colour
-     from, and pushing it further just silts up the blacks -- but the ink stays
-     a token so the two themes are tuned from the same place. */
-  --shadow-ink: 12 5 2;
+  /* Near-black, and the ink stays a token so both themes tune from one place. */
+  --shadow-ink: 8 8 8;
 
-  --shadow-card: 0 1px 3px rgb(var(--shadow-ink) / 0.32);
-  --shadow-panel: 0 8px 30px rgb(var(--shadow-ink) / 0.52);
-  --shadow-dropdown: 0 4px 20px rgb(var(--shadow-ink) / 0.42);
+  --shadow-card: none;
+  --shadow-panel: none;
+  --shadow-dropdown: none;
 
   /* On a dark ground the lift comes from the rim, not from a shadow nobody
      can see, so the rim brightens and the shadows deepen. */
-  --shadow-float: 0 1px 2px rgb(var(--shadow-ink) / 0.42), 0 12px 28px -14px rgb(var(--shadow-ink) / 0.72);
-  --shadow-lift:  0 2px 4px rgb(var(--shadow-ink) / 0.47), 0 22px 44px -18px rgb(var(--shadow-ink) / 0.82);
-  --shadow-glow:  0 4px 16px -4px rgba(232,70,10,0.5);
-  --shadow-glow-strong: 0 8px 28px -6px rgba(232,70,10,0.7);
+  --shadow-float: none;
+  --shadow-lift: none;
+  --shadow-glow: none;
+  --shadow-glow-strong: none;
 
   --rim: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.20) 0%,
+    rgba(255,255,255,0.07) 46%,
+    rgba(255,255,255,0.04) 100%
+  );
+
+  --rim-warm: linear-gradient(
     135deg,
     rgba(255,255,255,0.22) 0%,
     rgba(232,70,10,0.45) 38%,
@@ -521,6 +894,50 @@
     var(--primary-light) 66%,
     rgba(255,255,255,0.25) 100%
   );
+  /* On a near-black page glass cannot be a white veil -- it has to be a
+     darker pane, or the bar turns into the brightest thing on screen and the
+     hierarchy inverts. Same two densities, same relationship, warmed slightly
+     so it belongs to the ember rather than to a neutral grey. */
+  --glass-bar: rgba(28, 24, 22, 0.52);
+  --glass-group: rgba(48, 41, 37, 0.62);
+
+  /* Brighter, because on a dark pane a light has to be emissive to read as a
+     light at all -- the same argument --heat-3..5 make for the dark ramp. The
+     specular edges invert too: on a near-black page the lip catches far less
+     light than it does on white, and a 95% white edge would look like a
+     drawn outline rather than a lit one. */
+  --glass-specular: rgba(255, 255, 255, 0.22);
+  --glass-specular-under: rgba(255, 255, 255, 0.07);
+
+  --pulse: linear-gradient(
+    100deg,
+    transparent 0%,
+    transparent 24%,
+    rgba(200, 48, 16, 0.24) 36%,
+    rgba(242, 99, 52, 0.36) 45%,
+    rgba(253, 186, 116, 0.44) 50%,
+    rgba(242, 99, 52, 0.36) 55%,
+    rgba(200, 48, 16, 0.24) 64%,
+    transparent 76%,
+    transparent 100%
+  );
+
+  /* Lifted off a near-black page: the ink accent inverts, and the rest come
+     up in value so they stay legible rather than sinking into the ground. */
+  --accent-brand: #F26334;
+  --accent-coral: #F06B54;
+  --accent-berry: #E8548E;
+  --accent-leaf:  #62B839;
+  --accent-ink:   #F5F5F5;
+
+  /* Inverted: light at the top-left still, but the deep end cannot go to
+     black on a near-black page or the word loses its tail. */
+  --accent-grad-brand: linear-gradient(135deg, #FFA06B 0%, #F26334 48%, #D14A10 100%);
+  --accent-grad-coral: linear-gradient(135deg, #FF9A85 0%, #F06B54 48%, #CE4430 100%);
+  --accent-grad-berry: linear-gradient(135deg, #FF8FBE 0%, #E8548E 48%, #B93268 100%);
+  --accent-grad-leaf:  linear-gradient(135deg, #96E065 0%, #62B839 48%, #3E8A1E 100%);
+  --accent-grad-ink:   linear-gradient(135deg, #FFFFFF 0%, #E0E0E0 48%, #B5B5B5 100%);
+
   --sidebar: #141414;
   --sidebar-foreground: #F5F5F5;
   --sidebar-primary: #F26334;
@@ -533,6 +950,33 @@
 
 /* ── Tailwind v4 @theme inline ─────────────────────────────────────────────── */
 @theme inline {
+  /* -- Tailwind's shadow scale, flattened --------------------------------
+     `shadow-sm`, `shadow-lg`, `drop-shadow-*` and friends do not read the
+     project tokens above -- they read Tailwind's own, and there are 177 of
+     them spelled out across 58 components. Overriding the scale here turns
+     every one of them off from one place, instead of editing 58 files and
+     missing some.
+
+     These names do not collide with the project's --shadow-card / -panel /
+     -dropdown / -float / -lift / -glow: that collision is why THOSE live in
+     :root and cannot move into @theme. */
+  --shadow-2xs: none;
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-2xl: none;
+  --inset-shadow-2xs: none;
+  --inset-shadow-xs: none;
+  --inset-shadow-sm: none;
+  --drop-shadow-xs: none;
+  --drop-shadow-sm: none;
+  --drop-shadow-md: none;
+  --drop-shadow-lg: none;
+  --drop-shadow-xl: none;
+  --drop-shadow-2xl: none;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -544,10 +988,35 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-tint: var(--primary-tint);
   --color-primary-tint-mid: var(--primary-tint-mid);
+
+  /* Chitenge Cockpit. `bg-ink` and `bg-ink-900` coexist without colliding --
+     Tailwind treats a bare family name and its numbered stops as separate
+     utilities -- but they are NOT the same idea and must not be swapped for
+     one another: --ink is the chrome near-black, the --ink-* ramp is every
+     neutral in the product. */
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-brass: var(--brass);
+  --color-brass-deep: var(--brass-deep);
+  --color-sage: var(--sage);
+  --color-sage-deep: var(--sage-deep);
+  --color-sage-on-ink: var(--sage-on-ink);
+  --color-surface-paper: var(--surface-paper);
+  --color-surface-warm: var(--surface-warm);
+  --color-on-ink: var(--on-ink);
+  --color-on-ink-soft: var(--on-ink-soft);
+  --color-accent-text: var(--accent-text);
+
+  /* The display and body voices as Tailwind families, so a component can say
+     `font-display` instead of reaching for the variable. */
+  --font-display: var(--font-display);
+  --font-paper: var(--font-paper);
+  --font-hand: var(--font-hand);
   --color-mode-from: var(--mode-from);
   --color-mode-to: var(--mode-to);
   --color-mode-tint: var(--mode-tint);
   --color-mode-accent: var(--mode-accent);
+  --color-mode-on-block: var(--mode-on-block);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -647,6 +1116,8 @@
   --radius-tile: var(--radius-tile);
   --radius-modal: var(--radius-modal);
   --radius-pill: var(--radius-pill);
+  --radius-block: var(--radius-block);
+  --radius-panel: var(--radius-panel);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -810,15 +1281,58 @@
      hardcoded #F97316 to #FB923C in twenty files, a token-based primary to
      primary-light, and an orange-to-navy #F97316 to #1E3A8A in the cart. The
      first two were not even the same orange. */
+  /* ── Flat, as of 2026-09-18 ────────────────────────────────────────────
+     These two were linear-gradients and are now solid fills. The charter's
+     first principle is that colour is an object rather than an atmosphere:
+     a block of brand you could cut out with scissors, with a hard edge.
+     Gradients survive in exactly ONE place, the wordmark mark, which has its
+     own class below.
+
+     Flattened here rather than at the call sites deliberately. There are
+     ~55 of them across buttons, icon tiles, voucher edges and pills; editing
+     each one would have been 55 chances to change something else by
+     accident, and this way the whole product turns flat from one edit and
+     can be turned back the same way. The class NAMES are now slightly
+     wrong -- kept anyway, because renaming them is 55 call-site edits for no
+     visual difference, which is exactly the churn the first paragraph avoids.
+
+     Contrast note, pre-existing and unchanged by this: white text on
+     #E8460A is 3.95:1, which clears AA for large text (3:1) and does not
+     clear it for a 14px button label. Flattening IMPROVED it -- the old
+     gradient ran out to #F26334 at 3.18:1 -- but did not fix it. That is why
+     .kl-wash-ember exists for the seven big white-on-brand surfaces, and it
+     stays a gradient for exactly that reason. Darkening every primary button
+     is a real change and somebody's decision, not a side effect of this one. */
   .kl-gradient-brand {
-    background-image: linear-gradient(to right, var(--primary), var(--primary-light));
+    background-color: var(--primary);
   }
 
   .kl-gradient-brand-br {
+    background-color: var(--primary);
+  }
+
+  /* The one surviving gradient: the wordmark MARK, the gift glyph tile in
+     Header.tsx. Not the wordmark text, which is solid Caprasimo -- the mark
+     is a logo, and a logo is allowed to be lit. */
+  .kl-wordmark {
     background-image: linear-gradient(to bottom right, var(--primary), var(--primary-light));
   }
 
+  .kl-wordmark-mode {
+    background-image: linear-gradient(to bottom right, var(--mode-from), var(--mode-to));
+  }
+
   /* Text set in the brand gradient — used for totals and the wordmark. */
+  /* RETIRED 2026-09-18 — substitution 2 of the charter. Gradient-filled text
+     has no single contrast ratio, degrades badly at small sizes, and was the
+     loudest dated-marketplace signal in the codebase. All five call sites are
+     gone (three checkout totals, the POS kicker, the wordmark hover).
+
+     Kept as a definition rather than deleted so that anything still reaching
+     for it renders rather than silently losing its colour -- but do not add a
+     sixth call site. Gradients now survive in exactly one place: the wordmark
+     MARK, the gift glyph tile in Header.tsx, which wears .kl-gradient-brand-br
+     and is not text. */
   .kl-gradient-brand-text {
     background-image: linear-gradient(to right, var(--primary), var(--primary-light));
     -webkit-background-clip: text;
@@ -827,22 +1341,21 @@
   }
 
   /* -- The large-area wash ------------------------------------------------
-     The counterpart to .kl-gradient-brand, and the dividing line between them
-     is area, not importance.
+     The counterpart to .kl-gradient-brand. The dividing line between them is
+     whether white text sits on top, NOT how much area is covered -- that was
+     the old rule and it is gone.
 
-     .kl-gradient-brand is the brand undiluted and belongs on anything small
-     enough to be looked at rather than looked across: buttons, badges, icon
+     .kl-gradient-brand is the brand at full strength: buttons, badges, icon
      chips, the 1.5px edge on a voucher, gradient-clipped text. Roughly sixty
-     places, all correct, none of them changed.
+     places. Use it at any size where nothing needs to stay legible on it.
 
-     .kl-wash-ember is for the seven surfaces big enough that full chroma
-     turned them into signage -- the Welcome hero, the About panel, the shop
-     banner, the admin and onboarding header bands. Same light, same family,
-     a fraction of the volume.
+     .kl-wash-ember is for the seven big surfaces -- the Welcome hero, the
+     About panel, the shop banner, the admin and onboarding header bands. It
+     exists because those carry white text and the plain brand gradient does
+     not clear 4.5:1 against it; it is NOT a quieter brand for large areas,
+     which is what it used to be. Contrast is the whole reason, not volume.
 
-     If you are reaching for this on something the size of a button, the
-     answer is .kl-gradient-brand. If you are reaching for .kl-gradient-brand
-     on something the size of a hero, the answer is this. */
+     Button-sized things use .kl-gradient-brand. */
   .kl-wash-ember {
     background-image: var(--wash-ember);
   }
@@ -857,13 +1370,17 @@
     }
   }
 
-  /* Mode-aware equivalents: same shapes, retinted by the active storefront mode. */
+  /* Mode-aware equivalents, flat for the same reason as the brand pair above.
+     --mode-from is the mode's BLOCK colour and matches the charter's five
+     exactly: discover #E8460A, gifting #F2724B, experiences #C82E2E,
+     services #C97A09, lists #A6552F. Anything putting text on one of these
+     must use --mode-on-block, not white -- see the measured table up top. */
   .kl-gradient-mode {
-    background-image: linear-gradient(to right, var(--mode-from), var(--mode-to));
+    background-color: var(--mode-from);
   }
 
   .kl-gradient-mode-br {
-    background-image: linear-gradient(to bottom right, var(--mode-from), var(--mode-to));
+    background-color: var(--mode-from);
   }
 
   /* ── The floating shell ────────────────────────────────────────────────
@@ -894,12 +1411,9 @@
      them. */
   .kl-tile {
     background: var(--card);
-    /* A resting shadow, not just a hover one.
-       .kl-lift only ever applied a shadow on :hover, so every card in the app
-       sat completely flat until a mouse touched it — and on a phone, where
-       there is no hover, permanently. A rim alone is an outline, and an outline
-       is a drawing of an edge rather than evidence of one. This is what the
-       tiles were missing. */
+    /* Flat. A white tile on a grey ground does not need a shadow to be an
+       object -- it already differs from what it sits on, which is the job
+       the shadow was doing. */
     box-shadow: var(--shadow-float);
   }
 
@@ -924,8 +1438,229 @@
     background: var(--rim-strong);
   }
 
+  /* The old warm edge, kept for the product tiles — the one surface where an
+     orange lip is the merchandise catching the light rather than decoration
+     applied to a container. */
+  .kl-rim.kl-rim--warm::before {
+    background: var(--rim-warm);
+  }
+
   .kl-float {
     box-shadow: var(--shadow-float);
+  }
+
+  /* ── Glass ─────────────────────────────────────────────────────────────
+     The material the floating header is cut from. Composes with .kl-rim and
+     .kl-float exactly like .kl-tile does -- the rim gives it an edge, the
+     shadow gives it height, this gives it a surface you can see through.
+
+     .kl-glass is the raft. .kl-glass-group is a cluster of controls resting
+     on it, and it is intentionally the only thing allowed to sit directly on
+     a .kl-glass: two panes read as depth, three read as fog.
+
+     NOT a general-purpose utility. Every backdrop-filter promotes its element
+     to its own compositing layer and re-filters the pixels behind it on each
+     scroll frame, which on the low-end Android builds this ships to is the
+     difference between a smooth scroll and a visibly janky one. The budget is
+     the header. If you want a translucent card, .kl-tile already exists. */
+  .kl-glass {
+    position: relative;
+    background: var(--glass-bar);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    /* The specular edges only. The cast shadow that used to lead this
+       declaration is gone with all the others — but these are not shadows,
+       they are the lit lip of a pane, and on a flat neutral ground they are
+       now the ONLY thing distinguishing glass from a pale rectangle. */
+    box-shadow:
+      inset 0 1px 0 var(--glass-specular),
+      inset 0 -1px 0 var(--glass-specular-under);
+  }
+
+  /* The light crossing a surface while the page is still.
+     Right to left, slowly, easing at both ends so it arrives and leaves rather
+     than scrolling past. One keyframe for the glass bars, the section kickers
+     and the pulsing rim on a product — they are the same light, so they are
+     the same animation. */
+  @keyframes kl-pulse {
+    from { background-position: 130% 50%; }
+    to   { background-position: -30% 50%; }
+  }
+
+  .kl-glass::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    /* Above the fill, below the controls. Without the z-index this paints over
+       the bar's own text -- a positioned pseudo-element beats non-positioned
+       in-flow content -- and a 17% orange veil across the navigation is a
+       contrast regression, not a highlight. The content carries `relative
+       z-10` to sit above it; see Header.tsx and the storefront's rail. */
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background-image: var(--pulse);
+    background-repeat: no-repeat;
+    background-size: 240% 100%;
+    /* Where it rests when nothing is animating it: centred, a still glow. */
+    background-position: 50% 50%;
+    animation: kl-pulse 7s ease-in-out infinite;
+    /* The scroll fade rides opacity and the travel rides background-position,
+       so nothing writes to the same property twice. An opacity keyframe here
+       would outrank this transition and the sheen would never fade at all --
+       a running animation beats a transition on the same property. */
+    opacity: 1;
+    transition: opacity 280ms ease-out;
+  }
+
+  /* ── Headings, set in light ────────────────────────────────────────────
+     Gradient-clipped type for the module and section headings.
+
+     `background-clip: text` with a transparent colour, which means the
+     gradient must be opaque the whole way -- a transparent stop here is a
+     hole in the letterform, not a soft edge.
+
+     One class per accent rather than a single class plus a variable, because
+     a var() set on the element would have to be spelled out at every call
+     site and these are picked from a fixed set of five. */
+  .kl-accent-brand,
+  .kl-accent-coral,
+  .kl-accent-berry,
+  .kl-accent-leaf,
+  .kl-accent-ink {
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .kl-accent-brand { background-image: var(--accent-grad-brand); }
+  .kl-accent-coral { background-image: var(--accent-grad-coral); }
+  .kl-accent-berry { background-image: var(--accent-grad-berry); }
+  .kl-accent-leaf  { background-image: var(--accent-grad-leaf); }
+  .kl-accent-ink   { background-image: var(--accent-grad-ink); }
+
+  /* ── The pulse, on type ────────────────────────────────────────────────
+     For the small kicker above a section heading.
+
+     These were flat orange lines of text, and the note was that they did not
+     look good — an orange line has to earn the colour it is spending, and a
+     static one is just a coloured label. Lit and moving, it is the same light
+     that crosses the bars, on the same clock. Colour lives in the elements
+     here: the icons, and these. */
+  .kl-pulse-text {
+    background-image: var(--pulse-text);
+    background-size: 240% 100%;
+    background-position: 50% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: kl-pulse 4.5s ease-in-out infinite;
+  }
+
+  /* ── The pulse, as an edge ─────────────────────────────────────────────
+     A hairline of moving light around a tile — the product cards.
+
+     Built exactly like .kl-rim, and NOT by extending it: .kl-rim draws into
+     ::before and so does .kl-tile, which every product card already is.
+     A third writer on that pseudo-element would win or lose by file order.
+     This takes ::after, which on a tile is free.
+
+     The corollary is that .kl-pulse-rim and .kl-glass cannot be combined —
+     .kl-glass's sheen is already in ::after. Nothing needs both: a pane that
+     is already lit does not want a second light around its edge. */
+  .kl-pulse-rim {
+    position: relative;
+  }
+
+  .kl-pulse-rim::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: inherit;
+    padding: 1.5px;
+    background-image: var(--pulse-solid);
+    background-size: 240% 100%;
+    background-position: 50% 50%;
+    animation: kl-pulse 4.5s ease-in-out infinite;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Still page: lit. Moving page: clear.
+
+     The moment the page moves, the pane has something real to show -- the
+     photographs going past underneath it -- and a light sweeping across at the
+     same time is a second thing asking to be watched. So the sheen is not
+     decoration that happens to pause; it is what the glass does *instead* of
+     refracting, and it steps aside the moment there is something to refract.
+     `data-scroll` is set on the root by useScrollActivity in the Root layout,
+     one listener for the whole app. */
+  :root[data-scroll='moving'] .kl-glass::after {
+    opacity: 0;
+    animation-play-state: paused;
+  }
+
+  /* The other two stop travelling too, and for the second reason as well as
+     the first: three animated gradients repainting through a scroll is real
+     work on the low-end Android this ships to, and none of it is visible
+     while the page is moving. */
+  :root[data-scroll='moving'] .kl-pulse-text,
+  :root[data-scroll='moving'] .kl-pulse-rim::after {
+    animation-play-state: paused;
+  }
+
+  .kl-glass-group {
+    background: var(--glass-group);
+    border-radius: var(--radius-pill);
+  }
+
+  /* ── Frost ─────────────────────────────────────────────────────────────
+     Glass for small things: the mode pills, the pulse chip.
+
+     The same material as .kl-glass minus the travelling sheen, and that is
+     the whole reason it exists separately. Five pills each running their own
+     animated gradient is five extra composited layers repainting on a timer
+     for a light nobody can read at that size — the sheen needs the width of a
+     bar to be legible as a sweep. A lighter blur, too: at 24px a pill this
+     small is blurring almost nothing but itself. */
+  .kl-frost {
+    background: var(--glass-group);
+    backdrop-filter: blur(14px) saturate(1.5);
+    -webkit-backdrop-filter: blur(14px) saturate(1.5);
+    box-shadow: inset 0 1px 0 var(--glass-specular);
+  }
+
+  /* Without backdrop-filter -- older WebView, or a browser where the user has
+     turned it off -- a 44% white is not frosted glass, it is a transparent
+     bar with page text showing through the middle of the navigation. These
+     are the same colours at an alpha that stands on its own.
+
+     `not (backdrop-filter: ...)` is tested rather than the positive form so
+     that a browser which understands neither `@supports not` nor
+     backdrop-filter keeps the translucent value. That combination is old
+     enough to be effectively extinct, and it fails to the prettier side. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .kl-glass {
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .kl-glass-group,
+    .kl-frost {
+      background: rgba(255, 255, 255, 0.98);
+    }
+
+    .dark .kl-glass {
+      background: rgba(22, 19, 18, 0.95);
+    }
+
+    .dark .kl-glass-group,
+    .dark .kl-frost {
+      background: rgba(46, 40, 36, 0.98);
+    }
   }
 
   .kl-lift {
@@ -1041,15 +1776,69 @@
 
      Deliberately headings only. Body text in a display serif is a magazine,
      not a shop, and prices in it are unreadable. */
+  /* Caprasimo since 2026-09-18. The optical-sizing and variation settings
+     that used to sit here were Fraunces axes and are gone with it -- see
+     --font-display. Letter-spacing tightens above 28px per the charter, which
+     is why the tracking here is a starting point that large headings override
+     rather than a rule. */
   .kl-display {
     font-family: var(--font-display);
-    font-optical-sizing: auto;
-    font-variation-settings: 'SOFT' 40, 'WONK' 1;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.015em;
+    font-weight: 400;
   }
 
-  .kl-paper-display {
+  /* ── Photography, in three tiers ───────────────────────────────────────
+     The tier decides the treatment, and the tier is about WHOSE picture it
+     is rather than how big it is.
+
+       (none)              Shop content -- posts, products, covers. Full
+                           strength. It is the merchandise and it should
+                           shout; washing a shop's own photograph is the
+                           platform talking over it.
+       .kl-wash-furniture  Platform furniture -- stages, covers behind a
+                           scrim, section backgrounds. Washed so type
+                           survives on top of it.
+       .kl-wash-sponsored  Paid slots, washed hardest, so a paid placement
+                           can never out-shout a shop's own post. That is
+                           the entire reason the number is lower than the
+                           one above it.
+
+     NOTE: nothing wears .kl-wash-sponsored yet. There is no sponsored
+     content in this product -- no table, no field, no advertiser anywhere
+     in the schema -- so the slot was not built rather than invented. This
+     is here so that when ad inventory exists the treatment is already
+     decided and cannot be argued down. */
+  .kl-wash-furniture {
+    filter: saturate(0.72) contrast(0.9) brightness(1.05);
+  }
+
+  .kl-wash-sponsored {
+    filter: saturate(0.6) contrast(0.85) brightness(1.1) opacity(0.94);
+  }
+
+  /* ── Money and counters ────────────────────────────────────────────────
+     Every price, total, counter and quantity in the product. The display
+     face plus tabular figures, because the two always travel together: a
+     column of prices set in proportional figures does not line up, and a
+     counter that ticks makes the text next to it jump.
+
+     NOT a formatter. `formatCurrency` in src/utils/currency.ts is the single
+     source of the digits and stays untouched -- this only decides how they
+     are drawn. The charter asked for thousands separated by spaces
+     ("ZMK 1 066.36"); that is grouping logic, it is pinned by seven tests,
+     and the app's currency is ZMW rather than the pre-2013 ZMK the charter
+     spells. Comma grouping stays. */
+  .kl-money {
     font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  /* Still Fraunces, and deliberately so: the journey pages are the one place
+     the wonk earns its download. */
+  .kl-paper-display {
+    font-family: var(--font-paper);
     font-optical-sizing: auto;
     font-variation-settings: 'SOFT' 30, 'WONK' 1;
     letter-spacing: -0.02em;
@@ -1076,7 +1865,9 @@
     border-radius: 48% 52% 51% 49% / 50% 49% 51% 50%;
     background: radial-gradient(circle at 34% 30%, #D2603A 0%, var(--paper-seal) 62%);
     color: #FDF6EC;
-    font-family: var(--font-display);
+    /* --font-paper, not --font-display: the seal belongs to the journey
+       pages, and Caprasimo has no 700. */
+    font-family: var(--font-paper);
     font-weight: 700;
     font-size: 0.9rem;
     box-shadow: 0 2px 5px rgba(122, 43, 16, 0.32);
@@ -1141,6 +1932,90 @@
     opacity: 0.9;
   }
 
+  /* ── The cut-out ───────────────────────────────────────────────────────
+     A product photographed on white, sitting ON the tile rather than filling
+     a window cut into it.
+
+     `contain` plus room around it, so the product sits ON the tile instead of
+     filling a window cut into it.
+
+     It had a drop-shadow — a real one, following the subject's alpha, so a
+     cereal box threw a box-shaped shadow rather than a rectangle. That went
+     with every other shadow. This is the single line to put back if the
+     product stops reading as an object resting on the tile:
+
+       filter: drop-shadow(0 14px 18px rgb(var(--shadow-ink) / 0.22));
+
+     The trade on `contain` is unchanged: a photo shot against a background,
+     rather than a cut-out, will letterbox on the white instead of filling the
+     frame. */
+  .kl-cutout {
+    object-fit: contain;
+  }
+
+  /* ── The picture row ───────────────────────────────────────────────────
+     A section scrolls sideways instead of wrapping into a three-up grid.
+
+     The grid was the problem the whole time: three columns inside a feed that
+     already has rails either side gives each card about a third of a narrow
+     column, which is why everything looked tight and why there was never room
+     for a picture worth looking at. A row does not have to fit — it runs off
+     the edge, and a card that is half visible at the edge is the affordance.
+     Same cards, more of them, each one bigger.
+
+     Bleeding to the screen edge is load-bearing, not decoration. A row that
+     stops neatly at the container's padding reads as having ended; one that
+     runs past it reads as continuing. Below xl only, because that is exactly
+     where the side rails do not exist and the feed owns the full width. */
+  .kl-row {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    /* Reaching the end must not hand the gesture to browser back-navigation. */
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    /* Room for the cards' own shadow, which a tight box would clip flat. */
+    padding-bottom: 0.75rem;
+    margin-inline: -1.25rem;
+    padding-inline: 1.25rem;
+  }
+
+  .kl-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .kl-row > * {
+    flex: 0 0 auto;
+    width: 74vw;
+    scroll-snap-align: start;
+  }
+
+  @media (min-width: 640px) {
+    .kl-row {
+      gap: 1.25rem;
+      margin-inline: -2rem;
+      padding-inline: 2rem;
+    }
+
+    .kl-row > * {
+      width: 44vw;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .kl-row > * {
+      width: 19rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .kl-row {
+      margin-inline: 0;
+      padding-inline: 0;
+    }
+  }
+
   /* ── The stage ─────────────────────────────────────────────────────────
      The hero, inset from the page rather than bled to its edges. A banner
      pinned to all four sides reads as a wall; the same picture held inside a
@@ -1172,6 +2047,14 @@
 
     .kl-lift:hover {
       transform: none;
+    }
+
+    /* The pulse stops travelling and rests centred -- the base
+       background-position on each. Still lit, just not moving. */
+    .kl-glass::after,
+    .kl-pulse-text,
+    .kl-pulse-rim::after {
+      animation: none;
     }
   }
 

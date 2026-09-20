@@ -181,7 +181,7 @@ export function MerchantFulfill() {
           <h1 className="text-base font-semibold tracking-tight text-ink-900">
             Handover Terminal
           </h1>
-          <span className="ml-auto kl-gradient-brand-text text-xs font-semibold uppercase tracking-widest text-transparent">
+          <span className="ml-auto text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
             KithLy POS
           </span>
         </div>

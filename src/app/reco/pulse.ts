@@ -148,6 +148,41 @@ export function statementKey(statement: PulseStatement): string {
  * Kept here rather than in the component so the phrasing is one thing to
  * review. Note that every one is a count and none names a person.
  */
+/**
+ * The same statement as a LABEL, with the number taken out.
+ *
+ * Market Pulse renders the count as a big tabular figure and the words beside
+ * it, so the sentence form would say the number twice. This is the sentence
+ * minus its quantity -- nothing else differs, and in particular nothing here
+ * can invent or round a count: the number the panel draws is `quantity`
+ * exactly as the server returned it.
+ */
+export function statementLabel(statement: PulseStatement): string {
+  switch (statement.kind) {
+    case 'collected':
+      return `collected from ${statement.subject} this week`;
+    case 'saved':
+      return `saved “${statement.subject}”`;
+    case 'rated':
+      return `rated ${statement.subject}`;
+    case 'journeys':
+      return statement.quantity === 1 ? 'journey shared recently' : 'journeys shared recently';
+    case 'open_now':
+      return 'shops open right now';
+    default:
+      return statement.subject ?? '';
+  }
+}
+
+/**
+ * Which statements are about something GOOD HAPPENING rather than merely
+ * something existing. Sage means done or safe in this design language, so it
+ * is rationed to the two kinds that actually mean it.
+ */
+export function statementIsPositive(statement: PulseStatement): boolean {
+  return statement.kind === 'collected' || statement.kind === 'open_now';
+}
+
 export function statementText(statement: PulseStatement): string {
   const n = statement.quantity;
   const people = `${n} ${n === 1 ? 'person' : 'people'}`;

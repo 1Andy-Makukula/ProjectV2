@@ -16,6 +16,7 @@ import {
   ListChecks,
   Package,
   PackageCheck,
+  ShieldCheck,
   ShoppingBag,
   Sparkles,
   Store,
@@ -40,6 +41,8 @@ import {
 } from '../../types/storefrontModes';
 import type { StorefrontShop } from '../../hooks/useStorefrontData';
 import { discountPercentage, type CatalogItem } from '../../types/items';
+import { statementIsPositive, statementKey, statementLabel } from '../../reco/pulse';
+import { useMarketPulse } from '../../hooks/useMarketPulse';
 import type { ListSummary } from '../../types/lists';
 
 type Layout = 'column' | 'ribbon';
@@ -54,41 +57,88 @@ interface RailProps {
   layout?: Layout;
 }
 
+/**
+ * Which colour a module names itself in.
+ *
+ * The one place the app leaves the orange family, and it is worth saying why:
+ * a column of eight white cards with eight identical headings is a stack you
+ * have to *read* to navigate. Give each module a hue and it becomes one you
+ * recognise — "the green one" — which is how the SINTECH design's rail works
+ * and what was missing from ours.
+ *
+ * Headings and their icons only. The brand is unchanged everywhere it does
+ * work: buttons, prices, CTAs, active states, the pulse. A heading is a label
+ * rather than an action, which is what lets it afford a colour of its own.
+ */
+export type ModuleAccent = 'brand' | 'coral' | 'berry' | 'leaf' | 'ink';
+
+/** Flat, for glyphs. A 19px icon filled with a gradient looks broken. */
+const ACCENT_ICON: Record<ModuleAccent, string> = {
+  brand: 'text-[var(--accent-brand)]',
+  coral: 'text-[var(--accent-coral)]',
+  berry: 'text-[var(--accent-berry)]',
+  leaf: 'text-[var(--accent-leaf)]',
+  ink: 'text-[var(--accent-ink)]',
+};
+
+/* ACCENT_TITLE is gone (2026-09-18). Module headings were gradient-clipped
+   text -- .kl-accent-* -- and gradient text is the one thing substitution 2
+   of the charter removes outright: it has no single contrast ratio and it
+   degrades at exactly the size a module title is set at.
+
+   The five-hue system itself SURVIVES, on the icon. It was added on
+   2026-09-17 to fix a real problem (a column of eight white cards you have to
+   read rather than recognise), the charter predates it and so does not
+   mention it, and a coloured 15px glyph beside a solid Caprasimo title keeps
+   the "find the green one" affordance without spending the heading on it. */
+
 /** The shell every module shares: a titled tile, or a titled ribbon. */
 function Module({
   title,
   icon: Icon,
   action,
   layout,
+  accent = 'brand',
   children,
 }: {
   title: string;
   icon: typeof Store;
   action?: { label: string; onClick: () => void };
   layout: Layout;
+  /** Defaults to the brand. A module with nothing special to say is orange. */
+  accent?: ModuleAccent;
   children: React.ReactNode;
 }) {
   return (
-    <section className={layout === 'column' ? 'kl-tile p-4' : ''}>
-      {/* The heading used to be 11px uppercase in muted grey. Every label on the
-          page whispering at the same volume is what made the rail read as
-          texture rather than as a set of things: nothing led the eye, so
-          nothing was worth looking at first. This is the same title at a weight
-          a heading should carry, in the foreground colour, and title-case
-          rather than uppercase — at this size uppercase is shouting, and it is
-          the size doing the work. */}
+    <section
+      className={
+        layout === 'column'
+          ? 'kl-rim relative bg-card p-[1.125rem] rounded-[var(--radius-panel)]'
+          : ''
+      }
+    >
+      {/* Black weight, and the module's own colour.
+          This was 11px uppercase muted grey, then 17px semibold in the
+          foreground. Both had the same problem from two directions: every
+          label on the page speaking at one volume, so nothing led the eye.
+          The SINTECH rail answers it with weight AND hue — the heading is the
+          loudest thing in the card and no two neighbours are the same colour,
+          which is what makes a stack of white cards scannable. */}
       <header className="mb-3 flex items-center gap-2">
-        <Icon className="size-4 shrink-0 text-primary" strokeWidth={2} />
-        <h3 className="kl-display text-[1.0625rem] font-semibold leading-tight text-foreground">
+        <Icon className={`size-[15px] shrink-0 ${ACCENT_ICON[accent]}`} strokeWidth={2.75} />
+        <h3 className="kl-display text-[1.0625rem] leading-none text-foreground">
           {title}
         </h3>
         {action && (
+          /* #C93A08 rather than --primary: this is accent-coloured TEXT on a
+             white ground, where the brand itself is only 3.95:1. */
           <button
             onClick={action.onClick}
-            className="ml-auto inline-flex items-center gap-0.5 text-[0.6875rem] font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="ml-auto inline-flex items-center gap-0.5 text-[10px] font-bold uppercase
+                       tracking-[0.06em] text-accent-text transition-opacity hover:opacity-75"
           >
             {action.label}
-            <ArrowRight className="size-3" strokeWidth={2} />
+            <ArrowRight className="size-3" strokeWidth={2.5} />
           </button>
         )}
       </header>
@@ -155,8 +205,12 @@ function Row({
   return (
     <button
       onClick={onClick}
-      className={`kl-rim kl-float group flex items-center gap-2.5 rounded-[var(--radius-lg)]
-                  bg-card p-2 text-left transition-colors hover:bg-accent
+      /* On --surface-paper inside a white panel, not another white card on a
+         white card. r14 (--radius-lg) and 8px padding are the charter's
+         inner-row figures. */
+      className={`group flex items-center gap-2.5 rounded-[var(--radius-lg)]
+                  bg-surface-paper p-2 text-left transition-colors hover:bg-secondary
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
                   ${layout === 'ribbon' ? '' : 'w-full'}`}
     >
       <div className="size-10 shrink-0 overflow-hidden rounded-[var(--radius-md)] bg-muted">
@@ -169,8 +223,8 @@ function Row({
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[0.8125rem] font-medium">{name}</p>
-        <p className="truncate text-[0.6875rem] font-light text-muted-foreground">{detail}</p>
+        <p className="truncate text-[0.8125rem] font-semibold text-foreground">{name}</p>
+        <p className="truncate text-[0.6875rem] text-muted-foreground">{detail}</p>
       </div>
     </button>
   );
@@ -212,37 +266,51 @@ function FeatureRow({
   layout: Layout;
 }) {
   return (
+    // Picture edge to edge, words on the picture. A 56px thumbnail next to two
+    // lines of text is a database row with a photograph attached to it; at this
+    // size the photograph is the thing being offered and the words are the
+    // caption. The scrim is what keeps them legible over an unknown image —
+    // nobody uploading a product shot is thinking about our type.
     <button
       onClick={onClick}
-      className={`kl-rim kl-float group flex items-center gap-2.5 rounded-[var(--radius-lg)]
-                  bg-card p-2 text-left transition-colors hover:bg-accent
-                  ${layout === 'ribbon' ? '' : 'w-full'}`}
+      className={`kl-rim kl-float group relative isolate block overflow-hidden text-left
+                  rounded-[var(--radius-tile)] bg-muted
+                  ${layout === 'ribbon' ? 'aspect-[3/4]' : 'aspect-[16/10] w-full'}`}
     >
-      <div className="relative size-14 shrink-0 overflow-hidden rounded-[var(--radius-md)] bg-muted">
-        {image ? (
-          <img src={image} alt="" loading="lazy" className="h-full w-full object-cover" />
-        ) : (
-          <div className="grid h-full w-full place-items-center">
-            <Fallback className="size-5 text-muted-foreground/30" strokeWidth={1.25} />
-          </div>
-        )}
-        {rank !== undefined && (
-          <span
-            aria-hidden
-            className="absolute left-0.5 top-0.5 grid size-4 place-items-center rounded-full
-                       bg-card/90 text-[0.625rem] font-semibold tabular-nums
-                       text-foreground shadow-sm"
-          >
-            {rank}
-          </span>
-        )}
+      {image ? (
+        <img
+          src={image}
+          alt=""
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+        />
+      ) : (
+        <div className="absolute inset-0 grid place-items-center">
+          <Fallback className="size-8 text-muted-foreground/30" strokeWidth={1.25} />
+        </div>
+      )}
+
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/45 to-transparent p-3 pt-10">
+        <p className="truncate text-sm font-bold leading-tight text-white">{name}</p>
+        <p className="mt-0.5 truncate text-xs font-medium text-white/85">{detail}</p>
       </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[0.8125rem] font-medium leading-tight">{name}</p>
-        <p className="mt-0.5 truncate text-[0.6875rem] font-light text-muted-foreground">
-          {detail}
-        </p>
-      </div>
+
+      {rank !== undefined && (
+        /* A block, not a ghost circle. 20x20 of solid ink pinned into the
+           image's own top-left corner with only the inner corner rounded, so
+           it reads as stamped onto the picture rather than floating over it.
+           Square informs; this is a fact about position.
+
+           Still a bare number. "1st place" would claim a contest the data has
+           not been asked to run -- the module title says what the order means. */
+        <span
+          aria-hidden
+          className="absolute left-0 top-0 grid size-5 place-items-center rounded-br-lg
+                     bg-ink text-[11px] font-bold tabular-nums text-white"
+        >
+          {rank}
+        </span>
+      )}
     </button>
   );
 }
@@ -271,7 +339,9 @@ function StatusModule({ layout }: { layout: Layout }) {
       icon: PackageCheck,
       label: 'Ready to collect',
       value: String(status.toCollect),
-      tone: 'text-[var(--success)]',
+      // Sage: collected and ready is "done and safe", which is what sage
+      // means here and the one thing it is allowed to mean.
+      tone: 'text-sage-deep',
       onClick: () => navigate('/dashboard'),
       show: status.toCollect > 0,
     },
@@ -307,7 +377,7 @@ function StatusModule({ layout }: { layout: Layout }) {
   if (lines.length === 0) return null;
 
   return (
-    <Module title="Your status" icon={Sparkles} layout={layout}>
+    <Module title="Your status" icon={Sparkles} layout={layout} accent="ink">
       <div className={layout === 'ribbon' ? 'kl-rim kl-float rounded-[var(--radius-tile)] p-1' : ''}>
         {lines.map((line) => {
           const Icon = line.icon;
@@ -317,15 +387,30 @@ function StatusModule({ layout }: { layout: Layout }) {
               onClick={line.onClick}
               className="flex w-full items-center gap-2 rounded-[var(--radius-lg)] px-2 py-1.5 text-left transition-colors hover:bg-accent"
             >
-              <Icon className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={2} />
-              <span className="flex-1 truncate text-[0.8125rem] font-light">{line.label}</span>
-              <span className={`text-[0.8125rem] font-semibold tabular-nums ${line.tone}`}>
+              <Icon className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={2.75} />
+              <span className="flex-1 truncate text-[0.8125rem] text-foreground">{line.label}</span>
+              {/* Caprasimo 17px, tabular. The hide-your-zeros rule above is
+                  what makes these worth setting at this size: every line
+                  present is a line with something in it. */}
+              <span className={`kl-money text-[1.0625rem] leading-none ${line.tone}`}>
                 {line.value}
               </span>
             </button>
           );
         })}
       </div>
+
+      {/* The escrow thread closes here. Brass as a ground with ink on it,
+          and only drawn when there is actually money being held -- the
+          hide-your-zeros rule applies to this strip as much as to the rows
+          above it. */}
+      {status.toCollect + status.preparing + status.inFlight > 0 && (
+        <p className="mt-2 flex items-center gap-1.5 rounded-[var(--radius-block)] bg-brass
+                      px-2.5 py-1.5 text-[11px] font-semibold text-ink">
+          <ShieldCheck className="size-3.5 shrink-0" strokeWidth={2.75} aria-hidden />
+          Held for you in escrow until collection.
+        </p>
+      )}
     </Module>
   );
 }
@@ -353,6 +438,7 @@ function Occasions({ layout }: { layout: Layout }) {
       title="Occasions coming up"
       icon={OCCASION_ICON}
       layout={layout}
+      accent="berry"
       action={{ label: 'People', onClick: () => navigate('/contacts') }}
     >
       <div className={layout === 'ribbon' ? 'kl-rim kl-float rounded-[var(--radius-tile)] p-3' : ''}>
@@ -410,7 +496,7 @@ function Wishes({ layout }: { layout: Layout }) {
   if (!profile || fromContacts.length === 0) return null;
 
   return (
-    <Module title="Wishes from people you know" icon={Gift} layout={layout}>
+    <Module title="Wishes from people you know" icon={Gift} layout={layout} accent="brand">
       <ModuleBody layout={layout}>
         {fromContacts.slice(0, 4).map((wish) => (
           <Row
@@ -443,7 +529,7 @@ function MostBought({ layout }: { layout: Layout }) {
   if (items.length === 0) return null;
 
   return (
-    <Module title="Most bought" icon={ShoppingBag} layout={layout}>
+    <Module title="Most bought" icon={ShoppingBag} layout={layout} accent="leaf">
       <ModuleBody layout={layout} variant="feature">
         {items.map((item, index) => (
           <FeatureRow
@@ -477,6 +563,7 @@ function TrendingShops({ shops, layout }: { shops: StorefrontShop[]; layout: Lay
       title="Shops with the most on"
       icon={Flame}
       layout={layout}
+      accent="coral"
       action={{ label: 'All shops', onClick: () => navigate('/shops') }}
     >
       <ModuleBody layout={layout} variant="feature">
@@ -523,7 +610,7 @@ function SpecialDeals({ items, layout }: { items: CatalogItem[]; layout: Layout 
   if (deals.length === 0) return null;
 
   return (
-    <Module title="Special deals" icon={BadgePercent} layout={layout}>
+    <Module title="Special deals" icon={BadgePercent} layout={layout} accent="coral">
       <ModuleBody layout={layout} variant="feature">
         {deals.map(({ item, off }) => (
           <FeatureRow
@@ -549,7 +636,7 @@ function TopPicks({ items, layout }: { items: CatalogItem[]; layout: Layout }) {
   if (shown.length === 0) return null;
 
   return (
-    <Module title="This week's picks" icon={Sparkles} layout={layout}>
+    <Module title="This week's picks" icon={Sparkles} layout={layout} accent="berry">
       <ModuleBody layout={layout} variant="feature">
         {shown.map((item, index) => (
           <FeatureRow
@@ -580,6 +667,7 @@ function MyLists({ layout }: { layout: Layout }) {
       title="Your lists"
       icon={ListChecks}
       layout={layout}
+      accent="leaf"
       action={{ label: 'All', onClick: () => navigate('/lists') }}
     >
       <ModuleBody layout={layout}>
@@ -604,7 +692,7 @@ function CommunityLists({ lists, layout }: { lists: ListSummary[]; layout: Layou
   if (lists.length === 0) return null;
 
   return (
-    <Module title="Lists people are sharing" icon={ListChecks} layout={layout}>
+    <Module title="Lists people are sharing" icon={ListChecks} layout={layout} accent="ink">
       <ModuleBody layout={layout}>
         {lists.slice(0, 3).map((list) => (
           <Row
@@ -639,9 +727,86 @@ function CommunityLists({ lists, layout }: { lists: ListSummary[]; layout: Layou
  * one entry here and one key in the mode definition — never a conditional in
  * the rail's markup.
  */
+/**
+ * Market Pulse — what the platform is actually doing, as counts.
+ *
+ * WHY IT IS BUILT ON pulse_statements AND NOT ON THE CHARTER'S FOUR ROWS
+ * ---------------------------------------------------------------------
+ * The charter asks for shoppers online, shops trading, gifts collected today
+ * and held in escrow. Two of those cannot be answered honestly here:
+ *
+ *   - "shoppers online" has no source. Nothing in the schema records presence
+ *     or visits, so the figure could only be invented, and the charter's own
+ *     rule is that every counter must be one the schema can answer.
+ *   - the platform-wide escrow total lives behind `escrow_position()`, which
+ *     is REVOKE ALL / service_role. Putting it on a shopper's screen would
+ *     mean a new SECURITY DEFINER function publishing a platform financial
+ *     aggregate, which is a security decision and not a theming one.
+ *
+ * `pulse_statements` already answers the same question and was built on the
+ * same principle -- it counts rows that exist, never seeds or estimates, and
+ * refuses any cohort smaller than three because a count plus a precise time
+ * identifies a person. So the panel says true things or says nothing.
+ *
+ * It renders the pool as a list rather than one-at-a-time the way PulseStrip
+ * does: the strip is ambience you witness in passing, and this is a
+ * dashboard. Same data, same honesty, different reading speed.
+ */
+function MarketPulse({ layout }: { layout: Layout }) {
+  // The query lives in a hook, not here: components in this codebase do not
+  // reach for the Supabase client, and the lint rule that enforces it is a
+  // real architectural boundary rather than a style preference.
+  const { statements: shown, loading } = useMarketPulse(4);
+
+  // Hide the whole panel rather than render confident zeros. An empty week
+  // looks like an empty week.
+  if (loading || shown.length === 0) return null;
+
+  return (
+    /* Same panel in both presentations: an ink block is already the right
+       shape for a ribbon, so unlike the white modules it needs no second
+       skin. `layout` stays in the signature because renderModules passes it
+       to every module uniformly. */
+    <section className="rounded-[var(--radius-panel)] bg-ink p-[1.125rem]" data-layout={layout}>
+      <header className="mb-3 flex items-center gap-2">
+        <h3 className="kl-display text-[1.0625rem] leading-none text-on-ink">Market pulse</h3>
+        {/* Live, and it means it: these counts were read this page load. */}
+        <span className="ml-auto flex items-center gap-1.5">
+          <span className="size-1.5 rounded-full bg-sage" aria-hidden />
+          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-on-ink-soft">
+            Live
+          </span>
+        </span>
+      </header>
+
+      <dl className="space-y-2.5">
+        {shown.map((statement) => (
+          /* dt before dd in the DOM because that is what a definition list
+             means; the figure is moved in front visually with `order`, so the
+             reading order stays correct for anything not looking at it. */
+          <div key={statementKey(statement)} className="flex items-baseline gap-2.5">
+            <dt className="order-2 min-w-0 flex-1 truncate text-xs text-on-ink-soft">
+              {statementLabel(statement)}
+            </dt>
+            <dd
+              className={`kl-money order-1 shrink-0 text-[1.3125rem] leading-none ${
+                statementIsPositive(statement) ? 'text-sage-on-ink' : 'text-on-ink'
+              }`}
+            >
+              {statement.quantity}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
 function renderModules(keys: RailKeys, layout: Layout, props: RailProps) {
   return keys.map((key) => {
     switch (key) {
+      case 'marketPulse':
+        return <MarketPulse key={key} layout={layout} />;
       case 'status':
         return <StatusModule key={key} layout={layout} />;
       case 'occasions':
@@ -706,8 +871,10 @@ export function StorefrontRail({ side = 'left', ...props }: RailProps & { side?:
       // and a rail whose every module opted out would otherwise still reserve
       // 19rem of nothing beside the feed. The `!` is deliberate: it has to beat
       // the xl:block that put the column there in the first place.
-      className="kl-scroll sticky top-32 hidden max-h-[calc(100vh-9rem)] w-[19rem] shrink-0
-                 space-y-4 overflow-y-auto pb-8 empty:!hidden xl:block"
+      className={`kl-scroll sticky top-[calc(var(--kl-header-h)+4.25rem)] hidden
+                 max-h-[calc(100vh-var(--kl-header-h)-5.5rem)] shrink-0
+                 space-y-4 overflow-y-auto pb-8 empty:!hidden xl:block
+                 ${side === 'right' ? 'w-[336px]' : 'w-[264px]'}`}
     >
       {renderModules(keys, 'column', props)}
     </aside>

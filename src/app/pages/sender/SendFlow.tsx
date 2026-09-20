@@ -384,7 +384,7 @@ export function SendFlow() {
                 )}
                 <div className="flex items-center justify-between text-sm pt-2.5 border-t border-ink-100 mt-1">
                   <span className="text-ink-900 font-bold">Total payable</span>
-                  <span className="text-lg font-bold kl-gradient-brand-text">
+                  <span className="kl-money text-lg text-foreground">
                     {formatCurrency(grossPayable)}
                   </span>
                 </div>

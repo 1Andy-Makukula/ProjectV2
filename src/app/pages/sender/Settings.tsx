@@ -107,7 +107,7 @@ export function Settings() {
             >
               <ArrowLeft className="w-5 h-5 text-ink-700" />
             </Button>
-            <h1 className="text-2xl font-bold kl-gradient-brand bg-clip-text text-transparent tracking-tight">
+            <h1 className="kl-display text-2xl text-foreground">
               Settings
             </h1>
           </div>
@@ -133,7 +133,7 @@ export function Settings() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium text-slate-750">Full Name</Label>
+                <Label htmlFor="name" className="text-sm font-medium text-foreground">Full Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
                   <Input
@@ -148,7 +148,7 @@ export function Settings() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-slate-750">Email Address</Label>
+                <Label htmlFor="email" className="text-sm font-medium text-foreground">Email Address</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-400" />
                   <Input
@@ -163,7 +163,7 @@ export function Settings() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-sm font-medium text-slate-750">Phone Number</Label>
+                <Label htmlFor="phone" className="text-sm font-medium text-foreground">Phone Number</Label>
                 <Input
                   id="phone"
                   value={phone}
@@ -258,7 +258,7 @@ export function Settings() {
                 <Store className="w-5 h-5 text-primary" />
                 Own a Hardware Shop?
               </CardTitle>
-              <CardDescription className="text-slate-650 font-light">
+              <CardDescription className="text-muted-foreground font-light">
                 Register your physical location to start receiving KithLy Escrow
                 payments directly. List your products and let customers redeem
                 gifts in-store — zero delivery, zero hassle.
@@ -322,7 +322,7 @@ export function Settings() {
         >
           <Separator className="mb-6" />
           <div className="space-y-1">
-            <p className="text-xl font-bold kl-gradient-brand bg-clip-text text-transparent">
+            <p className="kl-display text-xl text-foreground">
               KithLy
             </p>
             <p className="text-xs text-muted-foreground">Version 1.0.0</p>

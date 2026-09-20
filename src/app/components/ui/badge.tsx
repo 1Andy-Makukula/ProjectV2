@@ -29,6 +29,25 @@ const badgeVariants = cva(
           "border-transparent bg-destructive/10 text-destructive border border-destructive/20",
         tint:
           "border-transparent bg-primary-tint text-primary border border-primary-tint-mid",
+
+        // ── The fact block ────────────────────────────────────────────────
+        // Round presses, square informs. Every other variant here is a pill
+        // at 999px, which in this design language means "you can tap this".
+        // A `block` is the opposite statement: 5px corners, hard edges, and
+        // it is telling you something rather than offering you something.
+        //
+        // Ink is the default ground because most facts are neutral ones
+        // (Featured, Draft, a merchant name, an item count). The coloured
+        // facts override it at the call site -- `className="bg-brass
+        // text-ink"` for escrow, `bg-destructive` for low stock, `bg-sage`
+        // for collected or in stock -- which twMerge resolves cleanly since
+        // `cn` runs over the joined string.
+        //
+        // This is the ONLY variant the charter adds. Anything that wants a
+        // different colour overrides the ground; nothing needs a new name.
+        block:
+          "rounded-[var(--radius-block)] border-transparent bg-ink text-on-ink " +
+          "font-bold tracking-[0.06em]",
       },
     },
     defaultVariants: {

@@ -64,42 +64,47 @@ export function ListCard({ list, onOpen, shopCount }: ListCardProps) {
           would be invisible anyway. */}
       <div className="kl-ornament-list flex flex-1 flex-col gap-1 px-4 py-3">
         <div className="flex items-center gap-1.5">
+          {/* Authorship as FACT BLOCKS -- KithLy in brass, a shop in ink.
+              Which one renders is still driven by is_platform /
+              owner_shop_id and neither branch has moved. */}
           {list.is_platform ? (
-            <Badge variant="tint" className="gap-1">
-              <ShieldCheck strokeWidth={2} />
+            <Badge variant="block" className="gap-1 bg-brass text-ink">
+              <ShieldCheck strokeWidth={2.75} />
               KithLy
             </Badge>
           ) : list.owner_shop_id ? (
-            <Badge variant="secondary" className="gap-1">
-              <Store strokeWidth={2} />
+            <Badge variant="block" className="gap-1">
+              <Store strokeWidth={2.75} />
               Shop
             </Badge>
           ) : null}
-          <span className="truncate text-[10px] font-semibold uppercase tracking-widest text-ink-400">
+          <span className="truncate text-[10px] font-bold uppercase tracking-[0.06em] text-muted-foreground">
             {author}
           </span>
         </div>
 
-        <h3 className="truncate text-sm font-semibold leading-snug text-ink-900">
+        <h3 className="truncate text-[0.8125rem] font-semibold leading-snug text-foreground">
           {list.title}
         </h3>
 
-        <p className="text-[11px] text-ink-500">
-          {list.item_count} item{list.item_count === 1 ? '' : 's'}
+        {/* The shop count leads the difference between a list and a shop
+            collection -- it stays, and it stays second. */}
+        <p className="text-[11px] text-muted-foreground">
+          <span className="kl-money">{list.item_count}</span> item{list.item_count === 1 ? '' : 's'}
           {shopCount != null && shopCount > 0 && (
-            <> · {shopCount} shop{shopCount === 1 ? '' : 's'}</>
+            <> · <span className="kl-money">{shopCount}</span> shop{shopCount === 1 ? '' : 's'}</>
           )}
         </p>
 
-        <div className="mt-1 flex items-center gap-3 text-[11px] text-ink-500">
+        <div className="mt-1 flex items-center gap-3 text-[11px] text-muted-foreground">
           {rating !== null ? (
             <span className="inline-flex items-center gap-1">
-              <Star className="size-3 fill-current text-warn-500" strokeWidth={0} />
-              <span className="font-medium text-ink-700">{rating.toFixed(1)}</span>
-              <span className="text-ink-400">({list.rating_count})</span>
+              <Star className="size-3 fill-current text-brass" strokeWidth={0} />
+              <span className="kl-money text-foreground">{rating.toFixed(1)}</span>
+              <span className="kl-money text-muted-foreground">({list.rating_count})</span>
             </span>
           ) : (
-            <span className="text-ink-400">Not rated yet</span>
+            <span className="text-muted-foreground">Not rated yet</span>
           )}
 
           {list.save_count > 0 && (

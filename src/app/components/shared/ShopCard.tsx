@@ -73,13 +73,13 @@ export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
         {openState && (
           <span
             className={`absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full
-                        px-2.5 py-1 text-[0.6875rem] font-medium backdrop-blur-sm
+                        px-2.5 py-1 text-[11px] font-semibold
                         ${openState.isOpen
-                          ? 'bg-white/90 text-[var(--success)]'
-                          : 'bg-ink-900/70 text-white/90'}`}
+                          ? 'bg-white text-foreground'
+                          : 'bg-ink text-on-ink-soft'}`}
           >
             <span
-              className={`size-1.5 rounded-full ${openState.isOpen ? 'bg-[var(--success)]' : 'bg-white/60'}`}
+              className={`size-1.5 rounded-full ${openState.isOpen ? 'bg-sage' : 'bg-on-ink-soft/60'}`}
               aria-hidden="true"
             />
             {openState.label}
@@ -90,11 +90,19 @@ export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-ink-900/40 via-transparent to-transparent opacity-60" />
 
         {/* Item count badge */}
+        {/* An ink FACT block, and no longer in the same corner as the
+            open/closed pill. Both were pinned to `right-4 top-4`, so a shop
+            that had published hours AND had a count drew them on top of one
+            another. Stacked rather than one of them dropped -- they are two
+            different facts and both are worth having. */}
         {itemCount !== undefined && (
-          <div className="absolute top-4 right-4 rounded-full bg-white/95 backdrop-blur-md
-                          border border-brand-100/50 px-3 py-1 shadow-sm transition-transform duration-300 group-hover:-translate-y-0.5">
-            <span className="text-[11px] font-semibold tracking-wide text-brand-700">
-              {itemCount} {itemCount === 1 ? 'item' : 'items'}
+          <div
+            className={`absolute right-4 rounded-[var(--radius-block)] bg-ink px-2 py-1
+                        transition-transform duration-300 group-hover:-translate-y-0.5
+                        ${openState ? 'top-[3.25rem]' : 'top-4'}`}
+          >
+            <span className="text-[11px] font-bold uppercase tracking-[0.06em] text-on-ink">
+              <span className="kl-money">{itemCount}</span> {itemCount === 1 ? 'item' : 'items'}
             </span>
           </div>
         )}
@@ -126,10 +134,14 @@ export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
                        border-[3px] border-white shadow-sm bg-white"
           />
         ) : (
+          /* Flat brand fill, 2026-09-18. This was an inline
+             linear-gradient(#f97316,#fb923c) -- a second orange, not the
+             brand's, and an inline style in a codebase that forbids them.
+             Colour arrives in flat blocks now; the initial-letter fallback
+             itself is unchanged. */
           <div
-            className="h-14 w-14 rounded-full border-[3px] border-white shadow-sm
-                       flex items-center justify-center text-white text-lg font-bold"
-            style={{ background: 'linear-gradient(135deg,#f97316,#fb923c)' }}
+            className="kl-display flex h-14 w-14 items-center justify-center rounded-full
+                       border-[3px] border-white bg-primary text-lg text-white"
           >
             {shopInitial(shop.name)}
           </div>
@@ -138,38 +150,40 @@ export function ShopCard({ shop, onClick, itemCount }: ShopCardProps) {
 
       {/* ── Body — top padding clears logo overlap ────────────── */}
       <div className="flex flex-col gap-1.5 px-5 pb-5 pt-9">
-        <h3 className="truncate text-base font-semibold text-ink-900 group-hover:text-primary transition-colors duration-200">
+        <h3 className="kl-display truncate text-base text-foreground transition-colors duration-200 group-hover:text-primary">
           {shop.name}
         </h3>
 
         {shop.location && (
-          <div className="flex items-center gap-1.5 text-ink-500">
+          <div className="flex items-center gap-1.5 text-muted-foreground">
             <MapPin className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
             <span className="truncate text-xs font-medium">{shop.location}</span>
           </div>
         )}
 
         {shop.description && (
-          <p className="mt-1 line-clamp-2 text-xs text-ink-500 leading-relaxed group-hover:text-ink-600 transition-colors">
+          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
             {shop.description}
           </p>
         )}
 
         {/* Verified pill */}
         <div className="mt-4 flex items-center justify-between border-t border-ink-50 pt-4">
-          <span className="inline-flex items-center gap-1.5 rounded-full
-                           bg-gradient-to-r from-ok-50 to-ok-50 px-2.5 py-1 text-[10px] font-bold uppercase
-                           tracking-wider text-ok-700 ring-1 ring-ok-200/50">
-            <span className="h-1.5 w-1.5 rounded-full bg-ok-500 animate-pulse inline-block" />
+          {/* The pill stays; only the blink goes. A dot pulsing on every
+              card in a long feed is twenty things asking for attention, and
+              verification is a standing fact, not an event. */}
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-paper px-2.5 py-1
+                           text-[10px] font-bold uppercase tracking-[0.06em] text-sage-deep">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-sage" />
             Verified Partner
           </span>
           {/* An unrated shop shows the store glyph rather than an empty score:
               it has not been judged badly, it has not been judged at all. */}
           {rating !== null ? (
-            <span className="inline-flex items-center gap-1 text-xs font-medium text-ink-600">
-              <Star className="h-3.5 w-3.5 fill-current text-warn-500" strokeWidth={0} />
-              {rating.toFixed(1)}
-              <span className="text-ink-400">({shop.rating_count})</span>
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-foreground">
+              <Star className="h-3.5 w-3.5 fill-current text-brass" strokeWidth={0} />
+              <span className="kl-money">{rating.toFixed(1)}</span>
+              <span className="kl-money font-normal text-muted-foreground">({shop.rating_count})</span>
             </span>
           ) : (
             <Store className="h-4 w-4 text-brand-200 group-hover:text-primary transition-colors" strokeWidth={1.5} />

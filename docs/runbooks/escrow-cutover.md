@@ -46,6 +46,7 @@ Deploy the Edge Functions:
 
 ```
 supabase functions deploy payout-dispatcher
+supabase functions deploy refund-dispatcher
 supabase functions deploy verify-payout-destination
 supabase functions deploy escrow-reconcile
 ```
@@ -177,6 +178,8 @@ Then, immediately:
 - Schedule `payout-dispatcher` (every 2–5 minutes; it returns instantly when
   the queue is empty). Add a second daily run with `?resolve=1` to settle
   anything parked in `SENT`.
+- Schedule `refund-dispatcher` (hourly is ample — refunds are not urgent the
+  way a merchant payout is, and a slower cadence keeps the backoff meaningful).
 - Schedule `escrow_process_expiries()` in place of `process_expired_vouchers()`.
   The old one returns 0 under `escrow_v2` rather than erroring, so leaving it
   scheduled is harmless — but it is doing nothing, and a job that does nothing

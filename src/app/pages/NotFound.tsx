@@ -16,7 +16,7 @@ export function NotFound() {
       >
         <MapPin className="w-20 h-20 mx-auto mb-6 text-muted-foreground" strokeWidth={1.5} />
         
-        <h1 className="text-6xl font-light kl-gradient-brand bg-clip-text text-transparent mb-4">
+        <h1 className="kl-display mb-4 text-6xl text-foreground">
           404
         </h1>
         

@@ -211,7 +211,7 @@ export function MerchantOnboarding() {
           {/* Info notice */}
           <div className="flex items-start gap-3 bg-brand-50 border border-brand-200/80 rounded-2xl px-5 py-4 mb-8">
             <ShieldAlert className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-            <p className="text-sm text-orange-850 leading-relaxed">
+            <p className="text-sm text-brand-900 leading-relaxed">
               Your shop will be submitted for admin review before it goes live. You will be
               able to manage your inventory and fulfil orders from your merchant dashboard
               once approved.

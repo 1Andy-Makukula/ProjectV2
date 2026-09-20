@@ -67,6 +67,7 @@ const DEFAULT_LEXICON: ModeLexicon = {
 
 /** Which rail modules a mode shows, in the order it shows them. */
 export type RailModuleKey =
+  | 'marketPulse'
   | 'status'
   | 'occasions'
   | 'wishes'
@@ -79,6 +80,15 @@ export type RailModuleKey =
 
 const DEFAULT_RAIL: RailModuleKey[] = [
   'status',
+  // First thing on the LEFT rail -- which is what "second in this list"
+  // means, because `status` is a right-rail module and modeRailSide splits
+  // the one list by side while preserving order. Ordering it ahead of
+  // `status` here would have put Market Pulse first on neither rail and
+  // broken the rule that a mode leads with what is already in flight.
+  //
+  // It hides itself whenever the schema has nothing true to report, so
+  // naming it costs an empty week nothing.
+  'marketPulse',
   'wishes',
   'specialDeals',
   'mostBought',
@@ -209,7 +219,7 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     ornament: 'gift',
     // What is already on its way matters most when you are giving; the
     // catalogue can wait until further down the rail.
-    rail: ['status', 'occasions', 'wishes', 'myLists', 'trending', 'communityLists'],
+    rail: ['status', 'marketPulse', 'occasions', 'wishes', 'myLists', 'trending', 'communityLists'],
   },
   {
     value: 'experiences',
@@ -225,7 +235,7 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     lexicon: { cart: 'Itinerary', add: 'Reserve', addAll: 'Reserve all' },
     cartIcon: Sparkles,
     ornament: 'ticket',
-    rail: ['status', 'communityLists', 'trending'],
+    rail: ['status', 'marketPulse', 'communityLists', 'trending'],
   },
   {
     value: 'services',
@@ -244,7 +254,7 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     lexicon: { add: 'Book', addAll: 'Book all' },
     postPresentation: 'strip',
     cartIcon: ConciergeBell,
-    rail: ['status', 'trending', 'myLists'],
+    rail: ['status', 'marketPulse', 'trending', 'myLists'],
   },
   {
     value: 'lists',
@@ -262,7 +272,7 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     postPresentation: 'strip',
     cartIcon: ListChecks,
     ornament: 'list',
-    rail: ['status', 'communityLists', 'myLists', 'trending'],
+    rail: ['status', 'marketPulse', 'communityLists', 'myLists', 'trending'],
   },
   {
     value: 'shopping',
@@ -287,7 +297,7 @@ export const STOREFRONT_MODES: ReadonlyArray<ModeDefinition> = [
     lexicon: { cart: 'Basket' },
     postPresentation: 'strip',
     cartIcon: ShoppingCart,
-    rail: ['status', 'specialDeals', 'mostBought', 'picks', 'trending', 'myLists'],
+    rail: ['status', 'marketPulse', 'specialDeals', 'mostBought', 'picks', 'trending', 'myLists'],
   },
 ];
 

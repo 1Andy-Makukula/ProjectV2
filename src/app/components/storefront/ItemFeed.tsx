@@ -425,28 +425,59 @@ export function ItemFeed({
   );
 }
 
-/** Shared section heading, tinted by the active mode. */
+/** Shared section heading, tinted by the active mode.
+ *
+ * FLAT, as of 2026-09-18. These were the gradient-clipped .kl-accent-*
+ * classes; gradient text is what substitution 2 of the charter removes. The
+ * hues survive as solid fills, which is also the charter's own first
+ * principle -- colour as an object with a hard edge rather than as a wash.
+ *
+ * All five clear 3:1 on white, which is the floor for headline-scale text
+ * (these render at 30-38px). They would NOT all clear the 4.5:1 that text
+ * under 18px needs, so this map must not be reused on small type. */
+const SECTION_ACCENT = {
+  brand: 'text-[var(--accent-brand)]',
+  coral: 'text-[var(--accent-coral)]',
+  berry: 'text-[var(--accent-berry)]',
+  leaf: 'text-[var(--accent-leaf)]',
+  ink: 'text-[var(--accent-ink)]',
+} as const;
+
 export function SectionHeading({
   kicker,
   title,
   subtitle,
   action,
+  accent = 'brand',
 }: {
   kicker: string;
   title: string;
   subtitle?: string;
   action?: React.ReactNode;
+  /** Same vocabulary as the rail modules. See ModuleAccent there. */
+  accent?: keyof typeof SECTION_ACCENT;
 }) {
   return (
-    <div className="mb-8 flex items-end justify-between gap-4">
-      <div>
-        <p className="mb-1 text-xs font-bold uppercase tracking-widest text-mode-accent">
+    <div className="mb-6 flex items-end justify-between gap-4">
+      <div className="min-w-0">
+        {/* The kicker keeps the travelling pulse — it is the one piece of the
+            heading that moves, and it reads as a lit label rather than a flat
+            orange line. */}
+        <p className="kl-pulse-text mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em]">
           {kicker}
         </p>
-        <h2 className="kl-display text-[1.75rem] font-semibold text-foreground sm:text-[2.125rem]">
+        {/* Black weight, and the section's own colour — the same move the rail
+            modules make, so the feed and the flanks read as one system rather
+            than as two components that happen to share a page. `accent`
+            defaults to the brand, so a section that does not choose is
+            orange. */}
+        <h2
+          className={`kl-display text-[1.875rem] leading-[1.02] tracking-[-0.015em]
+                      sm:text-[2.375rem] ${SECTION_ACCENT[accent]}`}
+        >
           {title}
         </h2>
-        {subtitle && <p className="mt-1 text-sm text-ink-500">{subtitle}</p>}
+        {subtitle && <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>}
       </div>
       {action}
     </div>

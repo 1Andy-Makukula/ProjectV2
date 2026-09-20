@@ -125,7 +125,7 @@ export function AdminDashboard() {
             className="mb-8 flex w-full items-center gap-3 rounded-2xl border border-brand-200/80 bg-brand-50 px-5 py-4 text-left transition-colors hover:bg-brand-100/70"
           >
             <Store className="size-5 shrink-0 text-primary" strokeWidth={1.75} />
-            <p className="flex-1 text-sm leading-relaxed text-orange-850">
+            <p className="flex-1 text-sm leading-relaxed text-brand-900">
               <strong>
                 {stats.pendingShops} merchant application
                 {stats.pendingShops === 1 ? '' : 's'}

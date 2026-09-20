@@ -388,6 +388,20 @@ ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS total_amount integer NO
 ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS currency text NOT NULL DEFAULT 'ZMW';
 ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'GATEWAY_PROCESSING';
 ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now();
+-- The buyer-facing fee, and the item total it was computed from. checkout_init
+-- writes total_amount = items_subtotal + platform_fee, and the escrow funding
+-- leg credits the sender with total_amount -- so anything reasoning about what
+-- the sender is owed has to see all three.
+-- The gateway's OWN charge id, taken from its response body (20260809010000).
+-- This -- not gateway_tx_ref, which is ours -- is what a refund is issued
+-- against.
+ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS gateway_reference text;
+ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS platform_fee integer NOT NULL DEFAULT 0;
+-- The international leg (20260809130000). NULL on a domestic order, which means
+-- "charged in ZMW at total_amount" -- the refund path relies on exactly that.
+ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS charge_currency text;
+ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS charge_amount_minor integer;
+ALTER TABLE public.transactions ADD COLUMN IF NOT EXISTS items_subtotal integer;
 
 -- platform_settings, as 20260620000000 and its successors shape it. Only the
 -- columns the escrow migrations read; the escrow migrations add their own.

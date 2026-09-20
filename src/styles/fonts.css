@@ -1,2 +1,19 @@
-/* Inter — 300 Light, 400 Regular, 500 Medium */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap');
+/* The three voices of Chitenge Cockpit.
+
+   Inter was retired on 2026-09-18. It is the default voice of every
+   marketplace on the internet and it was the single largest contributor to
+   the app reading as generic -- competent, plain, and indistinguishable from
+   any other shop. Nothing about it was wrong; it just was not anybody.
+
+     Caprasimo  display. Every heading, price, counter and total. One weight
+                (400) because the face is already fat -- size and colour carry
+                the hierarchy, never weight.
+     Figtree    interface and body. 400/500/600/700, and nothing else.
+     Caveat     one job only: the note a person writes on a gift, and wish
+                text quoted back to them. Never a label, never a heading.
+
+   Fraunces is NOT here. It is requested from index.html and is now reserved
+   for the paper-skin journey pages (--font-paper), which are the only place
+   its optical-size, SOFT and WONK axes are actually varied. Caprasimo is a
+   static face, so nothing that wears it may set font-variation-settings. */
+@import url('https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;500;600;700&display=swap');

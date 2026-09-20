@@ -27,7 +27,7 @@ import { relativeTime, absoluteTime } from '../../../utils/relativeTime';
 
 interface NotificationBellProps {
   /** Matches the bell to its surrounding chrome. */
-  tone?: 'light' | 'dark';
+  tone?: 'light' | 'dark' | 'brand';
   className?: string;
 }
 
@@ -74,10 +74,16 @@ export function NotificationBell({ tone = 'dark', className = '' }: Notification
     return () => clearInterval(id);
   }, [isOpen]);
 
+  // A third tone rather than hover classes passed down through `className`:
+  // those are utilities either way, so which one wins is decided by the order
+  // Tailwind happens to emit them in, not by the order they are written. A
+  // variant here is the only version of this that is actually deterministic.
   const triggerColour =
     tone === 'light'
       ? 'text-white/80 hover:text-white hover:bg-white/10'
-      : 'text-ink-500 hover:text-ink-900 hover:bg-ink-100';
+      : tone === 'brand'
+        ? 'text-muted-foreground hover:bg-primary-tint hover:text-primary'
+        : 'text-ink-500 hover:text-ink-900 hover:bg-ink-100';
 
   return (
     <>

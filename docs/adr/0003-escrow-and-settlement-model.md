@@ -175,6 +175,53 @@ entries as a side effect of a deploy is not acceptable.
 transfers are settled manually and the dispatcher fails them explicitly and
 retryably rather than skipping them silently.
 
+## Three defects found on 2026-09-17, by building the refund dispatcher
+
+### The unit error
+
+The worst of the three, and the one that undermined a premise stated in this
+very document. `20260915000000` asserted that the schema stores whole kwacha
+and built `zmw_to_ngwee` as the boundary into the ledger. **The schema already
+stores ngwee everywhere** — `formatCurrency(amountInNgwee)` divides by 100 and
+the storefront calls it straight on `items.price_zmw`; the webhook converts
+Flutterwave's major-unit ZMW to ngwee and `confirm_payment_atomic` compares that
+directly against `total_amount`. The columns are *named* for the currency and
+*valued* in its minor unit.
+
+So every ledger figure was a hundred times too large. Not cosmetic: merchants
+would have been queued payouts of a hundredfold, and the dispatcher would have
+instructed Airtel to send them. The redemption guard that refuses a scan
+exceeding the sender's remaining liability did not help, because both sides were
+inflated equally.
+
+The master invariant never noticed — a uniform error preserves internal
+consistency exactly. **The daily bank comparison would have caught it on its
+first run**, which is the argument in §8 for why that check is the one that
+matters, demonstrated on the system's own code. Fixed in `20260917020000`, with
+`escrow_mode` never having left `dual_write`, so nothing real was ever computed
+from the wrong numbers.
+
+## Two further defects, same investigation
+
+Both were invisible until something called the code.
+
+**The buyer's service fee was never earned.** Funding credits the sender with
+`items_subtotal + platform_fee`; redemption moved only the item values out. A
+fully collected order left the fee in the segregated account, classified as
+money owed to a sender who was owed nothing — and the master invariant balanced
+throughout, because the money genuinely was there and only the label was wrong.
+That is the failure mode reconciliation structurally cannot see. Fixed by
+`order_item_fee_share_ngwee`, which allocates the fee across order lines by the
+running-total difference method so the shares sum to the fee exactly.
+
+**Refunds were addressed to the wrong identifier** — `gateway_tx_ref`, which is
+ours, rather than `gateway_reference`, which is the gateway's. Every refund
+would have failed.
+
+The lesson for both: the original lifecycle suite built its fixture with
+`total_amount == items_subtotal`, so it tested a simpler world than production.
+`assert_escrow_buyer_fee` now carries a real fee in every fixture.
+
 ## Consequences
 
 - Rolling back a bad cutover is `UPDATE platform_settings SET escrow_mode =

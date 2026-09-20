@@ -19,6 +19,7 @@ import {
   ImageOff,
   MapPin,
   Send,
+  ShieldCheck,
   ShoppingCart,
   Store,
 } from 'lucide-react';
@@ -138,24 +139,52 @@ function Action({
   count,
   active,
   onClick,
+  tone = 'quiet',
 }: {
   icon: typeof Heart;
   label: string;
   count?: number;
   active?: boolean;
   onClick: () => void;
+  /**
+   * How loud this action is.
+   *
+   * `quiet`   like, save, share — the three that are about the post.
+   * `buy`     the one loud thing on the card. Filled brand, because the
+   *           charter allows exactly one primary action per region and this
+   *           is it.
+   * `santa`   Secret Santa, on the warm accent ground in brass. Not brand:
+   *           two filled brand actions in one row would make neither of them
+   *           the answer to "what do I press".
+   *
+   * Presentation only. Every action is still drawn only when its handler was
+   * passed, which is the contract this component is built on.
+   */
+  tone?: 'quiet' | 'buy' | 'santa';
 }) {
+  const toneClass =
+    tone === 'buy'
+      ? 'bg-primary text-white hover:bg-primary/92'
+      : tone === 'santa'
+        ? 'bg-surface-warm text-brass-deep hover:bg-surface-warm/70'
+        : `hover:bg-accent ${active ? 'text-accent-text' : 'text-muted-foreground'}`;
+
   return (
     <button
       onClick={onClick}
       aria-label={label}
       aria-pressed={active}
       className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-[var(--radius-md)] py-1.5
-                  text-[0.6875rem] transition-colors hover:bg-accent
-                  ${active ? 'text-primary' : 'text-muted-foreground'}`}
+                  text-[0.6875rem] transition-colors
+                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+                  ${toneClass}`}
     >
-      <Icon className="size-[1.15rem]" strokeWidth={1.75} fill={active ? 'currentColor' : 'none'} />
-      <span className="truncate font-medium">
+      <Icon
+        className="size-[1.15rem]"
+        strokeWidth={tone === 'quiet' ? 2.4 : 2}
+        fill={active ? 'currentColor' : 'none'}
+      />
+      <span className="truncate font-semibold">
         {label}
         {count !== undefined && count > 0 ? ` ${count}` : ''}
       </span>
@@ -180,7 +209,8 @@ export function PostCard({
       <header className="flex items-start gap-2.5">
         <button
           onClick={() => onOpenShop(author.id)}
-          className="size-10 shrink-0 overflow-hidden rounded-[var(--radius-md)] bg-muted"
+          className="size-[42px] shrink-0 overflow-hidden rounded-[13px] bg-surface-paper
+                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           aria-label={author.name}
         >
           {author.logo_url ? (
@@ -197,24 +227,38 @@ export function PostCard({
             onClick={() => onOpenShop(author.id)}
             className="flex max-w-full items-center gap-1 text-left"
           >
-            <span className="truncate text-sm font-medium">{author.name}</span>
+            <span className="truncate text-sm font-semibold text-foreground">{author.name}</span>
             {author.is_verified && (
+              /* Sage, not brand. Verified means checked and safe, which is
+                 what sage means here; brand means act now, which a shop's
+                 verification badge is not asking you to do. */
               <BadgeCheck
-                className="size-3.5 shrink-0 text-primary"
-                strokeWidth={2}
+                className="size-3.5 shrink-0 text-sage"
+                strokeWidth={2.4}
                 aria-label="Verified shop"
               />
             )}
           </button>
-          <p className="truncate text-[0.6875rem] font-light text-muted-foreground">
-            {post.published_at ? relativeTime(post.published_at) : 'Draft'}
-            {author.location ? ` · ${author.location}` : ''}
+          {/* Draft is a FACT about this post's state, so it is a block
+              rather than the same grey as a timestamp -- which is what it
+              used to be, and it read as "no date" instead of "not published".
+              The fallback itself is unchanged. */}
+          <p className="flex min-w-0 items-center gap-1.5 truncate text-[11px] text-muted-foreground">
+            {post.published_at ? (
+              relativeTime(post.published_at)
+            ) : (
+              <span className="shrink-0 rounded-[var(--radius-block)] bg-ink px-1.5 py-0.5
+                               text-[9px] font-bold uppercase tracking-[0.06em] text-on-ink">
+                Draft
+              </span>
+            )}
+            <span className="truncate">{author.location ? `· ${author.location}` : ''}</span>
           </p>
         </div>
 
         {post.location_label && (
-          <span className="kl-rim inline-flex shrink-0 items-center gap-1 rounded-[var(--radius-pill)] bg-card px-2 py-1 text-[0.6875rem] text-muted-foreground">
-            <MapPin className="size-3" strokeWidth={1.75} />
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-[var(--radius-pill)] bg-surface-paper px-2 py-1 text-[11px] text-muted-foreground">
+            <MapPin className="size-3" strokeWidth={2.75} />
             <span className="max-w-[7rem] truncate">{post.location_label}</span>
           </span>
         )}
@@ -225,8 +269,21 @@ export function PostCard({
       </div>
 
       {post.caption && (
-        <p className="mt-3 whitespace-pre-line text-[0.8125rem] leading-relaxed">{post.caption}</p>
+        <p className="mt-3 whitespace-pre-line text-[0.8125rem] leading-[1.55] text-foreground">
+          {post.caption}
+        </p>
       )}
+
+      {/* The escrow thread, said once per post in plain words.
+          Brass as a GROUND with ink on it (8.32:1), never brass as text.
+          No price anywhere on this card -- the no-price rule is deliberate
+          and this strip does not break it: it says what happens to money,
+          not how much. */}
+      <p className="mt-3 flex items-center gap-1.5 rounded-[var(--radius-block)] bg-brass
+                    px-2.5 py-1.5 text-[11px] font-semibold text-ink">
+        <ShieldCheck className="size-3.5 shrink-0" strokeWidth={2.75} aria-hidden />
+        You pay now. The shop is paid when your gift is collected.
+      </p>
 
       <div className="mt-3 flex items-stretch gap-0.5 border-t border-border pt-2">
         {onLike && (
@@ -248,8 +305,10 @@ export function PostCard({
           />
         )}
         {onShare && <Action icon={Send} label="Share" onClick={onShare} />}
-        {onBuy && <Action icon={ShoppingCart} label={buyLabel} onClick={onBuy} />}
-        {onWish && <Action icon={Gift} label="Secret Santa" onClick={onWish} />}
+        {/* buyLabel is the SHOP's word for this, never the shopper's mode
+            and never a hard-coded "Buy". */}
+        {onBuy && <Action icon={ShoppingCart} label={buyLabel} onClick={onBuy} tone="buy" />}
+        {onWish && <Action icon={Gift} label="Secret Santa" onClick={onWish} tone="santa" />}
       </div>
     </article>
   );

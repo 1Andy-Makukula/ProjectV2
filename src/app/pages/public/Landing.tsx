@@ -114,7 +114,7 @@ export function Landing() {
           >
             Send real gifts to
             <br />
-            <span className="bg-gradient-to-r from-brand-300 via-danger-300 to-warn-300 bg-clip-text text-transparent">
+            <span className="text-brand-300">
               people you love
             </span>
           </motion.h1>

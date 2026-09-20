@@ -60,6 +60,9 @@ MIGRATIONS=(
   20260916000000_buyer_concierge_conversation
   20260916010000_experience_occasion_kind
   20260916020000_medical_category_affinity
+  20260917000000_buyer_fee_accrual_and_refund_target
+  20260917010000_refund_charge_instruction
+  20260917020000_ngwee_unit_correction
 )
 SUITES=(
   assert_countries_and_holidays
@@ -77,6 +80,7 @@ SUITES=(
   assert_escrow_ledger
   assert_escrow_lifecycle
   assert_escrow_cutover
+  assert_escrow_buyer_fee
   assert_concierge_thread
   assert_experience_occasions
   assert_placeholder_bundles

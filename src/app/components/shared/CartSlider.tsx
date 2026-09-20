@@ -18,12 +18,20 @@ import { describeSelection } from '../../types/itemOptions';
 import { useAuth } from '../../../utils/auth/AuthContext';
 import { supabase } from '../../../lib/supabaseClient';
 import { Switch } from '../ui/switch';
+import { Vector } from './Vector';
 import { formatCurrency } from '../../../utils/currency';
 import { nextTier } from '../../types/items';
 import { usePlatformPricing } from '../../hooks/usePlatformPricing';
 import { useEscrowMode } from '../../hooks/useEscrowMode';
 import { creditsApplicationFor, feePercentFor, serviceFeeFor, CHECKOUT_ORIGIN } from '../../../utils/pricing';
 import { CompensationDisclosure } from '../checkout/CompensationDisclosure';
+
+/** A 44px touch target on phones, drawn as an invisible pseudo-element so the
+ *  control keeps its 22px visual size. Desktop does not need it and pointer
+ *  users would only get an overlapping hit box, so it is md:hidden. */
+const HIT =
+  "before:absolute before:left-1/2 before:top-1/2 before:size-11 before:-translate-x-1/2 " +
+  "before:-translate-y-1/2 before:content-[''] md:before:hidden";
 
 export function CartSlider() {
   const navigate = useNavigate();
@@ -144,14 +152,19 @@ export function CartSlider() {
                 exit={{ opacity: 0 }}
                 className="flex flex-col items-center justify-center h-full min-h-[300px] text-center"
               >
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50 mb-4">
-                  <ShoppingBag className="h-8 w-8 text-brand-400" strokeWidth={1.25} />
-                </div>
-                <p className="text-sm font-medium text-ink-700">Your cart is empty</p>
-                <p className="mt-1 text-xs text-ink-400">Browse shops to find the perfect gift.</p>
+                {/* The bag is the shopper's own surface, so it gets the
+                    shopper character and its tag. Not an apology: "nothing
+                    here yet" is a state, and the line under it says what to
+                    do about it. The button still only closes the slider. */}
+                <Vector name="shopper" size="L" tag="Nothing here yet" tone="ink" />
+                <p className="mt-4 text-xs text-muted-foreground">
+                  Browse shops to find the perfect gift.
+                </p>
                 <button
                   onClick={() => setCartSliderOpen(false)}
-                  className="mt-5 rounded-full border border-brand-200 bg-brand-50 px-5 py-2 text-xs font-semibold text-brand-600 hover:bg-brand-100 transition-colors"
+                  className="mt-5 rounded-[var(--radius-pill)] bg-surface-paper px-5 py-2 text-xs font-semibold
+                             text-foreground transition-colors hover:bg-secondary
+                             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   Browse Shops
                 </button>
@@ -185,7 +198,7 @@ export function CartSlider() {
                           damping: 26,
                           delay: i * 0.06,
                         }}
-                        className="flex items-center gap-3 rounded-xl border border-ink-100 bg-white p-3 shadow-sm"
+                        className="flex items-center gap-3 rounded-[var(--radius-lg)] bg-surface-paper p-3"
                       >
                         {/* Thumbnail */}
                         <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-ink-100">
@@ -204,7 +217,7 @@ export function CartSlider() {
 
                         {/* Info */}
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-ink-900">{item.product.name || item.product.title}</p>
+                          <p className="truncate text-xs font-semibold text-foreground">{item.product.name || item.product.title}</p>
                           {(() => {
                             // Includes any chosen options, so the line agrees
                             // with the total and with what checkout charges.
@@ -217,18 +230,22 @@ export function CartSlider() {
                             return (
                               <>
                                 {extras && (
-                                  <p className="truncate text-[11px] text-ink-500">{extras}</p>
+                                  <p className="truncate text-[10px] text-muted-foreground">{extras}</p>
                                 )}
-                                <p className="text-xs text-ink-400">
+                                <p className="kl-money text-[11px] text-muted-foreground">
                                   {formatCurrency(unit, 'ZMW')}
                                   {unit < item.product.price_zmw && (
-                                    <span className="ml-1 text-ink-300 line-through">
+                                    <span className="ml-1 text-[10px] line-through">
                                       {formatCurrency(item.product.price_zmw, 'ZMW')}
                                     </span>
                                   )}
                                 </p>
                                 {upcoming && (
-                                  <p className="text-[11px] font-medium text-brand-600">
+                                  /* #C93A08 and 700: this is the only place a
+                                     shopper is ever told a wholesale tier
+                                     exists, and in brand-600 at 500 weight it
+                                     was the quietest line on the row. */
+                                  <p className="text-[10px] font-bold text-accent-text">
                                     Add {upcoming.min_quantity - item.quantity} more for{' '}
                                     {formatCurrency(upcoming.unit_price_zmw, 'ZMW')} each
                                   </p>
@@ -239,35 +256,57 @@ export function CartSlider() {
 
                           {/* Qty controls */}
                           <div className="mt-1.5 flex items-center gap-2">
+                            {/* 22px circles: minus on the neutral, plus on the
+                                brand, because adding is the direction the shop
+                                wants and subtracting is merely allowed.
+
+                                The ::before is a 44px touch target on phones
+                                only -- it keeps the control 22px to the eye
+                                while satisfying the 44px floor, instead of
+                                growing the row on the device with least room.
+                                Both still call updateQuantity(lineKeyOf(item)),
+                                the LINE key, never the product id. */}
                             <button
                               onClick={() => updateQuantity(lineKeyOf(item), item.quantity - 1)}
-                              className="flex h-5 w-5 items-center justify-center rounded-md border border-ink-200 text-ink-500 hover:border-brand-300 hover:text-brand-500 transition-colors"
+                              aria-label="Decrease quantity"
+                              className={`relative flex size-[22px] items-center justify-center rounded-full
+                                          bg-background text-foreground transition-colors hover:bg-border-dark
+                                          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${HIT}`}
                             >
-                              <Minus className="h-3 w-3" />
+                              <Minus className="h-3 w-3" strokeWidth={2.75} />
                             </button>
-                            <span className="min-w-[16px] text-center text-xs font-semibold text-ink-700">
+                            <span className="kl-money min-w-[16px] text-center text-xs text-foreground">
                               {item.quantity}
                             </span>
                             <button
                               onClick={() => updateQuantity(lineKeyOf(item), item.quantity + 1)}
-                              className="flex h-5 w-5 items-center justify-center rounded-md border border-ink-200 text-ink-500 hover:border-brand-300 hover:text-brand-500 transition-colors"
+                              aria-label="Increase quantity"
+                              className={`relative flex size-[22px] items-center justify-center rounded-full
+                                          bg-primary text-white transition-colors hover:bg-primary/90
+                                          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${HIT}`}
                             >
-                              <Plus className="h-3 w-3" />
+                              <Plus className="h-3 w-3" strokeWidth={2.75} />
                             </button>
                           </div>
                         </div>
 
                         {/* Line total + remove */}
                         <div className="flex flex-col items-end gap-2 shrink-0">
-                          <p className="text-sm font-semibold text-ink-900">
+                          <p className="kl-money text-xs text-foreground">
                             {formatCurrency(cartLineUnitPrice(item) * item.quantity, 'ZMW')}
                           </p>
+                          {/* Present on EVERY line. Its absence from the kit
+                              specimen was an omission in the drawing, not the
+                              design -- a cart you can only empty by zeroing a
+                              stepper is a cart with a missing control. */}
                           <button
                             onClick={() => removeFromCart(lineKeyOf(item))}
-                            className="rounded-md p-1 text-ink-300 hover:bg-danger-50 hover:text-danger-400 transition-colors"
+                            className={`relative rounded-md p-1 text-muted-foreground transition-colors
+                                        hover:text-destructive
+                                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${HIT}`}
                             aria-label="Remove item"
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            <Trash2 className="h-3.5 w-3.5" strokeWidth={2.4} />
                           </button>
                         </div>
                       </motion.div>
@@ -284,13 +323,16 @@ export function CartSlider() {
           <SheetFooter className="px-5 py-4 border-t border-ink-100/80 flex flex-col gap-3" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)' }}>
             {/* Apply KithLy Credits Section */}
             {user && walletBalance > 0 && (
-              <div className="w-full flex flex-col gap-2 p-3 bg-ink-50 rounded-xl border border-ink-100/80 mb-1">
+              /* Gating untouched: user && walletBalance > 0, and
+                  storedValueRetired forces walletBalance to zero under
+                  escrow_v2. One rendering path, as it was. */
+              <div className="mb-1 flex w-full flex-col gap-2 rounded-[var(--radius-lg)] bg-surface-paper p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Coins className="h-4 w-4 text-brand-500" />
+                    <Coins className="h-4 w-4 text-brass-deep" strokeWidth={2.4} />
                     <div className="flex flex-col text-left">
-                      <span className="text-xs font-semibold text-ink-800">Apply KithLy Credits</span>
-                      <span className="text-[10px] text-ink-400">Available: {formatCurrency(walletBalance, 'ZMW')}</span>
+                      <span className="text-xs font-semibold text-foreground">Apply KithLy Credits</span>
+                      <span className="kl-money text-[10px] text-muted-foreground">Available: {formatCurrency(walletBalance, 'ZMW')}</span>
                     </div>
                   </div>
                   <Switch
@@ -299,9 +341,9 @@ export function CartSlider() {
                   />
                 </div>
                 {applyCredits && (
-                  <div className="flex items-center justify-between text-xs text-brand-600 font-semibold px-1 mt-1 border-t border-ink-200/50 pt-1.5">
+                  <div className="mt-1 flex items-center justify-between border-t border-border px-1 pt-1.5 text-xs font-bold text-accent-text">
                     <span>Credits Applied</span>
-                    <span>-{formatCurrency(creditsToApply, 'ZMW')}</span>
+                    <span className="kl-money">-{formatCurrency(creditsToApply, 'ZMW')}</span>
                   </div>
                 )}
               </div>
@@ -310,21 +352,23 @@ export function CartSlider() {
             {/* Order summary */}
             <div className="w-full flex flex-col gap-1.5 pt-1">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-ink-500 font-medium">Subtotal</span>
-                <span className="text-ink-800 font-semibold">
+                <span className="font-medium text-muted-foreground">Subtotal</span>
+                <span className="kl-money text-foreground">
                   {formatCurrency(total, 'ZMW')}
                 </span>
               </div>
 
               {serviceFee > 0 && (
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-ink-500 font-medium">
+                  <span className="font-medium text-muted-foreground">
                     Service fee
-                    <span className="ml-1 text-xs font-normal text-ink-400">
+                    {/* The percentage stays. A fee whose rate is hidden is
+                        a fee somebody has to work out. */}
+                    <span className="ml-1 text-xs font-normal text-muted-foreground">
                       ({feePercentFor(CHECKOUT_ORIGIN, rates)}%)
                     </span>
                   </span>
-                  <span className="text-ink-800 font-semibold">
+                  <span className="kl-money text-foreground">
                     {formatCurrency(serviceFee, 'ZMW')}
                   </span>
                 </div>
@@ -332,16 +376,19 @@ export function CartSlider() {
 
               {applyCredits && creditsToApply > 0 && (
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-ink-500 font-medium">Credits applied</span>
-                  <span className="text-brand-600 font-semibold">
+                  <span className="font-medium text-muted-foreground">Credits applied</span>
+                  <span className="kl-money text-accent-text">
                     -{formatCurrency(creditsToApply, 'ZMW')}
                   </span>
                 </div>
               )}
 
-              <div className="flex items-center justify-between text-sm pt-2 border-t border-ink-100/80 mt-1">
-                <span className="text-ink-800 font-bold">Total payable</span>
-                <span className="text-lg font-bold kl-gradient-brand-text">
+              {/* The total in an ink block. The four lines above it stay
+                  itemised and separate -- fees are never rolled into one
+                  number -- and this is the one the eye should land on. */}
+              <div className="mt-2 flex items-center justify-between rounded-[var(--radius-lg)] bg-ink px-3.5 py-2.5">
+                <span className="text-sm font-semibold text-on-ink">Total payable</span>
+                <span className="kl-money text-[1.4375rem] leading-none text-on-ink">
                   {formatCurrency(finalPayable, 'ZMW')}
                 </span>
               </div>
@@ -357,11 +404,17 @@ export function CartSlider() {
             <CompensationDisclosure items={items} className="mt-3" />
 
             {/* CTA */}
+            {/* "Hold it in escrow", not "Checkout". The word is the product's
+                only real differentiator and this is the moment it means
+                something. It still navigates to /checkout and still closes
+                the slider first -- only the label and the skin changed. */}
             <button
               onClick={handleCheckout}
-              className="w-full rounded-xl kl-gradient-brand py-3.5 text-sm font-semibold text-white shadow-md hover:opacity-90 active:scale-[0.98] transition-all mt-2"
+              className="mt-2 w-full rounded-[var(--radius-pill)] bg-primary py-3.5 text-sm font-semibold
+                         text-white transition-colors hover:bg-primary/92 active:scale-[0.98]
+                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              Proceed to Checkout
+              Hold it in escrow →
             </button>
           </SheetFooter>
         )}

@@ -367,7 +367,7 @@ export function OrderDashboard() {
               <ArrowLeft className="h-5 w-5 text-ink-700" />
             </Button>
             <div>
-              <h1 className="kl-gradient-brand bg-clip-text text-xl font-bold text-transparent tracking-tight">
+              <h1 className="kl-display text-xl text-foreground">
                 Order History
               </h1>
               <p className="text-xs text-ink-500 font-medium">
@@ -545,7 +545,7 @@ export function OrderDashboard() {
                         </TableCell>
 
                         <TableCell className="text-right">
-                          <span className="kl-gradient-brand bg-clip-text text-sm font-semibold text-transparent">
+                          <span className="kl-money text-sm text-foreground">
                             {formatCurrency(order.total_amount, 'ZMW')}
                           </span>
                         </TableCell>

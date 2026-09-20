@@ -45,30 +45,31 @@ INSERT INTO public.merchant_shops (user_id, shop_id) VALUES
 -- One ordinary item, one the merchant prepares to order and has disclosed a
 -- 30% compensation term on.
 INSERT INTO public.items (id, shop_id, name, price_zmw, is_available, has_expiry) VALUES
-  ('e1e10000-0000-0000-0000-00000000000a', 'e5c00000-0000-0000-0000-000000000001', 'Ordinary gift', 500, true, true);
+  ('e1e10000-0000-0000-0000-00000000000a', 'e5c00000-0000-0000-0000-000000000001', 'Ordinary gift', 50000, true, true);
 INSERT INTO public.items (id, shop_id, name, price_zmw, is_available, has_expiry,
                           compensation_eligible, compensation_percent, compensation_reason) VALUES
-  ('e1e10000-0000-0000-0000-00000000000b', 'e5c00000-0000-0000-0000-000000000001', 'Made to order cake', 400, true, true,
+  ('e1e10000-0000-0000-0000-00000000000b', 'e5c00000-0000-0000-0000-000000000001', 'Made to order cake', 40000, true, true,
    true, 30, 'Baked to order the day before collection');
 
 UPDATE public.platform_settings SET merchant_fee_percent = 2.00 WHERE id = 1;
 UPDATE public.payment_rails SET is_available = true, manually_disabled = false,
        consecutive_failures = 0;
 
--- A funded gift: 900 ZMW across the two items.
+-- A funded gift: K900 across the two items. Amounts are ngwee -- this schema
+-- stores minor units throughout, despite the _zmw column names.
 INSERT INTO public.transactions (transaction_id, buyer_id, gateway_tx_ref, total_amount, currency, status)
 VALUES ('e7000000-0000-0000-0000-000000000001', 'e5c00000-0000-0000-0000-0000000000b1',
-        'escrow-test-001', 900, 'ZMW', 'SUCCESS');
+        'escrow-test-001', 90000, 'ZMW', 'SUCCESS');
 
 INSERT INTO public.shop_orders (shop_order_id, transaction_id, shop_id, claim_code, claim_status, subtotal, expires_at)
 VALUES ('e5000000-0000-0000-0000-000000000001', 'e7000000-0000-0000-0000-000000000001',
-        'e5c00000-0000-0000-0000-000000000001', 'ESCROW01', 'PENDING', 900, now() + interval '14 days');
+        'e5c00000-0000-0000-0000-000000000001', 'ESCROW01', 'PENDING', 90000, now() + interval '14 days');
 
 INSERT INTO public.order_items (order_item_id, shop_order_id, item_id, allocated_price, fulfillment_status)
 VALUES ('01000000-0000-0000-0000-00000000000a', 'e5000000-0000-0000-0000-000000000001',
-        'e1e10000-0000-0000-0000-00000000000a', 500, 'PENDING'),
+        'e1e10000-0000-0000-0000-00000000000a', 50000, 'PENDING'),
        ('01000000-0000-0000-0000-00000000000b', 'e5000000-0000-0000-0000-000000000001',
-        'e1e10000-0000-0000-0000-00000000000b', 400, 'PENDING');
+        'e1e10000-0000-0000-0000-00000000000b', 40000, 'PENDING');
 
 \echo '--- 1. funding credits the sender in full: no fee is taken at the door ---'
 DO $$
@@ -81,7 +82,7 @@ BEGIN
   v_client := public.ledger_account_balance('CLIENT_FUNDS');
 
   IF v_sender <> 90000 THEN
-    RAISE EXCEPTION 'FAIL: funded 900 ZMW but the sender liability is % ngwee', v_sender;
+    RAISE EXCEPTION 'FAIL: funded K900 but the sender liability is % ngwee', v_sender;
   END IF;
   IF v_fees <> 0 THEN
     RAISE EXCEPTION 'FAIL: % ngwee of fee accrued at funding -- it must accrue at redemption', v_fees;
@@ -105,7 +106,7 @@ DECLARE v_raised boolean := false;
 BEGIN
   INSERT INTO public.transactions (transaction_id, buyer_id, gateway_tx_ref, total_amount, currency, status)
   VALUES ('e7000000-0000-0000-0000-0000000000ff', 'e5c00000-0000-0000-0000-0000000000b1',
-          'escrow-test-fx', 900, 'USD', 'SUCCESS');
+          'escrow-test-fx', 90000, 'USD', 'SUCCESS');
 
   BEGIN
     PERFORM public.escrow_record_funding('e7000000-0000-0000-0000-0000000000ff', NULL);
@@ -649,10 +650,10 @@ DECLARE v_res jsonb; v_bad boolean := false; v_order uuid := 'e5000000-0000-0000
 BEGIN
   INSERT INTO public.transactions (transaction_id, buyer_id, gateway_tx_ref, total_amount, currency, status)
   VALUES ('e7000000-0000-0000-0000-000000000002', 'e5c00000-0000-0000-0000-0000000000b1',
-          'escrow-test-002', 100, 'ZMW', 'SUCCESS');
+          'escrow-test-002', 10000, 'ZMW', 'SUCCESS');
   INSERT INTO public.shop_orders (shop_order_id, transaction_id, shop_id, claim_code, claim_status, subtotal, expires_at)
   VALUES (v_order, 'e7000000-0000-0000-0000-000000000002',
-          'e5c00000-0000-0000-0000-000000000001', 'ESCROW02', 'PENDING', 100, now() + interval '2 days');
+          'e5c00000-0000-0000-0000-000000000001', 'ESCROW02', 'PENDING', 10000, now() + interval '2 days');
 
   BEGIN
     PERFORM public.extend_voucher_window(v_order, 'e5c00000-0000-0000-0000-0000000000c1');

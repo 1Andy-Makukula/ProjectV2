@@ -146,7 +146,7 @@ const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS; // ≈ 263.9 px
 
 /**
  * Circular SVG arc that depletes from full to empty over the session window.
- * Renders in slate for normal time, transitions to a warm red for urgency.
+ * Renders in ink for normal time, transitions to brand then destructive for urgency.
  */
 function ProgressRing({
   remainingMs,
@@ -159,12 +159,19 @@ function ProgressRing({
 }) {
   const dashOffset = computeDashOffset(remainingMs, RING_CIRCUMFERENCE);
 
-  // Track colour: slate-200 (track), primary arc changes by urgency state.
-  const arcColour = isExpired
-    ? '#ef4444'   // red-500
+  // Arc colour by state, as tokens rather than hexes (2026-09-18). These were
+  // three hard-coded values -- #ef4444, #f97316 and #0f172a -- and the middle
+  // one was a second orange sitting next to the brand's own #E8460A, which is
+  // exactly the "at least three different oranges" the charter went after.
+  //
+  // Tailwind stroke utilities rather than a style prop: inline styles are
+  // forbidden in this codebase, and `stroke="var(--x)"` as an SVG presentation
+  // attribute does not work -- var() is only valid inside a CSS declaration.
+  const arcStroke = isExpired
+    ? 'stroke-destructive'
     : isUrgent
-      ? '#f97316' // orange-500 → KithLy brand colour for maximum salience
-      : '#0f172a'; // slate-900
+      ? 'stroke-primary'
+      : 'stroke-ink';
 
   return (
     <svg
@@ -178,7 +185,7 @@ function ProgressRing({
         cy="50"
         r={RING_RADIUS}
         fill="none"
-        stroke="#f1f5f9"  // slate-100
+        className="stroke-ink-200"
         strokeWidth="3"
       />
       {/* Progress arc */}
@@ -187,7 +194,7 @@ function ProgressRing({
         cy="50"
         r={RING_RADIUS}
         fill="none"
-        stroke={arcColour}
+        className={arcStroke}
         strokeWidth="3"
         strokeLinecap="round"
         strokeDasharray={RING_CIRCUMFERENCE}

@@ -179,7 +179,7 @@ export function ItemQuickView() {
                     aria-label={`Picture ${index + 1}`}
                     aria-pressed={index === active}
                     className={`size-14 shrink-0 overflow-hidden rounded-[var(--radius-md)] transition-opacity
-                                ${index === active ? 'ring-2 ring-primary' : 'opacity-70 hover:opacity-100'}`}
+                                ${index === active ? 'ring-2 ring-primary ring-offset-2' : 'opacity-70 hover:opacity-100'}`}
                   >
                     <img src={url} alt="" className="h-full w-full object-cover" />
                   </button>
@@ -188,7 +188,7 @@ export function ItemQuickView() {
             )}
 
             <div className="flex items-baseline justify-between gap-3">
-              <span className="kl-display text-2xl font-semibold">
+              <span className="kl-money text-[1.5625rem] text-foreground">
                 {formatCurrency(item.price_zmw, 'ZMW')}
               </span>
               {item.shop && (
@@ -197,7 +197,7 @@ export function ItemQuickView() {
                     close();
                     navigate(profile ? `/shop/${item.shop!.id}` : '/signup');
                   }}
-                  className="inline-flex min-w-0 items-center gap-1 text-[0.8125rem] text-muted-foreground hover:text-foreground"
+                  className="inline-flex min-w-0 items-center gap-1 text-[0.8125rem] text-accent-text hover:opacity-75"
                 >
                   <Store className="size-3.5 shrink-0" strokeWidth={1.75} />
                   <span className="truncate">{item.shop.name}</span>
@@ -215,16 +215,44 @@ export function ItemQuickView() {
               </p>
             )}
 
-            {/* The facts that change whether somebody can actually have it. */}
-            <ul className="space-y-1 text-[0.75rem] text-muted-foreground">
-              {outOfStock && <li className="text-destructive">Out of stock</li>}
-              {item.is_quote_only && <li>Priced on request — message the shop</li>}
-              {item.minimum_order_quantity > 1 && (
-                <li>Minimum order: {item.minimum_order_quantity}</li>
+            {/* The facts that change whether somebody can actually have it.
+                Each is now a hard block rather than a line of grey text --
+                square informs, and this is the most information-dense thing
+                in the app. All six conditions render exactly when they did
+                before; none has been dropped for tidiness. The colours carry
+                meaning: destructive for out of stock, ink for a fact about
+                how it is sold, sage for where you collect it. */}
+            <ul className="flex flex-wrap gap-1.5 text-[11px]">
+              {outOfStock && (
+                <li className="rounded-[var(--radius-block)] bg-destructive px-2 py-1 font-bold uppercase tracking-[0.06em] text-white">
+                  Out of stock
+                </li>
               )}
-              {item.lead_time_days ? <li>Ready in about {item.lead_time_days} days</li> : null}
-              {item.requires_scheduling && <li>Arranged with the shop for a date</li>}
-              {item.shop?.location && <li>Collected at {item.shop.location}</li>}
+              {item.is_quote_only && (
+                <li className="rounded-[var(--radius-block)] bg-ink px-2 py-1 font-semibold text-on-ink">
+                  Priced on request — message the shop
+                </li>
+              )}
+              {item.minimum_order_quantity > 1 && (
+                <li className="rounded-[var(--radius-block)] bg-surface-paper px-2 py-1 font-semibold text-foreground">
+                  Minimum order: <span className="kl-money">{item.minimum_order_quantity}</span>
+                </li>
+              )}
+              {item.lead_time_days ? (
+                <li className="rounded-[var(--radius-block)] bg-surface-paper px-2 py-1 font-semibold text-foreground">
+                  Ready in about <span className="kl-money">{item.lead_time_days}</span> days
+                </li>
+              ) : null}
+              {item.requires_scheduling && (
+                <li className="rounded-[var(--radius-block)] bg-surface-paper px-2 py-1 font-semibold text-foreground">
+                  Arranged with the shop for a date
+                </li>
+              )}
+              {item.shop?.location && (
+                <li className="rounded-[var(--radius-block)] bg-sage-deep px-2 py-1 font-semibold text-white">
+                  Collected at {item.shop.location}
+                </li>
+              )}
             </ul>
 
             <div className="grid grid-cols-2 gap-2 pt-1">

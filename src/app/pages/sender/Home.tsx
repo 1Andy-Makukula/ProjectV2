@@ -137,7 +137,7 @@ export function Home() {
       <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-ink-100">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-brand-500 to-danger-500 bg-clip-text text-transparent">
+            <h1 className="kl-display text-2xl text-foreground">
               KithLy
             </h1>
             <span className="text-sm text-muted-foreground">

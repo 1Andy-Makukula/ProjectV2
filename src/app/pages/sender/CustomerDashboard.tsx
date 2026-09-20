@@ -241,7 +241,7 @@ export function CustomerDashboard() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-xl font-bold kl-gradient-brand bg-clip-text text-transparent">
+              <h1 className="kl-display text-xl text-foreground">
                 Impact Dashboard
               </h1>
               <p className="text-xs text-muted-foreground">

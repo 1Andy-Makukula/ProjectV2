@@ -231,7 +231,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
         {catalogueLocked && (
           <div className="mb-8 flex items-start gap-3 rounded-2xl border border-brand-200/80 bg-brand-50 px-5 py-4">
             <ShieldAlert className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-            <p className="text-sm text-orange-850 leading-relaxed">
+            <p className="text-sm text-brand-900 leading-relaxed">
               {shopVerificationStatus === 'rejected' ? (
                 <>
                   <strong>Your shop was not approved.</strong>{' '}
@@ -468,7 +468,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
               >
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 transition-colors group-hover:bg-brand-100">
                   <action.icon
-                    className="h-6 w-6 text-brand-500 group-hover:bg-gradient-to-r group-hover:from-brand-500 group-hover:to-info-800 group-hover:bg-clip-text group-hover:text-transparent"
+                    className="h-6 w-6 text-brand-500 transition-colors group-hover:text-primary"
                     strokeWidth={1.5}
                   />
                 </div>
@@ -903,7 +903,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
               
               <div className="flex justify-between items-center pt-5 border-t border-ink-100">
                 <span className="text-sm font-bold text-ink-900">Total Value:</span>
-                <span className="text-xl font-extrabold bg-gradient-to-r from-brand-600 to-warn-600 bg-clip-text text-transparent">
+                <span className="kl-money text-xl text-foreground">
                   {formatCurrency(selectedOrder.amount)}
                 </span>
               </div>

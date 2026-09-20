@@ -172,7 +172,7 @@ export function SignUp() {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="lg:hidden text-center mb-8">
-            <h1 className="text-4xl font-bold kl-gradient-brand bg-clip-text text-transparent mb-1">
+            <h1 className="kl-display mb-1 text-4xl text-foreground">
               KithLy
             </h1>
           </div>

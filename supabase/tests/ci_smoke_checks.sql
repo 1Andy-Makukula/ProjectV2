@@ -181,7 +181,8 @@ BEGIN
         'cancel_fee_sweep','escrow_reconcile','set_payout_destination',
         'mark_destination_verifying','mark_destination_verified',
         'mark_destination_failed','set_settlement_manual_flag',
-        'refresh_settlement_tier','record_rail_outcome'
+        'refresh_settlement_tier','record_rail_outcome',
+        'order_item_fee_share_ngwee','refund_charge_instruction'
       ])
       AND has_function_privilege(r.rolname, p.oid, 'EXECUTE')
   LOOP

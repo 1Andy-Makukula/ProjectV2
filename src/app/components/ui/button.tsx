@@ -23,7 +23,7 @@ const buttonVariants = cva(
     "transition-[color,background-color,box-shadow,border-color] duration-200",
     "disabled:pointer-events-none disabled:opacity-40 disabled:shadow-none",
     "[&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-[0.9em] shrink-0 [&_svg]:shrink-0",
-    "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+    "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
     "aria-invalid:ring-destructive/30 aria-invalid:border-destructive",
   ].join(" "),
   {

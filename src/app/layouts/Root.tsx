@@ -8,11 +8,17 @@ import { CartSlider } from '../components/shared/CartSlider';
 import { FloatingHomeButton } from '../components/shared/FloatingHomeButton';
 import { ScrollIndicator } from '../components/shared/ScrollIndicator';
 import { useNativeShell } from '../hooks/useNativeShell';
+import { useScrollActivity } from '../hooks/useScrollActivity';
 
 export function Root() {
   // Splash, status bar, hardware back, deep links, resume and connectivity.
   // Every branch of it is skipped in a browser.
   useNativeShell();
+
+  // Publishes `data-scroll` on the root so CSS can tell a still page from a
+  // moving one. Only the glass surfaces read it today — the sheen on the
+  // header and the mode rail steps aside while the page is in motion.
+  useScrollActivity();
 
   return (
     <AuthProvider>

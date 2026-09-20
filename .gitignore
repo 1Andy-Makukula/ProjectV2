@@ -30,3 +30,7 @@ supabase/clear_shop_data.sql
 
 # JVM crash dumps from Android tooling
 hs_err_pid*.log
+
+# Design scaffolding: 69MB of reference material (Figma exports, the Chitenge
+# charter, scraped stock of unknown licence). Read from, never shipped.
+scoffolding/
