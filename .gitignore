@@ -34,3 +34,9 @@ hs_err_pid*.log
 # Design scaffolding: 69MB of reference material (Figma exports, the Chitenge
 # charter, scraped stock of unknown licence). Read from, never shipped.
 scoffolding/
+
+# Vercel CLI: linked project ids and pulled production env. Never committed.
+.vercel
+
+.vercel
+.env*

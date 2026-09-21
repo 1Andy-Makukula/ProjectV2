@@ -3,6 +3,28 @@
 How a KithLy link looks when it is pasted into WhatsApp, Facebook, or anywhere
 else that renders a preview card.
 
+
+## vercel.json cannot carry comments
+
+**Do not add a `_comment` key to `vercel.json`.** Vercel validates that file
+against a strict schema and rejects any property it does not recognise,
+including inside a `rewrites` entry. It fails at *configuration validation*,
+before the build starts — so the build shows as `0ms`, the deployment shows
+only `● Error`, and the runtime logs are empty because the deployment never
+reached READY. Nothing in the repository looks wrong and every local build
+passes, because Vite never reads `vercel.json`.
+
+That happened on 2026-09-12 (`6754d70`), and every production deployment
+failed silently from then until 2026-09-21 — nine days of pushes that
+appeared to succeed on GitHub and never reached the site.
+
+The explanation that comment carried is the section above, which is where it
+should have been. If you need to explain a rewrite, explain it here.
+
+To check before pushing: `npx vercel build` runs the same validation locally
+and prints the exact schema error.
+
+
 ## The problem this solves
 
 KithLy is a Vite SPA. `vercel.json` rewrites every route to `/index.html` (and
