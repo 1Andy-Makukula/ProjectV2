@@ -476,18 +476,50 @@ composition.
 
 | # | Step | Risk | State |
 | --- | --- | --- | --- |
-| 1 | **KithLy house shop** — one row, unblocks quoting and bundles | 🟢 | ✅ **done** |
-| 2 | **PostBuySheet structure** — broken on a live surface, depends on nothing | 🟡 | next |
-| 3 | **The two doors** — wire `start_kithly_conversation`, surface `start_conversation` beyond ItemDetail | 🟡 | |
-| 4 | **Admin request inbox** + pipeline states + **tag capture** | 🟡 | |
-| 5 | **ESCROW CUTOVER** — retire stored value | 🔴 | see below |
-| 6 | **KithLy price book** — weekly repricing, house-shop items only | 🟡 | |
-| 7 | **Catalogue page** — grouped experiences + relationship tiers + disclosure | 🟡 | |
-| 8 | **Price lock** through to the checkout price map | 🔴 | |
-| 9 | **Multi-shop collection view** — N codes as one errand | 🟡 | |
-| 10 | **Checkout review step** — also answers the cart-space complaint | 🔴 | |
-| 11 | **Wholesale unit of sale** | 🟡 | |
-| 12 | **Tabs, pulse, category rail, modal swipe** | 🟡 | |
+| 1 | **KithLy house shop** | 🟢 | ✅ done · `5df18d5` |
+| 2 | **PostBuySheet structure** | 🟡 | ✅ done · `ba4e1e9` |
+| 3 | **The two doors into quotations** | 🟡 | ✅ done · `f347d3a` |
+| 4 | **Admin request desk + tag capture** | 🟡 | ✅ done · `69ce751` |
+| 5 | **ESCROW CUTOVER** | 🔴 | ⛔ **blocked** — see below |
+| 6 | **Price lock + price book** | 🟡 | ✅ done · `3997010`, `49caa6e` |
+| 7 | **Catalogue page + relationship tiers** | 🟡 | ✅ done · `1a6b31e`, `7c4934f` |
+| 8 | **Locked price actually charged** | 🔴 | ✅ done · `49caa6e` (without touching checkout) |
+| 9 | **Multi-shop collection view** | 🟡 | not started |
+| 10 | **Checkout review step** | 🔴 | not started |
+| 11 | **Wholesale unit of sale** | 🟡 | ✅ done · `f4fa31d` |
+| 12a | **Doors as a tab pair, with the pulse** | 🟡 | ✅ done · `4ea668b` |
+| 12b | **Category rail, modal swipe** | 🟡 | not started |
+
+### Step 5 is blocked, and the runbook says so itself
+
+`docs/runbooks/escrow-cutover.md` opens with:
+
+> **Nothing in this runbook should be run until the legal opinion on the
+> segregated account structure is in hand.**
+
+It also needs four Edge Functions deployed with Airtel disbursement
+credentials, and Stage 2 posts opening balances **once**, irreversibly. None
+of that is inferable, so the cutover waits for an explicit decision and
+should be its own session.
+
+Consequence: **KithLy Credits stay visible in the cart.** That is correct.
+The affordance is gated on `walletBalance > 0` and `storedValueRetired`
+forces it to zero, so it removes itself the moment the cutover lands.
+Deleting it early would hide the only visible signal that the cutover is
+still pending.
+
+### Step 8 was solved without touching the money path
+
+The catalogue displays a locked price; `checkout_init_atomic` prices
+server-side from `items.price_zmw` and ignores the client. Left alone that
+would have put one number on the shelf and another through the till.
+
+Rather than teaching the most sensitive function in the codebase a new
+pricing rule, the price run now writes `items.price_zmw` as well. These are
+KithLy's own items in the house shop, so **setting the item's price IS the
+lock** — chosen weekly, not moved midweek. `locked_price_zmw` remains the
+audit record, and `experience_price_health` compares the two so drift is
+visible.
 
 ### Why the cutover sits at 5
 
