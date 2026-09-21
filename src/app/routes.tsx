@@ -72,6 +72,7 @@ const MerchantCollections = lazyPage(() => import('./pages/merchant/MerchantColl
 const PostDetail = lazyPage(() => import('./pages/PostDetail'), 'PostDetail');
 const AdminDashboard = lazyPage(() => import('./pages/admin/AdminDashboard'), 'AdminDashboard');
 const AdminMerchandising = lazyPage(() => import('./pages/admin/AdminMerchandising'), 'AdminMerchandising');
+const AdminRequests = lazyPage(() => import('./pages/admin/AdminRequests'), 'AdminRequests');
 const AdminCatalog = lazyPage(() => import('./pages/admin/AdminCatalog'), 'AdminCatalog');
 const AdminNotifications = lazyPage(() => import('./pages/admin/AdminNotifications'), 'AdminNotifications');
 const AdminShops = lazyPage(() => import('./pages/admin/AdminShops'), 'AdminShops');
@@ -363,6 +364,16 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['admin']}>
             <Lazy><AdminMerchandising /></Lazy>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        // The bespoke-request desk. Everything asked for that the catalogue
+        // does not carry lands here.
+        path: 'admin/requests',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><AdminRequests /></Lazy>
           </ProtectedRoute>
         ),
       },
