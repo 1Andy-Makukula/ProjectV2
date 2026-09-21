@@ -157,6 +157,8 @@ export function usePriceBook() {
       try {
         for (const [lineId, cost] of touched) {
           const sell = Math.round(cost * (1 + markupBps / 10_000));
+          const line = lines.find((l) => l.id === lineId);
+
           const { error } = await supabase
             .from('experience_items')
             .update({
@@ -166,6 +168,28 @@ export function usePriceBook() {
             })
             .eq('id', lineId);
           if (error) throw error;
+
+          // AND the item itself, which is what actually gets charged.
+          //
+          // checkout_init_atomic prices server-side from items.price_zmw via
+          // unit_price_for and ignores anything the client sends -- correctly,
+          // because a client-supplied price is a client-supplied discount. So
+          // writing only locked_price_zmw would put the promised figure on the
+          // shelf and a different one through the till, which is precisely the
+          // kind of silent mismatch this product cannot afford.
+          //
+          // These are KithLy's own items in the house shop, so setting their
+          // price IS the lock: we choose it weekly and do not move it midweek.
+          // locked_price_zmw stays as the audit record of what was published
+          // and when, and experience_price_health compares the two so drift
+          // is visible rather than assumed away.
+          if (line) {
+            const { error: itemError } = await supabase
+              .from('items')
+              .update({ price_zmw: sell })
+              .eq('id', line.itemId);
+            if (itemError) throw itemError;
+          }
         }
 
         // Only the bundles that actually had a line repriced get their window
