@@ -472,20 +472,45 @@ composition.
 
 ---
 
-## 13. Build order
+## 13. Build order (agreed 21 Sep)
 
-1. **Weekly repricing screen** — everything else is decorative without it
-2. **Catalogue page** from grouped experiences — occasion tiles finally land
-3. **Relationship tiers + disclosure** — required before any bundle is public
-4. **Price lock** through to the checkout price map
-5. **PostBuySheet structure** — small, and broken on a live money path
-6. **Multi-shop collection view** — the N-codes-as-one-errand page
-7. **Checkout review step** — also solves the cart space complaint
-8. **Wholesale unit of sale**
-9. **Tabs, pulse, category rail, modal swipe** — real, none block revenue
+| # | Step | Risk | State |
+| --- | --- | --- | --- |
+| 1 | **KithLy house shop** — one row, unblocks quoting and bundles | 🟢 | ✅ **done** |
+| 2 | **PostBuySheet structure** — broken on a live surface, depends on nothing | 🟡 | next |
+| 3 | **The two doors** — wire `start_kithly_conversation`, surface `start_conversation` beyond ItemDetail | 🟡 | |
+| 4 | **Admin request inbox** + pipeline states + **tag capture** | 🟡 | |
+| 5 | **ESCROW CUTOVER** — retire stored value | 🔴 | see below |
+| 6 | **KithLy price book** — weekly repricing, house-shop items only | 🟡 | |
+| 7 | **Catalogue page** — grouped experiences + relationship tiers + disclosure | 🟡 | |
+| 8 | **Price lock** through to the checkout price map | 🔴 | |
+| 9 | **Multi-shop collection view** — N codes as one errand | 🟡 | |
+| 10 | **Checkout review step** — also answers the cart-space complaint | 🔴 | |
+| 11 | **Wholesale unit of sale** | 🟡 | |
+| 12 | **Tabs, pulse, category rail, modal swipe** | 🟡 | |
+
+### Why the cutover sits at 5
+
+It is the last point where the money path is still the simple, well-understood
+one. Steps 2-4 are presentation and messaging and touch no money, so they are
+safe either side of it. Everything from 6 onward writes prices or moves money,
+and doing that against two ledgers running in `dual_write` means verifying each
+one twice and reconciling differences that are artefacts of the migration
+rather than bugs.
+
+Cutting over here means **everything financial after it is built once, against
+one ledger.** The longer `escrow_mode` stays at `dual_write`, the more code
+accumulates on both paths.
+
+`docs/runbooks/escrow-cutover.md` governs it. It is read and confirmed before
+execution, not improvised — and it is the one step that does not begin without
+an explicit go.
 
 **Dropped:** long-press, nested bundles, geographic proximity, cart-modal-over-
 sheet.
 
-**Blocked on a decision, not on code:** the price-lock buffer and re-quote
-threshold (§4). That is a commercial number, and the lock cannot ship without it.
+**Dropped:** long-press, nested bundles, geographic proximity, cart-modal-over-
+sheet.
+
+**No longer blocked.** The buffer, ceiling, SLA and tagging were settled on
+21 Sep — see §4a.
