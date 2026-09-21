@@ -50,6 +50,7 @@ const Privacy = lazyPage(() => import('./pages/Privacy'), 'Privacy');
 const Terms = lazyPage(() => import('./pages/Terms'), 'Terms');
 const Support = lazyPage(() => import('./pages/Support'), 'Support');
 const MerchantAgreement = lazyPage(() => import('./pages/MerchantAgreement'), 'MerchantAgreement');
+const CatalogueDetail = lazyPage(() => import('./pages/sender/CatalogueDetail'), 'CatalogueDetail');
 const ShopDirectory = lazyPage(() => import('./pages/ShopDirectory'), 'ShopDirectory');
 
 const ShopDetail = lazyPage(() => import('./pages/sender/ShopDetail'), 'ShopDetail');
@@ -164,6 +165,9 @@ export const router = createBrowserRouter([
       { path: 'shops', element: <Lazy><ShopDirectory /></Lazy> },
       { path: 'item/:itemId', element: <Lazy><ItemDetail /></Lazy> },
       { path: 'experience/:slug', element: <Lazy><ExperienceDetail /></Lazy> },
+      // Where an occasion tile lands: every experience filed under that
+      // occasion, rather than a filtered feed.
+      { path: 'catalogue/:kind', element: <Lazy><CatalogueDetail /></Lazy> },
       // Kept so links already in circulation still land somewhere sensible.
       { path: 'welcome', element: <Navigate to="/" replace /> },
 

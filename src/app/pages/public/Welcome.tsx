@@ -170,12 +170,11 @@ export function Welcome() {
         return;
       }
       setMode('gifting');
-      navigate(
-        occasion.primaryCategory
-          ? `/browse?category=${encodeURIComponent(occasion.primaryCategory)}`
-          : '/browse',
-        { replace: true },
-      );
+      // The tile now lands on its catalogue page rather than a filtered feed.
+      // `primaryCategory` stays as the fallback for an occasion nobody has
+      // curated anything under yet -- a shelf with nothing on it is worse
+      // than the nearest real aisle.
+      navigate(`/catalogue/${occasion.kind}`);
     },
     [navigate, setMode, askKithly],
   );

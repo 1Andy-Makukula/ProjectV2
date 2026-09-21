@@ -12,6 +12,11 @@ export interface ExperienceItem {
   quantity: number;
   note: string | null;
   sort_order: number;
+  /** This week's held price, in ngwee. Null means it falls back to the item. */
+  locked_price_zmw?: number | null;
+  /** What it cost us in town when last priced, ngwee. Never shown to buyers. */
+  sourced_cost_zmw?: number | null;
+  priced_at?: string | null;
   item?: {
     id: string;
     name: string;
@@ -20,7 +25,7 @@ export interface ExperienceItem {
     image_url: string | null;
     is_available: boolean | null;
     is_quote_only?: boolean | null;
-    shop?: { id: string; name: string } | null;
+    shop?: { id: string; name: string; relationship_tier?: string | null } | null;
   } | null;
 }
 
@@ -36,15 +41,49 @@ export interface Experience {
   expires_at: string | null;
   sort_order: number;
   created_at: string;
+  /** Which occasion tile this sits under. Null means reachable only by link. */
+  occasion_kind?: string | null;
+  /** The date this week's prices are held until. Null means no lock. */
+  price_valid_until?: string | null;
   experience_items?: ExperienceItem[];
 }
 
-/** Sum of the current item prices, in ngwee. Mirrors `experience_total`. */
+/**
+ * What this costs, in ngwee.
+ *
+ * A held price wins over the live item price, because that is the whole
+ * promise: the figure shown when the week opened is the figure charged, even
+ * if the shop has moved since. A line with no lock falls back to the item,
+ * which is correct for an experience built from ordinary shop stock.
+ */
 export function experienceTotal(experience: Experience): number {
   return (experience.experience_items ?? []).reduce(
-    (sum, line) => sum + line.quantity * (line.item?.price_zmw ?? 0),
+    (sum, line) => sum + line.quantity * (line.locked_price_zmw ?? line.item?.price_zmw ?? 0),
     0,
   );
+}
+
+/** Whether this experience carries a live weekly price lock. */
+export function hasLivePriceLock(experience: Experience): boolean {
+  if (!experience.price_valid_until) return false;
+  return new Date(experience.price_valid_until).getTime() >= Date.now();
+}
+
+/**
+ * The shops behind an experience, de-duplicated, with how close we are to
+ * each. This is what the disclosure line is built from.
+ */
+export function experienceShops(
+  experience: Experience,
+): { id: string; name: string; tier: string }[] {
+  const seen = new Map<string, { id: string; name: string; tier: string }>();
+  for (const line of experience.experience_items ?? []) {
+    const shop = line.item?.shop;
+    if (shop && !seen.has(shop.id)) {
+      seen.set(shop.id, { id: shop.id, name: shop.name, tier: shop.relationship_tier ?? 'partner' });
+    }
+  }
+  return [...seen.values()];
 }
 
 /** An experience is only purchasable while every part of it is. */

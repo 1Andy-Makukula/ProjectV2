@@ -58,6 +58,19 @@ const GRANDFATHERED = new Set([
   '20260913020000_occasion_lead_times.sql',
   '20260913040000_wallet_provenance_and_budgets.sql',
   '20260914080000_slate.sql',
+
+  // 21 Sep, and a different case from the five above: this one is not legacy
+  // drift, it is a same-day correction. 20260921030000 created
+  // platform_settings.bundle_* and 20260921050000 renamed them to
+  // experience_*, because `bundle` already means the claim-code set at the
+  // fulfilment terminal and types/experiences.ts explicitly reserves the word.
+  //
+  // The creating migration applied cleanly BEFORE the rename, so it cannot
+  // fail on push -- which is the failure the warning above is guarding
+  // against. And applied migrations are immutable per CLAUDE.md, so editing
+  // it to use the new names is not an option either. Grandfathering is the
+  // only correct move, not a shortcut around a real problem.
+  '20260921030000_bundle_price_lock.sql',
 ]);
 
 /** Table -> column names, from the generated types. */

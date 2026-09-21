@@ -6,19 +6,22 @@ import type { Experience } from '../types/experiences';
 
 const EXPERIENCE_SELECT = `
   id, name, slug, tagline, description, image_url, is_active, is_featured,
-  expires_at, sort_order, created_at,
+  expires_at, sort_order, created_at, occasion_kind, price_valid_until,
   experience_items (
     id, experience_id, item_id, quantity, note, sort_order,
+    locked_price_zmw, sourced_cost_zmw, priced_at,
     item:item_id (
       id, name, description, price_zmw, image_url, is_available, is_quote_only,
-      shop:shop_id (id, name)
+      shop:shop_id (id, name, relationship_tier)
     )
   )
 `;
 
 /** Active experiences for the storefront. */
-export function useExperiences(options: { featuredOnly?: boolean; limit?: number } = {}) {
-  const { featuredOnly = false, limit = 12 } = options;
+export function useExperiences(
+  options: { featuredOnly?: boolean; limit?: number; occasionKind?: string } = {},
+) {
+  const { featuredOnly = false, limit = 12, occasionKind } = options;
   const [experiences, setExperiences] = useState<Experience[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,6 +39,12 @@ export function useExperiences(options: { featuredOnly?: boolean; limit?: number
           .limit(limit);
 
         if (featuredOnly) query = query.eq('is_featured', true);
+        // The catalogue page is this one line: every active experience filed
+        // under an occasion, in the order an admin arranged them. No new
+        // table -- occasion_kind shipped on 20 Sep and is a foreign key to
+        // the same taxonomy contact_occasions and the tiles are written
+        // against, so the three can never drift into different vocabularies.
+        if (occasionKind) query = query.eq('occasion_kind', occasionKind);
 
         const { data, error } = await query;
         if (error) throw error;
@@ -52,7 +61,7 @@ export function useExperiences(options: { featuredOnly?: boolean; limit?: number
     return () => {
       cancelled = true;
     };
-  }, [featuredOnly, limit]);
+  }, [featuredOnly, limit, occasionKind]);
 
   return { experiences, loading };
 }
