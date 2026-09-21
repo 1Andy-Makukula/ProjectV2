@@ -128,7 +128,7 @@ export function Welcome() {
     (mode: 'gifting' | 'shopping') => {
       markWelcomeSeen();
       setMode(mode);
-      navigate('/', { replace: true });
+      navigate('/browse', { replace: true });
     },
     [navigate, setMode],
   );
@@ -143,7 +143,7 @@ export function Welcome() {
     (tile: MosaicTile) => {
       markWelcomeSeen();
       const slug = categories.find((c) => c.id === tile.id)?.slug;
-      navigate(slug ? `/?category=${encodeURIComponent(slug)}` : '/', { replace: true });
+      navigate(slug ? `/browse?category=${encodeURIComponent(slug)}` : '/browse', { replace: true });
     },
     [navigate, categories],
   );
@@ -164,8 +164,8 @@ export function Welcome() {
       setMode('gifting');
       navigate(
         occasion.primaryCategory
-          ? `/?category=${encodeURIComponent(occasion.primaryCategory)}`
-          : '/',
+          ? `/browse?category=${encodeURIComponent(occasion.primaryCategory)}`
+          : '/browse',
         { replace: true },
       );
     },

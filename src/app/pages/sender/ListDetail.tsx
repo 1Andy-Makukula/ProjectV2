@@ -232,7 +232,7 @@ export function ListDetail() {
                 storefront is already the place with the search, the filters and
                 the save tag on every card. This is the door to it. */}
             {isOwner && (
-              <Button variant="outline" onClick={() => navigate('/')} className="w-full sm:w-auto">
+              <Button variant="outline" onClick={() => navigate('/browse')} className="w-full sm:w-auto">
                 <Plus className="h-4 w-4" />
                 Add items
               </Button>
@@ -314,7 +314,7 @@ export function ListDetail() {
                       : 'Nothing on this list yet.'}
                   </p>
                   {isOwner && (
-                    <Button className="mt-4" onClick={() => navigate('/')}>
+                    <Button className="mt-4" onClick={() => navigate('/browse')}>
                       <Plus className="h-4 w-4" />
                       Add items
                     </Button>

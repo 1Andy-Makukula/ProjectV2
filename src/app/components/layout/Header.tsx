@@ -61,14 +61,24 @@ export function Header({
   const { getTotalItems, setCartSliderOpen } = useCart();
   const cartItemCount = getTotalItems();
   const location = useLocation();
-  const isHomePage = location.pathname === '/';
+  // Two different questions that used to be one.
+  //
+  // `isStorefront` gates the mode's dressing -- its cart glyph, its lexicon,
+  // the tinted wordmark. That has always meant "am I on the catalogue", and
+  // the catalogue moved to /browse when '/' became the welcome.
+  //
+  // `isHome` is just "am I already there", and only decides whether to offer
+  // a Home link. Collapsing these two into one `pathname === '/'` is what
+  // would have silently dropped the mode tint off the storefront.
+  const isStorefront = location.pathname === '/browse';
+  const isHome = location.pathname === '/';
 
   // The mode's dressing reaches the storefront and stops there. Everywhere
   // else the cart is a cart, because a control that renames itself as you move
   // between pages is worse than one that never changes at all.
   const { mode } = useStorefrontMode();
-  const CartGlyph = isHomePage ? modeCartIcon(mode) : ShoppingCart;
-  const cartWord = isHomePage ? modeLexicon(mode).cart : 'Cart';
+  const CartGlyph = isStorefront ? modeCartIcon(mode) : ShoppingCart;
+  const cartWord = isStorefront ? modeLexicon(mode).cart : 'Cart';
 
   // ── Role-based hub link ──────────────────────────────────────
   //
@@ -155,7 +165,7 @@ export function Header({
 
   // Cluster 1 is conditional the whole way down, and an empty glass capsule
   // is a visible blob rather than nothing, so the capsule asks first.
-  const hasDestinations = isAuthenticated || !isHomePage || isMerchant;
+  const hasDestinations = isAuthenticated || !isHome || isMerchant;
 
   return (
     <header
@@ -207,7 +217,7 @@ export function Header({
                     the fixed brand gradient everywhere else. */}
                 <div
                   className={`grid size-8 place-items-center rounded-[var(--radius-pill)] ${
-                    isHomePage ? 'kl-wordmark-mode' : 'kl-wordmark'
+                    isStorefront ? 'kl-wordmark-mode' : 'kl-wordmark'
                   }`}
                 >
                   <Gift className="h-[1.1rem] w-[1.1rem] text-white" strokeWidth={1.5} />
@@ -234,7 +244,7 @@ export function Header({
               {hasDestinations && (
                 <nav className="kl-glass-group hidden items-center gap-0.5 p-1 md:flex">
                   {isAuthenticated && <HeaderLink to={hubHref}>{hubLabel}</HeaderLink>}
-                  {!isHomePage && <HeaderLink to="/">Home</HeaderLink>}
+                  {!isHome && <HeaderLink to="/">Home</HeaderLink>}
 
                   {/* Merchants switch into their shop deliberately — accented, so
                       it does not read as one more place to browse. */}

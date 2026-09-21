@@ -126,7 +126,7 @@ export function ItemDetail() {
           <p className="mb-6 text-muted-foreground">
             This listing is no longer available, or the link has expired.
           </p>
-          <Button onClick={() => navigate('/')}>Back to storefront</Button>
+          <Button onClick={() => navigate('/browse')}>Back to storefront</Button>
         </div>
       </div>
     );

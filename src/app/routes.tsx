@@ -23,6 +23,10 @@ import { Navigate } from 'react-router';
 
 // Eager: auth surfaces + landing page (low latency to prevent CLS / FCP degradation)
 import { ConsumerStorefront } from './pages/ConsumerStorefront';
+// Eager, because it is now what '/' renders for everybody. A lazy chunk on
+// the landing route means a PageFallback flash on every cold visit, which is
+// the one place it is least affordable.
+import { Welcome } from './pages/public/Welcome';
 import { SignUp } from './pages/public/SignUp';
 import { Login } from './pages/public/Login';
 import { GiftPage } from './pages/public/GiftPage';
@@ -52,7 +56,6 @@ const ShopDetail = lazyPage(() => import('./pages/sender/ShopDetail'), 'ShopDeta
 const ItemDetail = lazyPage(() => import('./pages/sender/ItemDetail'), 'ItemDetail');
 const Messages = lazyPage(() => import('./pages/Messages'), 'Messages');
 const ExperienceDetail = lazyPage(() => import('./pages/sender/ExperienceDetail'), 'ExperienceDetail');
-const Welcome = lazyPage(() => import('./pages/public/Welcome'), 'Welcome');
 const ListDetail = lazyPage(() => import('./pages/sender/ListDetail'), 'ListDetail');
 const MyLists = lazyPage(() => import('./pages/sender/MyLists'), 'MyLists');
 const Contacts = lazyPage(() => import('./pages/sender/Contacts'), 'Contacts');
@@ -129,7 +132,15 @@ export const router = createBrowserRouter([
     Component: Root,
     errorElement: <GlobalErrorBoundary />,
     children: [
-      { index: true, Component: ConsumerStorefront },
+      // The front door, for everybody and on every visit.
+      //
+      // This used to be the storefront, with the welcome tucked away at
+      // /welcome behind a `hasSeenWelcome` flag that nothing ever read. The
+      // storefront now lives at /browse, and '/' asks the intent question
+      // instead: occasions first, the two doors, and what we promise about
+      // your money. Reaching the catalogue is one press from here.
+      { index: true, Component: Welcome },
+      { path: 'browse', Component: ConsumerStorefront },
 
       {
         path: 'dashboard',
@@ -151,7 +162,8 @@ export const router = createBrowserRouter([
       { path: 'shops', element: <Lazy><ShopDirectory /></Lazy> },
       { path: 'item/:itemId', element: <Lazy><ItemDetail /></Lazy> },
       { path: 'experience/:slug', element: <Lazy><ExperienceDetail /></Lazy> },
-      { path: 'welcome', element: <Lazy><Welcome /></Lazy> },
+      // Kept so links already in circulation still land somewhere sensible.
+      { path: 'welcome', element: <Navigate to="/" replace /> },
 
       // Public: a shared link has to open for someone who is not signed in.
       { path: 'list/:slug', element: <Lazy><ListDetail /></Lazy> },

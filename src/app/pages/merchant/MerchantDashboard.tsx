@@ -194,7 +194,7 @@ export function MerchantDashboard({ readOnly = false, previewShopId }: MerchantD
                   here is role-aware and lands them back on the merchant side. */}
               <Button
                 variant="outline"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/browse')}
                 className="hidden sm:inline-flex"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />

@@ -72,7 +72,7 @@ export function ShopDetail() {
           so the page still says where you are once the banner scrolls away. */}
       <div className="sticky top-0 z-10 border-b border-[var(--border)] bg-white/85 backdrop-blur-xl">
         <div className="max-w-4xl mx-auto px-4 md:px-6 py-3 flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/')} aria-label="Back">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/browse')} aria-label="Back">
             <ArrowLeft className="w-5 h-5" />
           </Button>
 

@@ -235,7 +235,7 @@ export function CustomerDashboard() {
               id="dashboard-back"
               variant="ghost"
               size="icon"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/browse')}
               className="shrink-0"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -418,7 +418,7 @@ export function CustomerDashboard() {
                 description="When you send a gift, its details and transaction history will show up here!"
                 action={{
                   label: "Send a Gift",
-                  onClick: () => navigate('/')
+                  onClick: () => navigate('/browse')
                 }}
               />
             ) : (

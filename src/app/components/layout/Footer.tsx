@@ -40,7 +40,7 @@ export function Footer() {
             <h3 className="font-medium mb-4">Marketplace</h3>
             <ul className="space-y-2 text-sm font-light text-muted-foreground">
               <li><button onClick={() => navigate('/shops')} className="hover:text-primary transition-colors">Browse Shops</button></li>
-              <li><button onClick={() => navigate('/')} className="hover:text-primary transition-colors">Popular Gifts</button></li>
+              <li><button onClick={() => navigate('/browse')} className="hover:text-primary transition-colors">Popular Gifts</button></li>
               <li><button onClick={() => navigate('/about')} className="hover:text-primary transition-colors">About Us</button></li>
               <li><button onClick={() => navigate('/support')} className="hover:text-primary transition-colors">Help & Support</button></li>
             </ul>

@@ -58,7 +58,7 @@ export function PostDetail() {
       <Header />
 
       <main className="mx-auto w-full max-w-2xl px-4 py-6 sm:px-8">
-        <Button variant="ghost" size="sm" className="mb-4" onClick={() => navigate('/')}>
+        <Button variant="ghost" size="sm" className="mb-4" onClick={() => navigate('/browse')}>
           <ArrowLeft className="mr-1.5 size-4" /> Back
         </Button>
 
