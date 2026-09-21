@@ -216,6 +216,23 @@ export function StorefrontProductCard({
           <p className="text-[10px] font-medium text-muted-foreground">Minimum service fee</p>
         )}
 
+        {/* What that price actually buys.
+            A wholesaler sells a case, and "K85" beside a photograph of one
+            bottle -- where K85 buys twelve -- is an abandoned cart at best
+            and a recipient handed an unexpected crate at worst. The unit
+            belongs against the price, before the press, not on a detail
+            page somebody reaches afterwards. Null means each, which is the
+            overwhelming majority, so most tiles render nothing here. */}
+        {(item.unit_of_sale || (item.minimum_order_quantity ?? 0) > 1) && (
+          <p className="mt-0.5 text-[10px] font-medium text-muted-foreground">
+            {item.unit_of_sale && <span>per {item.unit_of_sale}</span>}
+            {item.unit_of_sale && (item.minimum_order_quantity ?? 0) > 1 && ' · '}
+            {(item.minimum_order_quantity ?? 0) > 1 && (
+              <span>min {item.minimum_order_quantity}</span>
+            )}
+          </p>
+        )}
+
         {outOfStock && (
           <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.06em] text-muted-foreground">
             {OUT_OF_STOCK_REASON}

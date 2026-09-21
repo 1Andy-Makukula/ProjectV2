@@ -89,6 +89,13 @@ export interface CatalogItem {
   is_discounted?: boolean | null;
   original_price_zmw?: number | null;
 
+  /**
+   * What one unit is, when it is not simply one: "case of 12", "25kg bag".
+   * Display only -- the price is already quoted per whatever this describes,
+   * so no arithmetic reads it. Null means each.
+   */
+  unit_of_sale?: string | null;
+
   is_wholesale?: boolean | null;
   wholesale_price_zmw?: number | null;
   minimum_order_quantity?: number | null;

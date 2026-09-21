@@ -200,6 +200,9 @@ export function useStorefrontData() {
               'id, name, description, price_zmw, image_url, item_type, requires_scheduling, ' +
                 'lead_time_days, allow_custom_quote, price_is_minimum, is_discounted, ' +
                 'original_price_zmw, is_weekly_pick, promo_badge_text, stock_quantity, ' +
+                // What one of it is, for wholesale lines. Display only, but
+                // it has to reach the tile or a case reads as a single.
+                'unit_of_sale, minimum_order_quantity, ' +
                 // What the Welcome mosaic's tiles filter this feed by. A plain
                 // column on items, so it costs nothing beyond the bytes.
                 'category_id, ' +

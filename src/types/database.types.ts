@@ -1405,6 +1405,7 @@ export type Database = {
           stock_alert_level: string | null
           stock_baseline: number | null
           stock_quantity: number | null
+          unit_of_sale: string | null
           valid_for_days: number | null
           validity_days: number | null
           wholesale_price_zmw: number | null
@@ -1441,6 +1442,7 @@ export type Database = {
           stock_alert_level?: string | null
           stock_baseline?: number | null
           stock_quantity?: number | null
+          unit_of_sale?: string | null
           valid_for_days?: number | null
           validity_days?: number | null
           wholesale_price_zmw?: number | null
@@ -1477,6 +1479,7 @@ export type Database = {
           stock_alert_level?: string | null
           stock_baseline?: number | null
           stock_quantity?: number | null
+          unit_of_sale?: string | null
           valid_for_days?: number | null
           validity_days?: number | null
           wholesale_price_zmw?: number | null
