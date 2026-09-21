@@ -352,49 +352,70 @@ export function Welcome() {
               </p>
             </div>
 
-            <button
-              onClick={() => enter('gifting')}
-              className="kl-tile kl-rim kl-lift group col-span-6 p-6 text-left sm:p-8 md:col-span-3
-                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
-                         focus-visible:ring-offset-2"
-            >
-              <span className="kl-display mb-2 block text-xl tracking-tight text-ink-900 md:text-2xl">
-                Send home
-              </span>
-              <span className="mb-6 block text-sm font-light leading-relaxed text-muted-foreground">
-                Somebody in Zambia is collecting it — groceries for the month, a
-                birthday, a pharmacy run. You pay here, they collect there.
-              </span>
-              <span className="flex items-center gap-1.5 text-sm font-medium text-primary">
-                Start sending
-                <ArrowRight
-                  className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-                  strokeWidth={2}
-                />
-              </span>
-            </button>
+            {/* The two doors, as one control rather than two cards.
+                A pair of separate tiles reads as two unrelated offers; a
+                segmented pair reads as one question with two answers, which
+                is what it is. They still navigate -- the tab shape is the
+                treatment, not a claim that the page will change in place.
 
-            <button
-              onClick={() => enter('shopping')}
-              className="kl-tile kl-rim kl-lift group col-span-6 p-6 text-left sm:p-8 md:col-span-3
-                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
-                         focus-visible:ring-offset-2"
-            >
-              <span className="kl-display mb-2 block text-xl tracking-tight text-ink-900 md:text-2xl">
-                I am Zambian
-              </span>
-              <span className="mb-6 block text-sm font-light leading-relaxed text-muted-foreground">
-                You are here and shopping for yourself. Straight into the
-                catalogue: every shop, every item, nothing in the way.
-              </span>
-              <span className="flex items-center gap-1.5 text-sm font-medium text-primary">
-                Browse the shops
-                <ArrowRight
-                  className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-                  strokeWidth={2}
-                />
-              </span>
-            </button>
+                kl-pulse-rim is the moving hairline of light, already in
+                theme.css and already silenced under prefers-reduced-motion.
+                It goes on the SEND door only: two pulsing edges is a page
+                with no primary, and the charter allows exactly one act-now
+                per region. Send home is the default intent, so it gets it.
+
+                Copy note: both of Andy's phrasings contained the word
+                "browse", which made them collide at a glance -- a reader
+                scanning two options learns nothing from a word in both. The
+                real distinction is WHO it is for, so that is the label, and
+                the browse nuance moved to the line underneath where it
+                explains rather than competes. */}
+            <div className="col-span-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <button
+                onClick={() => enter('gifting')}
+                className="kl-tile kl-pulse-rim kl-lift group relative overflow-hidden p-6 text-left sm:p-8
+                           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
+                           focus-visible:ring-offset-2"
+              >
+                <span className="kl-display mb-2 block text-xl tracking-tight text-ink-900 md:text-2xl">
+                  Send home
+                </span>
+                <span className="mb-6 block text-sm font-light leading-relaxed text-muted-foreground">
+                  For someone in Zambia — groceries for the month, a birthday, a
+                  pharmacy run. Send directly, or browse first if you would rather
+                  look before you choose.
+                </span>
+                <span className="flex items-center gap-1.5 text-sm font-semibold text-primary">
+                  Start sending
+                  <ArrowRight
+                    className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+                    strokeWidth={2}
+                  />
+                </span>
+              </button>
+
+              <button
+                onClick={() => enter('shopping')}
+                className="kl-tile kl-rim kl-lift group p-6 text-left sm:p-8
+                           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
+                           focus-visible:ring-offset-2"
+              >
+                <span className="kl-display mb-2 block text-xl tracking-tight text-ink-900 md:text-2xl">
+                  Browse
+                </span>
+                <span className="mb-6 block text-sm font-light leading-relaxed text-muted-foreground">
+                  Look around before sending, or buy for yourself. Every shop,
+                  every item, nothing in the way.
+                </span>
+                <span className="flex items-center gap-1.5 text-sm font-medium text-primary">
+                  Start browsing
+                  <ArrowRight
+                    className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+                    strokeWidth={2}
+                  />
+                </span>
+              </button>
+            </div>
           </div>
 
           {/* ── 5. What you are sending ─────────────────────
