@@ -8,6 +8,24 @@
 // ordinary cart and hands over to the ordinary checkout, so stock reservation
 // and the authoritative total stay inside checkout_init_atomic where they
 // already live.
+//
+// THREE REGIONS, AND WHY
+// ----------------------
+// This used to be one `overflow-y-auto` container holding everything,
+// including the two actions. So the actions scrolled with the content: on a
+// phone they sat below the fold, and with `max-h-[85vh]` measured against a
+// viewport that excludes the browser chrome, they could land underneath the
+// home indicator entirely. They read as unclickable because they were.
+//
+// It is now the same shape CartSlider already uses and proves: a fixed header,
+// exactly one scrolling region, and a fixed footer carrying
+// env(safe-area-inset-bottom). The actions cannot leave the screen.
+//
+// The container is `side="dock"` rather than `side="bottom"` -- lifted off the
+// floor with all four corners rounded, so it reads as a tile pulled up. It is
+// also `overflow-x-hidden` in the middle: nothing here should ever scroll
+// sideways, and a long product name should truncate rather than widen the
+// sheet.
 
 import { useNavigate } from 'react-router';
 import { Gift, Loader2, Minus, Plus, ShoppingBag, User } from 'lucide-react';
@@ -60,8 +78,8 @@ export function PostBuySheet({ post, open, onOpenChange, actionLabel = 'Buy' }: 
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
-        <SheetHeader className="text-left">
+      <SheetContent side="dock" className="gap-0 p-0">
+        <SheetHeader className="shrink-0 px-5 pt-5 pb-3 text-left">
           <SheetTitle>{actionLabel} from this post</SheetTitle>
           <SheetDescription>
             {post.author.name}
@@ -69,7 +87,8 @@ export function PostBuySheet({ post, open, onOpenChange, actionLabel = 'Buy' }: 
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-4 space-y-2">
+        {/* The only scrolling region. */}
+        <div className="min-h-0 flex-1 space-y-2 overflow-x-hidden overflow-y-auto px-5 pb-3">
           {loading ? (
             Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)
           ) : lines.length === 0 ? (
@@ -121,8 +140,12 @@ export function PostBuySheet({ post, open, onOpenChange, actionLabel = 'Buy' }: 
           )}
         </div>
 
+        {/* Fixed. Never scrolls, and clears the home indicator. */}
         {chosen.length > 0 && (
-          <div className="mt-4 border-t border-border pt-3">
+          <div
+            className="shrink-0 border-t border-border px-5 pt-3"
+            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)' }}
+          >
             <div className="flex items-baseline justify-between">
               <span className="text-sm text-muted-foreground">Total</span>
               <span className="text-lg font-semibold tabular-nums">
@@ -156,7 +179,10 @@ export function PostBuySheet({ post, open, onOpenChange, actionLabel = 'Buy' }: 
         )}
 
         {!loading && lines.length > 0 && chosen.length === 0 && (
-          <p className="mt-4 flex items-center justify-center gap-1.5 py-4 text-sm text-muted-foreground">
+          <p
+            className="shrink-0 flex items-center justify-center gap-1.5 border-t border-border px-5 pt-3 text-sm text-muted-foreground"
+            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)' }}
+          >
             <ShoppingBag className="size-4" /> Nothing selected.
           </p>
         )}

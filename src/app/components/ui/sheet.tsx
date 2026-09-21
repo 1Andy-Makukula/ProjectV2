@@ -32,7 +32,7 @@ SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
 interface SheetContentProps
   extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content> {
-  side?: "top" | "right" | "bottom" | "left";
+  side?: "top" | "right" | "bottom" | "left" | "dock";
 }
 
 const SheetContent = React.forwardRef<
@@ -54,6 +54,25 @@ const SheetContent = React.forwardRef<
           "data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top inset-x-0 top-0 h-auto border-b",
         side === "bottom" &&
           "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t",
+        /* "dock" is `bottom` with the edges let go of: it rises from the
+           floor but stops just short of it, so all four corners are visible
+           and it reads as a tile pulled up rather than a drawer welded to the
+           frame.
+
+           dvh, not vh. On a phone `vh` is the viewport WITHOUT the browser
+           chrome, so a sheet sized in vh has its last rows pushed under the
+           address bar and its footer becomes unreachable -- which is exactly
+           the bug this variant was added to fix. dvh tracks the chrome as it
+           collapses.
+
+           The caller owns padding (`p-0` + its own regions), because a docked
+           sheet needs a fixed header, one scrolling middle and a fixed footer
+           carrying the safe-area inset. Padding on the container cannot do
+           that. */
+        side === "dock" &&
+          "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom " +
+          "inset-x-2 bottom-2 mx-auto h-auto max-h-[88dvh] overflow-hidden " +
+          "rounded-[1.75rem] sm:inset-x-4 sm:bottom-4 sm:max-w-2xl",
         className
       )}
       {...props}
