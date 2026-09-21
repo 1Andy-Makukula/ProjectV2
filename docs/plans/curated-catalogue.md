@@ -196,6 +196,79 @@ Specific, checkable, falsifiable. That is what makes it believable.
 
 ---
 
+## 4a. Locked commercial decisions (21 Sep)
+
+**Buffer 5%. Absorption ceiling 20%. SLA 3 days. Repeat-request tagging.**
+
+### The buffer and the ceiling
+
+KithLy bundle prices carry a **5% markup buffer** over the sourced cost, to
+absorb ordinary weekly drift. If a supplier price moves more than **20%**, the
+published lock is **voided and re-quoted** rather than absorbed.
+
+**Worst-case exposure, stated plainly:** a 20% spike against a 5% buffer is a
+**15% loss on that basket's cost**. On a K1,000 basket that is K150 out of
+pocket. Survivable as an exception; not survivable as a pattern. The 5% should
+be re-sized against observed volatility once there is a month of price-run
+data behind it, rather than left at 5% because it was the first number chosen.
+
+### Two rules that must not be conflated in code
+
+1. **The published price may be voided.** It is forward-looking, it governs
+   what a new buyer is offered, and the weekly run is what detects the breach.
+2. **An accepted order may NEVER be re-priced.** Once money is in escrow the
+   price is final, whatever the supplier does afterwards. Voiding a lock can
+   only ever affect purchases not yet made.
+
+If those two are implemented as one mechanism, the system will eventually try
+to re-quote an order it has already been paid for, and the entire promise the
+product is built on collapses in a single incident.
+
+### The ceiling applies to the basket, not to a line
+
+A 25% jump on salt must not void a grocery bundle where salt is 2% of the
+total. **Evaluate the threshold on the basket's weighted total**, not on any
+single item, or the most volatile cheap line in the bundle controls
+everything.
+
+### Detection has a blind spot, and it is accepted
+
+A breach is only visible at the weekly price run, or at the moment of actually
+buying. Between runs, a spike is absorbed whether it exceeds 20% or not —
+because by then the order is usually already paid, and rule 2 applies. The
+void therefore protects the *published shelf*, not an individual basket in
+flight. Closing that gap would need a spot-check at fulfilment, which is
+deferred.
+
+### Service level
+
+**Three days**, displayed explicitly in the request UI. Two wording rules:
+
+- It is three days to a **quote**, not to delivery. The copy must not be
+  readable as a delivery promise.
+- State whether it is working days or calendar days. In Zambia, Sunday is a
+  real difference.
+
+A stated SLA with no internal consequence is decoration — an alert at day two
+is the minimum that makes it real.
+
+### Repeat-request tagging
+
+An admin tags each bespoke request (`iphone-11`, `school-shoes`). When a tag
+crosses a threshold, KithLy is prompted either to promote it into a standard
+bundle or to onboard the shop that supplies it. This is the flywheel in §R5:
+requests are the research pipeline for the catalogue.
+
+**The admin interface is deferred to the end of the sequence. The data capture
+is NOT.** Tagging must start the day requests go live, or the counter is built
+on months of untagged history and answers nothing. Capture first, analyse
+later.
+
+`conversations` has no tag column, so this needs either one column or a small
+`request_tags` join table. Decide when step 3 lands, not at the end.
+
+---
+
 ## 5. The weekly repricing screen
 
 **The highest-leverage build in this report, and the least glamorous.**
