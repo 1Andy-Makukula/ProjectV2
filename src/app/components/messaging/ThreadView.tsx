@@ -71,7 +71,19 @@ export function ThreadView({ conversationId, viewerRole, onBack }: ThreadViewPro
 
   const title = counterpartyName(conversation, viewerRole);
   const isPlatformThread = conversation.kind !== 'buyer_merchant';
-  const canQuote = viewerRole === 'merchant' && conversation.kind === 'buyer_merchant';
+  // Who may put a price on this thread.
+  //
+  // A merchant quotes on their own shop thread, as before. An admin quotes on
+  // a KithLy thread, which is the concierge flow: somebody asks for something
+  // the catalogue does not carry, and we come back with a price. The database
+  // has always allowed both roles -- create_quotation checks
+  // `v_role IN ('merchant','admin')` -- but it used to raise on an admin_buyer
+  // thread because that kind carries no shop_id. 20260921010000 resolves that
+  // to the KithLy house shop, so the builder is no longer hidden from the one
+  // person it was written for.
+  const canQuote =
+    (viewerRole === 'merchant' && conversation.kind === 'buyer_merchant') ||
+    (viewerRole === 'admin' && conversation.kind === 'admin_buyer');
 
   const handleSend = async () => {
     const body = draft.trim();

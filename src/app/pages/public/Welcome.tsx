@@ -38,6 +38,7 @@ import { useFeaturedCategories } from '../../hooks/useCategories';
 import { categoryFrames } from '../../types/categoryArt';
 import { TileMosaic, type MosaicTile } from '../../components/shared/TileMosaic';
 import { OCCASION_TILES, OCCASION_ART } from '../../types/occasions';
+import { useRequestThread } from '../../hooks/useRequestThread';
 import { markWelcomeSeen } from './welcomeSeen';
 import { WELCOME_VIDEO, WELCOME_POSTER } from './welcomeMedia';
 
@@ -98,6 +99,7 @@ export function Welcome() {
   const { setMode } = useStorefrontMode();
   const [videoFailed, setVideoFailed] = useState(false);
   const { categories, loading: categoriesLoading } = useFeaturedCategories();
+  const { askKithly } = useRequestThread();
   // Art first, THEN the admin's order.
   //
   // Belt and braces over ui_order_index, and it exists because relying on
@@ -157,6 +159,12 @@ export function Welcome() {
       const occasion = OCCASION_TILES.find((o) => o.kind === tile.id);
       if (!occasion) return;
       markWelcomeSeen();
+      // The catch-all tile is a door into the request engine rather than a
+      // shelf: it opens the one thread this person has with us.
+      if (occasion.opensRequest) {
+        askKithly('Something else');
+        return;
+      }
       if (occasion.href) {
         navigate(occasion.href);
         return;
@@ -169,7 +177,7 @@ export function Welcome() {
         { replace: true },
       );
     },
-    [navigate, setMode],
+    [navigate, setMode, askKithly],
   );
 
   return (

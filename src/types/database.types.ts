@@ -633,6 +633,7 @@ export type Database = {
           item_id: string | null
           kind: string
           last_message_at: string
+          request_tag: string | null
           shop_id: string | null
           shop_order_id: string | null
           subject: string | null
@@ -645,6 +646,7 @@ export type Database = {
           item_id?: string | null
           kind: string
           last_message_at?: string
+          request_tag?: string | null
           shop_id?: string | null
           shop_order_id?: string | null
           subject?: string | null
@@ -657,6 +659,7 @@ export type Database = {
           item_id?: string | null
           kind?: string
           last_message_at?: string
+          request_tag?: string | null
           shop_id?: string | null
           shop_order_id?: string | null
           subject?: string | null

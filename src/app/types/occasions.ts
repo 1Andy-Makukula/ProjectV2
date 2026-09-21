@@ -57,6 +57,11 @@ export interface OccasionTile {
   /** An explicit route, for the tile that is not a shelf at all. */
   href?: string;
   /**
+   * Opens a conversation with KithLy instead of navigating. The catch-all
+   * tile is a door into the request engine, not a shelf.
+   */
+  opensRequest?: boolean;
+  /**
    * Suppresses every loud treatment: no promo block, no countdown, no vector,
    * no discount, no lift. The lead-time rationale for `memorial` in SQL reads
    * "an early reminder of a death is not a kindness" — this extends that from
@@ -150,13 +155,13 @@ export const OCCASION_TILES: ReadonlyArray<OccasionTile> = [
   {
     kind: 'other',
     label: 'Something else',
-    blurb: 'Not here? Tell us what you need and we will go and find it.',
+    blurb: 'Not here? Tell us what you need. We reply with a price within 3 working days.',
     primaryCategory: null,
-    // Today this is the help desk. At Stage 4 of docs/plans/two-rails.md it
-    // becomes `start_kithly_conversation` and opens a thread with us directly
-    // — the RPC is already written in 20260916000000, just unapplied and
-    // unwired, so this tile is the request engine's front door in waiting.
-    href: '/support',
+    // No href and no category: this one opens a thread with KithLy rather
+    // than going anywhere. Welcome.tsx routes it through useRequestThread.
+    // It was a placeholder pointing at /support until the RPC behind it
+    // (20260916000000) was applied on 20 Sep.
+    opensRequest: true,
   },
 ];
 

@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router';
 import { Button } from '../../components/ui/button';
 import { Card } from '../../components/ui/card';
-import { ArrowLeft, Store, MapPin, ShoppingCart, Gift, ConciergeBell, ShieldCheck, PackageCheck, Sparkles, Clock, Navigation, Mail, Phone, Star } from 'lucide-react';
+import { ArrowLeft, Store, MapPin, ShoppingCart, Gift, ConciergeBell, ShieldCheck, PackageCheck, Sparkles, Clock, Navigation, Mail, Phone, Star, MessageCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useCart, toProduct } from '../../hooks/useCart';
 import { useShopDetail } from '../../hooks/useShopDetail';
@@ -9,6 +9,7 @@ import { PageLoader } from '../../components/shared/PageLoader';
 import { ShopOfferingBadge } from '../../components/shared/ShopOfferingBadge';
 import { ListCard } from '../../components/shared/ListCard';
 import { SaveToListButton } from '../../components/shared/SaveToListButton';
+import { useRequestThread, REQUEST_SLA_LINE } from '../../hooks/useRequestThread';
 import { useShopLists } from '../../hooks/useLists';
 import { PostCard } from '../../components/storefront/PostCard';
 import { EdgeDrawer } from '../../components/storefront/EdgeDrawer';
@@ -30,6 +31,7 @@ export function ShopDetail() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const { shop, items, posts: shopPosts, loading } = useShopDetail(shopId);
+  const { askShop, opening } = useRequestThread();
   // Collections if the shopkeeper made any, else categories, else one flat
   // list -- decided by shop_item_groups() so every surface agrees.
   const { groups } = useShopItemGroups(shopId, items);
@@ -116,6 +118,23 @@ export function ShopDetail() {
               image_url: shop.cover_image_url ?? shop.logo_url ?? shop.image_url ?? null,
             }}
           />
+
+          {/* Asking the shop directly, for anything the shelf does not cover.
+              The thread and the quotation it ends in already existed; until
+              now the only door to them was the bottom of one item's detail
+              page, which is not where somebody stands when what they want is
+              not listed at all. */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="shrink-0"
+            onClick={() => askShop(shop.id, { subject: `Question for ${shop.name}` })}
+            disabled={opening}
+            title={REQUEST_SLA_LINE}
+          >
+            <MessageCircle className="h-4 w-4" />
+            <span className="hidden sm:inline">Ask this shop</span>
+          </Button>
         </div>
       </div>
 
