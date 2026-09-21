@@ -184,11 +184,35 @@ export function Welcome() {
               it is: the one that says where you are before anything asks you
               for anything. */}
           <section className="kl-wash-ember relative overflow-hidden rounded-[var(--radius-tile)] px-6 py-14 text-white sm:px-10 md:px-14 md:py-24">
-            <div className="max-w-2xl">
+            {/* A family eating together, behind the orange.
+                Same construction as the Login and SignUp side panels:
+                photograph, brand gradient over it, content on z-10.
+
+                `alt` is empty on purpose -- the h1 beside it already says
+                KithLy and the paragraph says what we do, so a description
+                here would be a screen reader repeating the decoration
+                before it reaches the point.
+
+                Not lazy: this is the first thing above the fold on the
+                landing route, and a lazy hero is a hero that arrives after
+                you have already read past it. kl-wash-ember stays on the
+                section as the ground, so a failed image leaves the orange
+                exactly as it was rather than a white hole. */}
+            <img
+              src="/occasions/hero-family.webp"
+              alt=""
+              className="kl-wash-furniture absolute inset-0 h-full w-full object-cover"
+            />
+            {/* Darkest at the top-left, which is where the type is. Login
+                fades its overlay to transparent; this one keeps a floor,
+                because the text block here is far wider than a side panel's
+                and the 12px kicker needs 4.5:1 wherever it lands. */}
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-900/80 via-brand-700/60 to-brand-600/40" />
+            <div className="relative z-10 max-w-2xl">
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-white/80"
+                className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-white/90"
               >
                 A touch of home
               </motion.p>
