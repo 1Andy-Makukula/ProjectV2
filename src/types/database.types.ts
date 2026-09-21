@@ -2572,11 +2572,11 @@ export type Database = {
       platform_settings: {
         Row: {
           abandoned_checkout_timeout_minutes: number | null
-          bundle_ceiling_bps: number
-          bundle_markup_bps: number
           current_usd_zmw_rate: number
           dispute_window_minutes: number
           escrow_mode: string
+          experience_ceiling_bps: number
+          experience_markup_bps: number
           expiry_extension_days: number
           expiry_reminder_days: number
           expiry_sender_refund_percent: number
@@ -2601,11 +2601,11 @@ export type Database = {
         }
         Insert: {
           abandoned_checkout_timeout_minutes?: number | null
-          bundle_ceiling_bps?: number
-          bundle_markup_bps?: number
           current_usd_zmw_rate?: number
           dispute_window_minutes?: number
           escrow_mode?: string
+          experience_ceiling_bps?: number
+          experience_markup_bps?: number
           expiry_extension_days?: number
           expiry_reminder_days?: number
           expiry_sender_refund_percent?: number
@@ -2630,11 +2630,11 @@ export type Database = {
         }
         Update: {
           abandoned_checkout_timeout_minutes?: number | null
-          bundle_ceiling_bps?: number
-          bundle_markup_bps?: number
           current_usd_zmw_rate?: number
           dispute_window_minutes?: number
           escrow_mode?: string
+          experience_ceiling_bps?: number
+          experience_markup_bps?: number
           expiry_extension_days?: number
           expiry_reminder_days?: number
           expiry_sender_refund_percent?: number
@@ -3734,6 +3734,7 @@ export type Database = {
           rating_count: number
           rating_sum: number
           rejection_reason: string | null
+          relationship_tier: string
           settlement_flag_reason: string | null
           settlement_manual_flag: boolean
           settlement_tier: string
@@ -3781,6 +3782,7 @@ export type Database = {
           rating_count?: number
           rating_sum?: number
           rejection_reason?: string | null
+          relationship_tier?: string
           settlement_flag_reason?: string | null
           settlement_manual_flag?: boolean
           settlement_tier?: string
@@ -3828,6 +3830,7 @@ export type Database = {
           rating_count?: number
           rating_sum?: number
           rejection_reason?: string | null
+          relationship_tier?: string
           settlement_flag_reason?: string | null
           settlement_manual_flag?: boolean
           settlement_tier?: string
@@ -4267,7 +4270,6 @@ export type Database = {
           total_zmw: number
         }[]
       }
-      bundle_price_health: { Args: { p_experience_id: string }; Returns: Json }
       buyer_fee_percent_for: {
         Args: { p_origin_type: string }
         Returns: number
@@ -4485,6 +4487,10 @@ export type Database = {
       experience_is_available: {
         Args: { p_experience_id: string }
         Returns: boolean
+      }
+      experience_price_health: {
+        Args: { p_experience_id: string }
+        Returns: Json
       }
       experience_total: { Args: { p_experience_id: string }; Returns: number }
       extend_voucher_window: {

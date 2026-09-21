@@ -73,10 +73,10 @@ export function usePriceBook() {
     try {
       const { data: settings } = await supabase
         .from('platform_settings')
-        .select('bundle_markup_bps')
+        .select('experience_markup_bps')
         .eq('id', 1)
         .maybeSingle();
-      if (settings?.bundle_markup_bps != null) setMarkupBps(settings.bundle_markup_bps);
+      if (settings?.experience_markup_bps != null) setMarkupBps(settings.experience_markup_bps);
 
       // The house shop is found by name, the same way create_quotation finds
       // it. One identity, one lookup, no id hard-coded in two places.
