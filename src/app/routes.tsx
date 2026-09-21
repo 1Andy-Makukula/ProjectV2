@@ -73,6 +73,7 @@ const PostDetail = lazyPage(() => import('./pages/PostDetail'), 'PostDetail');
 const AdminDashboard = lazyPage(() => import('./pages/admin/AdminDashboard'), 'AdminDashboard');
 const AdminMerchandising = lazyPage(() => import('./pages/admin/AdminMerchandising'), 'AdminMerchandising');
 const AdminRequests = lazyPage(() => import('./pages/admin/AdminRequests'), 'AdminRequests');
+const AdminPriceBook = lazyPage(() => import('./pages/admin/AdminPriceBook'), 'AdminPriceBook');
 const AdminCatalog = lazyPage(() => import('./pages/admin/AdminCatalog'), 'AdminCatalog');
 const AdminNotifications = lazyPage(() => import('./pages/admin/AdminNotifications'), 'AdminNotifications');
 const AdminShops = lazyPage(() => import('./pages/admin/AdminShops'), 'AdminShops');
@@ -374,6 +375,16 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['admin']}>
             <Lazy><AdminRequests /></Lazy>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        // The weekly price run. Without this screen the price lock is a
+        // promise kept by hand, which means kept for about six weeks.
+        path: 'admin/price-book',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Lazy><AdminPriceBook /></Lazy>
           </ProtectedRoute>
         ),
       },

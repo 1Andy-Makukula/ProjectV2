@@ -741,25 +741,34 @@ export type Database = {
           experience_id: string
           id: string
           item_id: string
+          locked_price_zmw: number | null
           note: string | null
+          priced_at: string | null
           quantity: number
           sort_order: number
+          sourced_cost_zmw: number | null
         }
         Insert: {
           experience_id: string
           id?: string
           item_id: string
+          locked_price_zmw?: number | null
           note?: string | null
+          priced_at?: string | null
           quantity?: number
           sort_order?: number
+          sourced_cost_zmw?: number | null
         }
         Update: {
           experience_id?: string
           id?: string
           item_id?: string
+          locked_price_zmw?: number | null
           note?: string | null
+          priced_at?: string | null
           quantity?: number
           sort_order?: number
+          sourced_cost_zmw?: number | null
         }
         Relationships: [
           {
@@ -797,6 +806,7 @@ export type Database = {
           is_featured: boolean
           name: string
           occasion_kind: string | null
+          price_valid_until: string | null
           slug: string
           sort_order: number
           tagline: string | null
@@ -813,6 +823,7 @@ export type Database = {
           is_featured?: boolean
           name: string
           occasion_kind?: string | null
+          price_valid_until?: string | null
           slug: string
           sort_order?: number
           tagline?: string | null
@@ -829,6 +840,7 @@ export type Database = {
           is_featured?: boolean
           name?: string
           occasion_kind?: string | null
+          price_valid_until?: string | null
           slug?: string
           sort_order?: number
           tagline?: string | null
@@ -2560,6 +2572,8 @@ export type Database = {
       platform_settings: {
         Row: {
           abandoned_checkout_timeout_minutes: number | null
+          bundle_ceiling_bps: number
+          bundle_markup_bps: number
           current_usd_zmw_rate: number
           dispute_window_minutes: number
           escrow_mode: string
@@ -2587,6 +2601,8 @@ export type Database = {
         }
         Insert: {
           abandoned_checkout_timeout_minutes?: number | null
+          bundle_ceiling_bps?: number
+          bundle_markup_bps?: number
           current_usd_zmw_rate?: number
           dispute_window_minutes?: number
           escrow_mode?: string
@@ -2614,6 +2630,8 @@ export type Database = {
         }
         Update: {
           abandoned_checkout_timeout_minutes?: number | null
+          bundle_ceiling_bps?: number
+          bundle_markup_bps?: number
           current_usd_zmw_rate?: number
           dispute_window_minutes?: number
           escrow_mode?: string
@@ -4249,6 +4267,7 @@ export type Database = {
           total_zmw: number
         }[]
       }
+      bundle_price_health: { Args: { p_experience_id: string }; Returns: Json }
       buyer_fee_percent_for: {
         Args: { p_origin_type: string }
         Returns: number
