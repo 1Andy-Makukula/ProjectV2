@@ -664,14 +664,15 @@ export function ConsumerStorefront() {
       </div>
 
       {/* ── Sections, in this mode's order ────────────────────────────────── */}
-      {/* The cockpit: 264 / 1fr / 336 at a 1560px ceiling, gutter 20px. The
-          rails are asymmetric on purpose -- the right one is yours and
-          carries your bag and your status, so it is given more room than the
-          left, which is the platform talking. */}
-      <div className="mx-auto flex max-w-7xl gap-5 px-5 py-10 sm:px-8 xl:max-w-[97.5rem]">
-        {/* The platform's side: what is popular, what is selling. */}
+      {/* Two columns: 304 / 1fr at an 85rem ceiling, gutter 20px.
+          Was 264 / 1fr / 336 at 1560px. The three-column cockpit asked the eye
+          to watch both edges at once, and below 1280px neither rail existed at
+          all -- so the layout most people actually saw was never the one being
+          designed for. One rail is the honest version of it. */}
+      <div className="mx-auto flex max-w-7xl gap-5 px-5 py-10 sm:px-8 xl:max-w-[85rem]">
+        {/* One rail, carrying everything: your status first, then the market,
+            then your lists. Two columns at every width. */}
         <StorefrontRail
-          side="left"
           shops={data?.shops ?? []}
           items={data?.items ?? []}
           lists={communityLists}
@@ -709,19 +710,6 @@ export function ConsumerStorefront() {
         )}
         </div>
 
-        {/* Your side — but only when there is a feed worth flanking.
-            Three columns with nothing in the middle is a worse page than two,
-            so on a day with no posts this simply is not rendered and the feed
-            widens back out. Both rails are xl-only; below that the modules are
-            ribbons in the feed and the drawer, which know nothing about sides. */}
-        {profile && visiblePosts.length > 0 && (
-          <StorefrontRail
-            side="right"
-            shops={data?.shops ?? []}
-            items={data?.items ?? []}
-            lists={communityLists}
-          />
-        )}
       </div>
 
       {/* Pulled in from the left edge, below 1280px. */}

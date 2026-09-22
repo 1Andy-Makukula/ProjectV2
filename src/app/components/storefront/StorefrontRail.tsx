@@ -37,7 +37,6 @@ import {
   OCCASION_ICON,
   modeLexicon,
   modeRail,
-  modeRailSide,
 } from '../../types/storefrontModes';
 import type { StorefrontShop } from '../../hooks/useStorefrontData';
 import { discountPercentage, type CatalogItem } from '../../types/items';
@@ -47,7 +46,6 @@ import type { ListSummary } from '../../types/lists';
 
 type Layout = 'column' | 'ribbon';
 /** Which flank of the feed a rail is drawn on. */
-type Side = 'left' | 'right';
 type RailKeys = ReturnType<typeof modeRail>;
 
 interface RailProps {
@@ -846,35 +844,44 @@ export function StorefrontRailModules({
 }
 
 /**
- * One rail, on one side of the feed.
+ * One rail, beside the feed. Two columns, at every width.
  *
- * `left` is the platform talking — what is popular, what is selling. `right` is
- * about you, and only appears when there is a feed worth flanking: the
- * storefront renders it when there are posts and leaves it out when there are
- * not, so an empty day collapses back to two columns rather than showing a
- * skinny column of nothing.
+ * It used to be two: `left` was the platform talking and `right` was what was
+ * waiting on you, flanking the feed at 1280px and above. That is gone. The
+ * three-column cockpit asked the eye to watch both edges at once, and on the
+ * common case — a phone, or a laptop under 1280 — neither rail existed at all,
+ * so the layout everybody actually saw was never the one being designed.
  *
- * Both are `xl:block` — below that the modules become ribbons in the feed and
- * the drawer, which take the whole set and know nothing about sides.
+ * Merging costs nothing structurally, which is the tell that the split was
+ * decoration: `modeRail` has always returned ONE ordered list and
+ * `modeRailSide` merely filtered it by side. Dropping the filter restores the
+ * order the list was written in — status first, because a mode leads with what
+ * is already in flight, then the market, then yours.
+ *
+ * Still `xl:block`. Below that the same modules become the drawer, which takes
+ * the whole set and never knew about sides.
  */
-export function StorefrontRail({ side = 'left', ...props }: RailProps & { side?: Side }) {
+export function StorefrontRail(props: RailProps) {
   const { mode } = useStorefrontMode();
-  const keys = modeRailSide(mode, side);
+  const keys = modeRail(mode);
 
   if (keys.length === 0) return null;
 
   return (
     <aside
-      aria-label={side === 'left' ? 'Around the shop' : 'Waiting on you'}
+      aria-label="Around the shop and waiting on you"
       // empty:!hidden because a module deciding it has nothing to say is normal
       // — StatusModule hides its zeroes, Wishes hides when nobody has wished —
       // and a rail whose every module opted out would otherwise still reserve
-      // 19rem of nothing beside the feed. The `!` is deliberate: it has to beat
-      // the xl:block that put the column there in the first place.
-      className={`kl-scroll sticky top-[calc(var(--kl-header-h)+4.25rem)] hidden
-                 max-h-[calc(100vh-var(--kl-header-h)-5.5rem)] shrink-0
-                 space-y-4 overflow-y-auto pb-8 empty:!hidden xl:block
-                 ${side === 'right' ? 'w-[336px]' : 'w-[264px]'}`}
+      // its width of nothing beside the feed. The `!` is deliberate: it has to
+      // beat the xl:block that put the column there in the first place.
+      //
+      // 304px: wider than the old left rail because it now carries the right
+      // one's modules too, narrower than the old right rail because it no
+      // longer has to hold a bag panel beside a feed it was competing with.
+      className="kl-scroll sticky top-[calc(var(--kl-header-h)+4.25rem)] hidden
+                 max-h-[calc(100vh-var(--kl-header-h)-5.5rem)] w-[304px] shrink-0
+                 space-y-4 overflow-y-auto pb-8 empty:!hidden xl:block"
     >
       {renderModules(keys, 'column', props)}
     </aside>
