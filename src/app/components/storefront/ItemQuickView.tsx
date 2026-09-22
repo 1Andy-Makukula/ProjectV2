@@ -10,9 +10,9 @@
 // price somebody is about to act on should not be.
 
 import { create } from 'zustand';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowRight, Package, ShoppingCart, Store } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, LayoutGrid, Package, ShoppingCart, Store } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
@@ -57,8 +57,16 @@ interface QuickItem {
   requires_scheduling: boolean;
   shop_id: string;
   shop: { id: string; name: string; location: string | null } | null;
+  /** Where to send somebody who likes this and wants more of the same. */
+  category: { slug: string; name: string } | null;
   images: string[];
 }
+
+/** Marks the swipe hint as seen for this browsing session. */
+const SWIPE_HINT_KEY = 'kithly-gallery-hint-seen';
+
+/** Far enough to be a swipe rather than a tap that wandered. */
+const SWIPE_THRESHOLD_PX = 40;
 
 export function ItemQuickView() {
   const navigate = useNavigate();
@@ -67,6 +75,10 @@ export function ItemQuickView() {
   const [item, setItem] = useState<QuickItem | null>(null);
   const [loading, setLoading] = useState(false);
   const [active, setActive] = useState(0);
+  // Shown once per session, and killed by the first interaction of any kind.
+  // A hint that returns every time stops being a hint and becomes furniture.
+  const [showHint, setShowHint] = useState(false);
+  const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
     if (!itemId) {
@@ -76,6 +88,15 @@ export function ItemQuickView() {
     let cancelled = false;
     setLoading(true);
     setActive(0);
+    touchStartX.current = null;
+    // Once per browsing session, not once per item.
+    try {
+      if (sessionStorage.getItem(SWIPE_HINT_KEY) !== '1') setShowHint(true);
+    } catch {
+      // Private windows throw on sessionStorage. Losing the hint is a far
+      // better failure than an exception on the way into a product view.
+      setShowHint(false);
+    }
 
     (async () => {
       const { data, error } = await supabase
@@ -83,7 +104,8 @@ export function ItemQuickView() {
         .select(
           'id, name, description, price_zmw, image_url, item_type, is_available, is_quote_only, ' +
             'stock_quantity, minimum_order_quantity, lead_time_days, requires_scheduling, shop_id, ' +
-            'shop:shops(id, name, location), item_images(image_url, sort_order)',
+            'shop:shops(id, name, location), category:categories(slug, name), ' +
+            'item_images(image_url, sort_order)',
         )
         .eq('id', itemId)
         .maybeSingle();
@@ -102,6 +124,7 @@ export function ItemQuickView() {
         setItem({
           ...row,
           shop: row.shop ?? null,
+          category: row.category ?? null,
           // The cover is the gallery's first entry when there is one; otherwise
           // it is all we have. Deduped so a cover mirrored into the gallery does
           // not show twice.
@@ -115,6 +138,40 @@ export function ItemQuickView() {
       cancelled = true;
     };
   }, [itemId]);
+
+  /** Any deliberate interaction retires the hint for the rest of the session. */
+  const dismissHint = useCallback(() => {
+    setShowHint(false);
+    try {
+      sessionStorage.setItem(SWIPE_HINT_KEY, '1');
+    } catch {
+      // Nothing to do. The hint simply reappears next session.
+    }
+  }, []);
+
+  /** Move through the gallery, wrapping, so neither end is a dead stop. */
+  const step = useCallback(
+    (delta: number, length: number) => {
+      if (length <= 1) return;
+      dismissHint();
+      setActive((current) => (current + delta + length) % length);
+    },
+    [dismissHint],
+  );
+
+  // Arrow keys, for the half of the audience holding a keyboard rather than a
+  // phone. Bound only while a gallery with something to move through is open.
+  useEffect(() => {
+    const length = item?.images.length ?? 0;
+    if (itemId === null || length <= 1) return;
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowLeft') step(-1, length);
+      if (event.key === 'ArrowRight') step(1, length);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [itemId, item?.images.length, step]);
 
   const outOfStock = item?.stock_quantity !== null && (item?.stock_quantity ?? 1) <= 0;
   const unavailable = !item || item.is_available === false || outOfStock || item.is_quote_only;
@@ -155,17 +212,83 @@ export function ItemQuickView() {
               <DialogTitle className="kl-display text-xl leading-tight">{item.name}</DialogTitle>
             </DialogHeader>
 
-            <div className="overflow-hidden rounded-[var(--radius-md)] bg-muted">
+            {/* The gallery.
+                Swipe on a phone, arrows on a pointer, arrow keys on a
+                keyboard -- three ways through the same pictures, because a
+                shop with five photographs of a thing has four more reasons
+                to look and only one of them survives if you have to hunt for
+                a thumbnail. */}
+            <div
+              className="relative touch-pan-y select-none overflow-hidden rounded-[var(--radius-md)] bg-muted"
+              onTouchStart={(e) => {
+                touchStartX.current = e.touches[0]?.clientX ?? null;
+              }}
+              onTouchEnd={(e) => {
+                const start = touchStartX.current;
+                touchStartX.current = null;
+                if (start === null) return;
+                const dx = (e.changedTouches[0]?.clientX ?? start) - start;
+                // A tap wanders a few pixels; a swipe does not.
+                if (Math.abs(dx) < SWIPE_THRESHOLD_PX) return;
+                step(dx < 0 ? 1 : -1, item.images.length);
+              }}
+            >
               {item.images[active] ? (
                 <img
                   src={item.images[active]}
                   alt={item.name}
+                  draggable={false}
                   className="aspect-[4/3] w-full object-cover"
                 />
               ) : (
                 <div className="grid aspect-[4/3] w-full place-items-center">
                   <Package className="size-10 text-muted-foreground/30" strokeWidth={1.25} />
                 </div>
+              )}
+
+              {item.images.length > 1 && (
+                <>
+                  {/* Pointer devices only. On a touch screen these would sit
+                      under the thumb that is already swiping. */}
+                  <button
+                    type="button"
+                    onClick={() => step(-1, item.images.length)}
+                    aria-label="Previous picture"
+                    className="absolute left-2 top-1/2 hidden size-8 -translate-y-1/2 place-items-center rounded-full
+                               bg-ink/55 text-white backdrop-blur-sm transition-colors hover:bg-ink/75
+                               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
+                               sm:grid"
+                  >
+                    <ChevronLeft className="size-4" strokeWidth={2.5} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => step(1, item.images.length)}
+                    aria-label="Next picture"
+                    className="absolute right-2 top-1/2 hidden size-8 -translate-y-1/2 place-items-center rounded-full
+                               bg-ink/55 text-white backdrop-blur-sm transition-colors hover:bg-ink/75
+                               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
+                               sm:grid"
+                  >
+                    <ChevronRight className="size-4" strokeWidth={2.5} />
+                  </button>
+
+                  {/* Where you are in the set. Cheaper to read than counting
+                      thumbnails, and it survives on a narrow screen. */}
+                  <span className="absolute bottom-2 right-2 rounded-[var(--radius-block)] bg-ink/70 px-1.5 py-0.5 text-[0.625rem] font-semibold text-white">
+                    {active + 1}/{item.images.length}
+                  </span>
+
+                  {/* The hint. Touch only, once per session, gone the moment
+                      anything is touched. Unobtrusive by construction: it sits
+                      in the corner the picture is least likely to need. */}
+                  {showHint && (
+                    <span className="pointer-events-none absolute bottom-2 left-2 flex items-center gap-1 rounded-[var(--radius-block)] bg-ink/70 px-2 py-1 text-[0.625rem] font-medium text-white sm:hidden">
+                      <ChevronLeft className="size-3" strokeWidth={2.75} />
+                      swipe for more
+                    </span>
+                  )}
+                </>
               )}
             </div>
 
@@ -175,7 +298,7 @@ export function ItemQuickView() {
                 {item.images.map((url, index) => (
                   <button
                     key={url}
-                    onClick={() => setActive(index)}
+                    onClick={() => { dismissHint(); setActive(index); }}
                     aria-label={`Picture ${index + 1}`}
                     aria-pressed={index === active}
                     className={`size-14 shrink-0 overflow-hidden rounded-[var(--radius-md)] transition-opacity
@@ -204,6 +327,30 @@ export function ItemQuickView() {
                 </button>
               )}
             </div>
+
+            {/* The way onward.
+                Somebody who opened this because they liked the look of it is
+                one press from more of the same, instead of having to close
+                the modal, work out which shelf it came from, and go looking.
+                Null category is normal -- plenty of items are uncategorised --
+                and then this simply is not drawn. */}
+            {item.category && (
+              <button
+                onClick={() => {
+                  close();
+                  navigate(`/browse?category=${encodeURIComponent(item.category!.slug)}`);
+                }}
+                className="flex w-full items-center justify-between rounded-[var(--radius-md)] bg-surface-paper px-3 py-2
+                           text-left text-[0.8125rem] transition-colors hover:bg-ink-100
+                           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <span className="flex min-w-0 items-center gap-1.5 text-foreground">
+                  <LayoutGrid className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={2.4} />
+                  <span className="truncate">More in {item.category.name}</span>
+                </span>
+                <ArrowRight className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={2} />
+              </button>
+            )}
 
             {item.description ? (
               <p className="whitespace-pre-line text-[0.8125rem] leading-relaxed text-muted-foreground">
