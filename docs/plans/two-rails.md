@@ -187,7 +187,7 @@ and a human phone number placed above the fold rather than in a footer.
   and the tiles breathe on the Conductor's clock at a 30s dwell.
 - **Done.** Committed as `3939d83`.
 
-### Stage 1 — The rail toggle
+### Stage 1 — The rail toggle · NOT STARTED
 
 Introduce `rail: 'send' | 'browse'` as the top-level intent, **derived from** the
 existing persisted `storefrontMode` so nobody's stored preference is lost. Put
@@ -199,7 +199,7 @@ the switch in the header, persistent. Default `send`.
 - **Risk: 🔴 shared chrome.** Blast-radius grep `useStorefrontMode` first — it is
   read by the storefront, the perch, the switcher and the Welcome doors.
 
-### Stage 2 — Occasions on Rail 1
+### Stage 2 — Occasions on Rail 1 · PARTIAL
 
 Seed the first occasions as `experiences` with art and lines. Point the Welcome
 mosaic and the Rail 1 storefront at `useExperiences({ featuredOnly: true })`
@@ -208,12 +208,18 @@ instead of at categories. Rail 2 keeps the category mosaic.
 - new seed migration, `Welcome.tsx`, `ConsumerStorefront.tsx`
 - **Done when:** Rail 1's front door shows occasions, Rail 2's shows categories,
   and both press through to the same cart.
+- **Actually built (22 Sep audit):** the occasion mosaic, the catalogue pages
+  at `/catalogue/:kind`, and the tiles landing on them — `7c4934f`. What is
+  NOT built is the *rail distinction itself*: there is no `send`/`browse`
+  concept on the storefront, so "Rail 1's front door" and "Rail 2's" are the
+  same page today. That is Stage 1's job, and Stage 2 cannot really close
+  until it exists.
 - **Note:** this is mostly seeding. The component, the route, the detail page and
   the add-to-cart already exist, and `experiences.occasion_kind` is already
   written as a migration (`20260916010000`) — it needs applying, not authoring.
   **Blocked on content, not on code** — see §7.
 
-### Stage 3 — Trust, stated inline
+### Stage 3 — Trust, stated inline · NOT STARTED
 
 FX lock, escrow guarantee and collection alert stated *at the point of doubt* —
 on the occasion detail, in the cart, above the pay button — not only on Welcome.
@@ -222,7 +228,7 @@ Reuse `CompensationDisclosure` and the `FxTemporalLock` copy. No new components.
 - **Done when:** a Rail 1 user meets the escrow promise at least twice before
   paying.
 
-### Stage 4 — Requests: the ask
+### Stage 4 — Requests: the ask ✅ *done, 21 Sep · `f347d3a`*
 
 An "Ask us for anything" entry on both rails that opens an `admin_buyer`
 conversation with a `subject`. This is the shared front end for items 6, 7 and 9,
@@ -239,7 +245,7 @@ and it is a button plus a pre-filled thread.
 - **Done when:** a buyer can start a thread with KithLy from the storefront and
   it appears in an admin inbox.
 
-### Stage 5 — The admin inbox
+### Stage 5 — The admin inbox ✅ *done, 21 Sep · `69ce751`*
 
 Admin-side triage for `admin_buyer` threads: unanswered first, using the existing
 unread counts. The quotation builder is already there.
@@ -247,7 +253,7 @@ unread counts. The quotation builder is already there.
 - `src/app/pages/admin/`
 - **Done when:** a thread can be answered and quoted from one screen, without SQL.
 
-### Stage 6 — Concierge as a shop
+### Stage 6 — Concierge as a shop ✅ *done, 21 Sep · `5df18d5`*
 
 Seed the "KithLy Concierge" merchant per §4. Quote against it, accept, pay,
 collect.
@@ -255,7 +261,7 @@ collect.
 - **Done when:** a concierge order appears in the merchant dashboard, generates a
   claim code, and settles through the ordinary ledger with no special case.
 
-### Stage 7 — Proof of errand
+### Stage 7 — Proof of errand · NOT STARTED
 
 An errand done on the house still needs evidence. Reuse `messages` with
 `message_type = 'image'`: proof is a photograph in the thread, timestamped, not a
@@ -263,13 +269,42 @@ new subsystem. An SLA in days, hours where it is simple.
 
 - **Done when:** an errand can be closed with a photograph the buyer can see.
 
-### Stage 8 — Community publication
+### Stage 8 — Community publication · NOT STARTED
 
 The second half of item 6. Turn a resolved request into a `post`, with the
 requester's identity withheld by default, and notify. The ask is private; the
 delivery is public.
 
 - **Done when:** "you asked, here it is" reaches the feed and the notifications.
+
+---
+
+## Status, audited 22 September 2026
+
+Checked against the code rather than against this document, because three
+stages had been built and were still marked as though they had not.
+
+| Stage | State |
+| --- | --- |
+| 0 · Front door | ✅ `3939d83` and after |
+| 1 · Rail toggle (`send` \| `browse`) | ❌ not started — no rail concept exists |
+| 2 · Occasions on Rail 1 | 🟡 catalogue pages built; the rail distinction is not |
+| 3 · Trust, stated inline | ❌ not started |
+| 4 · Requests: the ask | ✅ `f347d3a` |
+| 5 · Admin inbox | ✅ `69ce751` |
+| 6 · Concierge as a shop | ✅ `5df18d5` |
+| 7 · Proof of errand | ❌ not started |
+| 8 · Community publication | ❌ not started |
+
+**Stage 1 is now the blocker for Stage 2**, and it is the one remaining piece
+of the original two-rails idea that nothing else stands in for. Everything
+else on this plan is either done or genuinely optional.
+
+Note that `docs/adr/0004` collapsed the storefront from three columns to two.
+That does not touch the `send`/`browse` rails — those are an *intent*, not a
+layout — but the word "rail" now means two different things in this repo, and
+Stage 1 should be built with that in mind.
+
 
 ---
 

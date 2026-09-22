@@ -478,17 +478,19 @@ composition.
 | --- | --- | --- | --- |
 | 1 | **KithLy house shop** | 🟢 | ✅ done · `5df18d5` |
 | 2 | **PostBuySheet structure** | 🟡 | ✅ done · `ba4e1e9` |
+| 2b | **Cart chrome trimmed for scroll room** | 🟡 | ✅ done · `2c333c2` |
 | 3 | **The two doors into quotations** | 🟡 | ✅ done · `f347d3a` |
 | 4 | **Admin request desk + tag capture** | 🟡 | ✅ done · `69ce751` |
 | 5 | **ESCROW CUTOVER** | 🔴 | ⛔ **blocked** — see below |
 | 6 | **Price lock + price book** | 🟡 | ✅ done · `3997010`, `49caa6e` |
 | 7 | **Catalogue page + relationship tiers** | 🟡 | ✅ done · `1a6b31e`, `7c4934f` |
 | 8 | **Locked price actually charged** | 🔴 | ✅ done · `49caa6e` (without touching checkout) |
-| 9 | **Multi-shop collection view** | 🟡 | not started |
-| 10 | **Checkout review step** | 🔴 | not started |
+| 9 | **Multi-shop collection view** | 🟡 | ❌ not started — `/gift/:claimCode` is still one code per page |
+| 10 | **Review before paying** | 🔴 | 🟡 partial · `2c333c2` — full-screen review from the CART; the checkout-step version is not built |
 | 11 | **Wholesale unit of sale** | 🟡 | ✅ done · `f4fa31d` |
 | 12a | **Doors as a tab pair, with the pulse** | 🟡 | ✅ done · `4ea668b` |
-| 12b | **Category rail, modal swipe** | 🟡 | not started |
+| 12b | **Modal swipe + "more in category"** | 🟡 | ✅ done · `2c333c2` |
+| 12c | **Category chip rail on the storefront** | 🟡 | ❌ not started |
 
 ### Step 5 is blocked, and the runbook says so itself
 
