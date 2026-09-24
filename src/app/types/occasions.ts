@@ -212,13 +212,16 @@ export const OCCASION_ART: Partial<Record<OccasionKind, string[]>> = {
 
   // near square (1.25) -- span 2
   birthday: ['/occasions/birthday.webp'],
-  // The classroom leads. The other frame is a tight portrait of two downcast
-  // boys -- documentary, and it reads as appeal rather than preparation, which
-  // is the wrong register for a tile whose job is "buy the uniform and the
-  // books". It also shows nothing you can actually buy. Demoted rather than
-  // dropped so the tile keeps a second frame to breathe with; replace it and
-  // this comment goes with it.
-  school_fees: ['/occasions/school-prep-2.webp', '/occasions/school-prep.webp'],
+  // The kit, not the children. Both frames were documentary photographs of
+  // pupils -- one a tight portrait of two downcast boys, one a classroom -- and
+  // both read as a report about schooling rather than an invitation to buy for
+  // it. Neither showed a single thing this tile actually sells.
+  //
+  // Replaced with the supplies themselves: crayons in the foreground with a
+  // child soft behind them, and pencils on a flat field. Nobody's face is the
+  // subject and no brand is legible, which keeps the rule at the top of this
+  // block -- the picture shows what the name says, and nothing else.
+  school_fees: ['/occasions/school-prep.webp', '/occasions/school-prep-2.webp'],
   upkeep: ['/occasions/upkeep.jpg'],
   new_baby: ['/occasions/new-baby.webp', '/occasions/new-baby-2.webp'],
   anniversary: ['/occasions/anniversary.jpg'],
