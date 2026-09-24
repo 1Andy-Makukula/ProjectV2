@@ -730,8 +730,8 @@ export function OrderDetail() {
               <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/8 text-primary">
                 <MessageSquare className="h-4 w-4" />
               </div>
-              <p className="text-sm italic leading-relaxed text-ink-700">
-                &quot;{firstShopOrder.message}&quot;
+              <p className="kl-hand text-lg leading-snug">
+                {firstShopOrder.message}
               </p>
             </div>
           </Section>

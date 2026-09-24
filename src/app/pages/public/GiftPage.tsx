@@ -198,8 +198,8 @@ export function GiftPage() {
             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-brand-200 via-brand-300 to-brand-200 opacity-70" />
             <CardContent className="p-8 sm:p-10 flex flex-col items-center">
               <GiftIcon className="h-6 w-6 text-brand-300/80 mb-6" strokeWidth={1.5} />
-              <p className="text-center text-lg sm:text-xl italic text-ink-700 font-serif leading-relaxed">
-                &ldquo;{shopOrder.message}&rdquo;
+              <p className="kl-hand text-center text-2xl leading-snug sm:text-3xl">
+                {shopOrder.message}
               </p>
             </CardContent>
           </Card>

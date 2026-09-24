@@ -309,6 +309,7 @@ export function SendFlow() {
                       onChange={(e) =>
                         setFormData({ ...formData, message: e.target.value })
                       }
+                      className="kl-hand text-lg leading-snug"
                       rows={4}
                       maxLength={200}
                       aria-invalid={!!errors.message}

@@ -443,7 +443,7 @@ function SuccessView({ transaction, onDone }: { transaction: TransactionConfirm;
                 {shopOrder.message && (
                   <div className="flex items-start gap-2 text-sm">
                     <MessageSquare className="h-3.5 w-3.5 text-primary mt-0.5" />
-                    <span className="text-ink-500 italic">"{shopOrder.message}"</span>
+                    <span className="kl-hand text-base leading-snug">{shopOrder.message}</span>
                   </div>
                 )}
               </div>

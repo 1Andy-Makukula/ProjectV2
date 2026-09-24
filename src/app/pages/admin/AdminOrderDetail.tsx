@@ -272,7 +272,7 @@ export function AdminOrderDetail() {
                   <CardTitle className="font-light">Gift Message</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="font-light italic">{order.message}</p>
+                  <p className="kl-hand text-lg leading-snug">{order.message}</p>
                 </CardContent>
               </Card>
             )}

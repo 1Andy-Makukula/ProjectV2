@@ -445,7 +445,7 @@ export function Checkout() {
                           placeholder="Write a nice message..."
                           value={message}
                           onChange={(e) => setMessage(e.target.value)}
-                          className="resize-none rounded-xl"
+                          className="kl-hand resize-none rounded-xl text-lg leading-snug"
                           rows={2}
                         />
                       </div>

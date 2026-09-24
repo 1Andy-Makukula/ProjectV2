@@ -59,8 +59,8 @@ export function ActiveVouchers({ activeVouchers }: { activeVouchers: any[] }) {
                 </p>
               </div>
               {order.message && (
-                <p className="text-xs italic text-ink-500 text-center max-w-[200px] leading-relaxed">
-                  "{order.message}"
+                <p className="kl-hand text-base text-center max-w-[200px] leading-snug">
+                  {order.message}
                 </p>
               )}
               <Button
