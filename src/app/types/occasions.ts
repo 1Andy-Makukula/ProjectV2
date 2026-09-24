@@ -212,7 +212,13 @@ export const OCCASION_ART: Partial<Record<OccasionKind, string[]>> = {
 
   // near square (1.25) -- span 2
   birthday: ['/occasions/birthday.webp'],
-  school_fees: ['/occasions/school-prep.webp', '/occasions/school-prep-2.webp'],
+  // The classroom leads. The other frame is a tight portrait of two downcast
+  // boys -- documentary, and it reads as appeal rather than preparation, which
+  // is the wrong register for a tile whose job is "buy the uniform and the
+  // books". It also shows nothing you can actually buy. Demoted rather than
+  // dropped so the tile keeps a second frame to breathe with; replace it and
+  // this comment goes with it.
+  school_fees: ['/occasions/school-prep-2.webp', '/occasions/school-prep.webp'],
   upkeep: ['/occasions/upkeep.jpg'],
   new_baby: ['/occasions/new-baby.webp', '/occasions/new-baby-2.webp'],
   anniversary: ['/occasions/anniversary.jpg'],
