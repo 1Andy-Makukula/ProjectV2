@@ -66,17 +66,24 @@ export function usePriceBook() {
   const [lines, setLines] = useState<PriceBookLine[]>([]);
   const [loading, setLoading] = useState(true);
   const [publishing, setPublishing] = useState(false);
-  const [markupBps, setMarkupBps] = useState(500);
+  // null until the accessor answers. Deliberately NOT a default: this value
+  // multiplies into items.price_zmw on publish, and checkout charges from that
+  // column -- so a fallback is not a stale display, it is a real mispriced sale.
+  // It used to initialise to 500, and because the read below discarded its
+  // error, every publish since 2026-09-21 silently applied 5%.
+  const [markupBps, setMarkupBps] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: settings } = await supabase
-        .from('platform_settings')
-        .select('experience_markup_bps')
-        .eq('id', 1)
-        .maybeSingle();
-      if (settings?.experience_markup_bps != null) setMarkupBps(settings.experience_markup_bps);
+      // Through an admin-gated accessor, not a column read: experience_markup_bps
+      // is a commercial term and is not granted to `authenticated`. See
+      // migration 20260924000000.
+      const { data: markup, error: markupError } = await supabase.rpc(
+        'admin_experience_markup_bps',
+      );
+      if (markupError) throw markupError;
+      setMarkupBps(markup);
 
       // The house shop is found by name, the same way create_quotation finds
       // it. One identity, one lookup, no id hard-coded in two places.
@@ -149,6 +156,13 @@ export function usePriceBook() {
       const touched = Object.entries(costs).filter(([, v]) => Number.isFinite(v) && v >= 0);
       if (touched.length === 0) {
         toast.error('Nothing to publish — no costs were entered.');
+        return false;
+      }
+
+      // Without the markup there is no sell price to write, and guessing one
+      // would put a real wrong number through the till.
+      if (markupBps === null) {
+        toast.error('The platform markup could not be read, so nothing can be published. Reload and try again.');
         return false;
       }
 

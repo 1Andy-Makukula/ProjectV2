@@ -26,5 +26,19 @@ export function parseAuthError(error: any): string {
     return 'Incorrect email or password.';
   }
 
+  // Postgres 42501 — an RLS policy or a missing grant refused the write. The
+  // raw text names the table and the policy, which means nothing to the person
+  // reading the toast: a merchant refused by items_merchant_write was shown
+  // "permission denied" when their only problem was a shop still under review.
+  // Callers that know WHICH write was refused should say so before reaching
+  // here; this is the floor, not the explanation.
+  if (
+    error.code === '42501' ||
+    msg.includes('row-level security policy') ||
+    msg.includes('permission denied for')
+  ) {
+    return 'You do not have permission to do that. If that is unexpected, your account may not be approved for it yet.';
+  }
+
   return msg;
 }

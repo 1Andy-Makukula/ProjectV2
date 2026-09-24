@@ -20,6 +20,7 @@ import {
   ArrowUpRight,
   Eye,
   Info,
+  ShieldAlert,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
@@ -68,6 +69,7 @@ export function AdminItemForm() {
     // categories is no longer destructured here: CategoryPicker loads and
     // manages its own list, so the form does not need to thread it through.
     shopOfferings,
+    shopIsActive,
     actualShopId,
     loading,
     uploading,
@@ -205,6 +207,12 @@ export function AdminItemForm() {
     return Math.round(((original - current) / original) * 100);
   })();
 
+  // A merchant cannot write items until an admin approves the shop -- see
+  // items_merchant_write in migration 20260802020000. Only an explicit false
+  // locks anything: while the lookup is in flight shopIsActive is null, and
+  // admins are never subject to this.
+  const catalogueLocked = isMerchant && shopIsActive === false;
+
   const handleCancel = () => {
     if (isMerchant) {
       navigate('/merchant');
@@ -242,6 +250,16 @@ export function AdminItemForm() {
 
       {/* Form */}
       <div className="container mx-auto px-4 py-8 max-w-2xl">
+        {catalogueLocked && (
+          <div className="mb-6 flex items-start gap-3 rounded-2xl border border-brand-200/80 bg-brand-50 px-5 py-4">
+            <ShieldAlert className="mt-0.5 size-5 shrink-0 text-primary" />
+            <p className="text-sm leading-relaxed text-brand-900">
+              <strong>Your shop is awaiting admin review.</strong> You can fill this in and
+              preview it, but it cannot be saved until your shop is approved.
+            </p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <Card>
             <CardHeader>
@@ -809,7 +827,11 @@ export function AdminItemForm() {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading || uploading} className="w-full sm:w-auto">
+              <Button
+                type="submit"
+                disabled={loading || uploading || catalogueLocked}
+                className="w-full sm:w-auto"
+              >
                 {loading ? 'Saving...' : isEditing ? 'Update Item' : 'Create Item'}
               </Button>
             </div>

@@ -51,12 +51,14 @@ export function AdminPriceBook() {
   // What this run will cost us and sell for, before committing to it.
   const runTotals = useMemo(() => {
     let cost = 0;
-    let sell = 0;
+    let sell = markupBps === null ? null : 0;
     for (const [id, ngwee] of Object.entries(entered)) {
       const line = lines.find((l) => l.id === id);
       if (!line) continue;
       cost += ngwee * line.quantity;
-      sell += Math.round(ngwee * (1 + markupBps / 10_000)) * line.quantity;
+      if (sell !== null && markupBps !== null) {
+        sell += Math.round(ngwee * (1 + markupBps / 10_000)) * line.quantity;
+      }
     }
     return { cost, sell };
   }, [entered, lines, markupBps]);
@@ -75,7 +77,11 @@ export function AdminPriceBook() {
     <PageShell>
       <AdminPageHeader
         title="Price book"
-        subtitle={`KithLy-sourced bundle lines · ${markupBps / 100}% markup applied on publish`}
+        subtitle={
+          markupBps === null
+            ? 'KithLy-sourced bundle lines · markup unavailable — nothing can be published'
+            : `KithLy-sourced bundle lines · ${markupBps / 100}% markup applied on publish`
+        }
       />
       <PageBody>
         {loading ? (
@@ -128,7 +134,9 @@ export function AdminPriceBook() {
                       {bundleLines.map((line) => {
                         const ngwee = entered[line.id];
                         const newSell =
-                          ngwee === undefined ? null : Math.round(ngwee * (1 + markupBps / 10_000));
+                          ngwee === undefined || markupBps === null
+                            ? null
+                            : Math.round(ngwee * (1 + markupBps / 10_000));
                         // A cost that has moved a long way is usually a typo,
                         // and a typo here becomes a price somebody pays.
                         const suspicious =
@@ -231,14 +239,16 @@ export function AdminPriceBook() {
                 </p>
                 {enteredCount > 0 && (
                   <p className="tabular-nums text-ink-900">
-                    costs {formatCurrency(runTotals.cost, 'ZMW')} · sells{' '}
-                    {formatCurrency(runTotals.sell, 'ZMW')}
+                    costs {formatCurrency(runTotals.cost, 'ZMW')}
+                    {runTotals.sell !== null && (
+                      <> · sells {formatCurrency(runTotals.sell, 'ZMW')}</>
+                    )}
                   </p>
                 )}
               </div>
 
               <Button
-                disabled={publishing || enteredCount === 0}
+                disabled={publishing || enteredCount === 0 || markupBps === null}
                 onClick={async () => {
                   const ok = await publish(entered, validUntil);
                   if (ok) setCosts({});

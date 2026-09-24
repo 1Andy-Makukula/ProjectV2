@@ -4235,6 +4235,7 @@ export type Database = {
         Args: { p_reason?: string; p_transaction_id: string }
         Returns: Json
       }
+      admin_experience_markup_bps: { Args: never; Returns: number }
       admin_expire_order: {
         Args: { p_reason?: string; p_shop_order_id: string }
         Returns: Json

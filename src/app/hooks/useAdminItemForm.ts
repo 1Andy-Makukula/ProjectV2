@@ -123,6 +123,12 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
     offers_services: true,
   });
   const [actualShopId, setActualShopId] = useState<string>('');
+  // items_merchant_write requires shops.is_active (migration 20260802020000),
+  // so a merchant whose shop is still under review cannot write an item at all.
+  // null means "the lookup has not answered yet" and must never lock the form --
+  // only an explicit false does, for the same reason shopOfferings above starts
+  // permissive.
+  const [shopIsActive, setShopIsActive] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -179,20 +185,41 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
     setGallery(rows.map((row) => ({ id: row.id, url: row.url })));
   }, []);
 
-  // Fetch the merchant's assigned shop automatically
+  /**
+   * Resolves the merchant's own shop, because /merchant/items/new carries no
+   * :shopId param.
+   *
+   * merchant_shops is keyed on (user_id, shop_id), so a user may legitimately
+   * hold more than one row -- this used to be `.single()`, which errors outright
+   * on the second one. Ordering by created_at and taking the first is the same
+   * rule `resolve_shop_merchant_user_id` applies on the money path (see
+   * 20260729030000 and 20260914092000), so the shop an item is filed under is
+   * the shop that gets paid for it. useMerchantShop and useMerchantDashboard
+   * already resolve it this way.
+   */
   const fetchMerchantShop = useCallback(async (userId: string) => {
-    try {
-      const { data } = await supabase
-        .from('merchant_shops')
-        .select('shop_id')
-        .eq('user_id', userId)
-        .single();
-      if (data) {
-        setActualShopId(data.shop_id);
-      }
-    } catch (err) {
-      console.error('Error fetching merchant shop:', err);
+    const { data, error } = await supabase
+      .from('merchant_shops')
+      .select('shop_id')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error fetching merchant shop:', error);
+      toast.error('Could not work out which shop this belongs to. Please reload and try again.');
+      return;
     }
+
+    // No assignment at all. Saving would send shop_id: '' and fail on an
+    // invalid uuid, so say what is actually wrong instead.
+    if (!data) {
+      toast.error('Your account is not assigned to a shop yet. Please contact support.');
+      return;
+    }
+
+    setActualShopId(data.shop_id);
   }, []);
 
   const loadItem = useCallback(async () => {
@@ -454,11 +481,13 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
       try {
         const { data, error } = await supabase
           .from('shops')
-          .select('offers_products, offers_services')
+          .select('offers_products, offers_services, is_active')
           .eq('id', shopIdToLoad)
           .single();
 
         if (error) throw error;
+
+        setShopIsActive(data.is_active ?? null);
 
         const offerings: ShopOfferings = {
           offers_products: data.offers_products ?? true,
@@ -483,6 +512,17 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
   }, [actualShopId, loadShopOfferings]);
 
   const saveItem = useCallback(async () => {
+    // Checked first, before validation and before any upload: this form is
+    // reachable from nudges that do not consult the dashboard's lock, and
+    // letting the save run meant the images were uploaded and only then did the
+    // insert come back as a bare "permission denied" from the RLS policy.
+    if (isMerchant && shopIsActive === false) {
+      toast.error(
+        'Your shop is awaiting admin approval. You can add and edit items once it is approved.',
+      );
+      return false;
+    }
+
     if (!formData.name || !formData.price) {
       toast.error('Please fill in all required fields');
       return false;
@@ -583,6 +623,11 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
     const isServiceItem = formData.item_type === 'service';
 
     setLoading(true);
+    // Uploads happen before the row is written, so a save that fails at the
+    // insert has already put objects in storage with nothing pointing at them.
+    // These two let the catch below take them back out again.
+    const uploadedUrls: string[] = [];
+    let rowWritten = false;
     try {
       // Every pending file is uploaded before the item row is written, so the
       // row is never saved pointing at a cover that does not exist yet.
@@ -599,6 +644,7 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
             continue;
           }
           const { publicUrl } = await uploadItemImage(entry.file, actualShopId);
+          uploadedUrls.push(publicUrl);
           URL.revokeObjectURL(entry.url);
           resolvedGallery.push({ url: publicUrl });
         }
@@ -671,6 +717,8 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
         savedItemId = data.id;
       }
 
+      rowWritten = true;
+
       if (savedItemId) {
         await writeGallery(savedItemId, resolvedGallery);
         await writeTiers(savedItemId, formData.price_tiers);
@@ -681,13 +729,32 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
       return true;
     } catch (error: any) {
       console.error('Error saving item:', error);
+      // Nothing points at these yet, and the merchant can neither see nor clear
+      // them. Never once the row is written -- from that moment the files are
+      // the item's, and removing them would gut a listing that saved fine.
+      if (!rowWritten) {
+        for (const url of uploadedUrls) {
+          await deleteStorefrontAsset(url).catch(console.error);
+        }
+      }
       toast.error(parseAuthError(error));
       return false;
     } finally {
       setLoading(false);
       setUploading(false);
     }
-  }, [formData, isEditing, itemId, actualShopId, gallery, writeGallery, writeTiers, writeOptionGroups]);
+  }, [
+    formData,
+    isEditing,
+    itemId,
+    actualShopId,
+    gallery,
+    isMerchant,
+    shopIsActive,
+    writeGallery,
+    writeTiers,
+    writeOptionGroups,
+  ]);
 
   const deleteItem = useCallback(async () => {
     if (!itemId) return false;
@@ -727,6 +794,7 @@ export function useAdminItemForm({ shopId, itemId, isMerchant, merchantUserId }:
     setFormData,
     categories,
     shopOfferings,
+    shopIsActive,
     actualShopId,
     loading,
     uploading,

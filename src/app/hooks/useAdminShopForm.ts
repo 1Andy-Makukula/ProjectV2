@@ -50,17 +50,31 @@ export function useAdminShopForm({ shopId, isMerchant, merchantUserId }: UseAdmi
   const effectiveShopId = isMerchant ? actualShopId : shopId;
   const isEditing = Boolean(effectiveShopId);
 
+  // Ordered, not `.single()`: merchant_shops is keyed on (user_id, shop_id), so
+  // a second assignment used to make this error outright. created_at ASC is the
+  // rule resolve_shop_merchant_user_id uses on the money path, and the one
+  // useAdminItemForm now mirrors.
   const fetchMerchantShop = useCallback(async (userId: string) => {
-    try {
-      const { data } = await supabase
-        .from('merchant_shops')
-        .select('shop_id')
-        .eq('user_id', userId)
-        .single();
-      if (data) setActualShopId(data.shop_id);
-    } catch (err) {
-      console.error('Error resolving merchant shop:', err);
+    const { data, error } = await supabase
+      .from('merchant_shops')
+      .select('shop_id')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error resolving merchant shop:', error);
+      toast.error('Could not work out which shop to edit. Please reload and try again.');
+      return;
     }
+
+    if (!data) {
+      toast.error('Your account is not assigned to a shop yet. Please contact support.');
+      return;
+    }
+
+    setActualShopId(data.shop_id);
   }, []);
 
   useEffect(() => {
