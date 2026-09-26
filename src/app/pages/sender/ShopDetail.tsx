@@ -22,6 +22,104 @@ import { discountPercentage, isService, requiresConversation } from '../../types
 import { useShopItemGroups } from '../../hooks/useShopItemGroups';
 import { parseOpeningHours, shopOpenState, WEEKDAYS } from '../../../utils/openingHours';
 
+/**
+ * Asking the shop for what is not on the shelf.
+ *
+ * The door existed -- `askShop` opens the thread and the thread ends in a
+ * quotation -- but it was an outline button the size of a filter control,
+ * sitting in the header row with its label hidden below `sm`. On a phone it
+ * was a bare speech bubble. Nothing about it said a custom order was possible,
+ * and the one sentence that explained the terms lived in a `title` tooltip,
+ * which a touchscreen never shows anybody.
+ *
+ * Two shapes, one door:
+ *   bar   rides under the header for as long as the item list is in view, so
+ *         the offer is on screen while somebody is failing to find the thing
+ *         they came for.
+ *   card  sits at the end of the list, where "it is not here" has just become
+ *         a fact, and has the room to say what actually happens next.
+ */
+function AskShopPanel({
+  shape,
+  shopName,
+  onAsk,
+  busy,
+}: {
+  shape: 'bar' | 'card';
+  shopName: string;
+  onAsk: () => void;
+  busy: boolean;
+}) {
+  if (shape === 'bar') {
+    return (
+      <div
+        className="sticky top-[calc(var(--kl-header-h)+0.5rem)] z-30 mb-4 flex flex-wrap items-center
+                   gap-x-3 gap-y-2 rounded-[var(--radius-block)] border border-ink-100
+                   bg-surface-paper/95 px-3 py-2 backdrop-blur-sm"
+      >
+        <MessageCircle className="size-4 shrink-0 text-primary" strokeWidth={2.4} />
+        <p className="min-w-0 flex-1 text-xs font-medium text-foreground">
+          Not listed here?{' '}
+          <span className="font-normal text-muted-foreground">
+            Ask {shopName} for it and they will quote you a price.
+          </span>
+        </p>
+        <Button size="sm" onClick={onAsk} disabled={busy} className="shrink-0">
+          {busy ? 'Opening…' : 'Ask'}
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <Card className="overflow-hidden border-ink-100 bg-surface-paper">
+      <div className="p-6 sm:p-8">
+        <h3 className="kl-display text-xl leading-tight text-foreground sm:text-2xl">
+          Not on the shelf? Ask them for it.
+        </h3>
+        <p className="mt-2 max-w-prose text-sm font-light text-muted-foreground">
+          A shop's listings are what they have put up, not the limit of what they can do.
+          Open a thread with {shopName} and work it out together.
+        </p>
+
+        {/* What you can actually do in there. Said plainly, because none of it
+            is obvious from a speech-bubble icon. */}
+        <ul className="mt-5 space-y-3">
+          {[
+            {
+              icon: MessageCircle,
+              text: 'Ask for something they have not listed — another size, another colour, a bigger order.',
+            },
+            {
+              icon: PackageCheck,
+              text: 'Add things, take things off, change your mind. The order is not fixed until you say so.',
+            },
+            {
+              icon: ShieldCheck,
+              text: 'They send back a quotation with a price. Nothing is ordered and nothing is charged until you approve it.',
+            },
+          ].map(({ icon: Glyph, text }) => (
+            <li key={text} className="flex items-start gap-3">
+              <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-[var(--radius-block)] bg-card">
+                <Glyph className="size-3.5 text-primary" strokeWidth={2.4} />
+              </span>
+              <span className="text-sm font-light leading-snug text-foreground">{text}</span>
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <Button onClick={onAsk} disabled={busy}>
+            <MessageCircle className="size-4" />
+            {busy ? 'Opening…' : `Ask ${shopName}`}
+          </Button>
+          <p className="text-xs font-light text-muted-foreground">{REQUEST_SLA_LINE}</p>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 /** Services and quote-first listings need their terms shown before purchase. */
 const opensDetail = (item: Parameters<typeof isService>[0] & Parameters<typeof requiresConversation>[0]) =>
   isService(item) || requiresConversation(item);
@@ -133,7 +231,7 @@ export function ShopDetail() {
             title={REQUEST_SLA_LINE}
           >
             <MessageCircle className="h-4 w-4" />
-            <span className="hidden sm:inline">Ask this shop</span>
+            <span>Ask this shop</span>
           </Button>
         </div>
       </div>
@@ -396,6 +494,13 @@ export function ShopDetail() {
             </div>
           </div>
 
+          <AskShopPanel
+            shape="bar"
+            shopName={shop.name}
+            onAsk={() => askShop(shop.id, { subject: `Question for ${shop.name}` })}
+            busy={opening}
+          />
+
           {items.length === 0 ? (
             <Card className="flex flex-col items-center px-6 py-16 text-center">
               <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-primary-tint">
@@ -546,6 +651,18 @@ export function ShopDetail() {
               ))}
             </div>
           )}
+
+          {/* The end of the list is where "it is not here" stops being a
+              worry and becomes a fact. That is the moment to explain the
+              door, rather than three screens earlier. */}
+          <div className="mt-8">
+            <AskShopPanel
+              shape="card"
+              shopName={shop.name}
+              onAsk={() => askShop(shop.id, { subject: `Question for ${shop.name}` })}
+              busy={opening}
+            />
+          </div>
         </div>
 
           </div>
