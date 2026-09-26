@@ -490,7 +490,9 @@ composition.
 | 11 | **Wholesale unit of sale** | 🟡 | ✅ done · `f4fa31d` |
 | 12a | **Doors as a tab pair, with the pulse** | 🟡 | ✅ done · `4ea668b` |
 | 12b | **Modal swipe + "more in category"** | 🟡 | ✅ done · `2c333c2` |
-| 12c | **Category chip rail on the storefront** | 🟡 | ✅ done, 26 Sep · `IntentStrip`, browse intent |
+| 12c | **Category chip rail on the storefront** | 🟡 | ✅ done, 26 Sep · `CategoryStrip` |
+| 13 | **Catalogue hub at `/catalogue`** — the Send Home destination | 🟡 | ✅ done, 26 Sep |
+| 14 | **Admin can shelve and feature a bundle** | 🟡 | ✅ done, 26 Sep |
 
 ### Step 5 is blocked, and the runbook says so itself
 

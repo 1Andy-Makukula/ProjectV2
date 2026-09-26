@@ -30,6 +30,8 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
 import { useAdminExperiences } from '../../hooks/useExperiences';
+import { Switch } from '../../components/ui/switch';
+import { OCCASION_TILES } from '../../types/occasions';
 import {
   experienceTotal,
   participatingShops,
@@ -77,6 +79,12 @@ export function AdminExperiences() {
   const [description, setDescription] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
+  // Which shelf of the catalogue this sits on. '' = none: reachable by link,
+  // and on the hub only if featured. Until 26 Sep this editor could not set
+  // it at all, so every bundle made here landed on no shelf and the catalogue
+  // could only be filled by hand-written SQL.
+  const [occasionKind, setOccasionKind] = useState('');
+  const [featured, setFeatured] = useState(false);
   const [lines, setLines] = useState<DraftLine[]>([]);
   const [saving, setSaving] = useState(false);
 
@@ -107,6 +115,8 @@ export function AdminExperiences() {
     setName('');
     setSlug('');
     setTagline('');
+    setOccasionKind('');
+    setFeatured(false);
     setDescription('');
     setImageUrl('');
     setExpiresAt('');
@@ -118,6 +128,8 @@ export function AdminExperiences() {
     setName(experience.name);
     setSlug(experience.slug);
     setTagline(experience.tagline ?? '');
+    setOccasionKind(experience.occasion_kind ?? '');
+    setFeatured(Boolean(experience.is_featured));
     setDescription(experience.description ?? '');
     setImageUrl(experience.image_url ?? '');
     setExpiresAt(experience.expires_at ? experience.expires_at.slice(0, 10) : '');
@@ -174,6 +186,8 @@ export function AdminExperiences() {
         description: description.trim() || null,
         image_url: imageUrl.trim() || null,
         expires_at: expiresAt ? new Date(`${expiresAt}T23:59:59`).toISOString() : null,
+        occasion_kind: occasionKind || null,
+        is_featured: featured,
         updated_at: new Date().toISOString(),
       };
 
@@ -212,7 +226,7 @@ export function AdminExperiences() {
     } finally {
       setSaving(false);
     }
-  }, [name, slug, tagline, description, imageUrl, expiresAt, lines, editing, reload]);
+  }, [name, slug, tagline, description, imageUrl, expiresAt, occasionKind, featured, lines, editing, reload]);
 
   const filteredCatalogue = itemQuery
     ? catalogue.filter(
@@ -288,6 +302,39 @@ export function AdminExperiences() {
                         onChange={(e) => setTagline(e.target.value)}
                         placeholder="One line that sells it"
                       />
+                    </div>
+
+                    {/* Where it is shelved. The shelves are the occasion tiles,
+                        so the labels here are the tile labels a customer sees
+                        -- "Home", not "rent" -- and an admin files a bundle
+                        under the words it will be found by. */}
+                    <div className="space-y-1.5">
+                      <Label htmlFor="exp-occasion">Catalogue shelf</Label>
+                      <select
+                        id="exp-occasion"
+                        value={occasionKind}
+                        onChange={(e) => setOccasionKind(e.target.value)}
+                        className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm
+                                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <option value="">No shelf — link only, or hub if featured</option>
+                        {OCCASION_TILES.filter((t) => !t.opensRequest).map((t) => (
+                          <option key={t.kind} value={t.kind}>
+                            {t.label}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="text-xs text-ink-400">
+                        {occasionKind ? `Appears at /catalogue/${occasionKind}` : 'Not on any shelf'}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3 rounded-md border border-input px-3 py-2">
+                      <div>
+                        <Label htmlFor="exp-featured">Feature on the catalogue</Label>
+                        <p className="text-xs text-ink-400">Shown on /catalogue, ahead of the shelves.</p>
+                      </div>
+                      <Switch id="exp-featured" checked={featured} onCheckedChange={setFeatured} />
                     </div>
 
                     <div className="space-y-1.5">

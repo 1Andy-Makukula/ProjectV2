@@ -50,6 +50,7 @@ const Privacy = lazyPage(() => import('./pages/Privacy'), 'Privacy');
 const Terms = lazyPage(() => import('./pages/Terms'), 'Terms');
 const Support = lazyPage(() => import('./pages/Support'), 'Support');
 const MerchantAgreement = lazyPage(() => import('./pages/MerchantAgreement'), 'MerchantAgreement');
+const CatalogueHub = lazyPage(() => import('./pages/sender/CatalogueHub'), 'CatalogueHub');
 const CatalogueDetail = lazyPage(() => import('./pages/sender/CatalogueDetail'), 'CatalogueDetail');
 const ShopDirectory = lazyPage(() => import('./pages/ShopDirectory'), 'ShopDirectory');
 
@@ -165,8 +166,10 @@ export const router = createBrowserRouter([
       { path: 'shops', element: <Lazy><ShopDirectory /></Lazy> },
       { path: 'item/:itemId', element: <Lazy><ItemDetail /></Lazy> },
       { path: 'experience/:slug', element: <Lazy><ExperienceDetail /></Lazy> },
-      // Where an occasion tile lands: every experience filed under that
-      // occasion, rather than a filtered feed.
+      // The Send Home catalogue: the hub, and a shelf per occasion under it.
+      // Public on purpose -- seeing the bundles and prices before being asked
+      // for anything is part of earning trust. Sign-up comes at sending.
+      { path: 'catalogue', element: <Lazy><CatalogueHub /></Lazy> },
       { path: 'catalogue/:kind', element: <Lazy><CatalogueDetail /></Lazy> },
       // Kept so links already in circulation still land somewhere sensible.
       { path: 'welcome', element: <Navigate to="/" replace /> },

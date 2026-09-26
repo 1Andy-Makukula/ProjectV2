@@ -353,40 +353,6 @@ export function modeRailSide(mode: StorefrontMode, side: 'left' | 'right'): Rail
   return modeRail(mode).filter((key) => RIGHT_RAIL_MODULES.has(key) === (side === 'right'));
 }
 
-/**
- * What somebody came to do, read off the mode they are in.
- *
- *   send    buying for someone else, usually across a distance
- *   browse  looking around, or buying for themselves
- *
- * DERIVED, NEVER STORED. The Welcome doors already ask this question and set
- * the mode, and the mode is already persisted -- so a second stored value
- * would be a second source of truth for one answer, and the day they
- * disagreed nobody could say which was right. A pure function of the mode
- * cannot drift from it.
- *
- * Deliberately NOT called a rail. "Rail" already means the column beside the
- * feed (ADR 0004); this is an intent, and the two are unrelated.
- *
- * `discover` resolves to send. It is the mode you are in without having
- * chosen, and Send Home is the declared default intent -- so the unchosen
- * state leans the way the product does.
- */
-export type Intent = 'send' | 'browse';
-
-const INTENT_BY_MODE: Record<StorefrontMode, Intent> = {
-  discover: 'send',
-  gifting: 'send',
-  experiences: 'send',
-  lists: 'send',
-  shopping: 'browse',
-  services: 'browse',
-};
-
-export function intentOf(mode: StorefrontMode): Intent {
-  return INTENT_BY_MODE[mode];
-}
-
 export function modeRail(mode: StorefrontMode): RailModuleKey[] {
   return modeDefinition(mode).rail ?? DEFAULT_RAIL;
 }

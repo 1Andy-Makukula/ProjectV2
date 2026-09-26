@@ -32,7 +32,8 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
-import { ArrowRight, Shield, ScanLine, Coins, MessageCircle, Mail } from 'lucide-react';
+import { ArrowRight, MessageCircle, Mail } from 'lucide-react';
+import { PROMISES } from '../../types/promises';
 import { useStorefrontMode } from '../../hooks/useStorefrontMode';
 import { useFeaturedCategories } from '../../hooks/useCategories';
 import { categoryFrames } from '../../types/categoryArt';
@@ -73,24 +74,6 @@ const OCCASION_MOSAIC: MosaicTile[] = OCCASION_TILES.map((occasion) => ({
   images: OCCASION_ART[occasion.kind] ?? [],
 }));
 
-const PROMISES = [
-  {
-    icon: Coins,
-    title: 'The rate you see is the rate you pay',
-    body: 'Your kwacha total is locked before you pay, and held for fifteen minutes. No spread hidden in the conversion.',
-  },
-  {
-    icon: Shield,
-    title: 'Your money waits in escrow',
-    body: 'The shop is not paid when you are. It is paid once your person has collected what you sent.',
-  },
-  {
-    icon: ScanLine,
-    title: 'You are told the moment it is handed over',
-    body: 'The code is scanned at the counter and you hear about it there and then — not the next day, and not from us guessing.',
-  },
-];
-
 /** One gap, everywhere. What makes a page of tiles read as one surface. */
 const GRID = 'grid grid-cols-6 gap-3 md:gap-4';
 
@@ -126,11 +109,15 @@ export function Welcome() {
     [categories],
   );
 
+  // The two doors lead to two different places, not one place in two modes.
+  // Sending home opens the curated catalogue; browsing opens the storefront.
+  // The mode is still set either way, so somebody who sends and then wanders
+  // into /browse finds it already wearing the right face.
   const enter = useCallback(
     (mode: 'gifting' | 'shopping') => {
       markWelcomeSeen();
       setMode(mode);
-      navigate('/browse', { replace: true });
+      navigate(mode === 'gifting' ? '/catalogue' : '/browse', { replace: true });
     },
     [navigate, setMode],
   );

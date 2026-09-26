@@ -27,7 +27,7 @@ import {
   StorefrontStatusRibbon,
 } from '../components/storefront/StorefrontRail';
 import { RailDrawer } from '../components/storefront/RailDrawer';
-import { IntentStrip } from '../components/storefront/IntentStrip';
+import { CategoryStrip } from '../components/storefront/CategoryStrip';
 import { PulseStrip } from '../components/shared/PulseStrip';
 import { applySlate, useSlate } from '../hooks/useSlate';
 import { hapticTap, hapticTick } from '../../utils/native';
@@ -686,11 +686,11 @@ export function ConsumerStorefront() {
           to watch both edges at once, and below 1280px neither rail existed at
           all -- so the layout most people actually saw was never the one being
           designed for. One rail is the honest version of it. */}
-      {/* What the mode implies you came for: occasion shelves when sending,
-          category chips when browsing. Full width, above both columns --
-          where the charter put its category rail. */}
+      {/* The aisles. Full width, above both columns -- where the charter put
+          its category rail. Occasions are not here: they live at /catalogue,
+          which is where the Send Home door goes. */}
       <div className="mx-auto max-w-7xl px-5 pt-8 sm:px-8 xl:max-w-[85rem]">
-        <IntentStrip activeCategorySlug={categorySlug} onSelectCategory={selectCategory} />
+        <CategoryStrip activeCategorySlug={categorySlug} onSelectCategory={selectCategory} />
       </div>
 
       <div className="mx-auto flex max-w-7xl gap-5 px-5 pt-6 pb-10 sm:px-8 xl:max-w-[85rem]">

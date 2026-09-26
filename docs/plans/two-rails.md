@@ -330,6 +330,29 @@ the thirteen occasion catalogues were unreachable. So instead:
   date you had just read.
 
 
+### The two doors lead to two places (26 Sep, later the same day)
+
+The occasion strip on `/browse` described above lasted a morning. Andy's
+correction: somebody sending home is not browsing a marketplace, and the Send
+Home door should lead to a catalogue of its own. That is the original Rail 1,
+and the strip was a compromise with it.
+
+- **Send home → `/catalogue`**, a hub with a shelf per occasion at
+  `/catalogue/:kind`. Ready-to-send bundles, how many each shelf holds, your
+  own contacts' dates when signed in, the three money promises, and "ask us".
+  Public; sign-up comes at the moment of sending.
+- **Browse → `/browse`**, the storefront with its modes, topped by category
+  chips only. Occasions live in one place.
+- **`intentOf` was deleted.** Which door you walked through is the intent now,
+  so a function deriving it from the mode had no remaining reader.
+- **The floating button offers three places**: Welcome, Send home, Browse.
+
+Found on the way: five bundles existed and none was filed under an occasion,
+so every shelf would have opened empty; and the admin bundle editor could not
+set an occasion or feature a bundle at all, so the catalogue could only be
+filled with SQL. Both fixed in the same change.
+
+
 ---
 
 ## 6. Explicitly not in scope yet

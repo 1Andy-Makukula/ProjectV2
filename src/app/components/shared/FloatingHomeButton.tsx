@@ -1,10 +1,11 @@
-// The floating way between the product's two front doors.
+// The floating way between the product's three places.
 //
-// There are two now, and they answer different questions:
+//   /           the welcome. Who we are, what happens to your money, which door.
+//   /catalogue  Send home: curated bundles and occasions, priced weekly.
+//   /browse     the storefront, in whichever mode you left it.
 //
-//   /        the welcome. What are you sending, who are you sending to, and
-//            what happens to your money. The question.
-//   /browse  the catalogue, in whichever mode you left it. The answer.
+// (Two until 26 Sep, when Send home got a destination of its own instead of
+// being the storefront in gifting mode.)
 //
 // A single Home button could only ever point at one of them, and which one it
 // should point at depends on where you already are — so it asks instead. One
@@ -19,7 +20,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { Home, Compass, Sparkles, Check } from 'lucide-react';
+import { Home, Compass, Sparkles, Check, Gift } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 /** How long the button waits after the last interaction before fading out. */
@@ -31,6 +32,12 @@ const DESTINATIONS = [
     icon: Sparkles,
     label: 'Welcome page',
     hint: 'Occasions, and what we promise about your money',
+  },
+  {
+    to: '/catalogue',
+    icon: Gift,
+    label: 'Send home',
+    hint: 'Bundles and occasions, put together for sending',
   },
   {
     to: '/browse',
@@ -148,7 +155,9 @@ export function FloatingHomeButton() {
           className="kl-glass kl-rim w-64 overflow-hidden rounded-[var(--radius-panel)] p-1.5"
         >
           {DESTINATIONS.map(({ to, icon: Icon, label, hint }) => {
-            const current = location.pathname === to;
+            // A section, not a single page: /catalogue/birthday is still inside
+            // Send home. '/' is matched exactly, or it would contain everything.
+            const current = to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
             return (
               <button
                 key={to}
