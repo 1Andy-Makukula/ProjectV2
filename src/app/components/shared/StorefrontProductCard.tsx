@@ -14,6 +14,7 @@ import {
   type CatalogItem,
 } from '../../types/items';
 import { BreathingImage } from './BreathingImage';
+import { Vector } from './Vector';
 import { SaveToListButton } from './SaveToListButton';
 import { WatchButton } from './WatchButton';
 
@@ -61,7 +62,7 @@ export function StorefrontProductCard({
   const priceLabel = servicePriceLabel(item);
 
   const primaryLabel = item.requires_scheduling
-    ? 'Book'
+    ? 'Review and book'
     : item.allow_custom_quote
       // A minimum price means both routes are open — booking it as listed, or
       // discussing something tailored — so the card must not promise only one.
@@ -129,17 +130,16 @@ export function StorefrontProductCard({
             text as a child and renders it onto the tile. It did, on every
             badged card, and the string is in the shipped bundle.
 
-            TOP-LEFT, not top-right. The top-right corner is the gift ribbon's
-            (.kl-ornament-gift::after, a 74px mode-coloured fold with a knot).
-            A badge pinned there sat on top of the ribbon, which is the clutter
-            in that corner rather than the ribbon itself.
+            It sits on the right, but BELOW the gift ribbon when one is drawn.
+            .kl-ornament-gift::after is a 74px mode-coloured fold with a knot
+            across that corner, and a badge pinned to top-2.5 landed on top of
+            it -- that collision was the clutter, not the ribbon. Dropping past
+            the fold keeps both readable. No ribbon, no drop.
 
-            The discount is not here either. The pulsing rim already says
-            "there is a deal on this one" and the struck original price beside
-            the current one says how much -- a third marker in a corner was
-            noise for a fact already made twice. */}
+            The discount is not here: it has the sticker on the other side,
+            which carries the figure at a size worth reading. */}
         {badge && (
-          <div className="absolute left-2.5 top-2.5 z-10">
+          <div className={`absolute right-2.5 z-10 ${ornament === 'gift' ? 'top-[4.75rem]' : 'top-2.5'}`}>
             <span
               className="inline-block rounded-[var(--radius-block)] bg-ink px-2 py-0.5
                          text-[10px] font-bold uppercase tracking-[0.06em] text-on-ink"
@@ -149,13 +149,36 @@ export function StorefrontProductCard({
           </div>
         )}
 
-        {/* Service marker — top-left, so it never collides with the badge */}
-        {/* Service marker — top-left, dropping beneath the badge when both
-            apply. ShopCard solves the same collision the same way. */}
+        {/* ── The discount sticker ──────────────────────────────────
+            The promo figure carrying the number, pinned into the picture's
+            top-left and deliberately crowding it. Vector takes the percentage
+            as its tag and refuses to render a character without one, which is
+            the charter's rule for the cast: the drawing is what makes you
+            look, the block beside it is what tells you something.
+
+            Inside the image block, not breaking the card's edge. The article
+            clips its children and .kl-rim draws the border with a ::before --
+            the pseudo-element theme.css:1223 records as having bitten once.
+            Crowding the picture gets the effect without going near it.
+
+            Scaled rather than resized: Vector's sizes are a closed set of
+            40/72/120, so this holds at 40 and scales the whole unit from its
+            top-left corner -- a phone tile at two-across is not swamped and a
+            desktop tile at five-across still shouts. */}
+        {discount !== null && (
+          <div className="pointer-events-none absolute left-1 top-1 z-10 origin-top-left
+                          scale-90 sm:scale-105 lg:scale-125">
+            <Vector name="promo" size="S" tone="brand" tag={`-${discount}%`} />
+          </div>
+        )}
+
+        {/* Service marker — top-left, dropping beneath the discount sticker
+            when there is one. ShopCard solves the same collision the same way.
+            The badge is on the right now, so these two never meet. */}
         {service && (
           <div className={`absolute left-2.5 z-10 flex items-center gap-1
                           rounded-[var(--radius-block)] bg-surface-paper px-2 py-0.5
-                          ${badge ? 'top-[2.125rem]' : 'top-2.5'}`}>
+                          ${discount !== null ? 'top-[5.25rem] sm:top-[6rem]' : 'top-2.5'}`}>
             <ConciergeBell className="h-2.5 w-2.5 shrink-0 text-muted-foreground" strokeWidth={2.75} />
             <span className="text-[9px] font-bold uppercase tracking-[0.06em] text-foreground">
               Service

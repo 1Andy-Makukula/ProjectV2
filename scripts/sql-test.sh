@@ -63,6 +63,12 @@ MIGRATIONS=(
   20260917000000_buyer_fee_accrual_and_refund_target
   20260917010000_refund_charge_instruction
   20260917020000_ngwee_unit_correction
+  20260921000000_kithly_house_shop
+  20260921020000_request_tagging
+  20260921030000_bundle_price_lock
+  20260921050000_rename_bundle_to_experience
+  20260924000000_experience_markup_accessor
+  20260926010000_protect_sourced_cost
 )
 SUITES=(
   assert_countries_and_holidays

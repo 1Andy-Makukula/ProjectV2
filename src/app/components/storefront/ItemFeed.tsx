@@ -13,6 +13,7 @@ import {
   servicePriceLabel,
 } from '../../types/items';
 import { SaveToListButton } from '../shared/SaveToListButton';
+import { Vector } from '../shared/Vector';
 import type { CatalogItem } from '../../types/items';
 import type { ModeLayout } from '../../types/storefrontModes';
 
@@ -139,7 +140,7 @@ function ItemRow({
                         ? 'border border-transparent bg-ink-900 text-white hover:bg-primary'
                         : 'border border-ink-200 text-ink-700 hover:border-ink-900 hover:bg-ink-900 hover:text-white'}`}
         >
-          {service ? addLabel : 'View'}
+          {service ? 'Review and book' : 'View'}
         </button>
       ) : (
         onAddToCart && (
@@ -211,6 +212,13 @@ function ItemRow({
           className="relative block aspect-[16/10] w-full overflow-hidden bg-ink-50"
           aria-label={item.name}
         >
+          {/* The same sticker the grid tile carries, so a discount looks like
+              a discount wherever a shopper meets it. */}
+          {discount !== null && (
+            <span className="pointer-events-none absolute left-1 top-1 z-10 block origin-top-left scale-90">
+              <Vector name="promo" size="S" tone="brand" tag={`-${discount}%`} />
+            </span>
+          )}
           {item.image_url ? (
             <img
               src={item.image_url}
