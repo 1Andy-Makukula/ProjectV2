@@ -88,6 +88,8 @@ function ItemRow({
   const quantity = inCart?.quantity ?? 0;
   const updateQuantity = useCart((state) => state.updateQuantity);
   const steppable = Boolean(onAddToCart) && !conversationFirst && !outOfStock && !hasOptions;
+  const billboard = variant === 'card';
+  const ctaShape = billboard ? 'flex-1 text-center' : 'shrink-0';
 
   /* Saving is offered even when it is sold out — that is often exactly when
      someone wants to keep track of it. */
@@ -117,23 +119,35 @@ function ItemRow({
           </button>
         </div>
       ) : outOfStock ? (
-        <span className="shrink-0 rounded-xl border border-ink-200 px-3 py-2 text-xs font-semibold text-ink-400">
+        <span className={`${ctaShape} rounded-xl border border-ink-200 px-3 py-2 text-xs font-semibold text-ink-400`}>
           Sold out
         </span>
       ) : conversationFirst ? (
+        /* A service says the mode's own word. This branch said "View" to
+           everything, so a Services feed whose lexicon is "Book" offered a
+           column of buttons that read like a catalogue. Anything that is
+           conversation-first WITHOUT being a service -- a quote-only product
+           -- still says View, because booking is not what happens next there.
+
+           Filled, not outlined, on a billboard: it is the only press on the
+           card and the kit's advert fills its CTA. */
         <button
           onClick={onGift}
-          className="shrink-0 rounded-xl border border-ink-200 px-3 py-2 text-xs font-semibold text-ink-700
-                     transition-all duration-200 hover:border-ink-900 hover:bg-ink-900 hover:text-white active:scale-[0.98]"
+          className={`${ctaShape} rounded-xl px-3 py-2 text-xs font-semibold
+                      transition-all duration-200 active:scale-[0.98]
+                      ${billboard && service
+                        ? 'border border-transparent bg-ink-900 text-white hover:bg-primary'
+                        : 'border border-ink-200 text-ink-700 hover:border-ink-900 hover:bg-ink-900 hover:text-white'}`}
         >
-          View
+          {service ? addLabel : 'View'}
         </button>
       ) : (
         onAddToCart && (
           <button
             onClick={onAddToCart}
-            className="flex shrink-0 items-center gap-1 rounded-xl border border-mode-accent/30 px-3 py-2 text-xs font-semibold
-                       text-mode-accent transition-all duration-200 hover:bg-mode-tint active:scale-[0.98]"
+            className={`flex ${ctaShape} items-center justify-center gap-1 rounded-xl border border-mode-accent/30
+                        px-3 py-2 text-xs font-semibold text-mode-accent
+                        transition-all duration-200 hover:bg-mode-tint active:scale-[0.98]`}
           >
             <AddGlyph className="h-3.5 w-3.5" />
             {addLabel}
@@ -150,7 +164,9 @@ function ItemRow({
           {priceLabel.prefix}
         </span>
       )}
-      <span className="text-sm font-semibold tabular-nums text-ink-900">
+      <span className={`tabular-nums text-ink-900 ${
+        variant === 'card' ? 'kl-money text-xl leading-none' : 'text-sm font-semibold'
+      }`}>
         {formatCurrency(item.price_zmw, 'ZMW')}
       </span>
       {discount !== null && item.original_price_zmw != null && (
@@ -175,43 +191,61 @@ function ItemRow({
 
   if (variant === 'card') {
     return (
-      <div
-        className={`flex gap-3 border-b border-ink-100 py-3 last:border-0 ${
-          outOfStock ? 'opacity-55' : ''
-        }`}
+      /* A BILLBOARD, not a table row.
+         This was a 96px thumbnail on the left with the text beside it, which
+         is the shape of a spreadsheet: nothing about it said "here is work
+         somebody will come and do for you". A service has no packaging and no
+         shelf, so the picture has to do the whole job of saying what it is,
+         and at 96px square it cannot.
+
+         Picture across the top at a poster's proportion, the offer said once
+         in the display voice, and one press along the foot. Paper ground
+         because the shop panel around it is already white -- a white card on
+         white is an outline, not an object. */
+      <article
+        className={`flex flex-col overflow-hidden rounded-2xl bg-surface-paper
+                    ${outOfStock ? 'opacity-55' : ''}`}
       >
         <button
           onClick={onGift}
-          className="size-24 shrink-0 overflow-hidden rounded-xl bg-ink-50"
+          className="relative block aspect-[16/10] w-full overflow-hidden bg-ink-50"
           aria-label={item.name}
         >
           {item.image_url ? (
-            <img src={item.image_url} alt={item.name} className="h-full w-full object-cover" />
+            <img
+              src={item.image_url}
+              alt={item.name}
+              loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.04]"
+            />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
-              <Package className="h-6 w-6 text-ink-300" strokeWidth={1.5} />
+              <Package className="h-8 w-8 text-ink-300" strokeWidth={1.25} />
             </div>
           )}
         </button>
 
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex flex-1 flex-col gap-1 p-4">
           <button onClick={onGift} className="min-w-0 text-left">
             {shopLine}
-            <p className="truncate text-sm font-medium text-ink-900">{item.name}</p>
+            {/* Caprasimo, two lines. "Deep Clean (3 Bedroom)" is the whole
+                offer and truncating it at one line loses the half that says
+                what you get. */}
+            <h4 className="kl-display line-clamp-2 text-[1.0625rem] leading-[1.15] text-ink-900">
+              {item.name}
+            </h4>
             {item.description && (
-              <p className="mt-0.5 line-clamp-2 text-[11px] font-light leading-snug text-ink-500">
+              <p className="mt-1 line-clamp-2 text-xs font-light leading-snug text-ink-500">
                 {item.description}
               </p>
             )}
-            <div className="mt-1">{price}</div>
+            <div className="mt-2">{price}</div>
             {soldOutLine}
           </button>
 
-          {/* The foot of the card: where the eye finishes, and the only place
-              these two do not compete with the price for the same line. */}
-          <div className="mt-auto flex items-center justify-end gap-2 pt-2">{actions}</div>
+          <div className="mt-auto flex items-center gap-2 pt-3">{actions}</div>
         </div>
-      </div>
+      </article>
     );
   }
 
@@ -374,7 +408,7 @@ export function ItemFeed({
               </span>
             </header>
 
-            <div className="px-4">
+            <div className="grid gap-4 p-4 sm:grid-cols-2 xl:grid-cols-3">
               {group.items.map((item) => (
                 <ItemRow
                   key={item.id}

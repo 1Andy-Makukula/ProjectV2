@@ -14,7 +14,6 @@ import {
   type CatalogItem,
 } from '../../types/items';
 import { BreathingImage } from './BreathingImage';
-import { Vector } from './Vector';
 import { SaveToListButton } from './SaveToListButton';
 import { WatchButton } from './WatchButton';
 
@@ -130,11 +129,17 @@ export function StorefrontProductCard({
             text as a child and renders it onto the tile. It did, on every
             badged card, and the string is in the shipped bundle.
 
-            The discount no longer shares this corner. It is the one thing on
-            the tile worth interrupting a scan for, so it gets the sticker
-            below instead of a 10px block the eye skates over. */}
+            TOP-LEFT, not top-right. The top-right corner is the gift ribbon's
+            (.kl-ornament-gift::after, a 74px mode-coloured fold with a knot).
+            A badge pinned there sat on top of the ribbon, which is the clutter
+            in that corner rather than the ribbon itself.
+
+            The discount is not here either. The pulsing rim already says
+            "there is a deal on this one" and the struck original price beside
+            the current one says how much -- a third marker in a corner was
+            noise for a fact already made twice. */}
         {badge && (
-          <div className="absolute top-2.5 right-2.5">
+          <div className="absolute left-2.5 top-2.5 z-10">
             <span
               className="inline-block rounded-[var(--radius-block)] bg-ink px-2 py-0.5
                          text-[10px] font-bold uppercase tracking-[0.06em] text-on-ink"
@@ -144,37 +149,13 @@ export function StorefrontProductCard({
           </div>
         )}
 
-        {/* ── The discount sticker ──────────────────────────────────
-            The promo figure carrying the number, pinned into the picture's
-            top-left and deliberately crowding it. The charter's rule for the
-            cast is that a character never stands alone -- it is the handle a
-            tag hangs from -- so Vector takes the percentage as its tag and
-            refuses to render without one.
-
-            It sits INSIDE the image block on purpose. The article clips its
-            children, and .kl-rim draws the tile's edge with a ::before, so a
-            sticker that broke the card's boundary would mean unpicking both.
-            Crowding the picture reads as intended without touching either.
-
-            Scaled rather than resized: Vector's sizes are a closed set of
-            40/72/120 and this keeps to 40, with the whole unit scaled from its
-            top-left corner so a phone tile at two-across is not swamped and a
-            desktop tile at five-across still gets something that shouts. */}
-        {discount !== null && (
-          <div className="pointer-events-none absolute left-1 top-1 z-10 origin-top-left
-                          scale-90 sm:scale-105 lg:scale-125">
-            <Vector name="promo" size="S" tone="brand" tag={`-${discount}%`} />
-          </div>
-        )}
-
         {/* Service marker — top-left, so it never collides with the badge */}
-        {/* Service marker — top-left, unless the discount sticker is standing
-            there, in which case it drops beneath it. ShopCard solves the same
-            collision the same way. */}
+        {/* Service marker — top-left, dropping beneath the badge when both
+            apply. ShopCard solves the same collision the same way. */}
         {service && (
           <div className={`absolute left-2.5 z-10 flex items-center gap-1
                           rounded-[var(--radius-block)] bg-surface-paper px-2 py-0.5
-                          ${discount !== null ? 'top-[5.25rem] sm:top-[6rem]' : 'top-2.5'}`}>
+                          ${badge ? 'top-[2.125rem]' : 'top-2.5'}`}>
             <ConciergeBell className="h-2.5 w-2.5 shrink-0 text-muted-foreground" strokeWidth={2.75} />
             <span className="text-[9px] font-bold uppercase tracking-[0.06em] text-foreground">
               Service
