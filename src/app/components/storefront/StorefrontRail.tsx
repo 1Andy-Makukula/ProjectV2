@@ -452,9 +452,17 @@ function Occasions({ layout }: { layout: Layout }) {
         ) : (
           <div className="space-y-0.5">
             {upcoming.map(({ contact, occasion, days }) => (
+              /* A reminder that goes somewhere. It used to open the contacts
+                 page -- which tells you the date you already just read, and
+                 nothing about what to send. Now it lands on the shelf for that
+                 kind of occasion: "Auntie's birthday in 9 days" becomes the
+                 birthday catalogue. The kind is the same taxonomy the tiles
+                 are built from, so every reminder has a page to go to. The
+                 module's own "People" action still reaches the contacts. */
               <button
                 key={occasion.id}
-                onClick={() => navigate('/contacts')}
+                onClick={() => navigate(`/catalogue/${occasion.kind}`)}
+                aria-label={`${contact.name}: ${occasionTitle(occasion)} ${countdownLabel(days)}. Shop for it.`}
                 className="flex w-full items-baseline gap-2 rounded-[var(--radius-lg)] px-1.5 py-1.5 text-left transition-colors hover:bg-accent"
               >
                 <span className="truncate text-[0.8125rem] font-medium">{contact.name}</span>

@@ -187,7 +187,7 @@ and a human phone number placed above the fold rather than in a footer.
   and the tiles breathe on the Conductor's clock at a 30s dwell.
 - **Done.** Committed as `3939d83`.
 
-### Stage 1 — The rail toggle · NOT STARTED
+### Stage 1 — The rail toggle · RETIRED 26 Sep, replaced by a derived intent
 
 Introduce `rail: 'send' | 'browse'` as the top-level intent, **derived from** the
 existing persisted `storefrontMode` so nobody's stored preference is lost. Put
@@ -199,7 +199,7 @@ the switch in the header, persistent. Default `send`.
 - **Risk: 🔴 shared chrome.** Blast-radius grep `useStorefrontMode` first — it is
   read by the storefront, the perch, the switcher and the Welcome doors.
 
-### Stage 2 — Occasions on Rail 1 · PARTIAL
+### Stage 2 — Occasions on Rail 1 ✅ *done, 26 Sep*
 
 Seed the first occasions as `experiences` with art and lines. Point the Welcome
 mosaic and the Rail 1 storefront at `useExperiences({ featuredOnly: true })`
@@ -287,8 +287,8 @@ stages had been built and were still marked as though they had not.
 | Stage | State |
 | --- | --- |
 | 0 · Front door | ✅ `3939d83` and after |
-| 1 · Rail toggle (`send` \| `browse`) | ❌ not started — no rail concept exists |
-| 2 · Occasions on Rail 1 | 🟡 catalogue pages built; the rail distinction is not |
+| 1 · Rail toggle | ⚪ retired — see below |
+| 2 · Occasions on Rail 1 | ✅ `intentOf` + `IntentStrip`, 26 Sep |
 | 3 · Trust, stated inline | ❌ not started |
 | 4 · Requests: the ask | ✅ `f347d3a` |
 | 5 · Admin inbox | ✅ `69ce751` |
@@ -304,6 +304,30 @@ Note that `docs/adr/0004` collapsed the storefront from three columns to two.
 That does not touch the `send`/`browse` rails — those are an *intent*, not a
 layout — but the word "rail" now means two different things in this repo, and
 Stage 1 should be built with that in mind.
+
+
+### Why Stage 1 was retired rather than built (26 Sep)
+
+Andy's observation: the Welcome page already separates the two intents. It
+does -- the two doors ask the question and set the mode, and the mode is
+persisted. A header switch on top would have been a seventh control
+restating an answer the product already holds.
+
+What the toggle was a *means* to was still missing, though: on `/browse`,
+the thirteen occasion catalogues were unreachable. So instead:
+
+- **`intentOf(mode)`** — a pure function, `send` | `browse`, never stored, so
+  it cannot drift from the mode it is read from. Typed as a
+  `Record<StorefrontMode, Intent>`, so a new mode fails typecheck until
+  someone decides its intent. `discover` resolves to `send`, because it is the
+  unchosen state and Send Home is the default. Named `intent`, not `rail` —
+  "rail" means the column beside the feed (ADR 0004).
+- **`IntentStrip`** at the top of `/browse`: occasion shelves when sending,
+  category chips when browsing. The chips are also the curated catalogue's
+  step 12c, which closes with this.
+- **Reminders land on shelves.** "Occasions coming up" rows now open
+  `/catalogue/:kind` instead of the contacts page, which only repeated the
+  date you had just read.
 
 
 ---

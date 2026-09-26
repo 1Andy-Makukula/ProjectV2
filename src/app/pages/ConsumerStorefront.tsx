@@ -27,6 +27,7 @@ import {
   StorefrontStatusRibbon,
 } from '../components/storefront/StorefrontRail';
 import { RailDrawer } from '../components/storefront/RailDrawer';
+import { IntentStrip } from '../components/storefront/IntentStrip';
 import { PulseStrip } from '../components/shared/PulseStrip';
 import { applySlate, useSlate } from '../hooks/useSlate';
 import { hapticTap, hapticTick } from '../../utils/native';
@@ -104,6 +105,22 @@ export function ConsumerStorefront() {
     next.delete('category');
     setSearchParams(next, { replace: true });
   }, [searchParams, setSearchParams]);
+
+  // The chip rail's one verb. Null clears; anything else narrows. Goes through
+  // the URL like everything else here, so a chosen aisle is linkable and the
+  // back button undoes it.
+  const selectCategory = useCallback(
+    (slug: string | null) => {
+      if (slug === null) {
+        clearCategory();
+        return;
+      }
+      const next = new URLSearchParams(searchParams);
+      next.set('category', slug);
+      setSearchParams(next, { replace: true });
+    },
+    [clearCategory, searchParams, setSearchParams],
+  );
 
   // Held in a hook of its own so a like or a save lands immediately rather than
   // waiting on the storefront's next fetch.
@@ -669,7 +686,14 @@ export function ConsumerStorefront() {
           to watch both edges at once, and below 1280px neither rail existed at
           all -- so the layout most people actually saw was never the one being
           designed for. One rail is the honest version of it. */}
-      <div className="mx-auto flex max-w-7xl gap-5 px-5 py-10 sm:px-8 xl:max-w-[85rem]">
+      {/* What the mode implies you came for: occasion shelves when sending,
+          category chips when browsing. Full width, above both columns --
+          where the charter put its category rail. */}
+      <div className="mx-auto max-w-7xl px-5 pt-8 sm:px-8 xl:max-w-[85rem]">
+        <IntentStrip activeCategorySlug={categorySlug} onSelectCategory={selectCategory} />
+      </div>
+
+      <div className="mx-auto flex max-w-7xl gap-5 px-5 pt-6 pb-10 sm:px-8 xl:max-w-[85rem]">
         {/* One rail, carrying everything: your status first, then the market,
             then your lists. Two columns at every width. */}
         <StorefrontRail

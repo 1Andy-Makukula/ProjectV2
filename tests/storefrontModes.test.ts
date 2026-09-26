@@ -6,6 +6,7 @@ import {
   modeDensity,
   modeLexicon,
   modeRail,
+  intentOf,
 } from '../src/app/types/storefrontModes';
 
 // Each face of the storefront is described by one object, and the accessors
@@ -68,5 +69,28 @@ describe('gifting', () => {
       modeRail(mode.value).includes('occasions'),
     );
     expect(withOccasions.map((mode) => mode.value)).toEqual(['gifting']);
+  });
+});
+
+// Intent is derived from the mode rather than stored beside it, so these pin
+// the derivation. The one worth guarding is `discover`: it is the mode you are
+// in without having chosen, and it resolves to `send` because Send Home is the
+// declared default intent. Flipping it would silently change what an
+// unchosen visitor sees at the top of /browse.
+describe('intentOf', () => {
+  it('gives every mode an intent', () => {
+    for (const mode of STOREFRONT_MODES) {
+      expect(["send", "browse"]).toContain(intentOf(mode.value));
+    }
+  });
+
+  it('treats the unchosen mode as sending', () => {
+    expect(intentOf('discover')).toBe('send');
+  });
+
+  it('splits buying-for-others from buying-for-yourself', () => {
+    expect(intentOf('gifting')).toBe('send');
+    expect(intentOf('shopping')).toBe('browse');
+    expect(intentOf('services')).toBe('browse');
   });
 });
