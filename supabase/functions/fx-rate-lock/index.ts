@@ -11,7 +11,7 @@
  *   GBP (default) · USD · EUR
  *
  * Pricing formula:
- *   zmw_international_price = base_price_zmw × 1.30          (KithLy margin)
+ *   zmw_international_price = base_price_zmw                  (no margin here)
  *   hedged_rate              = live_rate × 1.015              (1.5% FX spread)
  *   checkout_price_fx        = zmw_international_price / hedged_rate
  *   checkout_price           = Math.ceil(checkout_price_fx × 100) / 100
@@ -73,8 +73,9 @@ interface FxRateLockResult {
   fx_rate_raw: number;
 
   /**
-   * The ZMW-denominated international price before FX conversion
-   * (i.e. base_price_zmw × 1.30). Returned for receipt generation.
+   * The ZMW-denominated price before FX conversion. Equal to base_price_zmw:
+   * the buyer fee is applied by the fee layer, not here. Kept in the response
+   * so the shape does not change for anything reading it.
    */
   zmw_international_price: number;
 
@@ -110,8 +111,18 @@ interface OpenErApiResponse {
 // Constants
 // ---------------------------------------------------------------------------
 
-/** The KithLy international pricing margin multiplier. */
-const INTERNATIONAL_MARGIN = 1.30 as const;
+// There was an INTERNATIONAL_MARGIN = 1.30 here, applied to the ZMW price
+// before conversion. It was removed on 13 Oct 2026 because it was a SECOND
+// charge: `platform_settings.international_buyer_fee_percent` (8%) is the
+// international margin, applied by the fee layer on the real checkout path.
+// Stacked on top of this 30%, plus Flutterwave's 4.8% processing, an
+// international buyer was being quoted roughly 43% over the ZMW basket. The
+// decision to delete it was taken on 2026-08-09 when the FX layers were
+// designed; this function simply had not been touched since.
+//
+// Do not reintroduce a margin here. The spread below is a hedge, not revenue,
+// and the fee is a commercial term that belongs in platform_settings where it
+// can be changed without a deploy.
 
 /**
  * The structural hedging spread multiplier applied to the raw FX rate.
@@ -459,8 +470,9 @@ async function resolveExchangeRate(
 /**
  * Applies the full KithLy international pricing and FX hedging formula:
  *
- *   Step 1: Apply the KithLy international margin to the ZMW price.
- *           zmw_international = base_price_zmw × 1.30
+ *   Step 1: Take the ZMW price as it stands. No margin is applied here --
+ *           see the note where INTERNATIONAL_MARGIN used to be defined.
+ *           zmw_international = base_price_zmw
  *
  *   Step 2: Apply the structural hedging spread to the raw rate.
  *           hedged_rate = raw_rate × 1.015
@@ -490,8 +502,9 @@ function calculateInternationalCheckout(
   checkoutPriceFx: number;
   checkoutPrice: number;
 } {
-  // Step 1: ZMW price with KithLy margin
-  const zmwInternationalPrice = Math.round(basePriceZmw * INTERNATIONAL_MARGIN);
+  // Step 1: the ZMW price as it stands. The international buyer fee is applied
+  // by the fee layer, not here.
+  const zmwInternationalPrice = Math.round(basePriceZmw);
 
   // Step 2: Hedge the raw rate
   const hedgedRate = rawRate * FX_HEDGE_SPREAD;
