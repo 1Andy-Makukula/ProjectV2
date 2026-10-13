@@ -210,7 +210,13 @@ function secretEquals(a: string, b: string): boolean {
   return diff === 0;
 }
 
-function base64UrlToBytes(input: string): Uint8Array {
+// The return type is narrowed to `Uint8Array<ArrayBuffer>` deliberately. A bare
+// `Uint8Array` is `Uint8Array<ArrayBufferLike>`, whose buffer may be a
+// SharedArrayBuffer, and `crypto.subtle.verify` takes a `BufferSource`, which
+// may not -- so the signature check below fails to typecheck without this.
+// `new Uint8Array(n)` is always backed by a real ArrayBuffer, so this is a
+// more accurate type rather than an assertion papering over one.
+function base64UrlToBytes(input: string): Uint8Array<ArrayBuffer> {
   const b64 = input.replace(/-/g, "+").replace(/_/g, "/");
   const padded = b64 + "=".repeat((4 - (b64.length % 4)) % 4);
   const binary = atob(padded);
