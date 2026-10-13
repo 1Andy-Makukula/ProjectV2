@@ -315,6 +315,34 @@ schema change and is **deferred**.
 
 - **Blast radius 🟡** — new view over existing data. No money path.
 
+### One thing to settle before building it (found 13 Oct)
+
+"each with shop name, area, opening hours **and its own code**" needs a
+decision, because of what a claim code is. `/gift/:claimCode` is a public page
+reached with the code alone — that is the point, a recipient with no account
+can collect. So a view that takes one code and returns its siblings' codes
+turns **any single code into a master key for the whole basket**, and the
+people who handle a code include every till it is presented at. A merchant who
+scans the code for their own shop could read the others and collect at them.
+
+Three ways out, in order of preference:
+
+1. **Show the errand, withhold the other codes.** The sibling view lists each
+   shop, its area, its hours and whether that leg is collected — enough to make
+   the trips feel organised, which is the actual goal of §6 — and shows only
+   the code for the leg you opened. The recipient already holds the others:
+   every `shop_order` is messaged to them separately.
+2. **Key the view on the transaction-level code**, not on a per-shop one. Lists
+   already work this way (one code, resolved per shop at the till by
+   `fulfill-voucher`). A code that legitimately represents the whole basket may
+   legitimately reveal the whole basket.
+3. Reveal everything from any code. Simplest to build, and it quietly widens
+   what a bearer instrument bears. Not recommended.
+
+Whichever is chosen, the read belongs in a SECURITY DEFINER function with the
+same rate limiting as `get_shop_order_by_claim_code`, which is itself still
+unrated (deferred: it needs Cloudflare or Upstash, not repo work).
+
 ---
 
 ## 7. Wholesalers
@@ -485,7 +513,7 @@ composition.
 | 6 | **Price lock + price book** | 🟡 | ✅ done · `3997010`, `49caa6e` |
 | 7 | **Catalogue page + relationship tiers** | 🟡 | ✅ done · `1a6b31e`, `7c4934f` |
 | 8 | **Locked price actually charged** | 🔴 | ✅ done · `49caa6e` (without touching checkout) |
-| 9 | **Multi-shop collection view** | 🟡 | ❌ not started — `/gift/:claimCode` is still one code per page |
+| 9 | **Multi-shop collection view** | 🟡 | ❌ not started — `/gift/:claimCode` is still one code per page. Re-checked 13 Oct: no sibling view exists, and there is a design question to settle first (below) |
 | 10 | **Review before paying** | 🔴 | 🟡 partial · `2c333c2` — full-screen review from the CART; the checkout-step version is not built |
 | 11 | **Wholesale unit of sale** | 🟡 | ✅ done · `f4fa31d` |
 | 12a | **Doors as a tab pair, with the pulse** | 🟡 | ✅ done · `4ea668b` |

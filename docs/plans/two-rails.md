@@ -219,7 +219,7 @@ instead of at categories. Rail 2 keeps the category mosaic.
   written as a migration (`20260916010000`) — it needs applying, not authoring.
   **Blocked on content, not on code** — see §7.
 
-### Stage 3 — Trust, stated inline · NOT STARTED
+### Stage 3 — Trust, stated inline ✅ *already satisfied; verified 13 Oct*
 
 FX lock, escrow guarantee and collection alert stated *at the point of doubt* —
 on the occasion detail, in the cart, above the pay button — not only on Welcome.
@@ -227,6 +227,21 @@ Reuse `CompensationDisclosure` and the `FxTemporalLock` copy. No new components.
 
 - **Done when:** a Rail 1 user meets the escrow promise at least twice before
   paying.
+- **Audited against the code 13 Oct: the condition is met three times over**,
+  by work that landed for other reasons and was never credited here.
+  1. `ExperienceDetail.tsx` — a shield and *"Every part held in escrow until it
+     is collected."*, immediately above the gift button.
+  2. `CartSlider.tsx` — `CompensationDisclosure` on the footer, and the CTA
+     itself reads *"Hold it in escrow →"* rather than "Checkout".
+  3. `Checkout.tsx` — an *"Escrow-protected transaction"* badge, and an escrow
+     notice in the panel directly above the pay button.
+  All three render unconditionally. Nothing was added for this stage.
+- **The FX half has nothing to attach to, and that is correct.**
+  `FxTemporalLock` is imported only by `InternationalCheckoutModal`, which
+  nothing imports; `fx-rate-lock` has no caller either (see `c0fec21`, which
+  removed the double-charged margin from it). There is no live international
+  checkout, so there is no rate lock to state. When that flow is built, the
+  countdown belongs in it — reopen this stage then rather than now.
 
 ### Stage 4 — Requests: the ask ✅ *done, 21 Sep · `f347d3a`*
 
@@ -289,7 +304,7 @@ stages had been built and were still marked as though they had not.
 | 0 · Front door | ✅ `3939d83` and after |
 | 1 · Rail toggle | ⚪ retired — see below |
 | 2 · Occasions on Rail 1 | ✅ `intentOf` + `IntentStrip`, 26 Sep |
-| 3 · Trust, stated inline | ❌ not started |
+| 3 · Trust, stated inline | ✅ satisfied already — audited 13 Oct, see the stage |
 | 4 · Requests: the ask | ✅ `f347d3a` |
 | 5 · Admin inbox | ✅ `69ce751` |
 | 6 · Concierge as a shop | ✅ `5df18d5` |
