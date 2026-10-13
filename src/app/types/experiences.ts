@@ -14,8 +14,12 @@ export interface ExperienceItem {
   sort_order: number;
   /** This week's held price, in ngwee. Null means it falls back to the item. */
   locked_price_zmw?: number | null;
-  /** What it cost us in town when last priced, ngwee. Never shown to buyers. */
-  sourced_cost_zmw?: number | null;
+  // What a line cost KithLy in town is DELIBERATELY NOT ON THIS TYPE, and must
+  // not go back on it. `experience_items` is public-read -- the shelf has to
+  // show its own lines -- and RLS is per row, not per column, so a cost stored
+  // there travels to whoever asks. It now lives in `house_item_costs`, which is
+  // admin-only (20260926010000). The price book reads it through its own row
+  // type; the storefront has no business receiving it at all.
   priced_at?: string | null;
   item?: {
     id: string;

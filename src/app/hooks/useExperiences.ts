@@ -9,7 +9,7 @@ const EXPERIENCE_SELECT = `
   expires_at, sort_order, created_at, occasion_kind, price_valid_until,
   experience_items (
     id, experience_id, item_id, quantity, note, sort_order,
-    locked_price_zmw, sourced_cost_zmw, priced_at,
+    locked_price_zmw, priced_at,
     item:item_id (
       id, name, description, price_zmw, image_url, is_available, is_quote_only,
       shop:shop_id (id, name, relationship_tier)
