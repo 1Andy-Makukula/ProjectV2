@@ -89,13 +89,27 @@ GRANT SELECT ON public.house_item_costs TO authenticated;
 -- Carry across anything already recorded. Every value was null when this was
 -- written, but a price run published between writing and applying would
 -- otherwise be lost. Latest priced line wins where an item sits in two bundles.
-INSERT INTO public.house_item_costs (item_id, sourced_cost_zmw, priced_at, run_id)
-SELECT DISTINCT ON (ei.item_id)
-       ei.item_id, ei.sourced_cost_zmw, COALESCE(ei.priced_at, now()), gen_random_uuid()
-FROM public.experience_items ei
-WHERE ei.sourced_cost_zmw IS NOT NULL
-ORDER BY ei.item_id, ei.priced_at DESC NULLS LAST
-ON CONFLICT (item_id) DO NOTHING;
+--
+-- Guarded, and dynamic, because the next migration drops the old column: a
+-- replay of this file after that one must still succeed.
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'experience_items'
+      AND column_name = 'sourced_cost_zmw'
+  ) THEN
+    EXECUTE $copy$
+      INSERT INTO public.house_item_costs (item_id, sourced_cost_zmw, priced_at, run_id)
+      SELECT DISTINCT ON (ei.item_id)
+             ei.item_id, ei.sourced_cost_zmw, COALESCE(ei.priced_at, now()), gen_random_uuid()
+      FROM public.experience_items ei
+      WHERE ei.sourced_cost_zmw IS NOT NULL
+      ORDER BY ei.item_id, ei.priced_at DESC NULLS LAST
+      ON CONFLICT (item_id) DO NOTHING
+    $copy$;
+  END IF;
+END $$;
 
 
 -- ---------------------------------------------------------------------------

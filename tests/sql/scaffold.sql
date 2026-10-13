@@ -637,3 +637,20 @@ CREATE TABLE IF NOT EXISTS public.experience_items (
   CONSTRAINT experience_items_unique UNIQUE (experience_id, item_id)
 );
 ALTER TABLE public.experience_items ENABLE ROW LEVEL SECURITY;
+
+-- ---------------------------------------------------------------------------
+-- The weekly price lock, in its final shape.
+--
+-- 20260921030000 added these as bundle_* and 20260921050000 renamed them.
+-- Neither is in the harness: a RENAME fails on the second pass the harness
+-- deliberately makes, and both are long applied. So the scaffold carries the
+-- names they ended with, and scaffold-drift checks every one against the
+-- generated types. `experience_items.sourced_cost_zmw` is deliberately absent:
+-- 20260926010000 moves it out and the migration after drops it.
+-- ---------------------------------------------------------------------------
+ALTER TABLE public.experience_items ADD COLUMN IF NOT EXISTS locked_price_zmw integer;
+ALTER TABLE public.experience_items ADD COLUMN IF NOT EXISTS priced_at timestamptz;
+ALTER TABLE public.experiences ADD COLUMN IF NOT EXISTS price_valid_until date;
+ALTER TABLE public.platform_settings ADD COLUMN IF NOT EXISTS experience_markup_bps integer NOT NULL DEFAULT 500;
+ALTER TABLE public.platform_settings ADD COLUMN IF NOT EXISTS experience_ceiling_bps integer NOT NULL DEFAULT 2000;
+ALTER TABLE public.shop_orders ADD COLUMN IF NOT EXISTS experience_id uuid;
