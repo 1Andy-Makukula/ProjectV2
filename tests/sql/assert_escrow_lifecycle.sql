@@ -542,6 +542,12 @@ BEGIN
   v_fees_before := public.ledger_account_balance('FEE_ACCRUED');
   IF v_fees_before <= 0 THEN RAISE EXCEPTION 'FAIL: no fees accrued to sweep'; END IF;
 
+  -- Sign in as the admin. Since 20261013000000 the fee-sweep functions read the
+  -- actor from auth.uid() instead of believing p_admin_id, so an unidentified
+  -- caller is refused outright. The non-admin case below still fails, now
+  -- because the id it names is not the caller -- which is the real check.
+  PERFORM set_config('test.uid', 'e5c00000-0000-0000-0000-0000000000a1', true);
+
   v_prop := public.propose_fee_sweep(current_date);
   v_sweep := (v_prop->>'sweep_id')::uuid;
 

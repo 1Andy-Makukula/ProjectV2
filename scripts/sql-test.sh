@@ -65,6 +65,7 @@ MIGRATIONS=(
   20260917020000_ngwee_unit_correction
   20260921020000_request_tagging
   20260926010000_protect_sourced_cost
+  20261013000000_revoke_escrow_money_grants
 )
 SUITES=(
   assert_countries_and_holidays
@@ -88,6 +89,7 @@ SUITES=(
   assert_placeholder_bundles
   assert_medical_affinity
   assert_price_week
+  assert_fee_sweep_actor
 )
 
 cleanup() {

@@ -126,11 +126,15 @@ BEGIN
   FROM public.payout_instructions
   WHERE shop_id = 'bfee0000-0000-0000-0000-000000000001' AND status = 'CLAIMED';
 
-  v_sweep := public.propose_fee_sweep(current_date);
-  v_id := (v_sweep->>'sweep_id')::uuid;
-
+  -- The admin has to exist, and has to be the CALLER, before either sweep call:
+  -- 20261013000000 derives the actor from auth.uid() rather than trusting the
+  -- p_admin_id the browser sends. Signing in here is what that change requires.
   INSERT INTO public.users (id, role) VALUES ('bfee0000-0000-0000-0000-0000000000a9', 'admin')
   ON CONFLICT (id) DO UPDATE SET role = 'admin';
+  PERFORM set_config('test.uid', 'bfee0000-0000-0000-0000-0000000000a9', true);
+
+  v_sweep := public.propose_fee_sweep(current_date);
+  v_id := (v_sweep->>'sweep_id')::uuid;
 
   PERFORM public.confirm_fee_sweep(v_id, 'BANK-BFEE-1', 'bfee0000-0000-0000-0000-0000000000a9');
 
