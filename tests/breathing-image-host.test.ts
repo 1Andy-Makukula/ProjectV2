@@ -38,10 +38,6 @@ const root = join(__dirname, '..');
  */
 const POSITION = ['absolute', 'fixed', 'sticky', 'static', 'relative'];
 
-const POSITION_IN_CLASSNAME = new RegExp(
-  `className=(?:"|\\{\`)[^"\`]*\\b(?:${POSITION.join('|')})\\b`,
-);
-
 function sourceFiles(dir: string, out: string[] = []): string[] {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const p = join(dir, entry.name);
