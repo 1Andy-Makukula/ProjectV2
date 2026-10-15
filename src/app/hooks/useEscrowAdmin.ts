@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { useAuth } from '../../utils/auth/AuthContext';
+import { invokeFunction } from '../../utils/edgeFunction';
 
 /**
  * The escrow operator's view: the master invariant, the reconciliation history,
@@ -55,7 +55,10 @@ export interface OpenSweep {
 }
 
 export function useEscrowAdmin() {
-  const { profile } = useAuth();
+  // No `useAuth()` here any more. This hook used to read the signed-in admin's
+  // id only to pass it to the sweep RPCs as `p_admin_id`, which is exactly the
+  // value that should never have come from the browser. `admin-fee-sweep`
+  // takes it from the verified token instead.
   const [position, setPosition] = useState<EscrowPosition | null>(null);
   const [runs, setRuns] = useState<ReconciliationRun[]>([]);
   const [openSweep, setOpenSweep] = useState<OpenSweep | null>(null);
@@ -104,58 +107,83 @@ export function useEscrowAdmin() {
     void refresh();
   }, [refresh]);
 
+  // A sweep moves the platform's accrued fees out of the segregated account,
+  // so all three go through `admin-fee-sweep` rather than calling the RPC from
+  // here. 20261013000000 revoked `authenticated` from the three functions: the
+  // browser could reach them with the public anon key, and two of them took
+  // the acting admin's id as a parameter and only checked that the id NAMED an
+  // admin -- not that the caller was that admin. The id is now taken from the
+  // verified token inside the function, so it is no longer ours to send.
+  const sweepAction = useCallback(
+    async (body: Record<string, unknown>): Promise<
+      { ok: true; result: Record<string, unknown> | null } | { ok: false; error: string }
+    > => {
+      // invokeFunction, not functions.invoke directly: a non-2xx reply carries
+      // the reason in the body and supabase-js hides it behind a generic
+      // "non-2xx status code" message. The screen needs the real one -- "A bank
+      // reference is required", "Nothing accrued to sweep" -- which is what
+      // this used to get for free when it called the RPC.
+      try {
+        const data = await invokeFunction<{ result?: Record<string, unknown> | null }>(
+          'admin-fee-sweep',
+          body,
+        );
+        return { ok: true, result: data?.result ?? null };
+      } catch (err) {
+        return {
+          ok: false,
+          error: err instanceof Error ? err.message : 'We could not reach the fee sweep service.',
+        };
+      }
+    },
+    [],
+  );
+
   const proposeSweep = useCallback(async () => {
     setBusy(true);
     try {
-      const { data, error: err } = await supabase.rpc('propose_fee_sweep', {
-        p_sweep_date: null,
-      });
+      const outcome = await sweepAction({ action: 'propose', sweep_date: null });
       await refresh();
-      if (err) return { ok: false as const, error: err.message };
-      return { ok: true as const, result: data as Record<string, unknown> };
+      return outcome;
     } finally {
       setBusy(false);
     }
-  }, [refresh]);
+  }, [refresh, sweepAction]);
 
   const confirmSweep = useCallback(
     async (sweepId: string, bankReference: string) => {
-      if (!profile?.id) return { ok: false as const, error: 'Not signed in.' };
       setBusy(true);
       try {
-        const { error: err } = await supabase.rpc('confirm_fee_sweep', {
-          p_sweep_id: sweepId,
-          p_bank_reference: bankReference,
-          p_admin_id: profile.id,
+        const outcome = await sweepAction({
+          action: 'confirm',
+          sweep_id: sweepId,
+          bank_reference: bankReference,
         });
         await refresh();
-        if (err) return { ok: false as const, error: err.message };
-        return { ok: true as const };
+        return outcome;
       } finally {
         setBusy(false);
       }
     },
-    [profile?.id, refresh],
+    [refresh, sweepAction],
   );
 
   const cancelSweep = useCallback(
     async (sweepId: string, reason: string) => {
-      if (!profile?.id) return { ok: false as const, error: 'Not signed in.' };
       setBusy(true);
       try {
-        const { error: err } = await supabase.rpc('cancel_fee_sweep', {
-          p_sweep_id: sweepId,
-          p_reason: reason,
-          p_admin_id: profile.id,
+        const outcome = await sweepAction({
+          action: 'cancel',
+          sweep_id: sweepId,
+          reason,
         });
         await refresh();
-        if (err) return { ok: false as const, error: err.message };
-        return { ok: true as const };
+        return outcome;
       } finally {
         setBusy(false);
       }
     },
-    [profile?.id, refresh],
+    [refresh, sweepAction],
   );
 
   return {

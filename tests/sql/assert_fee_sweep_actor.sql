@@ -111,6 +111,43 @@ BEGIN
   RAISE NOTICE 'PASS: naming an admin you are not is refused, on identity';
 END $$;
 
+\echo '--- 3b. the service role is let through, because an Edge Function vouched ---'
+DO $$
+DECLARE v_err text; v_prop jsonb;
+BEGIN
+  -- How `admin-fee-sweep` arrives: the service role, no end-user JWT, so
+  -- auth.uid() is null. requireAdmin has already established the caller is an
+  -- admin, and p_admin_id is the id of the token it verified. If this branch
+  -- ever starts refusing, the admin escrow screen stops working entirely --
+  -- the RPCs are revoked from `authenticated`, so there is no other way in.
+  PERFORM set_config('test.uid', '', true);
+  PERFORM set_config('test.jwt', '{"role":"service_role"}', true);
+
+  v_prop := public.propose_fee_sweep(current_date);
+  IF v_prop IS NULL OR NOT (v_prop ? 'created') THEN
+    RAISE EXCEPTION 'FAIL: the service role could not reach propose_fee_sweep';
+  END IF;
+
+  BEGIN
+    PERFORM public.confirm_fee_sweep(gen_random_uuid(), 'ACTOR-TEST-SVC',
+                                     'ac700000-0000-0000-0000-0000000000a1');
+    RAISE EXCEPTION 'FAIL: a sweep that does not exist was confirmed';
+  EXCEPTION WHEN raise_exception THEN
+    IF SQLERRM LIKE 'FAIL:%' THEN RAISE; END IF;
+    v_err := SQLERRM;
+  END;
+
+  IF v_err = 'Not authenticated' OR v_err LIKE '%must be the caller%' THEN
+    RAISE EXCEPTION 'FAIL: the service role was refused on identity -- "%"', v_err;
+  END IF;
+  IF v_err NOT LIKE 'No such sweep%' THEN
+    RAISE EXCEPTION 'FAIL: unexpected refusal for the service role -- "%"', v_err;
+  END IF;
+
+  PERFORM set_config('test.jwt', '', true);
+  RAISE NOTICE 'PASS: the service role passes the guard and is stopped by the sweep lookup';
+END $$;
+
 \echo '--- 4. the admin who IS the caller gets past the identity guard ---'
 DO $$
 DECLARE v_err text; v_prop jsonb;

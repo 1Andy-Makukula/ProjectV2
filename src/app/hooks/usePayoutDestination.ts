@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
+import { invokeFunction } from '../../utils/edgeFunction';
 
 /**
  * A shop's payout destination, its verification state, and its settlement tier.
@@ -115,21 +116,24 @@ export function usePayoutDestination(shopId: string | null | undefined) {
 
       setSaving(true);
       try {
-        const { data: session } = await supabase.auth.getSession();
-        const userId = session?.session?.user?.id;
-        if (!userId) return { ok: false, error: 'You are not signed in.' };
-
-        const { error: rpcError } = await supabase.rpc('set_payout_destination', {
-          p_shop_id: shopId,
-          p_actor_user_id: userId,
-          p_rail: input.rail,
-          p_account_identifier: input.accountIdentifier,
-          p_account_name: input.accountName,
-          p_bank_name: input.bankName ?? null,
-          p_bank_branch: input.bankBranch ?? null,
+        // Through `set-payout-destination`, not the RPC directly. This decides
+        // which account receives a shop's money, and the RPC authorised on an
+        // actor id the browser supplied -- it asked whether THAT id was
+        // assigned to the shop, never whether the caller was that person. The
+        // id now comes from the verified token inside the function, and
+        // 20261013000000 revoked `authenticated` so this is the only way in.
+        // invokeFunction throws with the server's own message, which matters
+        // here: the function validates the rail and the shape of a Zambian
+        // mobile number, and "Not a valid Zambian mobile number" is the whole
+        // value of the reply. The catch below turns it into { ok: false }.
+        await invokeFunction('set-payout-destination', {
+          shop_id: shopId,
+          rail: input.rail,
+          account_identifier: input.accountIdentifier,
+          account_name: input.accountName,
+          bank_name: input.bankName ?? null,
+          bank_branch: input.bankBranch ?? null,
         });
-
-        if (rpcError) return { ok: false, error: rpcError.message };
 
         await refresh();
         return { ok: true };
